@@ -1,0 +1,32 @@
+{
+    "name": "leedavis81/RESTify",
+    "description": "Create a fully featured REST API service from Doctrine 2 Entity annotations.",
+    "keywords": ["rest", "api", "doctrine2"],
+    "license": "MIT",
+    "type": "library",
+    "version": "0.0.1-dev",
+    "authors": [
+        {
+                "name": "Lee Davis",
+                "email": "leedavis81@hotmail.com",
+                "homepage": "http://www.duckheads.co.uk",
+                "role": "Developer"
+        }
+    ],    
+    "require": {
+        "php": ">=5.3.3",
+        "doctrine/orm": "2.3.*",
+        "symfony/http-foundation": "v2.1.7",
+        "symfony/routing": "v2.1.7"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    },
+    "suggest": {
+        "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
+    },    
+    "bin": ["bin", "bin/rest.php"],
+    "autoload": {
+        "psr-0": { "RESTify\\": "library/", "RESTifyTest\\": "tests/"}
+    }
+}
