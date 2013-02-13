@@ -1,5 +1,5 @@
 {
-    "name": "leedavis81/RESTify",
+    "name": "leedavis81/Drest",
     "description": "Create a fully featured REST API service from Doctrine 2 Entity annotations.",
     "keywords": ["rest", "api", "doctrine2"],
     "license": "MIT",
@@ -15,18 +15,21 @@
     ],    
     "require": {
         "php": ">=5.3.3",
-        "doctrine/orm": "2.3.*",
+        "doctrine/annotations": "v1.0",
+        "doctrine/cache": "v1.0",
         "symfony/http-foundation": "v2.1.7",
-        "symfony/routing": "v2.1.7"
+        "symfony/routing": "v2.1.7",
+        "symfony/console": "v2.1.7"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "doctrine/orm": ">= 2.3.0"
     },
     "suggest": {
         "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
     },    
     "bin": ["bin", "bin/rest.php"],
     "autoload": {
-        "psr-0": { "RESTify\\": "library/", "RESTifyTest\\": "tests/"}
+        "psr-0": { "Drest\\": "library/", "DrestTest\\": "tests/"}
     }
 }
