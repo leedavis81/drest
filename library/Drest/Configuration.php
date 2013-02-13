@@ -2,7 +2,11 @@
 
 namespace Drest;
 
-use Doctrine\Common\Cache\Cache;
+use Drest\DrestException,
+	Drest\Mapping\Driver\AnnotationsDriver,
+	Doctrine\Common\Cache\Cache,
+    Doctrine\Common\Annotations\AnnotationRegistry;
+
 
 class Configuration
 {
@@ -21,6 +25,31 @@ class Configuration
 	}
 
 
+
+    /**
+     * Create a default instance of the annotationsDriver
+     *
+     * @param array $paths
+     * @return AnnotationDriver
+     */
+    public function defaultAnnotationDriver($paths = array())
+    {
+        AnnotationRegistry::registerFile(__DIR__ . '/Mapping/Driver/DrestAnnotations.php');
+
+        if ($useSimpleAnnotationReader) {
+            // Register the ORM Annotations in the AnnotationRegistry
+            $reader = new SimpleAnnotationReader();
+            $reader->addNamespace('Doctrine\ORM\Mapping');
+            $cachedReader = new CachedReader($reader, new ArrayCache());
+
+            return new AnnotationDriver($cachedReader, (array) $paths);
+        }
+
+        return new AnnotationDriver(
+            new CachedReader(new AnnotationReader(), new ArrayCache()),
+            (array) $paths
+        );
+    }
 
 
     /**
@@ -46,18 +75,17 @@ class Configuration
     }
 
 
-
     /**
      * Ensures that this Configuration instance contains settings that are
      * suitable for a production environment.
      *
-     * @throws ORMException If a configuration setting has a value that is not
+     * @throws DrestException If a configuration setting has a value that is not
      *                      suitable for a production environment.
      */
     public function ensureProductionSettings()
     {
         if ( ! $this->getMetadataCacheImpl()) {
-            throw ORMException::metadataCacheNotConfigured();
+            throw DrestException::metadataCacheNotConfigured();
         }
     }
 
