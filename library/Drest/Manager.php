@@ -43,6 +43,8 @@ class Manager
 		if ( ! $config->getMetadataDriverImpl()) {
             throw DrestException::missingMappingDriverImpl();
         }
+
+        return new self($config, );
 	}
 
 
