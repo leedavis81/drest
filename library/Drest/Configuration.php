@@ -52,6 +52,34 @@ class Configuration
     }
 
 
+
+    /**
+     * Sets the cache driver implementation that is used for metadata caching.
+     *
+     * @param MappingDriver $driverImpl
+     * @todo Force parameter to be a Closure to ensure lazy evaluation
+     *       (as soon as a metadata cache is in effect, the driver never needs to initialize).
+     */
+    public function setMetadataDriverImpl(MappingDriver $driverImpl)
+    {
+        $this->_attributes['metadataDriverImpl'] = $driverImpl;
+    }
+
+
+    /**
+     * Gets the cache driver implementation that is used for the mapping metadata.
+     *
+     * @throws ORMException
+     * @return MappingDriver
+     */
+    public function getMetadataDriverImpl()
+    {
+        return isset($this->_attributes['metadataDriverImpl'])
+            ? $this->_attributes['metadataDriverImpl']
+            : null;
+    }
+
+
     /**
      * Gets the cache driver implementation that is used for metadata caching.
      *

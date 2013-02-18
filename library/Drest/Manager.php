@@ -34,13 +34,15 @@ class Manager
     /**
      * Static call to create the Drest Manager instance
      *
-     * @param unknown_type $conn
      * @param unknown_type $config
      * @param unknown_type $eventManager
      */
-	public static function create($conn, Configuration $config, EventManager $eventManager = null)
+	public static function create(Configuration $config, EventManager $eventManager = null)
 	{
 
+		if ( ! $config->getMetadataDriverImpl()) {
+            throw DrestException::missingMappingDriverImpl();
+        }
 	}
 
 

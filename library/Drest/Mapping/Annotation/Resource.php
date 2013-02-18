@@ -1,6 +1,8 @@
 <?php
 
-namespace Drest\Mapping;
+namespace Drest\Mapping\Annotation;
+
+use Drest\Mapping\Annotation\Annotation;
 
 /**
  * @Annotation

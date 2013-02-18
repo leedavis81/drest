@@ -20,4 +20,12 @@ class DrestException extends Exception
     {
         return new self('Class Metadata Cache is not configured, ensure an instance of Doctrine\Common\Cache\Cache is passed to the Drest\Configuration::setMetadataCacheImpl()');
     }
+
+    public static function missingMappingDriverImpl()
+    {
+        return new self('It\'s a requirement to specify a Metadata Driver and pass it to Drest\\Configuration::setMetadataDriverImpl().');
+    }
 }
+
+
+
