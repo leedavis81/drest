@@ -7,10 +7,10 @@
     "version": "0.0.1-dev",
     "authors": [
         {
-                "name": "Lee Davis",
-                "email": "leedavis81@hotmail.com",
-                "homepage": "http://www.duckheads.co.uk",
-                "role": "Developer"
+            "name": "Lee Davis",
+            "email": "leedavis81@hotmail.com",
+            "homepage": "http://www.duckheads.co.uk",
+            "role": "Developer"
         }
     ],    
     "require": {
@@ -30,6 +30,6 @@
     },    
     "bin": ["bin", "bin/rest.php"],
     "autoload": {
-        "psr-0": { "Drest\\": "library/", "DrestTest\\": "tests/"}
+        "psr-0": { "Drest": "library/", "DrestTest": "tests/"}
     }
 }
