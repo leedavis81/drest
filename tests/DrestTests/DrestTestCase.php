@@ -16,6 +16,11 @@ class DrestTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function setupEntityManager()
 	{
+		$config = new \Doctrine\ORM\Configuration();
+
+		$config->setAutoGenerateProxyClasses(true);
+		$config->set
+
 		$em = \Doctrine\ORM\EntityManager::create($conn, $config);
 		return $em;
 	}
