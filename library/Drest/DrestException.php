@@ -25,6 +25,12 @@ class DrestException extends Exception
     {
         return new self('It\'s a requirement to specify a Metadata Driver and pass it to Drest\\Configuration::setMetadataDriverImpl().');
     }
+
+    // Writer Exceptions
+    public static function writerExpectsArray()
+    {
+    	return new self('Writer class ' . static . ' expects an array when using \Doctrine\ORM\Query::HYDRATE_ARRAY data');
+    }
 }
 
 

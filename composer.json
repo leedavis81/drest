@@ -23,7 +23,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "doctrine/orm": ">= 2.3.0"
+        "doctrine/orm": ">= 2.3.0",
+        "zendframework/zend-http": ">= 2.1.3"
     },
     "suggest": {
         "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"

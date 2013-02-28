@@ -8,6 +8,23 @@ use Doctrine\Common\EventManager;
 class Manager
 {
 
+	/**
+	 * Doctrine Entity Manager
+	 * @var Doctrine\ORM\EntityManager $em
+	 */
+	protected $em;
+
+	/**
+	 * Drest router
+	 * @var Symfony\Component\Routing\Router $router
+	 */
+	protected $router;
+
+	/**
+	 * Drest request object
+	 * @var Symfony\Component\HttpFoundation\Request $request
+	 */
+	protected $request;
 
 
     /**
@@ -17,8 +34,9 @@ class Manager
      * @param \Drest\Configuration $config
      * @param \Doctrine\Common\EventManager $eventManager
      */
-    protected function __construct(Configuration $config, EventManager $eventManager)
+    protected function __construct(Doctrine\ORM\EntityManager $em, Configuration $config, EventManager $eventManager)
     {
+    	$this->em 			= $em;
         $this->config       = $config;
         $this->eventManager = $eventManager;
 
@@ -37,17 +55,86 @@ class Manager
      * @param unknown_type $config
      * @param unknown_type $eventManager
      */
-	public static function create(Configuration $config, EventManager $eventManager = null)
+	public static function create(Doctrine\ORM\EntityManager $em, Configuration $config, EventManager $eventManager = null)
 	{
-
+		// Run some configuration checks
 		if ( ! $config->getMetadataDriverImpl()) {
             throw DrestException::missingMappingDriverImpl();
         }
 
-        return new self($config, );
+        return new self($em, $config, $eventManager);
 	}
 
 
+	/**
+	 * Dispatches the response
+	 */
+	public function dispatch()
+	{
+	}
+
+	/**
+	 *
+	 * Get the request object
+	 * @return Symfony\Component\HttpFoundation\Request $request
+	 */
+	public function getRequest()
+	{
+		if (!$this->request instanceof Drest\Request)
+		{
+
+		}
+		return $this->request;
+	}
+
+	/**
+	 *
+	 * Set the request object
+	 * @param \Symfony\Component\HttpFoundation\Request $request
+	 */
+	public function setRequest(\Symfony\Component\HttpFoundation\Request $request)
+	{
+		$this->request = $request
+	}
+
+
+	/**
+	 * Get the router object
+	 * @return Symfony\Component\Routing\Router $router
+	 */
+	public function getRouter()
+	{
+		return $this->router;
+	}
+
+
+    /**
+     * Gets the repository for an entity class.
+     *
+     * @param string $entityName The name of the entity.
+     * @return EntityRepository The repository class.
+     */
+    public function getRepository($entityName)
+    {
+        $entityName = ltrim($entityName, '\\');
+
+        if (isset($this->repositories[$entityName])) {
+            return $this->repositories[$entityName];
+        }
+
+        $metadata = $this->getClassMetadata($entityName);
+        $repositoryClassName = $metadata->customRepositoryClassName;
+
+        if ($repositoryClassName === null) {
+            $repositoryClassName = $this->config->getDefaultRepositoryClassName();
+        }
+
+        $repository = new $repositoryClassName($this, $metadata);
+
+        $this->repositories[$entityName] = $repository;
+
+        return $repository;
+    }
 
 
 
