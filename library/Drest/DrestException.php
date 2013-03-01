@@ -27,10 +27,24 @@ class DrestException extends Exception
     }
 
     // Writer Exceptions
-    public static function writerExpectsArray()
+    public static function writerExpectsArray($class_name)
     {
-    	return new self('Writer class ' . static . ' expects an array when using \Doctrine\ORM\Query::HYDRATE_ARRAY data');
+    	return new self('Writer class ' . $class_name . ' expects an array when using \Doctrine\ORM\Query::HYDRATE_ARRAY data');
     }
+
+
+
+    // Request Exceptions
+    public static function unknownAdapterForRequestObject($object)
+    {
+    	return new self('Unknown / Not yet created adapter for request object ' . get_class($object));
+    }
+
+    public static function invalidRequestObjectPassed()
+    {
+    	return new self('Request object passed in is invalid (not type of object)');
+    }
+
 }
 
 

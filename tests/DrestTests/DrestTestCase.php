@@ -5,7 +5,7 @@ namespace DrestTests;
 /**
  * Base test case class.
  */
-class DrestTestCase extends \PHPUnit_Framework_TestCase
+abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
 {
 
 
@@ -18,8 +18,8 @@ class DrestTestCase extends \PHPUnit_Framework_TestCase
 	{
 		$config = new \Doctrine\ORM\Configuration();
 
-		$config->setAutoGenerateProxyClasses(true);
-		$config->set
+//		$config->setAutoGenerateProxyClasses(true);
+//		$config->set
 
 		$em = \Doctrine\ORM\EntityManager::create($conn, $config);
 		return $em;

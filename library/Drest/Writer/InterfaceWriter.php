@@ -2,7 +2,7 @@
 
 namespace Drest\Writer;
 
-interface Writer
+interface InterfaceWriter
 {
 
 	/**

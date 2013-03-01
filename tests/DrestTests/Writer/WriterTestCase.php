@@ -15,6 +15,6 @@ class WriterTestCase extends DrestTestCase
 
 	public function setUp()
 	{
-		$this->em = $this->getEntityManager();
+		//$this->em = $this->getEntityManager();
 	}
 }

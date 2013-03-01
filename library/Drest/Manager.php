@@ -94,7 +94,7 @@ class Manager
 	 */
 	public function setRequest(\Symfony\Component\HttpFoundation\Request $request)
 	{
-		$this->request = $request
+		$this->request = $request;
 	}
 
 

@@ -2,6 +2,8 @@
 
 namespace Drest\Writer;
 
+use Drest\DrestException;
+
 class Json extends AbstractWriter
 {
 
@@ -16,8 +18,16 @@ class Json extends AbstractWriter
 			case \Doctrine\ORM\Query::HYDRATE_ARRAY:
 				if (!is_array($data))
 				{
-					throw new \Drest\DrestException::writerExpectsArray();
+					throw DrestException::writerExpectsArray(get_class($this));
 				}
+				break;
+			case \Doctrine\ORM\Query::HYDRATE_OBJECT:
+				break;
+			case \Doctrine\ORM\Query::HYDRATE_SCALAR:
+				break;
+			case \Doctrine\ORM\Query::HYDRATE_SIMPLEOBJECT:
+				break;
+			case \Doctrine\ORM\Query::HYDRATE_SINGLE_SCALAR:
 				break;
 		}
 
