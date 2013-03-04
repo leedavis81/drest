@@ -3,7 +3,6 @@
 namespace Drest\Request\Adapter;
 
 use \Zend\Http,
-	\Zend\Http\Header\Cookie,
 	\Zend\Stdlib\Parameters;
 
 class ZendFramework2 extends AdapterAbstract
@@ -22,46 +21,15 @@ class ZendFramework2 extends AdapterAbstract
 	}
 
 	/**
-	 * @see Drest\Request\Adapter.Request::setCookie()
-	 */
-	public function setCookie($name, $value = null)
-	{
-		if (is_array($name))
-		{
-			// Empty all cookies
-			$this->getRequest()->getCookie()->reset();
-			$this->getRequest()->getHeaders()->addHeader(new Cookie($name));
-		}
-		$this->getRequest()->getCookie()->$name = $value;
-	}
-
-	/**
 	 * @see Drest\Request\Adapter.Request::getHeaders()
 	 */
 	public function getHeaders($name = null)
 	{
-		if ($name == null && $this->getRequest()->getHeaders()->has($name))
+		if ($name !== null && $this->getRequest()->getHeaders()->has($name))
 		{
-			return $this->getRequest()->getHeaders()->get($name);
+			return $this->getRequest()->getHeaders()->get($name)->getFieldValue();
 		}
 		return $this->getRequest()->getHeaders()->toArray();
-	}
-
-	/**
-	 * @see Drest\Request\Adapter.Request::setHeader()
-	 */
-	public function setHeader($name, $value)
-	{
-		$this->getRequest()->getHeaders()->addHeader(array($name => $value));
-	}
-
-	/**
-	 * @see Drest\Request\Adapter.Request::setHeaders()
-	 */
-	public function setHeaders(array $headers = array())
-	{
-		$this->getRequest()->getHeaders()->clearHeaders();
-		$this->getRequest()->getHeaders()->addHeader($headers);
 	}
 
 	/**
@@ -110,8 +78,12 @@ class ZendFramework2 extends AdapterAbstract
 	{
 		if (is_array($name))
 		{
-			$this->getRequest()->setPost(new Parameters($name));
+			$this->getRequest()->setQuery(new Parameters($name));
+		} else
+		{
+			$this->getRequest()->getQuery()->$name = $value;
 		}
+
 	}
 
 	/**

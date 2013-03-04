@@ -28,13 +28,16 @@ class Symfony2Test extends DrestTestCase
 		$cookieName = 'frodo';
 		$cookieValue = 'baggins';
 
-		$adapter->setCookie($cookieName, $cookieValue);
+		$symRequestObject = $adapter->getRequest();
+		$symRequestObject->cookies->set($cookieName, $cookieValue);
+
 		$this->assertNotEmpty($adapter->getCookie());
 		$this->assertCount(1, $adapter->getCookie());
 		$this->assertEquals($cookieValue, $adapter->getCookie($cookieName));
 
 		$newCookies = array('samwise' => 'gamgee', 'peregrin' => 'took');
-		$adapter->setCookie($newCookies);
+		$symRequestObject->cookies->replace($newCookies);
+
 		$this->assertCount(2, $adapter->getCookie());
 		$this->assertEquals($newCookies, $adapter->getCookie());
 	}
@@ -75,6 +78,7 @@ class Symfony2Test extends DrestTestCase
 		$this->assertCount(2, $adapter->getQuery());
 	}
 
+
 	public function testCanSaveAndRetrieveHeaderVars()
 	{
 		$request = self::getSymfonyAdapterRequest();
@@ -83,13 +87,16 @@ class Symfony2Test extends DrestTestCase
 		$varName = 'frodo';
 		$varValue = 'baggins';
 
-		$adapter->setHeader($varName, $varValue);
+		$symRequestObject = $adapter->getRequest();
+		$symRequestObject->headers->set($varName, $varValue);
+
 		$this->assertNotEmpty($adapter->getHeaders());
 		$this->assertCount(1, $adapter->getHeaders());
 		$this->assertEquals($varValue, $adapter->getHeaders($varName));
 
 		$newValues = array('samwise' => 'gamgee', 'peregrin' => 'took');
-		$adapter->setHeaders($newValues);
+		$symRequestObject->headers->replace($newValues);
+
 		$this->assertCount(2, $adapter->getHeaders());
 	}
 
@@ -98,9 +105,11 @@ class Symfony2Test extends DrestTestCase
 		$request = self::getSymfonyAdapterRequest();
 		$adapter = $request->getAdapter();
 
+		$symRequestObject = $adapter->getRequest();
+
 		$varName1 = 'frodo';
 		$varValue1 = 'baggins';
-		$adapter->setCookie($varName1, $varValue1);
+		$symRequestObject->cookies->set($varName1, $varValue1);
 		$varName2 = 'samwise';
 		$varValue2 = 'gamgee';
 		$adapter->setPost($varName2, $varValue2);

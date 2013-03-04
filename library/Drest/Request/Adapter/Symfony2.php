@@ -18,20 +18,6 @@ class Symfony2 extends AdapterAbstract
 	}
 
 	/**
-	 * @see Drest\Request\Adapter.Request::setCookie()
-	 */
-	public function setCookie($name, $value = null)
-	{
-		if (is_array($name))
-		{
-			$this->getRequest()->cookies->replace($name);
-		} else
-		{
-			$this->getRequest()->cookies->set($name, $value);
-		}
-	}
-
-	/**
 	 * @see Drest\Request\Adapter.Request::getHeaders()
 	 */
 	public function getHeaders($name = null)
@@ -43,21 +29,6 @@ class Symfony2 extends AdapterAbstract
 		return $this->getRequest()->headers->all();
 	}
 
-	/**
-	 * @see Drest\Request\Adapter.Request::setHeader()
-	 */
-	public function setHeader($name, $value)
-	{
-		$this->getRequest()->headers->set($name, $value);
-	}
-
-	/**
-	 * @see Drest\Request\Adapter.Request::setHeaders()
-	 */
-	public function setHeaders(array $headers = array())
-	{
-		$this->getRequest()->headers->replace($headers);
-	}
 
 	/**
 	 * @see Drest\Request\Adapter.Request::setPost()

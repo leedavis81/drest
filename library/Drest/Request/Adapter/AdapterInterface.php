@@ -17,19 +17,6 @@ interface AdapterInterface
 	public function getHeaders($name = null);
 
 	/**
-	 * Set all headers - overwriting existing ones
-	 * @param array $headers
-	 */
-	public function setHeaders(array $headers = array());
-
-	/**
-	 * Set a header entry - adds an entry to the current header stack
-	 * @param string $name
-	 * @param string $value
-	 */
-	public function setHeader($name, $value);
-
-	/**
 	 * Get either all post parameters or a specific entry
 	 * @return mixed $params an array of all params, or a specific entry
 	 */
@@ -60,13 +47,6 @@ interface AdapterInterface
 	 * @return mixed $params an array of all cookies, or a specific entry
 	 */
 	public function getCookie($name = null);
-
-	/**
-	 * Set a cookie variable - if an array is passed in the $name then cookies are overwritten with the new values
-	 * @param string|array $name
-	 * @param string $value
-	 */
-	public function setCookie($name, $value = null);
 
 	/**
 	 * Get all parameters that have been passed - GET|POST|COOKIE

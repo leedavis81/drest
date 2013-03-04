@@ -4,7 +4,8 @@ namespace DrestTests\Request\Adapter;
 
 use DrestTests\DrestTestCase,
  	Drest\Request\Request,
- 	Zend\Http;
+ 	Zend\Http,
+	\Zend\Http\Header\Cookie;
 
 class ZendFramework2Test extends DrestTestCase
 {
@@ -25,16 +26,24 @@ class ZendFramework2Test extends DrestTestCase
 		$request = self::getZF2AdapterRequest();
 		$adapter = $request->getAdapter();
 
+		$zf2RequestObject = $adapter->getRequest();
+
 		$cookieName = 'frodo';
 		$cookieValue = 'baggins';
 
-		$adapter->setCookie($cookieName, $cookieValue);
+		$this->markTestIncomplete('Need to create a custom request from header string using \Zend\Http\Request::fromString(....)');
+
+		$zf2RequestObject->getCookie()->$cookieName = $cookieValue;
+
 		$this->assertNotEmpty($adapter->getCookie());
 		$this->assertCount(1, $adapter->getCookie());
 		$this->assertEquals($cookieValue, $adapter->getCookie($cookieName));
 
 		$newCookies = array('samwise' => 'gamgee', 'peregrin' => 'took');
-		$adapter->setCookie($newCookies);
+
+		$zf2RequestObject->getCookie()->reset();
+		$zf2RequestObject->getHeaders()->addHeader(new Cookie($newCookies));
+
 		$this->assertCount(2, $adapter->getCookie());
 		$this->assertEquals($newCookies, $adapter->getCookie());
 	}
@@ -80,16 +89,27 @@ class ZendFramework2Test extends DrestTestCase
 		$request = self::getZF2AdapterRequest();
 		$adapter = $request->getAdapter();
 
+		$zf2RequestObject = $adapter->getRequest();
+
 		$varName = 'frodo';
 		$varValue = 'baggins';
 
-		$adapter->setHeader($varName, $varValue);
+		$header = new \Zend\Http\Header\GenericHeader($varName, $varValue);
+		$zf2RequestObject->getHeaders()->addHeader($header);
+
 		$this->assertNotEmpty($adapter->getHeaders());
 		$this->assertCount(1, $adapter->getHeaders());
 		$this->assertEquals($varValue, $adapter->getHeaders($varName));
 
 		$newValues = array('samwise' => 'gamgee', 'peregrin' => 'took');
-		$adapter->setHeaders($newValues);
+		foreach ($newValues as $headerName => $headerValue)
+		{
+			$headers[] = new \Zend\Http\Header\GenericHeader($headerName, $headerValue);
+		}
+
+		$zf2RequestObject->getHeaders()->clearHeaders();
+		$zf2RequestObject->getHeaders()->addHeaders($headers);
+
 		$this->assertCount(2, $adapter->getHeaders());
 	}
 
@@ -98,9 +118,12 @@ class ZendFramework2Test extends DrestTestCase
 		$request = self::getZF2AdapterRequest();
 		$adapter = $request->getAdapter();
 
+		$zf2RequestObject = $adapter->getRequest();
+
+		$this->markTestIncomplete('Need to include cookie value by creating a custom request with header string using \Zend\Http\Request::fromString(....)');
 		$varName1 = 'frodo';
 		$varValue1 = 'baggins';
-		$adapter->setCookie($varName1, $varValue1);
+		$zf2RequestObject->getCookie()->$varName1 = $varValue1;
 		$varName2 = 'samwise';
 		$varValue2 = 'gamgee';
 		$adapter->setPost($varName2, $varValue2);
