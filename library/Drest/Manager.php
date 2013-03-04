@@ -1,9 +1,12 @@
 <?php
 
-
 namespace Drest;
 
-use Doctrine\Common\EventManager;
+use Doctrine\Common\EventManager,
+	Doctrine\ORM\EntityManager,
+	Drest\Request,
+	Drest\Repository;
+
 
 class Manager
 {
@@ -34,17 +37,11 @@ class Manager
      * @param \Drest\Configuration $config
      * @param \Doctrine\Common\EventManager $eventManager
      */
-    protected function __construct(Doctrine\ORM\EntityManager $em, Configuration $config, EventManager $eventManager)
+    protected function __construct(EntityManager $em, Configuration $config, EventManager $eventManager)
     {
     	$this->em 			= $em;
         $this->config       = $config;
         $this->eventManager = $eventManager;
-
-        $metadataFactoryClassName = $config->getClassMetadataFactoryName();
-
-        $this->metadataFactory = new $metadataFactoryClassName;
-        $this->metadataFactory->setEntityManager($this);
-        $this->metadataFactory->setCacheDriver($this->config->getMetadataCacheImpl());
 
     }
 
@@ -55,12 +52,17 @@ class Manager
      * @param unknown_type $config
      * @param unknown_type $eventManager
      */
-	public static function create(Doctrine\ORM\EntityManager $em, Configuration $config, EventManager $eventManager = null)
+	public static function create(EntityManager $em, Configuration $config, EventManager $eventManager = null)
 	{
 		// Run some configuration checks
-		if ( ! $config->getMetadataDriverImpl()) {
-            throw DrestException::missingMappingDriverImpl();
-        }
+//		if ( ! $config->getMetadataDriverImpl()) {
+//            throw DrestException::missingMappingDriverImpl();
+//        }
+
+		if ($eventManager === null)
+		{
+			$eventManager = new EventManager();
+		}
 
         return new self($em, $config, $eventManager);
 	}
@@ -71,18 +73,28 @@ class Manager
 	 */
 	public function dispatch()
 	{
+
+		// Add all the defined routes to the supplied router object
+
+
+//		$router = new \Symfony\Component\Routing\RouteCollection();
+//		$annoRouting = new \Symfony\Component\Routing\Loader\AnnotationClassLoader($reader);
+//		$annoRouting->load($class);
+//
+//		$b = new \Symfony\Component\Routing\Loader\AnnotationDirectoryLoader($locator, $loader)
+//
+//		$router->a
 	}
 
 	/**
-	 *
 	 * Get the request object
-	 * @return Symfony\Component\HttpFoundation\Request $request
+	 * @return Drest\Request $request
 	 */
 	public function getRequest()
 	{
-		if (!$this->request instanceof Drest\Request)
+		if (!$this->request instanceof Request)
 		{
-
+			$this->request = Request::create();
 		}
 		return $this->request;
 	}
@@ -90,9 +102,9 @@ class Manager
 	/**
 	 *
 	 * Set the request object
-	 * @param \Symfony\Component\HttpFoundation\Request $request
+	 * @param \Drest\Request $request
 	 */
-	public function setRequest(\Symfony\Component\HttpFoundation\Request $request)
+	public function setRequest(Request $request)
 	{
 		$this->request = $request;
 	}
@@ -100,11 +112,21 @@ class Manager
 
 	/**
 	 * Get the router object
-	 * @return Symfony\Component\Routing\Router $router
+	 * @return Drest\Router $router
 	 */
 	public function getRouter()
 	{
 		return $this->router;
+	}
+
+	/**
+	 *
+	 * Set the router object
+	 * @param Drest\Router $router - allows you to work with a single router across your entire app
+	 */
+	public function setRouter($router)
+	{
+		$this->router = $router;
 	}
 
 
@@ -116,62 +138,19 @@ class Manager
      */
     public function getRepository($entityName)
     {
-        $entityName = ltrim($entityName, '\\');
 
-        if (isset($this->repositories[$entityName])) {
-            return $this->repositories[$entityName];
-        }
+    	$repository = $this->em->getRepository($entityName);
+    	if (!$repository instanceof Repository)
+    	{
+    		throw DrestException::entityRepositoryNotAnInstanceOfDrestRepository();
+    	}
 
-        $metadata = $this->getClassMetadata($entityName);
-        $repositoryClassName = $metadata->customRepositoryClassName;
+    	// Inject the request object into the extended repository
 
-        if ($repositoryClassName === null) {
-            $repositoryClassName = $this->config->getDefaultRepositoryClassName();
-        }
-
-        $repository = new $repositoryClassName($this, $metadata);
-
-        $this->repositories[$entityName] = $repository;
 
         return $repository;
     }
 
 
-
-
-    /**
-     * Factory method to create EntityManager instances.
-     *
-     * @param mixed $conn An array with the connection parameters or an existing
-     *      Connection instance.
-     * @param Configuration $config The Configuration instance to use.
-     * @param EventManager $eventManager The EventManager instance to use.
-     * @return EntityManager The created EntityManager.
-     */
-    public static function create($conn, Configuration $config, EventManager $eventManager = null)
-    {
-        if ( ! $config->getMetadataDriverImpl()) {
-            throw ORMException::missingMappingDriverImpl();
-        }
-
-        switch (true) {
-            case (is_array($conn)):
-                $conn = \Doctrine\DBAL\DriverManager::getConnection(
-                    $conn, $config, ($eventManager ?: new EventManager())
-                );
-                break;
-
-            case ($conn instanceof Connection):
-                if ($eventManager !== null && $conn->getEventManager() !== $eventManager) {
-                     throw ORMException::mismatchedEventManager();
-                }
-                break;
-
-            default:
-                throw new \InvalidArgumentException("Invalid argument: " . $conn);
-        }
-
-        return new EntityManager($conn, $config, $conn->getEventManager());
-    }
 
 }

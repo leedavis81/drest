@@ -1,5 +1,5 @@
 <?php
-namespace Drest\Request;
+namespace Drest;
 
 use Drest\DrestException,
 	Drest\Request\Adapter;
@@ -21,14 +21,18 @@ class Request
 	 */
 	public function __construct($request_object = null)
 	{
+		$zf2class = 'Zend\Http\Request';
+		$sy2class = 'Symfony\Component\HttpFoundation\Request';
 		if (is_null($request_object))
 		{
+			if (!class_exists($sy2class))
+			{
+				throw DrestException::noRequestObjectDefinedAndCantInstantiateDefaultType($sy2class);
+			}
 			// Default to using symfony's request object
 			$this->adapter = new Adapter\Symfony2(new \Symfony\Component\HttpFoundation\Request());
 		} else if (is_object($request_object))
 		{
-			$zf2class = 'Zend\Http\Request';
-			$sy2class = 'Symfony\Component\HttpFoundation\Request';
 			if ($request_object instanceof $zf2class)
 			{
 				$this->adapter = new Adapter\ZendFramework2($request_object);

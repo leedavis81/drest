@@ -1,20 +1,19 @@
 <?php
-require_once '../../vendor/autoload.php';
-
-
 use Drest\Configuration;
-use Symfony\Component\Console\Application;
 
 
-$config = new Configuration();
-$config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 
+error_reporting(E_ALL|E_STRICT);
+ini_set('display_errors', 'On');
+
+$loader = require '../../../vendor/autoload.php';
+
+// Add the entities namespace to the loader
+$loader->add('Entities', __DIR__.'/../Entities');
 
 
 // Create an example doctrine application
 $ormConfig = new \Doctrine\ORM\Configuration();
-
-
 
 // globally used cache driver, in production use APC or memcached
 $cache = new Doctrine\Common\Cache\ArrayCache;
@@ -24,11 +23,6 @@ $cachedAnnotationReader = new Doctrine\Common\Annotations\CachedReader(
     $annotationReader, // use reader
     $cache // and a cache driver
 );
-
-// create a driver chain for metadata reading
-$driverChain = new Doctrine\ORM\Mapping\Driver\DriverChain();
-// load superclass metadata mapping only, into driver chain
-// also registers Gedmo annotations.NOTE: you can personalize it
 
 
 
@@ -61,25 +55,14 @@ $driverChain = new Doctrine\ORM\Mapping\Driver\DriverChain();
 
 
 
-$ORMDriver = $ormConfig->newDefaultAnnotationDriver(array(__DIR__ . '/Entities'));
-$driverChain->addDriver($ORMDriver);
+$ORMDriver = $ormConfig->newDefaultAnnotationDriver(array(__DIR__ . '/../Entities'));
 
+$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerMapperIntoDriverChain($cachedAnnotationReader);
 
-// Instead of adding a single driver to your ORM configuration object, instead create a driver chain and add multiple
-// You can still use the same annotations reader
+// Add the Doctrine ORM driver to the driver chain we've just created (including its namespace)
+$driverChain->addDriver($ORMDriver, 'Entities');
 
-// THIS NEEDS ABSTRACTING INTO THE DREST LIBRARY
-$DrestDriver = new Doctrine\ORM\Mapping\Driver\AnnotationDriver($ORMDriver->getReader(), array(
-            __DIR__.'/Translatable/Entity',
-            __DIR__.'/Loggable/Entity',
-            __DIR__.'/Tree/Entity',
-));
-$driverChain->addDriver($DrestDriver, 'Drest');
-
-
-
-
-// Rather than adding a single driver, add a driver chain
+// add a driver chain to the ORM config
 $ormConfig->setMetadataDriverImpl($driverChain);
 
 // Do proxy stuff
@@ -99,9 +82,29 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 
 
 
-//$drestConfig = new Configuration();
-//
-//
-//
-//
-//$request->dispatch();
+try
+{
+	$drestConfig = new Configuration();
+	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
+	$drestManager = \Drest\Manager::create($em, $drestConfig);
+
+} catch (Exception $e) {
+	echo $e->getMessage() . PHP_EOL;
+	echo $e->getTraceAsString() . PHP_EOL;
+}
+
+
+
+$drestManager->dispatch();
+
+
+
+
+
+
+
+
+
+
+
+

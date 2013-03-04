@@ -12,10 +12,10 @@ final class Resource implements Annotation
 {
     /** @var string */
     public $name;
+    /** @var boolean */
+    public $content;
 	/** @var object */
     public $route;
-    /** @var string */
-    public $collection_route;
     /** @var array */
     public $writers = array();
 }

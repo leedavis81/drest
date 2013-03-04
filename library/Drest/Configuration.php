@@ -18,14 +18,6 @@ class Configuration
     protected $_attributes = array();
 
 
-
-	public function setRepositoryClassDir()
-	{
-
-	}
-
-
-
     /**
      * Create a default instance of the annotationsDriver
      *

@@ -1,5 +1,4 @@
 <?php
-
 namespace Drest;
 
 use Exception;
@@ -13,9 +12,7 @@ use Exception;
 class DrestException extends Exception
 {
 
-	/**
-	 * metadata cache is not configured
-	 */
+	// Set up and configuration
     public static function metadataCacheNotConfigured()
     {
         return new self('Class Metadata Cache is not configured, ensure an instance of Doctrine\Common\Cache\Cache is passed to the Drest\Configuration::setMetadataCacheImpl()');
@@ -26,12 +23,18 @@ class DrestException extends Exception
         return new self('It\'s a requirement to specify a Metadata Driver and pass it to Drest\\Configuration::setMetadataDriverImpl().');
     }
 
+
+    // Repositoy Exception
+    public static function entityRepositoryNotAnInstanceOfDrestRepository()
+    {
+    	return new self('The entities reposity is not an instance of Drest\Repository. Ensure you\'ve annotated your entities to either use @Entity(repositoryClass="Drest\Repository") or setup inheritence with it');
+    }
+
     // Writer Exceptions
     public static function writerExpectsArray($class_name)
     {
     	return new self('Writer class ' . $class_name . ' expects an array when using \Doctrine\ORM\Query::HYDRATE_ARRAY data');
     }
-
 
 
     // Request Exceptions
@@ -43,6 +46,11 @@ class DrestException extends Exception
     public static function invalidRequestObjectPassed()
     {
     	return new self('Request object passed in is invalid (not type of object)');
+    }
+
+    public static function noRequestObjectDefinedAndCantInstantiateDefaultType($className)
+    {
+    	return new self('No request object has been passed, and cannot instantiate the default request object: ' . $className . ' ensure this component is setup on your autoloader');
     }
 
 }
