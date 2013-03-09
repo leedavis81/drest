@@ -42,7 +42,6 @@ class Manager
     	$this->em 			= $em;
         $this->config       = $config;
         $this->eventManager = $eventManager;
-
     }
 
 
@@ -73,8 +72,19 @@ class Manager
 	 */
 	public function dispatch()
 	{
+		// Fetch the annotation information
+//		$metaData = $this->em->getMetadataFactory()->getAllMetadata();
+//		var_dump($metaData);
+
+
+
+		$a = $this->em->getClassMetadata('Entities\User');
+		var_dump($a);
+
+
 
 		// Add all the defined routes to the supplied router object
+
 
 
 //		$router = new \Symfony\Component\Routing\RouteCollection();

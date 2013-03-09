@@ -3,10 +3,8 @@
 namespace Drest\Mapping\Driver;
 
 
-use Doctrine\Common\Annotations\Annotation;
 
-use	Doctrine\Common\Annotations,
-	Doctrine\ORM\Mapping\Driver;
+use	Doctrine\Common\Annotations;
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
@@ -14,6 +12,14 @@ use	Doctrine\Common\Annotations,
 class AnnotationDriver
 {
 
+
+	public static function registerAnnotations()
+	{
+		Annotations\AnnotationRegistry::registerFile( __DIR__ . '/DrestAnnotations.php');
+
+
+
+	}
 
 	/**
 	 * @param Doctrine\Common\Annotations\Reader $reader - Can be a cached / uncached reader instance
@@ -27,9 +33,7 @@ class AnnotationDriver
 		$driverChain = new Driver\DriverChain();
 		// Add Drest annotation driver to the driver chain
 		$drestDriver = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, array(
-		            __DIR__.'/Translatable/Entity',
-		            __DIR__.'/Loggable/Entity',
-		            __DIR__.'/Tree/Entity',
+		            __DIR__.'/../Annotation'
 		));
 		$driverChain->addDriver($drestDriver, 'Drest');
 

@@ -9,7 +9,7 @@ ini_set('display_errors', 'On');
 $loader = require '../../../vendor/autoload.php';
 
 // Add the entities namespace to the loader
-$loader->add('Entities', __DIR__.'/../Entities');
+$loader->add('Entities', __DIR__.'/../');
 
 
 // Create an example doctrine application
@@ -55,15 +55,20 @@ $cachedAnnotationReader = new Doctrine\Common\Annotations\CachedReader(
 
 
 
-$ORMDriver = $ormConfig->newDefaultAnnotationDriver(array(__DIR__ . '/../Entities'));
+$ORMDriver = $ormConfig->newDefaultAnnotationDriver(array(__DIR__ . '/../Entities'), false);
 
-$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerMapperIntoDriverChain($cachedAnnotationReader);
+
+Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
+
+
+//$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerMapperIntoDriverChain($cachedAnnotationReader);
 
 // Add the Doctrine ORM driver to the driver chain we've just created (including its namespace)
-$driverChain->addDriver($ORMDriver, 'Entities');
+//$driverChain->addDriver($ORMDriver, 'Entities');
 
 // add a driver chain to the ORM config
-$ormConfig->setMetadataDriverImpl($driverChain);
+//$ormConfig->setMetadataDriverImpl($driverChain);
+$ormConfig->setMetadataDriverImpl($ORMDriver);
 
 // Do proxy stuff
 $ormConfig->setProxyDir(__DIR__ . '/Entities/Proxies');
@@ -80,8 +85,6 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 
 
 
-
-
 try
 {
 	$drestConfig = new Configuration();
@@ -94,15 +97,7 @@ try
 }
 
 
-
 $drestManager->dispatch();
-
-
-
-
-
-
-
 
 
 

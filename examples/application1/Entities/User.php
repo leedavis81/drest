@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * User
- *
+ * @Drest\Resource(name="testing")
  * @ORM\Table(name="user")
  * @ORM\Entity
  */
