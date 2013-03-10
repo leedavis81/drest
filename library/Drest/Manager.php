@@ -2,8 +2,10 @@
 
 namespace Drest;
 
+
 use Doctrine\Common\EventManager,
 	Doctrine\ORM\EntityManager,
+	Doctrine\Common\Annotations\AnnotationReader,
 	Drest\Request,
 	Drest\Repository;
 
@@ -77,9 +79,15 @@ class Manager
 //		var_dump($metaData);
 
 
+		$reader = new AnnotationReader();
 
-		$a = $this->em->getClassMetadata('Entities\User');
-		var_dump($a);
+		$driver = \Drest\Mapping\Driver\AnnotationDriver::create($reader);
+
+
+		$driver->loadMetadataForClass('Entities\User');
+
+
+
 
 
 

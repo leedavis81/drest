@@ -36,6 +36,16 @@ class DrestException extends Exception
     	return new self('Writer class ' . $class_name . ' expects an array when using \Doctrine\ORM\Query::HYDRATE_ARRAY data');
     }
 
+    public static function unknownWriterClass($class_name)
+    {
+    	return new self('Unknown writer class "' . $class_name . '". Defined writer classes must be an instance of Drest\\Writer\\Interface');
+    }
+
+    public static function writerMustBeObjectOrString()
+    {
+		return new self('Writer must be an object of Drest\\Writer\\Interface or a string representing the class name');
+    }
+
 
     // Request Exceptions
     public static function unknownAdapterForRequestObject($object)
