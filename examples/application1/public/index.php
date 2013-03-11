@@ -54,14 +54,14 @@ $cachedAnnotationReader = new Doctrine\Common\Annotations\CachedReader(
 //    }
 
 
+$pathToEntities = array(__DIR__ . '/../Entities');
 
-$ORMDriver = $ormConfig->newDefaultAnnotationDriver(array(__DIR__ . '/../Entities'), false);
+$ORMDriver = $ormConfig->newDefaultAnnotationDriver($pathToEntities, false);
 
 
 Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
 
-
-//$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerMapperIntoDriverChain($cachedAnnotationReader);
+//$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerReaderIntoDriverChain($cachedAnnotationReader, array(__DIR__.'/../Entities'));
 
 // Add the Doctrine ORM driver to the driver chain we've just created (including its namespace)
 //$driverChain->addDriver($ORMDriver, 'Entities');

@@ -11,11 +11,11 @@ namespace Drest\Mapping\Annotation;
 final class Resource
 {
     /** @var string */
-    public $name;
-//    /** @var boolean */
-//    public $content;
-//	/** @var object */
-//    public $route;
-//    /** @var array */
-//    public $writers = array();
+    public $content;
+
+	/** @var Drest\Mapping\Annotation\Route */
+    public $route;
+
+    /** @var array */
+    public $writers = array();
 }

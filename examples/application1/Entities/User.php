@@ -1,13 +1,22 @@
 <?php
 namespace Entities;
 
-
+// uniqueConstraints={@UniqueConstraint(name="api_key_idx", columns={"api_key"})})
 use Drest\Mapping\Annotation as Drest;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * User
- * @Drest\Resource(name="testing")
+ * @Drest\Resource(
+ * 		content="single",
+ * 		writers={"Xml", "Json"},
+ * 		route=@Drest\Route(name="user_route", pattern="/user/*", verbs={"GET"}, repositoryMethod="getUser")
+ * )
+ * @Drest\Resource(
+ * 		content="collection",
+ * 		writers={"Xml", "Json"},
+ * 		route=@Drest\Route(name="users_route", pattern="/users", verbs={"GET"}, repositoryMethod="getUsers")
+ * )
  * @ORM\Table(name="user")
  * @ORM\Entity
  */

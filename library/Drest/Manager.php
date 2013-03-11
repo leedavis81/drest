@@ -20,14 +20,20 @@ class Manager
 	protected $em;
 
 	/**
+	 * Drest configuration object
+	 * @var Drest\Configuration $config
+	 */
+	protected $config;
+
+	/**
 	 * Drest router
-	 * @var Symfony\Component\Routing\Router $router
+	 * @var Drest\Router $router
 	 */
 	protected $router;
 
 	/**
 	 * Drest request object
-	 * @var Symfony\Component\HttpFoundation\Request $request
+	 * @var \Drest\Request\Adapter\AdapterInterface $request
 	 */
 	protected $request;
 
@@ -45,7 +51,6 @@ class Manager
         $this->config       = $config;
         $this->eventManager = $eventManager;
     }
-
 
     /**
      * Static call to create the Drest Manager instance
@@ -69,6 +74,11 @@ class Manager
 	}
 
 
+	public function setMetadataCacheImpl()
+	{
+
+	}
+
 	/**
 	 * Dispatches the response
 	 */
@@ -84,14 +94,15 @@ class Manager
 		$driver = \Drest\Mapping\Driver\AnnotationDriver::create($reader);
 
 
-		$driver->loadMetadataForClass('Entities\User');
-
-
-
+		$driver->loadMetadataForClass('Entities\User', new \Drest\Mapping\ClassMetadata());
 
 
 
 		// Add all the defined routes to the supplied router object
+
+
+		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
+		// $this->router->match();
 
 
 
@@ -102,6 +113,10 @@ class Manager
 //		$b = new \Symfony\Component\Routing\Loader\AnnotationDirectoryLoader($locator, $loader)
 //
 //		$router->a
+
+
+		// Echo the reponse object
+		//echo $this->getResponse($matchedEntity);
 	}
 
 	/**
@@ -130,10 +145,14 @@ class Manager
 
 	/**
 	 * Get the router object
-	 * @return Drest\Router $router
+	 * @return Drest\Router $router - uses the adapted instance if set, otherwise creates the default router instance
 	 */
 	public function getRouter()
 	{
+		if (!$this->router instanceof \Drest\Router\RouterInterface)
+		{
+
+		}
 		return $this->router;
 	}
 
