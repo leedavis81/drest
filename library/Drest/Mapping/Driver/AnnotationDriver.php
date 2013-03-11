@@ -36,6 +36,7 @@ class AnnotationDriver
 	/**
 	 * @param Doctrine\Common\Annotations\Reader $reader - Can be a cached / uncached reader instance
 	 * @return Doctrine\ORM\Mapping\Driver\DriverChain $driverChain
+	 * @deprecated Can't test registering an annotation driver into the driver chain as driver requires ClassMetadataInfo as second arg on loadMetadataForClass() - which appears ORM specific
 	 */
 	public static function registerMapperIntoDriverChain(Annotations\Reader $reader)
 	{

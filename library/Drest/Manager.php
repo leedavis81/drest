@@ -3,6 +3,10 @@
 namespace Drest;
 
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
+
+use Doctrine\Common\Annotations\Annotation;
+
 use Doctrine\Common\EventManager,
 	Doctrine\ORM\EntityManager,
 	Doctrine\Common\Annotations\AnnotationReader,
@@ -84,9 +88,11 @@ class Manager
 	 */
 	public function dispatch()
 	{
-		// Fetch the annotation information
-//		$metaData = $this->em->getMetadataFactory()->getAllMetadata();
-//		var_dump($metaData);
+
+		// @todo: continue to try testing hooking un custom annotationsdriver into doctrine orm. Would be nicer to piggyback on refl caching mechanisms
+//		$cmf = $this->em->getMetadataFactory();
+//		$class = $cmf->getMetadataFor('Entities\User');
+//		var_dump($class); die;
 
 
 		$reader = new AnnotationReader();
