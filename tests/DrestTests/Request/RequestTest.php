@@ -3,7 +3,7 @@ namespace DrestTests\Request;
 
 
 use DrestTests\DrestTestCase,
- 	Drest\Request\Request,
+ 	Drest\Request,
  	Symfony\Component\HttpFoundation,
  	Zend\Http;
 

@@ -3,10 +3,25 @@
 namespace Drest\Request\Adapter;
 
 use \Zend\Http,
-	\Zend\Stdlib\Parameters;
+	\Zend\Stdlib\Parameters,
+	Drest\DrestException;
 
 class ZendFramework2 extends AdapterAbstract
 {
+
+		/**
+	 * (non-PHPdoc)
+	 * @see Drest\Request\Adapter.AdapterInterface::getHttpMethod()
+	 */
+	public function getHttpMethod()
+	{
+		$const = 'METHOD_' . $this->getRequest()->getMethod();
+		if(!defined('parent::' . $const))
+		{
+			throw DrestException::unknownHttpVerb(get_class($this));
+		}
+		return constant('parent::' . $const);
+	}
 
 	/**
 	 * @see Drest\Request\Adapter.Request::getCookie()

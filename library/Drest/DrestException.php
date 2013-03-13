@@ -63,6 +63,10 @@ class DrestException extends Exception
     	return new self('No request object has been passed, and cannot instantiate the default request object: ' . $className . ' ensure this component is setup on your autoloader');
     }
 
+    public static function unknownHttpVerb($className)
+    {
+    	return new self('Unable to determine a valid HTTP verb from request adapter ' . $className);
+    }
 }
 
 

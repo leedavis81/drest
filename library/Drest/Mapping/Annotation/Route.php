@@ -34,6 +34,11 @@ final class Route implements Annotation
     public function matches(\Drest\Request\Adapter\AdapterInterface $request)
     {
 
+		if ($this->usesHttpVerbs())
+		{
+			// make sure the verb used matches
+			$request->getPost()
+		}
 
         //Convert URL params into regex patterns, construct a regex for this route, init params
         $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'),
@@ -57,5 +62,13 @@ final class Route implements Annotation
         }
 
         return true;
+    }
+
+    /**
+     * Is this route specific to defined HTTP verbs
+     */
+    public function usesHttpVerbs()
+    {
+		return empty($this->verbs);
     }
 }

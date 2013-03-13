@@ -3,7 +3,7 @@ namespace DrestTests\Request\Adapter;
 
 
 use DrestTests\DrestTestCase,
- 	Drest\Request\Request,
+ 	Drest\Request,
  	Zend\Http,
 	\Zend\Http\Header\Cookie;
 
@@ -19,6 +19,18 @@ class ZendFramework2Test extends DrestTestCase
 		$zfRequest = new Http\Request();
 		$request = Request::create($zfRequest);
 		return $request;
+	}
+
+	public function testCanSaveAndRetrieveHttpVerb()
+	{
+		$request = self::getZF2AdapterRequest();
+		$adapter = $request->getAdapter();
+
+		$method = 'OPTIONS';
+		$symRequestObject = $adapter->getRequest();
+		$symRequestObject->setMethod($method);
+
+		$this->assertEquals($method, $adapter->getHttpMethod());
 	}
 
 	public function testCanSaveAndRetrieveCookie()

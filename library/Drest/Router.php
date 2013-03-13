@@ -1,14 +1,14 @@
 <?php
 namespace Drest;
 
-
+use Drest\Router\RouterInterface,
+	Drest\Request\Adapter\AdapterInterface as RequestInterface;
 
 /**
- *
  * Drest Router
  * @author Lee
  */
-class Router
+class Router implements RouterInterface
 {
 
 	/**
@@ -17,20 +17,27 @@ class Router
 	 */
 	protected $routes = array();
 
-	/**
-	 * A collection of routes that has been populated on ::getMatchedRoutes()
-	 * @var array $matchedRoutes
-	 */
-	protected $matchedRoutes = array();
-
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Symfony\Component\Routing.Router::match()
+	 *
+	 * Enter description here ...
+	 * @param RequestInterface $request
+	 * @param integer $limit max number number of routes to match before returning
+	 * @return array $routes sends back an array of routes that have matched
 	 */
-	public function getMatchedRoutes(\Drest\Request $request)
+	public function getMatchedRoutes(RequestInterface $request, $limit = -1)
 	{
+		$matches = array();
+		$url = '/users/1';
 
+		foreach ($this->routes as $route)
+		{
+
+			$route = new \Drest\Mapping\Annotation\Route();
+
+			$route->matches($request)
+		}
+		return $matches;
 	}
 
 	/**

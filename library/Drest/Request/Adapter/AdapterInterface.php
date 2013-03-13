@@ -1,4 +1,5 @@
 <?php
+use Drest\DrestException;
 namespace Drest\Request\Adapter;
 
 interface AdapterInterface
@@ -49,7 +50,7 @@ interface AdapterInterface
 	public function getCookie($name = null);
 
 	/**
-	 * Get all parameters that have been passed - GET|POST|COOKIE
+	 * Get all parameters that have been passed (including anything parsed from the route) - GET|POST|COOKIE|ROUTE
 	 * return array $parameters
 	 */
 	public function getParams();
@@ -59,4 +60,25 @@ interface AdapterInterface
 	 * @return mixed $request - The sourced request object, could be symfony / zf etc
 	 */
 	public function getRequest();
+
+	/**
+	 * Set a parameter(s) parsed from the route - if an array is passed in the $name then all route parametes are overwritten with new passed values
+	 * @param string|array $name
+	 * @param unknown_type $value
+	 */
+	public function setRouteParam($name, $value = null);
+
+	/**
+	 * Get the HTTP verb used on this request
+	 * @return string - value should be mapped to a HTTP_METHOD_* class contant
+	 * @throws DrestException - if the verb returned is unknown
+	 */
+	public function getHttpMethod();
+
+	/**
+	 * Get either all route parameters or a specific entry
+	 * @param mixed $parameters
+	 */
+	public function getRouteParam($name = null);
+
 }

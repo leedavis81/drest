@@ -3,7 +3,7 @@ namespace DrestTests\Request\Adapter;
 
 
 use DrestTests\DrestTestCase,
- 	Drest\Request\Request,
+ 	Drest\Request,
  	Symfony\Component\HttpFoundation;
 
 class Symfony2Test extends DrestTestCase
@@ -18,6 +18,18 @@ class Symfony2Test extends DrestTestCase
 		$symRequest = new HttpFoundation\Request();
 		$request = Request::create($symRequest);
 		return $request;
+	}
+
+	public function testCanSaveAndRetrieveHttpVerb()
+	{
+		$request = self::getSymfonyAdapterRequest();
+		$adapter = $request->getAdapter();
+
+		$method = 'POST';
+		$symRequestObject = $adapter->getRequest();
+		$symRequestObject->setMethod($method);
+
+		$this->assertEquals($method, $adapter->getHttpMethod());
 	}
 
 	public function testCanSaveAndRetrieveCookie()

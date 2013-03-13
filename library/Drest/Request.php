@@ -14,7 +14,6 @@ class Request
 	 */
 	protected $adapter;
 
-
 	/**
 	 * Construct an instance of Drest Request object
 	 * @param mixed $request prefered router type
