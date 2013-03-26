@@ -5,6 +5,22 @@ namespace Entities;
 use Drest\Mapping\Annotation as Drest;
 use Doctrine\ORM\Mapping as ORM;
 
+// Alternative
+// * @Drest\Resource(
+// * 	name="user_route",
+// * 	content="element",
+// * 	writers={"Xml", "Json"},
+// * 	route=@Drest\Route(pattern="/user/:id", verbs={"GET"}, method="getUser")
+// * )
+// *
+// * @Drest\Resource(
+// * 	name="users_route",
+// * 	content="collection",
+// * 	writers={"Xml", "Json"},
+// * 	route=@Drest\Route(pattern="/users", verbs={"GET"}, method="getUsers")
+// * )
+
+
 /**
  * User
  * @Drest\Resource(
