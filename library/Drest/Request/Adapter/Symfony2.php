@@ -3,7 +3,6 @@
 namespace Drest\Request\Adapter;
 
 use Drest\DrestException;
-
 class Symfony2 extends AdapterAbstract
 {
 
@@ -99,6 +98,14 @@ class Symfony2 extends AdapterAbstract
 	}
 
 	/**
+	 * @see Drest\Request\Adapter.AdapterInterface::getUri()
+	 */
+	public function getUri()
+	{
+	    return $this->getRequest()->getUri();
+	}
+
+	/**
 	 * Symfony 2 Request object
 	 * @return \Symfony\Component\HttpFoundation\Request $request
 	 */
@@ -106,4 +113,6 @@ class Symfony2 extends AdapterAbstract
 	{
 		return $this->request;
 	}
+
+
 }

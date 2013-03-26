@@ -5,6 +5,8 @@ namespace Drest\Mapping\Driver;
 
 
 
+use Drest\DrestException;
+
 use	Doctrine\Common\Annotations,
 	Drest\Mapping\ClassMetadata,
 	Drest\Mapping\Annotation;
@@ -93,32 +95,75 @@ class AnnotationDriver
         {
         	if ($annotatedObject instanceof Annotation\Resource)
         	{
+        	    foreach ($annotatedObject->services as $service)
+        	    {
+            	    if (!isset($service->route))
+    				{
+    				    throw DrestException::annotatedServiceRequiresRouteDefinition($className);
+    				}
+        	    }
         		/**
-					object(Drest\Mapping\Annotation\Resource)#48 (4) {
-					  ["name"]=>
-					  string(7) "testing"
-					  ["content"]=>
-					  string(6) "single"
-					  ["route"]=>
-					  object(Drest\Mapping\Annotation\Route)#47 (3) {
-					    ["name"]=>
-					    string(11) "users_route"
-					    ["pattern"]=>
-					    string(7) "/user/*"
-					    ["verbs"]=>
-					    array(1) {
-					      [0]=>
-					      string(3) "GET"
-					    }
-					  }
-					  ["writers"]=>
-					  array(2) {
-					    [0]=>
-					    string(3) "Xml"
-					    [1]=>
-					    string(4) "Json"
-					  }
-					}
+                    object(Drest\Mapping\Annotation\Resource)#47 (1) {
+                      ["services"]=>
+                      array(2) {
+                        [0]=>
+                        object(Drest\Mapping\Annotation\Service)#51 (5) {
+                          ["name"]=>
+                          string(10) "user_route"
+                          ["content"]=>
+                          string(7) "element"
+                          ["verbs"]=>
+                          NULL
+                          ["writers"]=>
+                          array(2) {
+                            [0]=>
+                            string(3) "Xml"
+                            [1]=>
+                            string(4) "Json"
+                          }
+                          ["route"]=>
+                          object(Drest\Mapping\Annotation\Route)#50 (3) {
+                            ["pattern"]=>
+                            string(9) "/user/:id"
+                            ["repositoryMethod"]=>
+                            string(7) "getUser"
+                            ["verbs"]=>
+                            array(1) {
+                              [0]=>
+                              string(3) "GET"
+                            }
+                          }
+                        }
+                        [1]=>
+                        object(Drest\Mapping\Annotation\Service)#49 (5) {
+                          ["name"]=>
+                          string(11) "users_route"
+                          ["content"]=>
+                          string(10) "collection"
+                          ["verbs"]=>
+                          NULL
+                          ["writers"]=>
+                          array(2) {
+                            [0]=>
+                            string(3) "Xml"
+                            [1]=>
+                            string(4) "Json"
+                          }
+                          ["route"]=>
+                          object(Drest\Mapping\Annotation\Route)#48 (3) {
+                            ["pattern"]=>
+                            string(6) "/users"
+                            ["repositoryMethod"]=>
+                            string(8) "getUsers"
+                            ["verbs"]=>
+                            array(1) {
+                              [0]=>
+                              string(3) "GET"
+                            }
+                          }
+                        }
+                      }
+                    }
         		 */
         		//Drest\Mapping\Annotation\Resource
 				var_dump($annotatedObject);
@@ -127,7 +172,8 @@ class AnnotationDriver
 //        		$annotatedObject->route['pattern']
 //        		$annotatedObject->route['verbs']
 
-        		//$metadata->addRoute($name)
+
+        		$metadata->addRoute($annotatedObject->route);
         	}
         }
 

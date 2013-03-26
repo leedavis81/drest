@@ -8,15 +8,22 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User
  * @Drest\Resource(
- * 		content="single",
- * 		writers={"Xml", "Json"},
- * 		route=@Drest\Route(name="user_route", pattern="/user/*", verbs={"GET"}, repositoryMethod="getUser")
- * )
- * @Drest\Resource(
- * 		content="collection",
- * 		writers={"Xml", "Json"},
- * 		route=@Drest\Route(name="users_route", pattern="/users", verbs={"GET"}, repositoryMethod="getUsers")
- * )
+ * 		services={
+ * 			@Drest\Service(
+ * 				name="user_route",
+ * 				content="element",
+ * 				writers={"Xml", "Json"},
+ * 				route=@Drest\Route(pattern="/user/:id", verbs={"GET"}, method="getUser")
+ * 			),
+ *			@Drest\Service(
+ * 				name="users_route",
+ * 				content="collection",
+ * 				writers={"Xml", "Json"},
+ * 				route=@Drest\Route(pattern="/users", verbs={"GET"}, method="getUsers")
+ * 			)
+ * 		}
+ *)
+ *
  * @ORM\Table(name="user")
  * @ORM\Entity
  */

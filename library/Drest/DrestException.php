@@ -67,6 +67,12 @@ class DrestException extends Exception
     {
     	return new self('Unable to determine a valid HTTP verb from request adapter ' . $className);
     }
+
+    // routing exceptions
+    public static function annotatedServiceRequiresRouteDefinition($className)
+    {
+        return new self('The annotated resource on class ' . $className . ' doesn\'t have a route definition. Ensure you add "route=@Drest\Route(name="", pattern="", verbs={""}" to your Resource');
+    }
 }
 
 

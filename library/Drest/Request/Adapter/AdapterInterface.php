@@ -1,7 +1,7 @@
 <?php
-use Drest\DrestException;
 namespace Drest\Request\Adapter;
 
+use Drest\DrestException;
 interface AdapterInterface
 {
 
@@ -81,4 +81,9 @@ interface AdapterInterface
 	 */
 	public function getRouteParam($name = null);
 
+	/**
+	 * Get the full request Uri
+	 * @return string $uri
+	 */
+	public function getUri();
 }

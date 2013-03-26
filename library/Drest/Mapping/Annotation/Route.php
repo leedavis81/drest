@@ -10,14 +10,13 @@ namespace Drest\Mapping\Annotation;
 final class Route implements Annotation
 {
     /** @var string */
-    public $name;
-    /** @var string */
     public $pattern;
+
     /** @var string */
-    public $repositoryMethod;
+    public $method;
+
     /** @var array */
     public $verbs;
-
 
 
     /**
@@ -37,8 +36,8 @@ final class Route implements Annotation
 		if ($this->usesHttpVerbs())
 		{
 			// make sure the verb used matches
-			$request->getPost()
 		}
+
 
         //Convert URL params into regex patterns, construct a regex for this route, init params
         $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'),

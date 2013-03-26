@@ -11,28 +11,26 @@ namespace Drest\Mapping;
  */
 use Drest\DrestException;
 
-class ClassMetaData
+class ServiceMetaData
 {
 	const CONTENT_TYPE_SINGLE = 1;
 	const CONTENT_TYPE_COLLECTION = 2;
 
     /**
-     * An array of Annotation\Route objects defined on this entity
-     * @var array $routes
+     * A route object defined on this service
+     * @var Annotation\Route $route
      */
-	protected $routes = array();
+	protected $route;
 
 	/**
-	 *
-	 * An array of Drest\Writer\InterfaceWriter object defined on this entity
+	 * An array of Drest\Writer\InterfaceWriter objects defined on this service
 	 * @var array $writers
 	 */
 	protected $writers = array();
 
 	/**
-	 *
-	 * Enter description here ...
-	 * @var unknown_type
+	 * The service name (must be unique)
+	 * @var string $name
 	 */
 	protected $name;
 

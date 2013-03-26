@@ -98,7 +98,14 @@ class ZendFramework2 extends AdapterAbstract
 		{
 			$this->getRequest()->getQuery()->$name = $value;
 		}
+	}
 
+	/**
+	 * @see Drest\Request\Adapter.AdapterInterface::getUri()
+	 */
+	public function getUri()
+	{
+	    return $this->getRequest()->getUri();
 	}
 
 	/**
