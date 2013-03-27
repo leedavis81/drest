@@ -8,7 +8,7 @@ namespace Drest\Mapping\Driver;
 use Drest\DrestException;
 
 use	Doctrine\Common\Annotations,
-	Drest\Mapping\ClassMetadata,
+	Drest\Mapping,
 	Drest\Mapping\Annotation;
 
 /**
@@ -81,7 +81,7 @@ class AnnotationDriver
 	 */
     public function loadMetadataForClass($className)
     {
-        $metadata = new ClassMetadata($class->name);
+        $metadata = new Mapping\ClassMetadata($class->name);
 
 		if (is_object($className))
 		{
@@ -95,85 +95,50 @@ class AnnotationDriver
         {
         	if ($annotatedObject instanceof Annotation\Resource)
         	{
+        	    if ($annotatedObject->services === null)
+        	    {
+        	        throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($className);
+        	    }
+
         	    foreach ($annotatedObject->services as $service)
         	    {
-            	    if (!isset($service->route))
-    				{
-    				    throw DrestException::annotatedServiceRequiresRouteDefinition($className);
-    				}
+        	        $serviceMetaData = new Mapping\ServiceMetaData();
+
+        	        // Set name
+        	        $service->name = preg_replace("/[^a-zA-Z0-9_\s]/", "", $service->name);
+        	        if ($service->name == '')
+        	        {
+                        throw DrestException::serviceNameIsEmpty();
+        	        }
+        	        if ($metadata->getServicesMetaData($service->name) !== false)
+        	        {
+        	            throw DrestException::serviceAlreadyDefinedWithName($className, $service->name);
+        	        }
+                    $serviceMetaData->setName($service->name);
+
+                    // Set verbs (will throw if invalid)
+        	        if (isset($service->verbs))
+        	        {
+        	            $serviceMetaData->addVerbs($service->verbs);
+        	        }
+
+        	        // Set content type (will throw if invalid)
+        	        $serviceMetaData->setContentType($service->content);
+
+        	        // Add the route
+        	        /** @todo: run validation checks on route syntax? */
+        	        $serviceMetaData->addRoute($service->route);
+
+        	        // Add repository method
+        	        //$serviceMetaData->addRepositoryMethod($service->repository_method);
+
+
+                    $metadata->addServiceMetaData($serviceMetaData);
         	    }
-        		/**
-                    object(Drest\Mapping\Annotation\Resource)#47 (1) {
-                      ["services"]=>
-                      array(2) {
-                        [0]=>
-                        object(Drest\Mapping\Annotation\Service)#51 (5) {
-                          ["name"]=>
-                          string(10) "user_route"
-                          ["content"]=>
-                          string(7) "element"
-                          ["verbs"]=>
-                          NULL
-                          ["writers"]=>
-                          array(2) {
-                            [0]=>
-                            string(3) "Xml"
-                            [1]=>
-                            string(4) "Json"
-                          }
-                          ["route"]=>
-                          object(Drest\Mapping\Annotation\Route)#50 (3) {
-                            ["pattern"]=>
-                            string(9) "/user/:id"
-                            ["repositoryMethod"]=>
-                            string(7) "getUser"
-                            ["verbs"]=>
-                            array(1) {
-                              [0]=>
-                              string(3) "GET"
-                            }
-                          }
-                        }
-                        [1]=>
-                        object(Drest\Mapping\Annotation\Service)#49 (5) {
-                          ["name"]=>
-                          string(11) "users_route"
-                          ["content"]=>
-                          string(10) "collection"
-                          ["verbs"]=>
-                          NULL
-                          ["writers"]=>
-                          array(2) {
-                            [0]=>
-                            string(3) "Xml"
-                            [1]=>
-                            string(4) "Json"
-                          }
-                          ["route"]=>
-                          object(Drest\Mapping\Annotation\Route)#48 (3) {
-                            ["pattern"]=>
-                            string(6) "/users"
-                            ["repositoryMethod"]=>
-                            string(8) "getUsers"
-                            ["verbs"]=>
-                            array(1) {
-                              [0]=>
-                              string(3) "GET"
-                            }
-                          }
-                        }
-                      }
-                    }
-        		 */
+
         		//Drest\Mapping\Annotation\Resource
 				var_dump($annotatedObject);
 
-//        		$annotatedObject->route['name']
-//        		$annotatedObject->route['pattern']
-//        		$annotatedObject->route['verbs']
-
-
-        		$metadata->addRoute($annotatedObject->route);
         	}
         }
 

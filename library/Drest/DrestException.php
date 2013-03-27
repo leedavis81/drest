@@ -23,6 +23,31 @@ class DrestException extends Exception
         return new self('It\'s a requirement to specify a Metadata Driver and pass it to Drest\\Configuration::setMetadataDriverImpl().');
     }
 
+    public static function annotatedResourceRequiresAtLeastOneServiceDefinition($className)
+    {
+        return new self('The annotated resource on class ' . $className . ' doesn\'t have any service definitionions. Ensure you have "services={@Drest\Service(..)} set');
+    }
+
+    public static function serviceAlreadyDefinedWithName($class, $name)
+    {
+        return new self('Service on class ' . $class . ' already exists with name ' . $name . '. These must be unique');
+    }
+
+    public static function serviceNameIsEmpty()
+    {
+        return new self('Service name used cannot be blank, and must only contain alphanumerics or underscore');
+    }
+
+    public static function invalidHttpVerbUsed($verb)
+    {
+        return new self('Used an unknown HTTP verb of "' . $verb . '"');
+    }
+
+    public static function unknownContentType($type)
+    {
+        return new self('Used an unknown content type of "' . $type . '". values ELEMENT or COLLECTION should be used.');
+    }
+
 
     // Repositoy Exception
     public static function entityRepositoryNotAnInstanceOfDrestRepository()
@@ -68,11 +93,6 @@ class DrestException extends Exception
     	return new self('Unable to determine a valid HTTP verb from request adapter ' . $className);
     }
 
-    // routing exceptions
-    public static function annotatedServiceRequiresRouteDefinition($className)
-    {
-        return new self('The annotated resource on class ' . $className . ' doesn\'t have a route definition. Ensure you add "route=@Drest\Route(name="", pattern="", verbs={""}" to your Resource');
-    }
 }
 
 

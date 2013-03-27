@@ -15,9 +15,15 @@ final class Service
     /** @var string */
     public $content;
 
-    /** @var array */
-    public $writers = array();
-
-	/** @var Drest\Mapping\Annotation\Route */
+    /** @var string */
     public $route;
+
+    /** @var string */
+    public $repository_method;
+
+    /** @var array */
+    public $verbs;
+
+    /** @var array */
+    public $filters;
 }

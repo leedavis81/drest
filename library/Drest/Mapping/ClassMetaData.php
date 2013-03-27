@@ -13,37 +13,61 @@ use Drest\DrestException;
 
 class ClassMetaData
 {
-	const CONTENT_TYPE_SINGLE = 1;
-	const CONTENT_TYPE_COLLECTION = 2;
 
     /**
-     * An array of Annotation\Route objects defined on this entity
-     * @var array $routes
+     * An array of ServiceMetaData objects defined on this entity
+     * @var array $services
      */
-	protected $routes = array();
+	protected $services = array();
 
 	/**
-	 *
+	 * An array of filter classes to be used on ALL services
+	 * @var array $filters
+	 */
+	protected $filters = array();
+
+	/**
 	 * An array of Drest\Writer\InterfaceWriter object defined on this entity
 	 * @var array $writers
 	 */
 	protected $writers = array();
 
 	/**
-	 *
-	 * Enter description here ...
-	 * @var unknown_type
+	 * Add a service metadata object
+	 * @param Drest\Mapping\ServiceMetaData $service
 	 */
-	protected $name;
+	public function addServiceMetaData(ServiceMetaData $service)
+	{
+        $this->services[$service->getName()] = $service;
+	}
 
 	/**
-	 *
-	 * Add a route
-	 * @param Drest\Mapping\Annotation\Route $route
+	 * Get either and array of all service metadata information, or an entry by name. Returns false if entry cannot be found
+	 * @return mixed $services;
 	 */
-	public function addRoute(Annotation\Route $route)
+	public function getServicesMetaData($name = null)
 	{
-        $this->routes[] = $route;
+	    if ($name === null)
+	    {
+	        return $this->services;
+	    }
+	    if (isset($this->services[$name]))
+	    {
+	        return $this->services[$name];
+	    }
+	    return false;
+	}
+
+	/**
+	 * Add a filter class this resource
+	 * @param object $filter
+	 */
+	public function addFilter($filter)
+	{
+	    if (!in_array($filter, $this->filters))
+	    {
+	        $this->filters[] = $filter;
+	    }
 	}
 
 	/**
@@ -80,12 +104,11 @@ class ClassMetaData
 	}
 
 	/**
-	 * Sets a unique reference name for the resource. If other resources are created with this name an exception is thrown (must be unique)
-	 * @param string $name
+	 * Get the writers available on this resource
 	 */
-	public function setName($name)
+	public function getWriters()
 	{
-		$this->name = $name;
+	    return $this->writers;
 	}
 
 }

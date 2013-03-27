@@ -6,39 +6,19 @@ use Drest\Mapping\Annotation as Drest;
 use Doctrine\ORM\Mapping as ORM;
 
 // Alternative
-// * @Drest\Resource(
-// * 	name="user_route",
-// * 	content="element",
-// * 	writers={"Xml", "Json"},
-// * 	route=@Drest\Route(pattern="/user/:id", verbs={"GET"}, method="getUser")
-// * )
-// *
-// * @Drest\Resource(
-// * 	name="users_route",
-// * 	content="collection",
-// * 	writers={"Xml", "Json"},
-// * 	route=@Drest\Route(pattern="/users", verbs={"GET"}, method="getUsers")
-// * )
 
 
 /**
  * User
  * @Drest\Resource(
- * 		services={
- * 			@Drest\Service(
- * 				name="user_route",
- * 				content="element",
- * 				writers={"Xml", "Json"},
- * 				route=@Drest\Route(pattern="/user/:id", verbs={"GET"}, method="getUser")
- * 			),
- *			@Drest\Service(
- * 				name="users_route",
- * 				content="collection",
- * 				writers={"Xml", "Json"},
- * 				route=@Drest\Route(pattern="/users", verbs={"GET"}, method="getUsers")
- * 			)
- * 		}
- *)
+ * 		writers={"Xml", "Json"},
+ * 		filters="GlobalFilter",
+ *      services={
+ *      	@Drest\Service(name="get_user", route="/user/:id", verbs={"GET"}, repository_method="getUser", content="element", filters={"Filter1", "Filter2"}),
+ *          @Drest\Service(name="post_user", route="/users", verbs={"POST"}, repository_method="addUsers", content="element"),
+ *          @Drest\Service(name="get_users", route="/users", verbs={"GET"}, repository_method="getUsers", content="collection", filters="Filter2"),
+ *      }
+ * )
  *
  * @ORM\Table(name="user")
  * @ORM\Entity

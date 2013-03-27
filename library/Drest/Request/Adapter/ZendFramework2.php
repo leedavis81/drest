@@ -16,11 +16,11 @@ class ZendFramework2 extends AdapterAbstract
 	public function getHttpMethod()
 	{
 		$const = 'METHOD_' . $this->getRequest()->getMethod();
-		if(!defined('parent::' . $const))
+		if(!defined('Drest\Request::' . $const))
 		{
 			throw DrestException::unknownHttpVerb(get_class($this));
 		}
-		return constant('parent::' . $const);
+		return constant('Drest\Request::' . $const);
 	}
 
 	/**
