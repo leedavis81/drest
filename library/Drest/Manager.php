@@ -1,5 +1,6 @@
 <?php
 
+use Drest\DrestException;
 namespace Drest;
 
 
@@ -10,8 +11,11 @@ use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\EventManager,
 	Doctrine\ORM\EntityManager,
 	Doctrine\Common\Annotations\AnnotationReader,
+	Metadata\MetadataFactory,
+    Metadata\MetadataFactoryInterface,
 	Drest\Request,
 	Drest\Repository;
+
 
 
 class Manager
@@ -28,6 +32,12 @@ class Manager
 	 * @var Drest\Configuration $config
 	 */
 	protected $config;
+
+	/**
+	 * Metadata factory object
+	 * @var Metadata\MetadataFactory $metadataFactory
+	 */
+	protected $metadataFactory;
 
 	/**
 	 * Drest router
@@ -54,6 +64,34 @@ class Manager
     	$this->em 			= $em;
         $this->config       = $config;
         $this->eventManager = $eventManager;
+
+        $this->router = new Router();
+
+        $this->metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader()
+            )
+        );
+
+        $this->metadataFactory->setCache($config->getMetadataCacheImpl());
+
+        $this->registerRoutes();
+
+    }
+
+    /**
+     * Read any defined route patterns that have been annotated into the router
+     */
+    protected function registerRoutes()
+    {
+    	foreach ($this->em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames() as $class)
+		{
+            $classMetaData = $this->metadataFactory->getMetadataForClass($class);
+            foreach ($classMetaData->getServicesMetaData() as $service)
+            {
+                $this->router->registerRoute($service);
+            }
+		}
     }
 
     /**
@@ -78,10 +116,6 @@ class Manager
 	}
 
 
-	public function setMetadataCacheImpl()
-	{
-
-	}
 
 	/**
 	 * Dispatches the response
@@ -94,21 +128,14 @@ class Manager
 //		$class = $cmf->getMetadataFor('Entities\User');
 //		var_dump($class); die;
 
-
-		$reader = new AnnotationReader();
-
-		$driver = \Drest\Mapping\Driver\AnnotationDriver::create($reader);
-
-
-		$driver->loadMetadataForClass('Entities\User', new \Drest\Mapping\ClassMetadata());
-
-
-
-		// Add all the defined routes to the supplied router object
+	    // Get all classnames registered to the doctrine metadata driver
+	    // var_dump($this->em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames()); die;
 
 
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
-		// $this->router->match();
+        $service = $this->getMatchedRoute();
+
+        // Determine the requested format
 
 
 
@@ -123,6 +150,24 @@ class Manager
 
 		// Echo the reponse object
 		//echo $this->getResponse($matchedEntity);
+	}
+
+	/**
+	 * Runs through all the registered routes and returns a single match
+	 * @throws DrestException if no routes are found, or there are multiple matches
+	 */
+	protected function getMatchedRoute()
+	{
+        $matchedRoutes = $this->router->getMatchedRoutes($this->getRequest());
+        $routesSize = sizeof($matchedRoutes);
+        if ($routesSize == 0)
+        {
+            throw DrestException::noMatchedRoutes();
+        } elseif (sizeof($matchedRoutes) > 1)
+		{
+            throw DrestException::multipleRoutesFound($matchedRoutes);
+		}
+		return $matchedRoutes[0];
 	}
 
 	/**

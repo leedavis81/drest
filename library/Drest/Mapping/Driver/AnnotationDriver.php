@@ -4,17 +4,19 @@
 namespace Drest\Mapping\Driver;
 
 
-
 use Drest\DrestException;
 
 use	Doctrine\Common\Annotations,
+    Doctrine\Common\Persistence\Mapping\Driver as PersistenceDriver,
+    Metadata\Driver\DriverInterface,
 	Drest\Mapping,
 	Drest\Mapping\Annotation;
 
 /**
  * The AnnotationDriver reads the mapping metadata from docblock annotations.
+ * Doesn't require paths / file extensions as entities are pull from the doctrine entity manager
  */
-class AnnotationDriver
+class AnnotationDriver implements DriverInterface
 {
 
 	/**
@@ -32,7 +34,6 @@ class AnnotationDriver
 	public static function registerAnnotations()
 	{
 		Annotations\AnnotationRegistry::registerFile( __DIR__ . '/DrestAnnotations.php');
-
 	}
 
 	/**
@@ -45,7 +46,7 @@ class AnnotationDriver
 		// Include the defined annotations
 		Annotations\AnnotationRegistry::registerFile( __DIR__ . '/DrestAnnotations.php');
 
-		$driverChain = new Driver\DriverChain();
+		$driverChain = new PersistenceDriver\MappingDriverChain();
 		// Add Drest annotation driver to the driver chain
 		$drestDriver = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, array(
 		            __DIR__.'/../Annotation'
@@ -56,49 +57,24 @@ class AnnotationDriver
 	}
 
 
-//
-//
-//    public function loadMetadataForClass(\ReflectionClass $class)
-//    {
-//        $metadata = new ClassMetadata($class->name);
-//
-//        $hasMetadata = false;
-//        foreach ($this->reader->getClassAnnotations($class) as $annot) {
-//            if ($annot instanceof ObjectRoute) {
-//                $hasMetadata = true;
-//                $metadata->addRoute($annot->type, $annot->name, $annot->params);
-//            }
-//        }
-//
-//        return $hasMetadata ? $metadata : null;
-//    }
-
 
 	/**
 	 * Load metadata for a class name
 	 * @param object|string $className - Pass in either the class name, or an instance of that class
 	 * @return Drest\Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
 	 */
-    public function loadMetadataForClass($className)
+    public function loadMetadataForClass(\ReflectionClass $class)
     {
-        $metadata = new Mapping\ClassMetadata($class->name);
-
-		if (is_object($className))
-		{
-        	$refClass = new \ReflectionClass(get_class($className));
-		} elseif (is_string($className))
-		{
-			$refClass = new \ReflectionClass($className);
-		}
-
-        foreach ($this->reader->getClassAnnotations($refClass) as $annotatedObject)
+        foreach ($this->reader->getClassAnnotations($class) as $annotatedObject)
         {
         	if ($annotatedObject instanceof Annotation\Resource)
         	{
         	    if ($annotatedObject->services === null)
         	    {
-        	        throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($className);
+        	        throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($class->name);
         	    }
+
+        	    $metadata = new Mapping\ClassMetadata($class->name);
 
         	    foreach ($annotatedObject->services as $service)
         	    {
@@ -112,14 +88,14 @@ class AnnotationDriver
         	        }
         	        if ($metadata->getServicesMetaData($service->name) !== false)
         	        {
-        	            throw DrestException::serviceAlreadyDefinedWithName($className, $service->name);
+        	            throw DrestException::serviceAlreadyDefinedWithName($class->name, $service->name);
         	        }
                     $serviceMetaData->setName($service->name);
 
                     // Set verbs (will throw if invalid)
         	        if (isset($service->verbs))
         	        {
-        	            $serviceMetaData->addVerbs($service->verbs);
+        	            $serviceMetaData->setVerbs($service->verbs);
         	        }
 
         	        // Set content type (will throw if invalid)
@@ -127,38 +103,19 @@ class AnnotationDriver
 
         	        // Add the route
         	        /** @todo: run validation checks on route syntax? */
-        	        $serviceMetaData->addRoute($service->route);
+        	        $serviceMetaData->setRoutePattern($service->route_pattern);
 
         	        // Add repository method
-        	        //$serviceMetaData->addRepositoryMethod($service->repository_method);
+        	        $serviceMetaData->setRepositoryMethod($service->repository_method);
 
 
                     $metadata->addServiceMetaData($serviceMetaData);
         	    }
 
-        		//Drest\Mapping\Annotation\Resource
-				var_dump($annotatedObject);
-
         	}
         }
 
-
-
-//        if ($classAnnotations) {
-//            foreach ($classAnnotations as $key => $annot) {
-//                if ( ! is_numeric($key)) {
-//                    continue;
-//                }
-//
-//                $classAnnotations[get_class($annot)] = $annot;
-//            }
-//        }
-
-        // Evaluate Entity annotation
-//        if (isset($classAnnotations['Doctrine\ORM\Mapping\Entity'])) {
-//            $entityAnnot = $classAnnotations['Doctrine\ORM\Mapping\Entity'];
-//            if ($entityAnnot->repositoryClass !== null) {
-
+        return (isset($metadata)) ? $metadata : null;
     }
 
 

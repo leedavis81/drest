@@ -15,10 +15,10 @@
     ],    
     "require": {
         "php": ">=5.3.3",
+        "jms/metadata": "v1.3.0",
         "doctrine/annotations": "v1.0",
         "doctrine/cache": "v1.0",
         "symfony/http-foundation": "v2.2.0",
-        "symfony/routing": "v2.2.0",
         "symfony/console": "v2.2.0"
     },
     "require-dev": {

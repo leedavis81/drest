@@ -1,52 +1,49 @@
 <?php
 namespace Drest;
 
-use Drest\Router\RouterInterface,
-	Drest\Request\Adapter\AdapterInterface as RequestInterface;
 
 /**
  * Drest Router
  * @author Lee
  */
-class Router implements RouterInterface
+class Router
 {
 
 	/**
-	 *A collection of registered route objects
+	 * A collection of registered service objects
 	 * @var array $routes
 	 */
 	protected $routes = array();
 
 
 	/**
-	 *
-	 * Enter description here ...
+	 * Get matched routes
 	 * @param RequestInterface $request
-	 * @param integer $limit max number number of routes to match before returning
 	 * @return array $routes sends back an array of routes that have matched
 	 */
-	public function getMatchedRoutes(RequestInterface $request, $limit = -1)
+	public function getMatchedRoutes(Request $request)
 	{
 		$matches = array();
 		$url = '/users/1';
 
 		foreach ($this->routes as $route)
 		{
+		    if ($route->matches($request->getAdapter()))
+		    {
+		        $matches[] = $route;
+		    }
 
-			$route = new \Drest\Mapping\Annotation\Route();
-
-			$route->matches($request)
 		}
 		return $matches;
 	}
 
 	/**
-	 * Add a route object pulled from annotations into the router stack
-	 * @param \Drest\Mapping\Annotation\Route $route
+	 * Register a route definition (pulled from annotations) into the router stack
+	 * @param \Drest\Mapping\ServiceMetaData $service
 	 */
-	public function addRoute(\Drest\Mapping\Annotation\Route $route)
+	public function registerRoute($service)
 	{
-		$this->routes[$route->name] = $route;
+		$this->routes[$service->getName()] = $service;
 	}
 
 	/**
@@ -58,7 +55,4 @@ class Router implements RouterInterface
 	{
 		return isset($this->routes[$name]);
 	}
-
-
-
 }

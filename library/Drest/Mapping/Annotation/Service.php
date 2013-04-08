@@ -16,14 +16,11 @@ final class Service
     public $content;
 
     /** @var string */
-    public $route;
+    public $route_pattern;
 
     /** @var string */
     public $repository_method;
 
     /** @var array */
     public $verbs;
-
-    /** @var array */
-    public $filters;
 }

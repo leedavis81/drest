@@ -40,7 +40,7 @@ class Request
 				throw DrestException::noRequestObjectDefinedAndCantInstantiateDefaultType($sy2class);
 			}
 			// Default to using symfony's request object
-			$this->adapter = new Adapter\Symfony2(new \Symfony\Component\HttpFoundation\Request());
+			$this->adapter = new Adapter\Symfony2(\Symfony\Component\HttpFoundation\Request::createFromGlobals());
 		} else if (is_object($request_object))
 		{
 			if ($request_object instanceof $zf2class)

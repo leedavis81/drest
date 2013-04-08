@@ -15,7 +15,6 @@ class Repository extends EntityRepository
 	protected $request;
 
 
-
 	public function getItem()
 	{
 		return DefaultRepository::getItem($this);
@@ -26,6 +25,23 @@ class Repository extends EntityRepository
 		return DefaultRepository::getCollection($this);
 	}
 
+	/**
+	 * Inject the request object into the repository
+	 * @param Drest\Request $request
+	 */
+	public function setRequest(Request $request)
+	{
+	    $this->request = $request;
+	}
+
+	/**
+	 * Returns the request adapter object
+	 * @return Drest\Request\Adapter\AdapterAbstract $requestAdapter
+	 */
+	public function getRequestAdapter()
+	{
+        return $this->request->getAdapter();
+	}
 
 	/**
 	 * @todo: implement other default return methods

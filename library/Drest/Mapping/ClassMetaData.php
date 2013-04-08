@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Drest\Mapping;
 
 /**
@@ -9,9 +8,10 @@ namespace Drest\Mapping;
  * @author Lee
  *
  */
-use Drest\DrestException;
+use Drest\DrestException,
+    Metadata\MergeableClassMetadata;
 
-class ClassMetaData
+class ClassMetaData extends MergeableClassMetadata
 {
 
     /**
@@ -19,12 +19,6 @@ class ClassMetaData
      * @var array $services
      */
 	protected $services = array();
-
-	/**
-	 * An array of filter classes to be used on ALL services
-	 * @var array $filters
-	 */
-	protected $filters = array();
 
 	/**
 	 * An array of Drest\Writer\InterfaceWriter object defined on this entity
@@ -56,18 +50,6 @@ class ClassMetaData
 	        return $this->services[$name];
 	    }
 	    return false;
-	}
-
-	/**
-	 * Add a filter class this resource
-	 * @param object $filter
-	 */
-	public function addFilter($filter)
-	{
-	    if (!in_array($filter, $this->filters))
-	    {
-	        $this->filters[] = $filter;
-	    }
 	}
 
 	/**

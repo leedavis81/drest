@@ -9,20 +9,20 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 /**
- * User
+ * Profile
  * @Drest\Resource(
  * 		writers={"Xml", "Json"},
  *      services={
- *      	@Drest\Service(name="get_user", route_pattern="/user/:id", verbs={"GET"}, repository_method="getUser", content="element"),
- *          @Drest\Service(name="post_user", route_pattern="/user", verbs={"GET"}, repository_method="addUser", content="element"),
- *          @Drest\Service(name="get_users", route_pattern="/users", verbs={"GET"}, repository_method="getUsers", content="collection"),
+ *      	@Drest\Service(name="get_profile", route_pattern="/profile/:id", verbs={"GET"}, repository_method="getProfile", content="element"),
+ *          @Drest\Service(name="post_profile", route_pattern="/profile", verbs={"POST"}, repository_method="addProfile", content="element"),
+ *          @Drest\Service(name="get_profiles", route_pattern="/profiles", verbs={"GET"}, repository_method="getProfiles", content="collection"),
  *      }
  * )
  *
- * @ORM\Table(name="user")
+ * @ORM\Table(name="profile")
  * @ORM\Entity
  */
-class User
+class Profile
 {
 
     /**

@@ -14,7 +14,4 @@ final class Resource
 
     /** @var array */
     public $writers;
-
-    /** @var array */
-    public $filters;
 }

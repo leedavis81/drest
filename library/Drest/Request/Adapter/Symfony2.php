@@ -5,7 +5,6 @@ namespace Drest\Request\Adapter;
 use Drest\DrestException;
 class Symfony2 extends AdapterAbstract
 {
-
 	/**
 	 * (non-PHPdoc)
 	 * @see Drest\Request\Adapter.AdapterInterface::getHttpMethod()
@@ -102,7 +101,7 @@ class Symfony2 extends AdapterAbstract
 	 */
 	public function getUri()
 	{
-	    return $this->getRequest()->getUri();
+	    return $this->getRequest()->getRequestUri();
 	}
 
 	/**

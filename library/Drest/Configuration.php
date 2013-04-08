@@ -19,32 +19,6 @@ class Configuration
 
 
     /**
-     * Create a default instance of the annotationsDriver
-     *
-     * @param array $paths
-     * @return AnnotationDriver
-     */
-    public function defaultAnnotationDriver($paths = array())
-    {
-        AnnotationRegistry::registerFile(__DIR__ . '/Mapping/Driver/DrestAnnotations.php');
-
-        if ($useSimpleAnnotationReader) {
-            // Register the ORM Annotations in the AnnotationRegistry
-            $reader = new SimpleAnnotationReader();
-            $reader->addNamespace('Doctrine\ORM\Mapping');
-            $cachedReader = new CachedReader($reader, new ArrayCache());
-
-            return new AnnotationDriver($cachedReader, (array) $paths);
-        }
-
-        return new AnnotationDriver(
-            new CachedReader(new AnnotationReader(), new ArrayCache()),
-            (array) $paths
-        );
-    }
-
-
-    /**
      * Gets the cache driver implementation that is used for metadata caching.
      *
      * @return \Doctrine\Common\Cache\Cache
@@ -63,7 +37,13 @@ class Configuration
      */
     public function setMetadataCacheImpl(Cache $cacheImpl)
     {
-        $this->_attributes['metadataCacheImpl'] = $cacheImpl;
+        if ($cacheImpl instanceof \Doctrine\Common\Cache\Cache)
+        {
+            $this->_attributes['metadataCacheImpl'] = new \Metadata\Cache\DoctrineCacheAdapter('_drest_', $cacheImpl);
+        } else
+        {
+            $this->_attributes['metadataCacheImpl'] = $cacheImpl;
+        }
     }
 
 

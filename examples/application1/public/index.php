@@ -61,7 +61,7 @@ $ORMDriver = $ormConfig->newDefaultAnnotationDriver($pathToEntities, false);
 
 Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
 
-//$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerReaderIntoDriverChain($cachedAnnotationReader, array(__DIR__.'/../Entities'));
+//$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerMapperIntoDriverChain($cachedAnnotationReader);
 
 // Add the Doctrine ORM driver to the driver chain we've just created (including its namespace)
 //$driverChain->addDriver($ORMDriver, 'Entities');

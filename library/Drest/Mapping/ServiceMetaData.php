@@ -17,16 +17,22 @@ class ServiceMetaData
 	const CONTENT_TYPE_COLLECTION = 2;
 
     /**
-     * A route object defined on this service
-     * @var Annotation\Route $route
+     * A string route pattern to be matched on. eg /user/:id
+     * @var string $route_pattern
      */
-	protected $route;
+	protected $route_pattern;
+
+    /**
+     * Key-value array of URL parameter names
+     * @var array $param_names
+     */
+	protected $param_names = array();
 
 	/**
-	 * An array of Drest\Writer\InterfaceWriter objects defined on this service
-	 * @var array $writers
+	 * Key-value array of URL parameters with + at the end
+	 * @var array $param_names_path
 	 */
-	protected $writers = array();
+	protected $param_names_path = array();
 
 	/**
 	 * The service name (must be unique)
@@ -42,17 +48,29 @@ class ServiceMetaData
 
 	/**
 	 * Content type to be used. Can either be a single entity element, or a collection. Contains value of respective constant
-	 * @var intger
+	 * @var integer
 	 */
 	protected $content_type;
+
+	/**
+	 * The repository function to be called upon successful routing
+	 * @var string
+	 */
+	protected $repository_method;
+
+
+	public function getRoutePattern()
+	{
+	    return $this->routePattern;
+	}
 
 	/**
 	 * Add the route path. eg '/users/:id'
 	 * @param string $route
 	 */
-	public function addRoute($route_pattern)
+	public function setRoutePattern($route_pattern)
 	{
-        $this->route = $route_pattern;
+        $this->route_pattern = $route_pattern;
 	}
 
 	/**
@@ -62,6 +80,24 @@ class ServiceMetaData
 	public function getName()
 	{
 	    return $this->name;
+	}
+
+	/**
+	 * Sets a unique reference name for the resource. If other resources are created with this name an exception is thrown (must be unique)
+	 * @param string $name
+	 */
+	public function setName($name)
+	{
+		$this->name = $name;
+	}
+
+	/**
+	 * Get the content type to be used for this service
+	 * @return string $content_type
+	 */
+	public function getContentType()
+	{
+	    return $this->content_type;
 	}
 
 	/**
@@ -79,42 +115,13 @@ class ServiceMetaData
         $this->content_type = constant($constant);
 	}
 
-	public function getContentType()
-	{
-	    return $this->content_type;
-	}
-
 	/**
-	 * Set a writer instance to be used on this resource
-	 * @param object|string $writer - can be either an instance of Drest\Writer\InterfaceWriter of a string (shorthand allowed - Json / Xml) referencing the class.
+	 * Get an array of verbs that are allowed on this service
+	 * @return @array $verbs
 	 */
-	public function addWriter($writer)
+	public function getVerbs()
 	{
-		if (!is_object($writer) && is_string($writer))
-		{
-			throw DrestException::writerMustBeObjectOrString();
-		}
-		if (is_object($writer))
-		{
-			if (!$writer instanceof \Drest\Writer\InterfaceWriter)
-			{
-				throw DrestException::unknownWriterClass(get_class($writer));
-			}
-			$this->writers[get_class($writer)] = $writer;
-		} elseif(is_string($writer))
-		{
-			$classNamespace = 'Drest\\Writer\\';
-			if (class_exists($writer, false))
-			{
-				$this->writers[$writer] = $writer;
-			} elseif (class_exists($classNamespace . $writer))
-			{
-				$this->writers[$classNamespace . $writer] = $classNamespace . $writer;
-			} else
-			{
-				throw DrestException::unknownWriterClass($writer);
-			}
-		}
+	    return $this->verbs;
 	}
 
 	/**
@@ -122,7 +129,7 @@ class ServiceMetaData
 	 * @param mixed $verbs = a sinlge or array of verbs valid for this service. eg array('GET', 'PUT')
 	 * @throws DrestException if verb is invalid
 	 */
-	public function addVerbs($verbs)
+	public function setVerbs($verbs)
 	{
 	    $verbs = (array) $verbs;
 	    foreach ($verbs as $verb)
@@ -137,14 +144,22 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Sets a unique reference name for the resource. If other resources are created with this name an exception is thrown (must be unique)
-	 * @param string $name
+	 * Get the repository method to be used
+	 * @return string
 	 */
-	public function setName($name)
+	public function getRepositoryMethod()
 	{
-		$this->name = $name;
+	    return $this->repository_method;
 	}
 
+	/**
+	 * Set the repository method to be used upon routing match
+	 * @param string $repository_method
+	 */
+	public function setRepositoryMethod($repository_method)
+	{
+	    $this->repository_method = $repository_method;
+	}
 
     /**
      * Check if this route matches the request passed
@@ -176,8 +191,8 @@ class ServiceMetaData
 
         //Convert URL params into regex patterns, construct a regex for this route, init params
         $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'),
-            str_replace(')', ')?', (string) $this->pattern));
-        if (substr($this->pattern, -1) === '/') {
+            str_replace(')', ')?', (string) $this->route_pattern));
+        if (substr($this->route_pattern, -1) === '/') {
             $patternAsRegex .= '?';
         }
 
@@ -185,9 +200,10 @@ class ServiceMetaData
         if (!preg_match('#^' . $patternAsRegex . '$#', $request->getUri(), $paramValues)) {
             return false;
         }
-        foreach ($this->paramNames as $name) {
+
+        foreach ($this->param_names as $name) {
             if (isset($paramValues[$name])) {
-                if (isset($this->paramNamesPath[ $name ])) {
+                if (isset($this->param_names_path[ $name ])) {
                     $this->params[$name] = explode('/', urldecode($paramValues[$name]));
                 } else {
                     $this->params[$name] = urldecode($paramValues[$name]);
@@ -205,12 +221,12 @@ class ServiceMetaData
      */
     protected function matchesCallback($m)
     {
-        $this->paramNames[] = $m[1];
+        $this->param_names[] = $m[1];
         if (isset($this->conditions[ $m[1] ])) {
             return '(?P<' . $m[1] . '>' . $this->conditions[ $m[1] ] . ')';
         }
         if (substr($m[0], -1) === '+') {
-            $this->paramNamesPath[ $m[1] ] = 1;
+            $this->param_names_path[ $m[1] ] = 1;
 
             return '(?P<' . $m[1] . '>.+)';
         }
@@ -224,7 +240,7 @@ class ServiceMetaData
      */
     public function usesHttpVerbs()
     {
-		return empty($this->verbs);
+		return !empty($this->verbs);
     }
 
 }
