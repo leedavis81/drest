@@ -19,6 +19,15 @@ class Symfony2 extends AdapterAbstract
 		return constant('Drest\Request::' . $const);
 	}
 
+    /**
+     * (non-PHPdoc)
+     * @see Drest\Request\Adapter.AdapterInterface::getBody()
+     */
+	public function getBody()
+	{
+	    return $this->getRequest()->getContent();
+	}
+
 	/**
 	 * @see Drest\Request\Adapter.Request::getCookie()
 	 */

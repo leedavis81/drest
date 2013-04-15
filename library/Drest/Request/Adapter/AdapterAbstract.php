@@ -26,7 +26,7 @@ abstract class AdapterAbstract implements AdapterInterface
 		$this->request = $request;
 	}
 
-	/* (non-PHPdoc)
+	/** (non-PHPdoc)
 	 * @see Drest\Request\Adapter.Request::getParams()
 	 */
 	public function getParams()
@@ -34,7 +34,7 @@ abstract class AdapterAbstract implements AdapterInterface
 		return array_merge($this->getRouteParam(), $this->getCookie(), $this->getPost(), $this->getQuery());
 	}
 
-	/* (non-PHPdoc)
+	/** (non-PHPdoc)
 	 * @see Drest\Request\Adapter.Request::setRouteParam()
 	 */
 	public function setRouteParam($name, $value = null)

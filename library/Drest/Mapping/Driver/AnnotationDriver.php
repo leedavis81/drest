@@ -105,9 +105,13 @@ class AnnotationDriver implements DriverInterface
         	        /** @todo: run validation checks on route syntax? */
         	        $serviceMetaData->setRoutePattern($service->route_pattern);
 
+        	        if (is_array($service->route_conditions))
+        	        {
+                        $serviceMetaData->setRouteConditions($service->route_conditions);
+        	        }
+
         	        // Add repository method
         	        $serviceMetaData->setRepositoryMethod($service->repository_method);
-
 
                     $metadata->addServiceMetaData($serviceMetaData);
         	    }

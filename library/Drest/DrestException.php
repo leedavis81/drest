@@ -49,11 +49,27 @@ class DrestException extends Exception
     }
 
 
-    // Repositoy Exception
+    // Repository Exceptions
     public static function entityRepositoryNotAnInstanceOfDrestRepository()
     {
     	return new self('The entities reposity is not an instance of Drest\Repository. Ensure you\'ve annotated your entities to either use @Entity(repositoryClass="Drest\Repository") or setup inheritence with it');
     }
+
+    public static function notInstanceOfDrestRepository($entityClass)
+    {
+        return new self('Repository class for entity "' . $entityClass . '" must be an instance of Drest\Repository');
+    }
+
+    public static function unknownRepositoryMethod($class, $method)
+    {
+        return new self('Unknown method "' . $method . '" on repository class "' . $class);
+    }
+
+    public static function repositoryNeedsRequestObject()
+    {
+        return new self('Repository needs access to the request object to determine a default method call, inject using setRequest()');
+    }
+
 
     // Writer Exceptions
     public static function writerExpectsArray($class_name)
@@ -70,6 +86,7 @@ class DrestException extends Exception
     {
 		return new self('Writer must be an object of Drest\\Writer\\Interface or a string representing the class name');
     }
+
 
 
     // Request Exceptions

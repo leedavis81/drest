@@ -32,6 +32,7 @@ class ClassMetaData extends MergeableClassMetadata
 	 */
 	public function addServiceMetaData(ServiceMetaData $service)
 	{
+	    $service->setClassMetaData($this);
         $this->services[$service->getName()] = $service;
 	}
 

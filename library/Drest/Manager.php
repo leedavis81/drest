@@ -135,7 +135,32 @@ class Manager
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
         $service = $this->getMatchedRoute();
 
-        // Determine the requested format
+        $repository = $this->em->getRepository($service->getClassMetaData()->name);
+        if (!$repository instanceof Repository)
+        {
+            throw DrestException::notInstanceOfDrestRepository($service->getClassMetaData()->name);
+        }
+
+        // Set paramaters matched on the route to the request object
+        $this->request->getAdapter()->setRouteParam($service->getParams());
+        // Inject the request object into the repository class
+        $repository->setRequest($this->request);
+        $repository->setMatchedService($service);
+
+        $repositoryMethod = $service->getRepositoryMethod();
+        if (empty($repositoryMethod))
+        {
+            // If nothing was defined, execute the default request method
+            $response = $repository->executeDefaultMethod($service);
+        } elseif (!method_exists($repository, $repositoryMethod))
+        {
+            throw DrestException::unknownRepositoryMethod(get_class($repository), $repositoryMethod);
+        } else
+        {
+            $response = $repository->$repositoryMethod();
+        }
+
+        var_dump($response);
 
 
 

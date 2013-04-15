@@ -18,6 +18,9 @@ final class Service
     /** @var string */
     public $route_pattern;
 
+    /** @var array */
+    public $route_conditions;
+
     /** @var string */
     public $repository_method;
 

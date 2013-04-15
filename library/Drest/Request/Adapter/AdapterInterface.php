@@ -69,6 +69,12 @@ interface AdapterInterface
 	public function setRouteParam($name, $value = null);
 
 	/**
+	 * Get either all route parameters or a specific entry
+	 * @param mixed $parameters
+	 */
+	public function getRouteParam($name = null);
+
+	/**
 	 * Get the HTTP verb used on this request
 	 * @return string - value should be mapped to a HTTP_METHOD_* class contant
 	 * @throws DrestException - if the verb returned is unknown
@@ -76,10 +82,10 @@ interface AdapterInterface
 	public function getHttpMethod();
 
 	/**
-	 * Get either all route parameters or a specific entry
-	 * @param mixed $parameters
+	 * Get the request document body
+	 * @return string
 	 */
-	public function getRouteParam($name = null);
+	public function getBody();
 
 	/**
 	 * Get the full request Uri
