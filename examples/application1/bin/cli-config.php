@@ -1,7 +1,4 @@
 <?php
-use Drest\Configuration;
-
-
 
 error_reporting(E_ALL|E_STRICT);
 ini_set('display_errors', 'On');
@@ -24,21 +21,12 @@ $cachedAnnotationReader = new Doctrine\Common\Annotations\CachedReader(
     $cache // and a cache driver
 );
 
-
 $pathToEntities = array(__DIR__ . '/../Entities');
 
 $ORMDriver = $ormConfig->newDefaultAnnotationDriver($pathToEntities, false);
 
-
 Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
 
-//$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerMapperIntoDriverChain($cachedAnnotationReader);
-
-// Add the Doctrine ORM driver to the driver chain we've just created (including its namespace)
-//$driverChain->addDriver($ORMDriver, 'Entities');
-
-// add a driver chain to the ORM config
-//$ormConfig->setMetadataDriverImpl($driverChain);
 $ormConfig->setMetadataDriverImpl($ORMDriver);
 
 // Do proxy stuff
@@ -56,21 +44,8 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 
 
 
-try
-{
-	$drestConfig = new Configuration();
-	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-	$drestManager = \Drest\Manager::create($em, $drestConfig);
-
-} catch (Exception $e) {
-	echo $e->getMessage() . PHP_EOL;
-	echo $e->getTraceAsString() . PHP_EOL;
-}
-
-
-$drestManager->dispatch();
-
-
-
-
-
+$helperSet =  new \Symfony\Component\Console\Helper\HelperSet(array(
+		'db' => new \Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($em->getConnection()),
+		'em' => new \Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper($em),
+        'dialog' => new \Symfony\Component\Console\Helper\DialogHelper()
+));
