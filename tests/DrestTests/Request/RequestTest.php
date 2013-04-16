@@ -7,7 +7,7 @@ use DrestTests\DrestTestCase,
  	Symfony\Component\HttpFoundation,
  	Zend\Http;
 
-class ResourceTest extends DrestTestCase
+class RequestTest extends DrestTestCase
 {
 
 	public function testCreateRequest()

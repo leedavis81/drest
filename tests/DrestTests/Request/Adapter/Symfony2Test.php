@@ -11,7 +11,7 @@ class Symfony2Test extends DrestTestCase
 
 	/**
 	 * Get an instance of the request object with a symfony adapter used
-	 * @return Drest\Request\Request;
+	 * @return Drest\Request;
 	 */
 	public static function getSymfonyAdapterRequest()
 	{

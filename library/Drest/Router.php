@@ -28,7 +28,7 @@ class Router
 
 		foreach ($this->routes as $route)
 		{
-		    if ($route->matches($request->getAdapter()))
+		    if ($route->matches($request))
 		    {
 		        $matches[] = $route;
 		    }

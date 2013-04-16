@@ -102,12 +102,34 @@ class DrestException extends Exception
 
     public static function noRequestObjectDefinedAndCantInstantiateDefaultType($className)
     {
-    	return new self('No request object has been passed, and cannot instantiate the default request object: ' . $className . ' ensure this component is setup on your autoloader');
+    	return new self('No request object has been passed, and cannot instantiate the default request object: ' . $className . ' ensure this class is setup on your autoloader');
     }
 
     public static function unknownHttpVerb($className)
     {
     	return new self('Unable to determine a valid HTTP verb from request adapter ' . $className);
+    }
+
+
+    // Response Exceptions
+    public static function unknownAdapterForResponseObject($object)
+    {
+    	return new self('Unknown / Not yet created adapter for response object ' . get_class($object));
+    }
+
+    public static function invalidResponsetObjectPassed()
+    {
+    	return new self('Response object passed in is invalid (not type of object)');
+    }
+
+    public static function noResponseObjectDefinedAndCantInstantiateDefaultType($className)
+    {
+    	return new self('No response object has been passed, and cannot instantiate the default response object: ' . $className . ' ensure this class is setup on your autoloader');
+    }
+
+    public static function invalidHttpStatusCode($code)
+    {
+        return new self('Invalid HTTP Status code used "' . $code . '"');
     }
 
     // Routing

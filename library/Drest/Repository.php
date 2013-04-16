@@ -10,10 +10,16 @@ class Repository extends EntityRepository
 {
 
 	/**
-	 * Drest request object, comprised of an adapter
+	 * Drest request object
 	 * @var \Drest\Request $request
 	 */
 	protected $request;
+
+	/**
+	 * Drest response object
+	 * @var \Drest\Response $response
+	 */
+	protected $response;
 
 	/**
 	 * When a service object is matched, it's injected into the repository class
@@ -35,7 +41,7 @@ class Repository extends EntityRepository
         switch ($this->matched_service->getContentType())
         {
             case ServiceMetaData::CONTENT_TYPE_ELEMENT:
-                switch ($this->getRequestAdapter()->getHttpMethod())
+                switch ($this->request->getHttpMethod())
                 {
                     case Request::METHOD_GET:
                         return $this->defaultGetItem();
@@ -56,13 +62,9 @@ class Repository extends EntityRepository
 	    $this->request = $request;
 	}
 
-	/**
-	 * Returns the request adapter object
-	 * @return Drest\Request\Adapter\AdapterAbstract $requestAdapter
-	 */
-	public function getRequestAdapter()
+	public function setResponse(Response $response)
 	{
-        return $this->request->getAdapter();
+	    $this->reponse = $response;
 	}
 
 	/**

@@ -231,7 +231,7 @@ class ServiceMetaData
      * @param  string $resourceUri A Request URI
      * @return bool
      */
-    public function matches(\Drest\Request\Adapter\AdapterInterface $request)
+    public function matches(\Drest\Request $request)
     {
 		if ($this->usesHttpVerbs())
 		{

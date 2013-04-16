@@ -59,6 +59,128 @@ class Request
 		}
 	}
 
+
+	/**
+	 * Get all set headers as a key => value array, or a specifc entry when passing $name variable
+	 * @return array|string $header
+	 */
+	public function getHeaders($name = null)
+	{
+	    return $this->adapter->getHeaders($name);
+	}
+
+	/**
+	 * Get either all post parameters or a specific entry
+	 * @return mixed $params an array of all params, or a specific entry
+	 */
+	public function getPost($name = null)
+	{
+	    return $this->adapter->getPost($name);
+	}
+
+	/**
+	 * Set a post variable - if an array is passed in the $name then post if overwritten with the new values
+	 * @param string|array $name
+	 * @param string $value
+	 */
+	public function setPost($name, $value = null)
+	{
+	    $this->adapter->setPost($name, $value);
+	}
+
+	/**
+	 * Get either all query parameters or a specific entry
+	 * @return mixed|array $params an array of all params, or a specific entry
+	 */
+	public function getQuery($name = null)
+	{
+	    return $this->adapter->getQuery($name);
+	}
+
+	/**
+	 * Set a post variable - if an array is passed in the $name then post if overwritten with the new values
+	 * @param string|array $name
+	 * @param string $value
+	 */
+	public function setQuery($name, $value = null)
+	{
+	    $this->adapter->setQuery($name, $value);
+	}
+
+	/**
+	 * Get either all cookie parameters or a specific entry
+	 * @return mixed $params an array of all cookies, or a specific entry
+	 */
+	public function getCookie($name = null)
+	{
+	    return $this->adapter->getCookie($name);
+	}
+
+	/**
+	 * Get all parameters that have been passed (including anything parsed from the route) - GET|POST|COOKIE|ROUTE
+	 * return array $parameters
+	 */
+	public function getParams()
+	{
+	    return $this->adapter->getParams();
+	}
+
+	/**
+	 * Get the low level (adapted) request object
+	 * @return mixed $request - The sourced request object, could be symfony / zf etc
+	 */
+	public function getRequest()
+	{
+	    return $this->adapter->getRequest();
+	}
+
+	/**
+	 * Set a parameter(s) parsed from the route - if an array is passed in the $name then all route parametes are overwritten with new passed values
+	 * @param string|array $name
+	 * @param unknown_type $value
+	 */
+	public function setRouteParam($name, $value = null)
+	{
+	    $this->adapter->setRouteParam($name, $value);
+	}
+
+	/**
+	 * Get either all route parameters or a specific entry
+	 * @param mixed $parameters
+	 */
+	public function getRouteParam($name = null)
+	{
+	    return $this->adapter->getRouteParam($name);
+	}
+
+	/**
+	 * Get the HTTP verb used on this request
+	 * @return string - value should be mapped to a HTTP_METHOD_* class contant
+	 * @throws DrestException - if the verb returned is unknown
+	 */
+	public function getHttpMethod()
+	{
+	    return $this->adapter->getHttpMethod();
+	}
+
+	/**
+	 * Get the request document body
+	 * @return string
+	 */
+	public function getBody()
+	{
+	    return $this->adapter->getBody();
+	}
+
+	/**
+	 * Get the full request Uri
+	 * @return string $uri
+	 */
+	public function getUri()
+	{
+	    return $this->adapter->getUri();
+	}
+
 	/**
 	 * Get the adapter object
 	 * @return Drest\Request\Adapter\AdapterAbstract $adapter
@@ -68,10 +190,9 @@ class Request
 		return $this->adapter;
 	}
 
-
 	/**
 	 * Factory call to create a Drest request object
-	 * @param mixed $request_object prefered router object
+	 * @param mixed $request_object prefered response object
 	 */
 	public static function create($request_object = null)
 	{

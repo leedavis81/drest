@@ -1,21 +1,18 @@
 <?php
-
-use Drest\DrestException;
 namespace Drest;
 
 
-use Doctrine\Common\Annotations\AnnotationRegistry;
-
-use Doctrine\Common\Annotations\Annotation;
-
 use Doctrine\Common\EventManager,
+    Doctrine\Common\Annotations\Annotation,
+    Doctrine\Common\Annotations\AnnotationRegistry,
+    Doctrine\Common\Annotations\AnnotationReader,
 	Doctrine\ORM\EntityManager,
-	Doctrine\Common\Annotations\AnnotationReader,
+
 	Metadata\MetadataFactory,
     Metadata\MetadataFactoryInterface,
 	Drest\Request,
-	Drest\Repository;
-
+	Drest\Repository,
+	Drest\DrestException;
 
 
 class Manager
@@ -123,11 +120,6 @@ class Manager
 	public function dispatch()
 	{
 
-		// @todo: continue to try testing hooking un custom annotationsdriver into doctrine orm. Would be nicer to piggyback on refl caching mechanisms
-//		$cmf = $this->em->getMetadataFactory();
-//		$class = $cmf->getMetadataFor('Entities\User');
-//		var_dump($class); die;
-
 	    // Get all classnames registered to the doctrine metadata driver
 	    // var_dump($this->em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames()); die;
 
@@ -142,7 +134,7 @@ class Manager
         }
 
         // Set paramaters matched on the route to the request object
-        $this->request->getAdapter()->setRouteParam($service->getParams());
+        $this->request->setRouteParam($service->getParams());
         // Inject the request object into the repository class
         $repository->setRequest($this->request);
         $repository->setMatchedService($service);
@@ -164,13 +156,6 @@ class Manager
 
 
 
-//		$router = new \Symfony\Component\Routing\RouteCollection();
-//		$annoRouting = new \Symfony\Component\Routing\Loader\AnnotationClassLoader($reader);
-//		$annoRouting->load($class);
-//
-//		$b = new \Symfony\Component\Routing\Loader\AnnotationDirectoryLoader($locator, $loader)
-//
-//		$router->a
 
 
 		// Echo the reponse object

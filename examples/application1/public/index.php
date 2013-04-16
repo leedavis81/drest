@@ -59,6 +59,9 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 try
 {
 	$drestConfig = new Configuration();
+
+	$drestConfig->setDetectContentOptions(array(Configuration::DETECT_CONTENT_ACCEPT_HEADER, 8));
+
 	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 	$drestManager = \Drest\Manager::create($em, $drestConfig);
 

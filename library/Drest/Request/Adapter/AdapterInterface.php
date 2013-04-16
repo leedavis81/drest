@@ -1,7 +1,6 @@
 <?php
 namespace Drest\Request\Adapter;
 
-use Drest\DrestException;
 interface AdapterInterface
 {
 
