@@ -11,9 +11,9 @@ interface AdapterInterface
 	public function __construct($response);
 
 	/**
-	 * Reponse objects must be echoable, this call will typically be passed to the adapted response object
+	 * Reponse objects must be echoable, this call will be passed to the adapted response object to perform header / content / status setting
 	 */
-	public function __toString();
+	public function toString();
 
 	/**
 	 * Get the body of the response document
@@ -30,14 +30,14 @@ interface AdapterInterface
 	/**
 	 * Set an HTTP header value - if an array is passed in the $name then all headers are overwritten with the new values
 	 * @param string|array $name
-	 * @param string $value
+	 * @param mixed $value - string values are converted into an array
 	 */
 	public function setHttpHeader($name, $value = null);
 
 	/**
 	 * Get either all HTTP header values or a specific entry
 	 * @param unknown_type $name
-	 * @return mixed $headers an array of all headers, or a specific entry
+	 * @return array $headers an array of all headers, or an array of a specific entry
 	 */
 	public function getHttpHeader($name = null);
 
@@ -53,4 +53,10 @@ interface AdapterInterface
 	 * @return integer $code
 	 */
 	public function getStatusCode();
+
+	/**
+	 * Get the adapted response object (would be fw specific type)
+	 * @return object $response
+	 */
+	public function getResponse();
 }

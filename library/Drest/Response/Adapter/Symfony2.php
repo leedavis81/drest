@@ -8,9 +8,10 @@ class Symfony2 extends AdapterAbstract
 	/** (non-PHPdoc)
      * @see Drest\Response\Adapter.AdapterInterface::__toString()
      */
-    public function __toString()
+    public function toString()
     {
-        return $this->response;
+        $this->getResponse()->send();
+        return '';
     }
 
 	/** (non-PHPdoc)
@@ -20,9 +21,18 @@ class Symfony2 extends AdapterAbstract
     {
 		if ($name !== null && $this->getResponse()->headers->has($name))
 		{
-			return $this->getResponse()->headers->get($name);
+            return $this->getResponse()->headers->get($name);
 		}
-		return $this->getRequest()->headers->all();
+
+		if (($this->getResponse()->headers->count() === 0))
+		{
+		    return array();
+		} else
+		{
+		    return array_map(function($item){
+		        return implode(', ', $item);
+		    }, $this->getResponse()->headers->all());
+		}
     }
 
 	/** (non-PHPdoc)
@@ -30,9 +40,14 @@ class Symfony2 extends AdapterAbstract
      */
     public function setHttpHeader($name, $value = null)
     {
+        $value = (array) $value;
     	if (is_array($name))
 		{
-			$this->getResponse()->headers->replace($name);
+		    foreach ($this->getResponse()->headers->all() as $key => $value)
+		    {
+		        $this->getResponse()->headers->remove($key);
+		    }
+		    $this->getResponse()->headers->add($name);
 		} else
 		{
 			$this->getResponse()->headers->set($name, $value);
@@ -73,7 +88,7 @@ class Symfony2 extends AdapterAbstract
     }
 
 	/**
-	 * Symfony 2 Request object
+	 * Symfony 2 Response object
 	 * @return \Symfony\Component\HttpFoundation\Response $response
 	 */
 	public function getResponse()

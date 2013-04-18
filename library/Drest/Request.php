@@ -182,15 +182,6 @@ class Request
 	}
 
 	/**
-	 * Get the adapter object
-	 * @return Drest\Request\Adapter\AdapterAbstract $adapter
-	 */
-	public function getAdapter()
-	{
-		return $this->adapter;
-	}
-
-	/**
 	 * Factory call to create a Drest request object
 	 * @param mixed $request_object prefered response object
 	 */

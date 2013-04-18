@@ -2,11 +2,11 @@
 
 namespace Drest;
 
-use Doctrine\ORM\EntityRepository,
+use Doctrine\ORM,
 	Drest\Repository\DefaultRepository,
 	Drest\Mapping\ServiceMetaData;
 
-class Repository extends EntityRepository
+class Repository extends ORM\EntityRepository
 {
 
 	/**
@@ -62,9 +62,13 @@ class Repository extends EntityRepository
 	    $this->request = $request;
 	}
 
+	/**
+	 * Inject the response object into the repository
+	 * @param Drest\Response $response
+	 */
 	public function setResponse(Response $response)
 	{
-	    $this->reponse = $response;
+	    $this->response = $response;
 	}
 
 	/**
@@ -97,7 +101,18 @@ class Repository extends EntityRepository
             $qb->andWhere('a.' . $key . ' = :' . $key);
             $qb->setParameter($key, $value);
         }
-        return $qb->getQuery()->getSingleResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
+        try {
+            return $qb->getQuery()->getSingleResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
+        } catch (ORM\ORMException $e)
+        {
+            if ($e instanceof ORM\NonUniqueResultException)
+            {
+                $this->response->setStatusCode(Response::STATUS_CODE_300);
+            } else
+            {
+                $this->response->setStatusCode(Response::STATUS_CODE_404);
+            }
+        }
 	}
 
 	protected function defaultGetCollection()

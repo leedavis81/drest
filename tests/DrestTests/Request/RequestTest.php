@@ -15,7 +15,7 @@ class RequestTest extends DrestTestCase
 		$request = new Request();
 
 		// Ensure default request object creates a symfony request
-		$this->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $request->getAdapter()->getRequest());
+		$this->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $request->getRequest());
 	}
 
 	public function testStaticCreateRequest()
@@ -29,7 +29,7 @@ class RequestTest extends DrestTestCase
 		$request = Request::create($zfRequest);
 
 		// Ensure request object creates a zf2 request
-		$this->assertInstanceOf('Zend\Http\Request', $request->getAdapter()->getRequest());
+		$this->assertInstanceOf('Zend\Http\Request', $request->getRequest());
 	}
 
 	public function testCreateRequestWithSymfony2RequestObject()
@@ -38,7 +38,7 @@ class RequestTest extends DrestTestCase
 		$request = Request::create($symRequest);
 
 		// Ensure request object creates a symfony2 request
-		$this->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $request->getAdapter()->getRequest());
+		$this->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $request->getRequest());
 	}
 }
 

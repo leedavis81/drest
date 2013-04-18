@@ -18,6 +18,11 @@ class DrestException extends Exception
         return new self('Class Metadata Cache is not configured, ensure an instance of Doctrine\Common\Cache\Cache is passed to the Drest\Configuration::setMetadataCacheImpl()');
     }
 
+    public static function currentlyRunningDebugMode()
+    {
+        return new self('Debug mode is set to on. This will cause configuration exceptions to be displayed and should be switched off in production');
+    }
+
     public static function missingMappingDriverImpl()
     {
         return new self('It\'s a requirement to specify a Metadata Driver and pass it to Drest\\Configuration::setMetadataDriverImpl().');
@@ -50,14 +55,9 @@ class DrestException extends Exception
 
 
     // Repository Exceptions
-    public static function entityRepositoryNotAnInstanceOfDrestRepository()
+    public static function entityRepositoryNotAnInstanceOfDrestRepository($entityClass)
     {
-    	return new self('The entities reposity is not an instance of Drest\Repository. Ensure you\'ve annotated your entities to either use @Entity(repositoryClass="Drest\Repository") or setup inheritence with it');
-    }
-
-    public static function notInstanceOfDrestRepository($entityClass)
-    {
-        return new self('Repository class for entity "' . $entityClass . '" must be an instance of Drest\Repository');
+    	return new self('Repository class for entity "' . $entityClass . '" is not an instance of Drest\Repository. Ensure you\'ve annotated your entities to either use @Entity(repositoryClass="Drest\Repository") or setup inheritence with it');
     }
 
     public static function unknownRepositoryMethod($class, $method)
@@ -87,6 +87,15 @@ class DrestException extends Exception
 		return new self('Writer must be an object of Drest\\Writer\\Interface or a string representing the class name');
     }
 
+    public static function unableToMatchAWriter()
+    {
+        return new self('Unable to match a writer instance using Configuration::DETECT_CONTENT_* methods set');
+    }
+
+    public static function noWritersSetForService(Mapping\ServiceMetaData $service)
+    {
+        return new self('No writers have been set for the service "' . $service->getName() . '" for the Entity "' . $service->getClassMetaData()->name . "'");
+    }
 
 
     // Request Exceptions

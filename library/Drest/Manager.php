@@ -48,6 +48,12 @@ class Manager
 	 */
 	protected $request;
 
+	/**
+	 * Drest response object
+	 * @var \Drest\Response\Adapter\AdapterInterface $response
+	 */
+	protected $response;
+
 
     /**
      * Creates an instance of the Drest Manager using the passed configuration object
@@ -73,7 +79,6 @@ class Manager
         $this->metadataFactory->setCache($config->getMetadataCacheImpl());
 
         $this->registerRoutes();
-
     }
 
     /**
@@ -114,57 +119,152 @@ class Manager
 
 
 
-	/**
-	 * Dispatches the response
-	 */
-	public function dispatch()
+    /**
+     *
+     * Dispatch a REST request
+     * @param object $request - Framework request object
+     * @param object $response - Framework response object
+     * @return Drest\Reponse $response return's a Drest response object which can be sent calling toString()
+     */
+	public function dispatch($request = null, $response = null)
 	{
+	    try {
+	        return $this->execute($request, $response);
+	    } catch (\Exception $e)
+	    {
+	        // Check debug mode, if set on them rethrow the exception
+	        if ($this->config->inDebugMode())
+	        {
+	            throw $e;
+	        }
 
-	    // Get all classnames registered to the doctrine metadata driver
-	    // var_dump($this->em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames()); die;
+            return $this->systemError();
+	    }
+	}
 
+	/**
+	 * Called when an error occurs when routing the request outside of debug mode
+	 * Sets a general error response document
+	 */
+	private function systemError()
+	{
+        $response = $this->getResponse();
+        // A Drest exception has occured, send an unknown error response
+        $response->setStatusCode(Response::STATUS_CODE_500);
 
+        // @todo: possibly standardise the error response, current defaults to the framework impl
+
+        return $response;
+	}
+
+	/**
+	 *
+	 * Execute a dispatched request
+     * @param object $request - Framework request object
+     * @param object $response - Framework response object
+     * @return Drest\Reponse $response return's a Drest response object which can be sent calling toString()
+	 */
+	protected function execute($request = null, $response = null)
+	{
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
         $service = $this->getMatchedRoute();
 
-        $repository = $this->em->getRepository($service->getClassMetaData()->name);
-        if (!$repository instanceof Repository)
-        {
-            throw DrestException::notInstanceOfDrestRepository($service->getClassMetaData()->name);
-        }
+        $repository = $this->getRepository($service->getClassMetaData()->name);
 
         // Set paramaters matched on the route to the request object
         $this->request->setRouteParam($service->getParams());
-        // Inject the request object into the repository class
-        $repository->setRequest($this->request);
+
+        // Set the matched service object into the repository class
         $repository->setMatchedService($service);
 
+    	// Inject the request / response object into the extended repository
+    	$repository->setRequest($this->getRequest($request));
+    	$repository->setResponse($this->getResponse($response));
+
+        // Fetch an instance of Drest\Repository
         $repositoryMethod = $service->getRepositoryMethod();
         if (empty($repositoryMethod))
         {
             // If nothing was defined, execute the default request method
-            $response = $repository->executeDefaultMethod($service);
+            $data = $repository->executeDefaultMethod($service);
         } elseif (!method_exists($repository, $repositoryMethod))
         {
             throw DrestException::unknownRepositoryMethod(get_class($repository), $repositoryMethod);
         } else
         {
-            $response = $repository->$repositoryMethod();
+            $data = $repository->$repositoryMethod();
         }
 
-        var_dump($response);
+        // Pass the results to a writer
+        if ($this->response->getStatusCode() == 200 && isset($data))
+        {
+            $this->execWriter($service, $data);
+        }
 
+        return $this->getResponse();
+	}
 
+    /**
+     * Detect the writer to be applied, pass in the data and write the content to the response object
+     */
+	protected function execWriter(Mapping\ServiceMetaData $service, array $data = array())
+	{
+	    $writers = $service->getClassMetaData()->getWriters();
+	    if (empty($writers))
+	    {
+	        throw DrestException::noWritersSetForService($service);
+	    }
 
+        $writerFound = false;
+	    foreach ($writers as $writer)
+	    {
+            if ($this->detectContentWriter($writer))
+            {
+                $this->response->setBody($writer->write($data));
+                $writerFound = true;
+                break;
+            }
+	    }
 
+	    if (!$writerFound)
+	    {
+	        throw DrestException::unableToMatchAWriter();
+	    }
+	}
 
-		// Echo the reponse object
-		//echo $this->getResponse($matchedEntity);
+	/**
+	 * If content type can be detected through config mechanism, then this returns true
+	 * @param Writer\AbstractWriter $writer
+	 * @return boolean upon success of matching a content writer
+	 */
+	protected function detectContentWriter(Writer\AbstractWriter $writer)
+	{
+	    foreach ($this->config->getDetectContentOptions() as $detectContentOption)
+	    {
+	        switch ($detectContentOption)
+	        {
+	            case Configuration::DETECT_CONTENT_EXTENSION:
+	                // See if an extension has been supplied
+
+                break;
+                case Configuration::DETECT_CONTENT_ACCEPT_HEADER:
+                    // See if the Accept header matches for this writer
+
+                break;
+                case Configuration::DETECT_CONTENT_PARAM:
+                    // Inspect the request object for a "format" parameter
+
+                break;
+	        }
+	    }
+
+	    return false;
 	}
 
 	/**
 	 * Runs through all the registered routes and returns a single match
 	 * @throws DrestException if no routes are found, or there are multiple matches
+	 * @return Drest\Mapping\ServiceMetaData $service
 	 */
 	protected function getMatchedRoute()
 	{
@@ -182,25 +282,49 @@ class Manager
 
 	/**
 	 * Get the request object
+	 * @param $fwRequest - constructed using a fw adapted object
 	 * @return Drest\Request $request
 	 */
-	public function getRequest()
+	public function getRequest($fwRequest = null)
 	{
 		if (!$this->request instanceof Request)
 		{
-			$this->request = Request::create();
+			$this->request = Request::create($fwRequest);
 		}
 		return $this->request;
 	}
 
 	/**
-	 *
 	 * Set the request object
-	 * @param \Drest\Request $request
+	 * @param Drest\Request $request
 	 */
 	public function setRequest(Request $request)
 	{
 		$this->request = $request;
+	}
+
+
+	/**
+	 * Get the response object
+	 * @param $fwResponse - constructed using a fw adapted object
+	 * @return Drest\Response $response
+	 */
+	public function getResponse($fwResponse = null)
+	{
+        if (!$this->response instanceof Response)
+		{
+			$this->response = Response::create($fwResponse);
+		}
+	    return $this->response;
+	}
+
+	/**
+	 * Set the response object
+	 * @param Drest\Response $response
+	 */
+	public function setResponse(Response $response)
+	{
+	    $this->response = $response;
 	}
 
 
@@ -236,15 +360,11 @@ class Manager
      */
     public function getRepository($entityName)
     {
-
     	$repository = $this->em->getRepository($entityName);
     	if (!$repository instanceof Repository)
     	{
-    		throw DrestException::entityRepositoryNotAnInstanceOfDrestRepository();
+    		throw DrestException::entityRepositoryNotAnInstanceOfDrestRepository($entityName);
     	}
-
-    	// Inject the request object into the extended repository
-
 
         return $repository;
     }

@@ -76,6 +76,8 @@ class AnnotationDriver implements DriverInterface
 
         	    $metadata = new Mapping\ClassMetadata($class->name);
 
+        	    $metadata->addWriters($annotatedObject->writers);
+
         	    foreach ($annotatedObject->services as $service)
         	    {
         	        $serviceMetaData = new Mapping\ServiceMetaData();

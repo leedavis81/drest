@@ -35,8 +35,28 @@ class Configuration
     {
         // By default only allow the Accept header detection
         $this->setDetectContentOptions(array(self::DETECT_CONTENT_ACCEPT_HEADER, self::DETECT_CONTENT_EXTENSION, self::DETECT_CONTENT_PARAM));
+        $this->setDebugMode(false);
     }
 
+
+    /**
+     * Set the debug mode - when on all DrestExceptions are rethrown, otherwise 500 errors are returned from the REST service
+     * Should be switched off in production
+     * @param boolean $setting
+     */
+    public function setDebugMode($setting)
+    {
+        $this->_attributes['debugMode'] = (bool) $setting;
+    }
+
+    /**
+     * Are we in debug mode?
+     * @return boolean
+     */
+    public function inDebugMode()
+    {
+        return $this->_attributes['debugMode'];
+    }
 
     /**
      * Gets the cache driver implementation that is used for metadata caching.
@@ -106,6 +126,11 @@ class Configuration
      */
     public function ensureProductionSettings()
     {
+        if ($this->inDebugMode())
+        {
+            throw DrestException::currentlyRunningDebugMode();
+        }
+
         if ( ! $this->getMetadataCacheImpl()) {
             throw DrestException::metadataCacheNotConfigured();
         }

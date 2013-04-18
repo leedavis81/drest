@@ -54,15 +54,23 @@ class ClassMetaData extends MergeableClassMetadata
 	}
 
 	/**
+	 * Add an array of writers
+	 * @param array $writers
+	 */
+	public function addWriters(array $writers)
+	{
+	    foreach ($writers as $writer)
+	    {
+	        $this->addWriter($writer);
+	    }
+	}
+
+	/**
 	 * Set a writer instance to be used on this resource
 	 * @param object|string $writer - can be either an instance of Drest\Writer\InterfaceWriter of a string (shorthand allowed - Json / Xml) referencing the class.
 	 */
 	public function addWriter($writer)
 	{
-		if (!is_object($writer) && is_string($writer))
-		{
-			throw DrestException::writerMustBeObjectOrString();
-		}
 		if (is_object($writer))
 		{
 			if (!$writer instanceof \Drest\Writer\InterfaceWriter)
@@ -72,17 +80,20 @@ class ClassMetaData extends MergeableClassMetadata
 			$this->writers[get_class($writer)] = $writer;
 		} elseif(is_string($writer))
 		{
-			$classNamespace = 'Drest\\Writer\\';
+			$namespacedClass = 'Drest\\Writer\\' . $writer;
 			if (class_exists($writer, false))
 			{
-				$this->writers[$writer] = $writer;
-			} elseif (class_exists($classNamespace . $writer))
+				$this->writers[$writer] = new $writer();
+			} elseif (class_exists($namespacedClass))
 			{
-				$this->writers[$classNamespace . $writer] = $classNamespace . $writer;
+				$this->writers[$namespacedClass] = new $namespacedClass();
 			} else
 			{
 				throw DrestException::unknownWriterClass($writer);
 			}
+		} else
+		{
+		    throw DrestException::writerMustBeObjectOrString();
 		}
 	}
 

@@ -63,6 +63,9 @@ try
 	$drestConfig->setDetectContentOptions(array(Configuration::DETECT_CONTENT_ACCEPT_HEADER, 8));
 
 	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
+
+	$drestConfig->setDebugMode(true);
+
 	$drestManager = \Drest\Manager::create($em, $drestConfig);
 
 } catch (Exception $e) {
@@ -71,8 +74,7 @@ try
 }
 
 
-$drestManager->dispatch();
-
+echo $drestManager->dispatch();
 
 
 

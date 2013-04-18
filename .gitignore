@@ -3,3 +3,4 @@
 .settings
 composer.lock
 vendor
+tests/log

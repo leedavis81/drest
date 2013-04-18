@@ -19,4 +19,13 @@ abstract class AdapterAbstract implements AdapterInterface
 	{
 		$this->response = $response;
 	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Response\Adapter.AdapterInterface::getResponse()
+	 */
+	public function getResponse()
+	{
+	    return $this->response;
+	}
 }

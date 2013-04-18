@@ -75,7 +75,7 @@ class Response
      * Status Phrases
      * @var array $statusPhrases
      */
-    protected $statusPhrases = array(
+    protected static $statusPhrases = array(
         self::STATUS_CODE_100 => 'Continue',
         self::STATUS_CODE_101 => 'Switching Protocols',
         self::STATUS_CODE_102 => 'Processing',
@@ -137,7 +137,7 @@ class Response
 
 	/**
 	 * Adapter class used for response handling
-	 * @var Drest\Reponse\Adapter\AdapterAbstract $adapter
+	 * @var Drest\Response\Adapter\AdapterAbstract $adapter
 	 */
 	protected $adapter;
 
@@ -178,11 +178,11 @@ class Response
 	/**
 	 * Get either all HTTP header values or a specific entry
 	 * @param unknown_type $name
-	 * @return mixed $headers an array of all headers, or a specific entry
+	 * @return array $headers an array of all headers, or an array of a specific entry
 	 */
 	public function getHttpHeader($name = null)
 	{
-	   $this->adapter->getHttpHeader($name);
+	   return $this->adapter->getHttpHeader($name);
 	}
 
 	/**
@@ -235,14 +235,21 @@ class Response
         $this->adapter->setStatusCode($code, self::$statusPhrases[$code]);
 	}
 
+	/**
+	 * Get the adapted response object (would be fw specific type)
+	 * @return object $response
+	 */
+	public function getResponse()
+	{
+	    return $this->adapter->getResponse();
+	}
 
 	/**
-	 * Get the adapter object
-	 * @return Drest\Response\Adapter\AdapterAbstract $adapter
+	 * Echo the adapted response object
 	 */
-	public function getAdapter()
+	public function __toString()
 	{
-		return $this->adapter;
+	    return $this->adapter->toString();
 	}
 
 	/**

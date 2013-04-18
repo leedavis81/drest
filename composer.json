@@ -16,20 +16,20 @@
     "require": {
         "php": ">=5.3.3",
         "jms/metadata": "v1.3.0",
-        "doctrine/annotations": "v1.0",
+        "doctrine/annotations": "v1.1",
         "doctrine/cache": "v1.0",
-        "symfony/http-foundation": "v2.2.0",
-        "symfony/console": "v2.2.0"
+        "symfony/http-foundation": "v2.2.1",
+        "symfony/console": "v2.2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "doctrine/orm": ">= 2.3.0",
-        "zendframework/zend-http": ">= 2.1.3"
+        "doctrine/orm": ">= 2.3.3",
+        "zendframework/zend-http": ">= 2.1.5"
     },
     "suggest": {
         "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
     },    
-    "bin": ["bin", "bin/rest.php"],
+    "bin": ["bin", "bin/drest.php"],
     "autoload": {
         "psr-0": { "Drest": "library/", "DrestTest": "tests/"}
     }

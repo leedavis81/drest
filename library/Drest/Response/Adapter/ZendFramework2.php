@@ -9,7 +9,7 @@ class ZendFramework2 extends AdapterAbstract
 	/** (non-PHPdoc)
      * @see Drest\Response\Adapter.AdapterInterface::__toString()
      */
-    public function __toString()
+    public function toString()
     {
         return $this->getResponse();
     }
@@ -21,7 +21,7 @@ class ZendFramework2 extends AdapterAbstract
     {
 		if ($name !== null && $this->getResponse()->getHeaders()->has($name))
 		{
-			return $this->getResponse()->getHeaders()->get($name);
+		    return $this->getResponse()->getHeaders()->get($name)->getFieldValue();
 		}
 		return $this->getResponse()->getHeaders()->toArray();
     }
