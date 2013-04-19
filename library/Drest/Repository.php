@@ -89,14 +89,13 @@ class Repository extends ORM\EntityRepository
 	    return $this->matched_service;
 	}
 
-
 	/**
 	 * Default method to return a single entity item
 	 */
 	protected function defaultGetItem()
 	{
 	    $qb = $this->_em->createQueryBuilder()->select('a')->from($this->getEntityName(), 'a');
-        foreach ($this->matched_service->getParams() as $key => $value)
+        foreach ($this->matched_service->getRouteParams() as $key => $value)
         {
             $qb->andWhere('a.' . $key . ' = :' . $key);
             $qb->setParameter($key, $value);

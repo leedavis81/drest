@@ -172,7 +172,7 @@ class Manager
         $repository = $this->getRepository($service->getClassMetaData()->name);
 
         // Set paramaters matched on the route to the request object
-        $this->request->setRouteParam($service->getParams());
+        $this->request->setRouteParam($service->getRouteParams());
 
         // Set the matched service object into the repository class
         $repository->setMatchedService($service);
@@ -243,17 +243,28 @@ class Manager
 	    {
 	        switch ($detectContentOption)
 	        {
+                case Configuration::DETECT_CONTENT_ACCEPT_HEADER:
+                    $acceptHeader = explode(';', $this->request->getHeaders('Accept'));
+                    // See if the Accept header matches for this writer
+                    if (in_array($this->request->getHeaders('Accept'), $writer->getMatchableAcceptHeaders()))
+                    {
+                        return true;
+                    }
+                break;
 	            case Configuration::DETECT_CONTENT_EXTENSION:
 	                // See if an extension has been supplied
-
-                break;
-                case Configuration::DETECT_CONTENT_ACCEPT_HEADER:
-                    // See if the Accept header matches for this writer
-
+	                $ext = $this->request->getExtension();
+                    if (!empty($ext) && in_array($this->request->getExtension(), $writer->getMatchableExtensions()))
+                    {
+                        return true;
+                    }
                 break;
                 case Configuration::DETECT_CONTENT_PARAM:
                     // Inspect the request object for a "format" parameter
-
+                    if (in_array($this->request->getQuery('format'), $writer->getMatchableFormatParams()))
+                    {
+                        return true;
+                    }
                 break;
 	        }
 	    }

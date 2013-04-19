@@ -91,4 +91,17 @@ interface AdapterInterface
 	 * @return string $uri
 	 */
 	public function getUri();
+
+	/**
+	 * Get the URI path - excludes URL meta data such as query parameters, hashes, extentions (?#!.)
+	 * @return string $path
+	 */
+	public function getPath();
+
+    /**
+     * Get the URI extension (if present)
+     * @return string $extension
+     */
+	public function getExtension();
+
 }

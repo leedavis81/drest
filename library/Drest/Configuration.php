@@ -34,7 +34,7 @@ class Configuration
     public function __construct()
     {
         // By default only allow the Accept header detection
-        $this->setDetectContentOptions(array(self::DETECT_CONTENT_ACCEPT_HEADER, self::DETECT_CONTENT_EXTENSION, self::DETECT_CONTENT_PARAM));
+        $this->setDetectContentOptions(array(self::DETECT_CONTENT_ACCEPT_HEADER));
         $this->setDebugMode(false);
     }
 

@@ -47,9 +47,17 @@ class ServiceMetaData
 	/**
 	 * Key-value array of URL parameters populated after a match has been successful
 	 * - These can only be set upon a match
-	 * @var array $params
+	 * @var array $route_params
 	 */
-	protected $params;
+	protected $route_params;
+
+	/**
+	 * An index array of URL parameters that exist but didn't match a route pattern parameter
+	 * Eg: pattern: /user/:id+  with url: /user/1/some/additional/params. The value id => 1 will go into $route_params
+	 * All the rest will go in here.
+	 * @var array $route_params
+	 */
+	protected $unmapped_route_params;
 
 	/**
 	 * The service name (must be unique)
@@ -206,9 +214,18 @@ class ServiceMetaData
 	 * Get any params that were set after a sucessful match
 	 * @return array $params
 	 */
-	public function getParams()
+	public function getRouteParams()
 	{
-        return $this->params;
+        return $this->route_params;
+	}
+
+	/**
+	 * Get any unmapped route parameters
+	 * @return array $params
+	 */
+	public function getUnmappedRouteParams()
+	{
+	    return $this->unmapped_route_params;
 	}
 
 	/**
@@ -221,14 +238,8 @@ class ServiceMetaData
 	}
 
     /**
-     * Check if this route matches the request passed
-     *
-     * Parse this route's pattern, and then compare it to an HTTP resource URI
-     * This method was modeled after the techniques demonstrated by Dan Sosedoff at:
-     *
-     * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
-     *
-     * @param  string $resourceUri A Request URI
+     * Does this request matches the route pattern
+     * @param Drest\Request $request
      * @return bool
      */
     public function matches(\Drest\Request $request)
@@ -247,7 +258,6 @@ class ServiceMetaData
 			}
 		}
 
-
         //Convert URL params into regex patterns, construct a regex for this route, init params
         $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'), str_replace(')', ')?', (string) $this->route_pattern));
         if (substr($this->route_pattern, -1) === '/')
@@ -256,7 +266,7 @@ class ServiceMetaData
         }
 
         //Cache URL params' names and values if this route matches the current HTTP request
-        if (!preg_match('#^' . $patternAsRegex . '$#', $request->getUri(), $paramValues))
+        if (!preg_match('#^' . $patternAsRegex . '$#', $request->getPath(), $paramValues))
         {
             return false;
         }
@@ -267,11 +277,22 @@ class ServiceMetaData
             {
                 if (isset($this->param_names_path[$name]))
                 {
-                    $this->params[$name] = explode('/', urldecode($paramValues[$name]));
+                    $parts = explode('/', urldecode($paramValues[$name]));
+                    $this->route_params[$name] = array_shift($parts);
+                    $this->unmapped_route_params = $parts;
                 } else
                 {
-                    $this->params[$name] = urldecode($paramValues[$name]);
+                    $this->route_params[$name] = urldecode($paramValues[$name]);
                 }
+            }
+        }
+
+        // Check the route conditions
+        foreach ($this->route_conditions as $key => $condition)
+        {
+            if (!preg_match('/^' . $condition . '$/', $this->route_params[$key]))
+            {
+                return false;
             }
         }
 
@@ -286,10 +307,7 @@ class ServiceMetaData
     protected function matchesCallback($m)
     {
         $this->param_names[] = $m[1];
-        if (isset($this->route_conditions[$m[1]]))
-        {
-            return '(?P<' . $m[1] . '>' . $this->route_conditions[$m[1]] . ')';
-        }
+
         if (substr($m[0], -1) === '+')
         {
             $this->param_names_path[$m[1]] = 1;
@@ -298,7 +316,6 @@ class ServiceMetaData
 
         return '(?P<' . $m[1] . '>[^/]+)';
     }
-
 
     /**
      * Is this route specific to defined HTTP verbs

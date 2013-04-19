@@ -182,6 +182,24 @@ class Request
 	}
 
 	/**
+	 * Get the URI path - excludes URL meta data such as query parameters, hashes, extentions (?#!.)
+	 * @return string $path
+	 */
+	public function getPath()
+	{
+	    return $this->adapter->getPath();
+	}
+
+    /**
+     * Get the URI extension (if present)
+     * @return string $extension
+     */
+	public function getExtension()
+	{
+        return $this->adapter->getExtension();
+	}
+
+	/**
 	 * Factory call to create a Drest request object
 	 * @param mixed $request_object prefered response object
 	 */

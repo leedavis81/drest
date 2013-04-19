@@ -18,16 +18,26 @@ class Json extends AbstractWriter
 
 	public function getMatchableAcceptHeaders()
 	{
-
+	    return array(
+            'application/json',
+            'application/x-javascript',
+            'text/javascript',
+            'text/x-javascript',
+            'text/x-json'
+	    );
 	}
 
 	public function getMatchableExtensions()
 	{
-
+        return array(
+        	'json'
+        );
 	}
 
-	public function getMatchableFormatParam()
+	public function getMatchableFormatParams()
 	{
-
+        return array(
+        	'json'
+        );
 	}
 }

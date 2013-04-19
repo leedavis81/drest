@@ -27,5 +27,5 @@ interface InterfaceWriter
 	 * Return an array of acceptable value on the format param that should match this writer
 	 * @return array
 	 */
-	public function getMatchableFormatParam();
+	public function getMatchableFormatParams();
 }

@@ -21,17 +21,24 @@ class Xml extends AbstractWriter
 
 	public function getMatchableAcceptHeaders()
 	{
-
+        return array(
+            'application/xml',
+            'text/xml'
+        );
 	}
 
 	public function getMatchableExtensions()
 	{
-
+        return array(
+        	'xml'
+        );
 	}
 
-	public function getMatchableFormatParam()
+	public function getMatchableFormatParams()
 	{
-
+        return array(
+        	'xml'
+        );
 	}
 
 

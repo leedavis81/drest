@@ -59,4 +59,28 @@ abstract class AdapterAbstract implements AdapterInterface
 		}
 		return $this->routeParams;
 	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Request\Adapter.AdapterInterface::getPath()
+	 */
+	public function getPath()
+	{
+        $urlParts = preg_split('/[!?#.]/', $this->getUri());
+        return $urlParts[0];
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Request\Adapter.AdapterInterface::getExtension()
+	 */
+	public function getExtension()
+	{
+         $urlParts = preg_split('/[.]/', $this->getUri());
+         if (sizeof($urlParts) > 1)
+         {
+             return $urlParts[sizeof($urlParts)-1];
+         }
+         return '';
+	}
 }
