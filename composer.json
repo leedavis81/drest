@@ -15,19 +15,19 @@
     ],    
     "require": {
         "php": ">=5.3.3",
-        "jms/metadata": "v1.3.0",
         "doctrine/annotations": "v1.1",
         "doctrine/cache": "v1.0",
-        "symfony/http-foundation": "v2.2.1",
         "symfony/console": "v2.2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
         "doctrine/orm": ">= 2.3.3",
-        "zendframework/zend-http": ">= 2.1.5"
+        "zendframework/zend-http": ">= 2.1.5",
+        "symfony/http-foundation": "v2.2.1"        
     },
     "suggest": {
-        "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
+        "symfony/yaml": "If you want to use YAML Metadata Mapping Driver",
+        "symfony/http-foundation": "If you're not using Drest with an existing framework adapters (see documentation) then you MUST include this" 
     },    
     "bin": ["bin", "bin/drest.php"],
     "autoload": {

@@ -26,4 +26,7 @@ final class Service
 
     /** @var array */
     public $verbs;
+
+    /** @var array */
+    public $expose;
 }

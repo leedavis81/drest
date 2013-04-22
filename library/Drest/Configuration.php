@@ -77,13 +77,13 @@ class Configuration
      */
     public function setMetadataCacheImpl(Cache $cacheImpl)
     {
-        if ($cacheImpl instanceof \Doctrine\Common\Cache\Cache)
+        if (!$cacheImpl instanceof \Doctrine\Common\Cache\Cache)
         {
-            $this->_attributes['metadataCacheImpl'] = new \Metadata\Cache\DoctrineCacheAdapter('_drest_', $cacheImpl);
-        } else
-        {
+            throw DrestException::invalidCacheInstance();
             $this->_attributes['metadataCacheImpl'] = $cacheImpl;
         }
+
+        $this->_attributes['metadataCacheImpl'] = $cacheImpl;
     }
 
 
@@ -116,6 +116,47 @@ class Configuration
         return $this->_attributes['detectContentOptions'];
     }
 
+    /**
+     * Register paths to your configuration files. This will typically be where your entities live
+     * This will overwrite any previously registered paths. To add new one use addPathsToConfigFiles($paths)
+     */
+    public function addPathsToConfigFiles($paths = array())
+    {
+        if (!isset($this->_attributes['pathsToConfigFiles']))
+        {
+            $this->_attributes['pathsToConfigFiles'] = array();
+        }
+        $this->_attributes['pathsToConfigFiles'] = array_merge($this->_attributes['pathsToConfigFiles'], (array) $paths);
+    }
+
+    /**
+     * Remove all the registered paths to config files, or just a specific entry $path
+     * @param string $path
+     */
+    public function removePathsToConfigFiles($path = null)
+    {
+        if (is_null($path))
+        {
+            $this->_attributes['pathsToConfigFiles'] = array();
+        } else
+        {
+            $offset = array_search($path, $this->_attributes['pathsToConfigFiles']);
+
+            if ($offset !== false)
+            {
+                unset($this->_attributes['pathsToConfigFiles'][$offset]);
+            }
+        }
+    }
+
+    /**
+     * Get the paths to the drest configutation files
+     * @return array $paths
+     */
+    public function getPathsToConfigFiles()
+    {
+        return $this->_attributes['pathsToConfigFiles'];
+    }
 
     /**
      * Ensures that this Configuration instance contains settings that are

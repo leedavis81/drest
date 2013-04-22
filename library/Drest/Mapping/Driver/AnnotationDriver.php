@@ -8,7 +8,7 @@ use Drest\DrestException;
 
 use	Doctrine\Common\Annotations,
     Doctrine\Common\Persistence\Mapping\Driver as PersistenceDriver,
-    Metadata\Driver\DriverInterface,
+    Drest\Mapping\Driver\DriverInterface,
 	Drest\Mapping,
 	Drest\Mapping\Annotation;
 
@@ -25,37 +25,146 @@ class AnnotationDriver implements DriverInterface
 	 */
     private $reader;
 
-    public function __construct(Annotations\AnnotationReader $reader, $paths = array())
+    /**
+     * The paths to look for mapping files - immutable as classNames as cached, must be passed on construct.
+     * @var array
+     */
+    protected $paths;
+
+    /**
+     * Loaded classnames
+     * @var array
+     */
+    protected $classNames = array();
+
+    /**
+     * Extensions of the files to read
+     * @var array
+     */
+    protected $extensions = array();
+
+
+	public function __construct(Annotations\AnnotationReader $reader, $paths = array())
     {
         $this->reader = $reader;
+        $this->paths = $paths;
+
+        $this->addExtension('php');
+    }
+
+    /**
+     * Get paths to annotation classes
+     * @return array
+     */
+    public function getPaths()
+    {
+        return $this->paths;
+    }
+
+    /**
+     * Add an extension to look for classes
+     * @param mixed $extension - can be a string or an array of extensions
+     */
+    public function addExtension($extension)
+    {
+        $extension = (array) $extension;
+        foreach ($extension as $ext)
+        {
+            if (!in_array($ext, $this->extensions))
+            {
+                $this->extensions[] = strtolower(preg_replace("/[^a-zA-Z0-9.\s]/", "", $ext));
+            }
+        }
+    }
+
+    /**
+     * Remove all registered extensions, if an extension name is passed, only remove that entry
+     * @param string $extension
+     */
+    public function removeExtensions($extension = null)
+    {
+        if (is_null($extension))
+        {
+            $this->extensions = array();
+        } else
+        {
+            $offset = array_search($extension, $this->extensions);
+            if ($offset !== false)
+            {
+                unset($this->extensions[$offset]);
+            }
+        }
     }
 
 
-	public static function registerAnnotations()
-	{
-		Annotations\AnnotationRegistry::registerFile( __DIR__ . '/DrestAnnotations.php');
-	}
+    /**
+     * Get all the metadata class names known to this driver.
+     * @return array $classes
+     */
+    public function getAllClassNames()
+    {
+        if (empty($this->classNames))
+        {
+            if (empty($this->paths))
+            {
+                throw DrestException::pathToConfigFilesRequired();
+            }
+            $classes = array();
+            $included = array();
+            foreach ($this->paths as $path)
+            {
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::LEAVES_ONLY
+                );
 
-	/**
-	 * @param Doctrine\Common\Annotations\Reader $reader - Can be a cached / uncached reader instance
-	 * @return Doctrine\ORM\Mapping\Driver\DriverChain $driverChain
-	 * @deprecated Can't test registering an annotation driver into the driver chain as driver requires ClassMetadataInfo as second arg on loadMetadataForClass() - which appears ORM specific
-	 */
-	public static function registerMapperIntoDriverChain(Annotations\Reader $reader)
-	{
-		// Include the defined annotations
-		Annotations\AnnotationRegistry::registerFile( __DIR__ . '/DrestAnnotations.php');
+                foreach ($iterator as $file)
+                {
+                    if (!in_array($file->getExtension(), $this->extensions))
+                    {
+                        continue;
+                    }
 
-		$driverChain = new PersistenceDriver\MappingDriverChain();
-		// Add Drest annotation driver to the driver chain
-		$drestDriver = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, array(
-		            __DIR__.'/../Annotation'
-		));
-		$driverChain->addDriver($drestDriver, 'Drest');
+                    $path = $file->getRealPath();
+                    require_once $path;
+                    // Register the files we've included here
+                    $included[] = $path;
+                }
+            }
 
-		return $driverChain;
-	}
+            foreach (get_declared_classes() as $className)
+            {
+                $reflClass = new \ReflectionClass($className);
+                $sourceFile = $reflClass->getFileName();
+                if (in_array($sourceFile, $included) && $this->isDrestResource($className))
+                {
+                    $classes[] = $className;
+                }
+            }
 
+            $this->classNames = $classes;
+        }
+
+        return $this->classNames;
+    }
+
+    /**
+     * Does the class contain a drest resource object
+     * @param string $className
+     */
+    public function isDrestResource($className)
+    {
+        $classAnnotations = $this->reader->getClassAnnotations(new \ReflectionClass($className));
+
+        foreach ($classAnnotations as $classAnnotation)
+        {
+            if ($classAnnotation instanceof Annotation\Resource)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 	/**
@@ -63,18 +172,25 @@ class AnnotationDriver implements DriverInterface
 	 * @param object|string $className - Pass in either the class name, or an instance of that class
 	 * @return Drest\Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
 	 */
-    public function loadMetadataForClass(\ReflectionClass $class)
+    public function loadMetadataForClass($class)
     {
+        $resourceFound = false;
+
+        if (is_string($class))
+        {
+            $class = new \ReflectionClass($class);
+        }
+
+        $metadata = new Mapping\ClassMetadata($class);
         foreach ($this->reader->getClassAnnotations($class) as $annotatedObject)
         {
         	if ($annotatedObject instanceof Annotation\Resource)
         	{
+        	    $resourceFound = true;
         	    if ($annotatedObject->services === null)
         	    {
         	        throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($class->name);
         	    }
-
-        	    $metadata = new Mapping\ClassMetadata($class->name);
 
         	    $metadata->addWriters($annotatedObject->writers);
 
@@ -119,9 +235,17 @@ class AnnotationDriver implements DriverInterface
         	    }
 
         	}
+        	if ($annotatedObject instanceof \Doctrine\ORM\Mapping\Entity)
+        	{
+        	    if (isset($annotatedObject->repositoryClass))
+        	    {
+        	        // Inject the annotated repository class into out metadata
+        	        $metadata->setRepositoryClass($annotatedObject->repositoryClass);
+        	    }
+        	}
         }
 
-        return (isset($metadata)) ? $metadata : null;
+        return ($resourceFound) ? $metadata : null;
     }
 
 
@@ -132,7 +256,7 @@ class AnnotationDriver implements DriverInterface
      * @param array|string $paths
      * @return AnnotationDriver
      */
-    static public function create(Annotations\AnnotationReader $reader = null, $paths = array())
+    public static function create(Annotations\AnnotationReader $reader = null, $paths = array())
     {
         if ($reader == null) {
             $reader = new Annotations\AnnotationReader();
@@ -140,4 +264,9 @@ class AnnotationDriver implements DriverInterface
 
         return new self($reader, $paths);
     }
+
+	public static function registerAnnotations()
+	{
+		Annotations\AnnotationRegistry::registerFile( __DIR__ . '/DrestAnnotations.php');
+	}
 }

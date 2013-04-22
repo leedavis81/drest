@@ -8,8 +8,8 @@ use Doctrine\Common\EventManager,
     Doctrine\Common\Annotations\AnnotationReader,
 	Doctrine\ORM\EntityManager,
 
-	Metadata\MetadataFactory,
-    Metadata\MetadataFactoryInterface,
+	Drest\Mapping\MetadataFactory,
+
 	Drest\Request,
 	Drest\Repository,
 	Drest\DrestException;
@@ -72,7 +72,8 @@ class Manager
 
         $this->metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader()
+                new AnnotationReader(),
+                $config->getPathsToConfigFiles()
             )
         );
 
@@ -86,7 +87,7 @@ class Manager
      */
     protected function registerRoutes()
     {
-    	foreach ($this->em->getConfiguration()->getMetadataDriverImpl()->getAllClassNames() as $class)
+    	foreach ($this->metadataFactory->getAllClassNames() as $class)
 		{
             $classMetaData = $this->metadataFactory->getMetadataForClass($class);
             foreach ($classMetaData->getServicesMetaData() as $service)
@@ -169,7 +170,7 @@ class Manager
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
         $service = $this->getMatchedRoute();
 
-        $repository = $this->getRepository($service->getClassMetaData()->name);
+        $repository = $this->getRepository($service->getClassMetaData());
 
         // Set paramaters matched on the route to the request object
         $this->request->setRouteParam($service->getRouteParams());
@@ -340,6 +341,7 @@ class Manager
 
 
 	/**
+	 * @todo: resolve this
 	 * Get the router object
 	 * @return Drest\Router $router - uses the adapted instance if set, otherwise creates the default router instance
 	 */
@@ -366,15 +368,15 @@ class Manager
     /**
      * Gets the repository for an entity class.
      *
-     * @param string $entityName The name of the entity.
+     * @param Drest\Mapping\ClassMetaData $classMetaData of the entity.
      * @return EntityRepository The repository class.
      */
-    public function getRepository($entityName)
+    public function getRepository(Mapping\ClassMetaData $classMetaData)
     {
-    	$repository = $this->em->getRepository($entityName);
+    	$repository = $this->em->getRepository($classMetaData->getClassName());
     	if (!$repository instanceof Repository)
     	{
-    		throw DrestException::entityRepositoryNotAnInstanceOfDrestRepository($entityName);
+    		throw DrestException::entityRepositoryNotAnInstanceOfDrestRepository($classMetaData->getClassName());
     	}
 
         return $repository;

@@ -26,19 +26,11 @@ $cachedAnnotationReader = new Doctrine\Common\Annotations\CachedReader(
 
 
 $pathToEntities = array(__DIR__ . '/../Entities');
-
 $ORMDriver = $ormConfig->newDefaultAnnotationDriver($pathToEntities, false);
 
-
+// @todo: Do we need this here?? yes! - move this somewhere internally
 Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
 
-//$driverChain = Drest\Mapping\Driver\AnnotationDriver::registerMapperIntoDriverChain($cachedAnnotationReader);
-
-// Add the Doctrine ORM driver to the driver chain we've just created (including its namespace)
-//$driverChain->addDriver($ORMDriver, 'Entities');
-
-// add a driver chain to the ORM config
-//$ormConfig->setMetadataDriverImpl($driverChain);
 $ormConfig->setMetadataDriverImpl($ORMDriver);
 
 // Do proxy stuff
@@ -69,6 +61,8 @@ try
 	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 
 	$drestConfig->setDebugMode(true);
+
+	$drestConfig->addPathsToConfigFiles($pathToEntities);
 
 	$drestManager = \Drest\Manager::create($em, $drestConfig);
 

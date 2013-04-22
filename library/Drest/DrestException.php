@@ -18,6 +18,11 @@ class DrestException extends Exception
         return new self('Class Metadata Cache is not configured, ensure an instance of Doctrine\Common\Cache\Cache is passed to the Drest\Configuration::setMetadataCacheImpl()');
     }
 
+    public static function invalidCacheInstance()
+    {
+        return new self('Cache must be an instance of Doctrine\Common\Cache\Cache');
+    }
+
     public static function currentlyRunningDebugMode()
     {
         return new self('Debug mode is set to on. This will cause configuration exceptions to be displayed and should be switched off in production');
@@ -51,6 +56,21 @@ class DrestException extends Exception
     public static function unknownContentType($type)
     {
         return new self('Used an unknown content type of "' . $type . '". values ELEMENT or COLLECTION should be used.');
+    }
+
+    public static function pathToConfigFilesRequired()
+    {
+        return new self('Path to your configuration files are required for the driver to retrieve all class names');
+    }
+
+    public static function pathToConfigFilesMustBeDirectory($path)
+    {
+        return new self('The path to your configuration files must be a directory. "' . $path . '" given.');
+    }
+
+    public static function unableToLoadMetaDataFromDriver()
+    {
+        return new self('Unable to load metadata using supplied driver');
     }
 
 

@@ -8,10 +8,9 @@ namespace Drest\Mapping;
  * @author Lee
  *
  */
-use Drest\DrestException,
-    Metadata\MergeableClassMetadata;
+use Drest\DrestException;
 
-class ClassMetaData extends MergeableClassMetadata
+class ClassMetaData implements \Serializable
 {
 
     /**
@@ -21,10 +20,54 @@ class ClassMetaData extends MergeableClassMetadata
 	protected $services = array();
 
 	/**
+	 * The repository classname used on the ORM Entity definition
+	 * @var string $respositoryClass
+	 */
+	protected $repositoryClass;
+
+	/**
 	 * An array of Drest\Writer\InterfaceWriter object defined on this entity
 	 * @var array $writers
 	 */
 	protected $writers = array();
+
+	/**
+	 * Name of the class that we collected metadata for
+	 * @var string $className
+	 */
+	protected $className;
+
+	/**
+	 * A reflection of the class
+	 * @var \ReflectionClass $reflection
+	 */
+	protected $reflection;
+
+	/**
+	 * File path used to load this metadata
+	 * @var string $fileResources
+	 */
+    public $filePath;
+
+    /**
+     * time this instance was created - current Unix timestamp
+     * @var integer $createdAt
+     */
+    public $createdAt;
+
+
+	/**
+	 * Construct an instance of this classes metadata
+	 * @param \ReflectionClass $className
+	 */
+    public function __construct(\ReflectionClass $classRefl)
+    {
+        $this->reflection = $classRefl;
+        $this->className = $classRefl->name;
+
+        $this->filePath = $classRefl->getFileName();
+        $this->createdAt = time();
+    }
 
 	/**
 	 * Add a service metadata object
@@ -51,6 +94,24 @@ class ClassMetaData extends MergeableClassMetadata
 	        return $this->services[$name];
 	    }
 	    return false;
+	}
+
+	/**
+	 * Set the repository class name
+	 * @param string $className
+	 */
+	public function setRepositoryClass($className)
+	{
+        $this->repositoryClass = $className;
+	}
+
+	/**
+	 * Get the repository class used on the ORM annotations
+	 * @return string $className
+	 */
+	public function getRepositoryClass()
+	{
+	    return $this->repositoryClass;
 	}
 
 	/**
@@ -105,4 +166,64 @@ class ClassMetaData extends MergeableClassMetadata
 	    return $this->writers;
 	}
 
+	/**
+	 * Get the metadata class name (immutable)
+	 * @return string $className
+	 */
+	public function getClassName()
+	{
+	    return $this->className;
+	}
+
+	/**
+	 * Serialise this object
+	 * @return array
+	 */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->services,
+            $this->repositoryClass,
+            $this->writers,
+            $this->className,
+            $this->filePath,
+            $this->createdAt
+        ));
+    }
+
+    /**
+     * Unserialise this object and reestablish it's state
+     */
+    public function unserialize($string)
+    {
+        list(
+            $this->services,
+            $this->repositoryClass,
+            $this->writers,
+            $this->className,
+            $this->filePath,
+            $this->createdAt
+        ) = unserialize($string);
+
+        $this->reflection = new \ReflectionClass($this->className);
+    }
+
+    /**
+     * Check to see if this classes metadata has expired (file has been modified or deleted)
+     * @param timestamp
+     */
+    public function expired($timestamp = null)
+    {
+        if ($timestamp === null)
+        {
+            $timestamp = $this->createdAt;
+        }
+
+        if (!file_exists($this->filePath) || $timestamp < filemtime($this->filePath))
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
