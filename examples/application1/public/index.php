@@ -2,7 +2,6 @@
 use Drest\Configuration;
 
 
-
 error_reporting(E_ALL|E_STRICT);
 ini_set('display_errors', 'On');
 
@@ -45,7 +44,6 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 	'dbname' => 'drest',
 	'driver' => 'pdo_mysql'
 ), $ormConfig);
-
 
 
 try

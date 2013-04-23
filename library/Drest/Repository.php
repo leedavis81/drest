@@ -101,7 +101,7 @@ class Repository extends ORM\EntityRepository
             $qb->setParameter($key, $value);
         }
         try {
-            return $qb->getQuery()->getSingleResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
+            return $qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY);
         } catch (ORM\ORMException $e)
         {
             if ($e instanceof ORM\NonUniqueResultException)

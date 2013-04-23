@@ -153,7 +153,7 @@ class Manager
         // A Drest exception has occured, send an unknown error response
         $response->setStatusCode(Response::STATUS_CODE_500);
 
-        // @todo: possibly standardise the error response, current defaults to the framework impl
+        // @todo: standardise the error response, current defaults to the framework impl - return error in format (writer) requested
 
         return $response;
 	}
