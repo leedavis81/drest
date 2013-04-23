@@ -14,16 +14,10 @@ class ClassMetaData implements \Serializable
 {
 
     /**
-     * An array of ServiceMetaData objects defined on this entity
-     * @var array $services
+     * An array of RouteMetaData objects defined on this entity
+     * @var array $routes
      */
-	protected $services = array();
-
-	/**
-	 * The repository classname used on the ORM Entity definition
-	 * @var string $respositoryClass
-	 */
-	protected $repositoryClass;
+	protected $routes = array();
 
 	/**
 	 * An array of Drest\Writer\InterfaceWriter object defined on this entity
@@ -32,10 +26,16 @@ class ClassMetaData implements \Serializable
 	protected $writers = array();
 
 	/**
-	 * Name of the class that we collected metadata for
+	 * Name of the class that we collected metadata for (eg Entities\User)
 	 * @var string $className
 	 */
 	protected $className;
+
+	/**
+	 * Name of the service class associated with this resource
+	 * @var string $serviceClassName
+	 */
+	protected $serviceClassName;
 
 	/**
 	 * A reflection of the class
@@ -70,48 +70,30 @@ class ClassMetaData implements \Serializable
     }
 
 	/**
-	 * Add a service metadata object
-	 * @param Drest\Mapping\ServiceMetaData $service
+	 * Add a route metadata object
+	 * @param Drest\Mapping\RouteMetaData $route
 	 */
-	public function addServiceMetaData(ServiceMetaData $service)
+	public function addRouteMetaData(RouteMetaData $route)
 	{
-	    $service->setClassMetaData($this);
-        $this->services[$service->getName()] = $service;
+	    $route->setClassMetaData($this);
+        $this->routes[$route->getName()] = $route;
 	}
 
 	/**
-	 * Get either and array of all service metadata information, or an entry by name. Returns false if entry cannot be found
-	 * @return mixed $services;
+	 * Get either and array of all route metadata information, or an entry by name. Returns false if entry cannot be found
+	 * @return mixed $routes;
 	 */
-	public function getServicesMetaData($name = null)
+	public function getRoutesMetaData($name = null)
 	{
 	    if ($name === null)
 	    {
-	        return $this->services;
+	        return $this->routes;
 	    }
-	    if (isset($this->services[$name]))
+	    if (isset($this->routes[$name]))
 	    {
-	        return $this->services[$name];
+	        return $this->routes[$name];
 	    }
 	    return false;
-	}
-
-	/**
-	 * Set the repository class name
-	 * @param string $className
-	 */
-	public function setRepositoryClass($className)
-	{
-        $this->repositoryClass = $className;
-	}
-
-	/**
-	 * Get the repository class used on the ORM annotations
-	 * @return string $className
-	 */
-	public function getRepositoryClass()
-	{
-	    return $this->repositoryClass;
 	}
 
 	/**
@@ -175,6 +157,25 @@ class ClassMetaData implements \Serializable
 	    return $this->className;
 	}
 
+
+	/**
+	 * Set the service class name
+	 * @param string $serviceClassName
+	 */
+	public function setServiceClassName($serviceClassName)
+	{
+	    $this->serviceClassName = $serviceClassName;
+	}
+
+	/**
+	 * Get the service class name
+	 * @return string $serviceClassName
+	 */
+	public function getServiceClassName()
+	{
+	    return $this->serviceClassName;
+	}
+
 	/**
 	 * Serialise this object
 	 * @return array
@@ -182,10 +183,10 @@ class ClassMetaData implements \Serializable
     public function serialize()
     {
         return serialize(array(
-            $this->services,
-            $this->repositoryClass,
+            $this->routes,
             $this->writers,
             $this->className,
+            $this->serviceClassName,
             $this->filePath,
             $this->createdAt
         ));
@@ -197,10 +198,10 @@ class ClassMetaData implements \Serializable
     public function unserialize($string)
     {
         list(
-            $this->services,
-            $this->repositoryClass,
+            $this->routes,
             $this->writers,
             $this->className,
+            $this->serviceClassName,
             $this->filePath,
             $this->createdAt
         ) = unserialize($string);

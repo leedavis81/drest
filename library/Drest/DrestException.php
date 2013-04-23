@@ -74,21 +74,22 @@ class DrestException extends Exception
     }
 
 
-    // Repository Exceptions
-    public static function entityRepositoryNotAnInstanceOfDrestRepository($entityClass)
+    // Service Exceptions
+    public static function entityServiceNotAnInstanceOfDrestService($entityClass)
     {
-    	return new self('Repository class for entity "' . $entityClass . '" is not an instance of Drest\Repository. Ensure you\'ve annotated your entities to either use @Entity(repositoryClass="Drest\Repository") or setup inheritence with it');
+    	return new self('Service class for entity "' . $entityClass . '" is not an instance of Drest\Service.');
     }
 
-    public static function unknownRepositoryMethod($class, $method)
+    public static function unknownServiceMethod($class, $method)
     {
-        return new self('Unknown method "' . $method . '" on repository class "' . $class);
+        return new self('Unknown method "' . $method . '" on service class "' . $class);
     }
 
-    public static function repositoryNeedsRequestObject()
+    public static function noMatchedRouteSet()
     {
-        return new self('Repository needs access to the request object to determine a default method call, inject using setRequest()');
+        return new self('No matched route has been set on this service class. The content type is needed for a default service method call');
     }
+
 
 
     // Writer Exceptions
@@ -112,9 +113,9 @@ class DrestException extends Exception
         return new self('Unable to match a writer instance using Configuration::DETECT_CONTENT_* methods set');
     }
 
-    public static function noWritersSetForService(Mapping\ServiceMetaData $service)
+    public static function noWritersSetForRoute(Mapping\RouteMetaData $route)
     {
-        return new self('No writers have been set for the service "' . $service->getName() . '" for the Entity "' . $service->getClassMetaData()->name . "'");
+        return new self('No writers have been set for the service "' . $route->getName() . '" for the Entity "' . $route->getClassMetaData()->getClassName() . "'");
     }
 
 

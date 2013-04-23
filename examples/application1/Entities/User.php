@@ -12,17 +12,18 @@ use Doctrine\ORM\Mapping as ORM;
  * User
  * @Drest\Resource(
  * 		writers={"Json", "Xml"},
- *      services={
- *      	@Drest\Service(
+ * 		service_class="Service\User",
+ *      routes={
+ *      	@Drest\Route(
  *      		name="get_user",
  *      		route_pattern="/user/:id+",
  *      		route_conditions={"id": "\d+"},
  *      		verbs={"GET"},
  *      		content="element",
- *      		expose={"username", "email_address"}
+ *      		call_method="getMyCustomElement"
  *      	),
- *          @Drest\Service(name="post_user", route_pattern="/user", verbs={"GET"}, repository_method="addUser", content="element"),
- *          @Drest\Service(name="get_users", route_pattern="/users", verbs={"GET"}, repository_method="getUsers", content="collection"),
+ *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"GET"}, call_method="addUser", content="element"),
+ *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, call_method="getUsers", content="collection"),
  *      }
  * )
  *

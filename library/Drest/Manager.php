@@ -11,7 +11,6 @@ use Doctrine\Common\EventManager,
 	Drest\Mapping\MetadataFactory,
 
 	Drest\Request,
-	Drest\Repository,
 	Drest\DrestException;
 
 
@@ -32,7 +31,7 @@ class Manager
 
 	/**
 	 * Metadata factory object
-	 * @var Metadata\MetadataFactory $metadataFactory
+	 * @var Drest\Mapping\MetadataFactory $metadataFactory
 	 */
 	protected $metadataFactory;
 
@@ -54,6 +53,12 @@ class Manager
 	 */
 	protected $response;
 
+	/**
+	 * A cache for initialised service classes
+	 * @var array contains array of service classes of instance \Drest\Service\AbstractService
+	 */
+	protected $services;
+
 
     /**
      * Creates an instance of the Drest Manager using the passed configuration object
@@ -68,6 +73,7 @@ class Manager
         $this->config       = $config;
         $this->eventManager = $eventManager;
 
+        // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
 
         $this->metadataFactory = new MetadataFactory(
@@ -90,9 +96,9 @@ class Manager
     	foreach ($this->metadataFactory->getAllClassNames() as $class)
 		{
             $classMetaData = $this->metadataFactory->getMetadataForClass($class);
-            foreach ($classMetaData->getServicesMetaData() as $service)
+            foreach ($classMetaData->getRoutesMetaData() as $route)
             {
-                $this->router->registerRoute($service);
+                $this->router->registerRoute($route);
             }
 		}
     }
@@ -119,9 +125,7 @@ class Manager
 	}
 
 
-
     /**
-     *
      * Dispatch a REST request
      * @param object $request - Framework request object
      * @param object $response - Framework response object
@@ -168,52 +172,51 @@ class Manager
 	protected function execute($request = null, $response = null)
 	{
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
-        $service = $this->getMatchedRoute();
-
-        $repository = $this->getRepository($service->getClassMetaData());
+        $route = $this->getMatchedRoute();
 
         // Set paramaters matched on the route to the request object
-        $this->request->setRouteParam($service->getRouteParams());
+        $this->request->setRouteParam($route->getRouteParams());
 
-        // Set the matched service object into the repository class
-        $repository->setMatchedService($service);
+        // Get the service class
+        $service = $this->getService($route->getClassMetaData()->getClassName());
 
-    	// Inject the request / response object into the extended repository
-    	$repository->setRequest($this->getRequest($request));
-    	$repository->setResponse($this->getResponse($response));
+        // Set the matched service object into the service class
+        $service->setMatchedRoute($route);
 
-        // Fetch an instance of Drest\Repository
-        $repositoryMethod = $service->getRepositoryMethod();
-        if (empty($repositoryMethod))
+        $callMethod = $route->getCallMethod();
+        if (empty($callMethod) && $service instanceof Service\DefaultService)
         {
-            // If nothing was defined, execute the default request method
-            $data = $repository->executeDefaultMethod($service);
-        } elseif (!method_exists($repository, $repositoryMethod))
-        {
-            throw DrestException::unknownRepositoryMethod(get_class($repository), $repositoryMethod);
-        } else
-        {
-            $data = $repository->$repositoryMethod();
+            $callMethod = $service->getDefaultMethod();
         }
+        if (!method_exists($service, $callMethod))
+        {
+            throw DrestException::unknownServiceMethod(get_class($service), $callMethod);
+        }
+
+        // @todo: encapsulate the data within the service class - don't expose it out here
+        $data = $service->$callMethod();
 
         // Pass the results to a writer
         if ($this->response->getStatusCode() == 200 && isset($data))
         {
-            $this->execWriter($service, $data);
+            $this->execWriter($route, $data);
         }
 
         return $this->getResponse();
 	}
 
     /**
+     *
      * Detect the writer to be applied, pass in the data and write the content to the response object
+     * @param Drest\Mapping\RouteMetaData $route
+     * @param array $data
      */
-	protected function execWriter(Mapping\ServiceMetaData $service, array $data = array())
+	protected function execWriter(Mapping\RouteMetaData $route, array $data = array())
 	{
-	    $writers = $service->getClassMetaData()->getWriters();
+	    $writers = $route->getClassMetaData()->getWriters();
 	    if (empty($writers))
 	    {
-	        throw DrestException::noWritersSetForService($service);
+	        throw DrestException::noWritersSetForRoute($route);
 	    }
 
         $writerFound = false;
@@ -276,7 +279,7 @@ class Manager
 	/**
 	 * Runs through all the registered routes and returns a single match
 	 * @throws DrestException if no routes are found, or there are multiple matches
-	 * @return Drest\Mapping\ServiceMetaData $service
+	 * @return Drest\Mapping\RouteMetaData $route
 	 */
 	protected function getMatchedRoute()
 	{
@@ -340,48 +343,37 @@ class Manager
 	}
 
 
-	/**
-	 * @todo: resolve this
-	 * Get the router object
-	 * @return Drest\Router $router - uses the adapted instance if set, otherwise creates the default router instance
-	 */
-	public function getRouter()
-	{
-		if (!$this->router instanceof \Drest\Router\RouterInterface)
-		{
-
-		}
-		return $this->router;
-	}
-
-	/**
-	 *
-	 * Set the router object
-	 * @param Drest\Router $router - allows you to work with a single router across your entire app
-	 */
-	public function setRouter($router)
-	{
-		$this->router = $router;
-	}
-
-
     /**
-     * Gets the repository for an entity class.
-     *
-     * @param Drest\Mapping\ClassMetaData $classMetaData of the entity.
-     * @return EntityRepository The repository class.
+     * Get the service class for this entity
+     * @param string $entityName
+     * @return Drest\Service\AbstractService $service
+     * @throws DrestException if defined service class is not an instance of Drest\Service\AbstractService
      */
-    public function getRepository(Mapping\ClassMetaData $classMetaData)
-    {
-    	$repository = $this->em->getRepository($classMetaData->getClassName());
-    	if (!$repository instanceof Repository)
-    	{
-    		throw DrestException::entityRepositoryNotAnInstanceOfDrestRepository($classMetaData->getClassName());
-    	}
+	public function getService($entityName)
+	{
+        $entityName = ltrim($entityName, '\\');
+	    if (isset($this->services[$entityName]))
+	    {
+	        return $this->services[$entityName];
+	    }
 
-        return $repository;
-    }
+	    $classMetaData = $this->metadataFactory->getMetadataForClass($entityName);
 
+	    $serviceClassName = '\\' . $classMetaData->getServiceClassName();
+	    if ($serviceClassName === null)
+	    {
+	        $serviceClassName = $this->config->getDefaultServiceClassName();
+	    }
 
+	    $service = new $serviceClassName($this->em, $this->getRequest(), $this->getResponse());
 
+	    if (!$service instanceof Service\AbstractService)
+	    {
+	        throw DrestException::entityServiceNotAnInstanceOfDrestService($classMetaData->getClassName());
+	    }
+
+	    $this->services[$serviceClassName] = $service;
+
+	    return $service;
+	}
 }

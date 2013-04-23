@@ -9,13 +9,18 @@ namespace Drest\Mapping;
  */
 use Drest\DrestException;
 
-class ServiceMetaData
+class RouteMetaData
 {
 	const CONTENT_TYPE_ELEMENT = 1;
 	const CONTENT_TYPE_COLLECTION = 2;
 
+	public static $contentTypes = array(
+	    self::CONTENT_TYPE_ELEMENT => 'Element',
+	    self::CONTENT_TYPE_COLLECTION => 'Collection'
+	);
+
 	/**
-	 * This service objects parent
+	 * This route objects parent
 	 * @var Drest\Mapping\ClassMetaData $classMetaData
 	 */
 	protected $classMetaData;
@@ -60,13 +65,13 @@ class ServiceMetaData
 	protected $unmapped_route_params;
 
 	/**
-	 * The service name (must be unique)
+	 * The route name (must be unique)
 	 * @var string $name
 	 */
 	protected $name;
 
 	/**
-	 * Any array of verbs allowed on this service. They match the constant values defined in Drest\Request eg array('GET', 'POST')
+	 * Any array of verbs allowed on this route. They match the constant values defined in Drest\Request eg array('GET', 'POST')
 	 * @var array $verbs
 	 */
 	protected $verbs;
@@ -78,10 +83,10 @@ class ServiceMetaData
 	protected $content_type;
 
 	/**
-	 * The repository function to be called upon successful routing
-	 * @var string
+	 * The call method to be called upon successful routing
+	 * @var string $call_method
 	 */
-	protected $repository_method;
+	protected $call_method;
 
 
 	/**
@@ -103,7 +108,7 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Get this services route pattern
+	 * Get this routes route pattern
 	 * @return string $route_pattern
 	 */
 	public function getRoutePattern()
@@ -132,7 +137,7 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Get the name of this service
+	 * Get the name of this route
 	 * @return string $name
 	 */
 	public function getName()
@@ -150,7 +155,7 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Get the content type to be used for this service
+	 * Get the content type to be used for this route
 	 * @return string $content_type
 	 */
 	public function getContentType()
@@ -159,7 +164,7 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Sets the content type to be used for this service
+	 * Sets the content type to be used for this route
 	 * @param string $content_type
 	 * @throws DrestException if content type is invalid
 	 */
@@ -174,7 +179,7 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Get an array of verbs that are allowed on this service
+	 * Get an array of verbs that are allowed on this route
 	 * @return @array $verbs
 	 */
 	public function getVerbs()
@@ -183,8 +188,8 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Add verbs that are to be allowed on this service.
-	 * @param mixed $verbs = a sinlge or array of verbs valid for this service. eg array('GET', 'PUT')
+	 * Add verbs that are to be allowed on this route.
+	 * @param mixed $verbs = a sinlge or array of verbs valid for this route. eg array('GET', 'PUT')
 	 * @throws DrestException if verb is invalid
 	 */
 	public function setVerbs($verbs)
@@ -202,12 +207,12 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Get the repository method to be used
+	 * Get the call method to be used
 	 * @return string
 	 */
-	public function getRepositoryMethod()
+	public function getCallMethod()
 	{
-	    return $this->repository_method;
+	    return $this->call_method;
 	}
 
 	/**
@@ -229,12 +234,12 @@ class ServiceMetaData
 	}
 
 	/**
-	 * Set the repository method to be used upon routing match
-	 * @param string $repository_method
+	 * Set the call method (on the route class) to be used upon routing match
+	 * @param string $call_method
 	 */
-	public function setRepositoryMethod($repository_method)
+	public function setCallMethod($call_method)
 	{
-	    $this->repository_method = $repository_method;
+	    $this->call_method = $call_method;
 	}
 
     /**

@@ -187,61 +187,54 @@ class AnnotationDriver implements DriverInterface
         	if ($annotatedObject instanceof Annotation\Resource)
         	{
         	    $resourceFound = true;
-        	    if ($annotatedObject->services === null)
+        	    if ($annotatedObject->routes === null)
         	    {
         	        throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($class->name);
         	    }
 
         	    $metadata->addWriters($annotatedObject->writers);
+        	    $metadata->setServiceClassName($annotatedObject->service_class);
 
-        	    foreach ($annotatedObject->services as $service)
+        	    foreach ($annotatedObject->routes as $route)
         	    {
-        	        $serviceMetaData = new Mapping\ServiceMetaData();
+        	        $routeMetaData = new Mapping\RouteMetaData();
 
         	        // Set name
-        	        $service->name = preg_replace("/[^a-zA-Z0-9_\s]/", "", $service->name);
-        	        if ($service->name == '')
+        	        $route->name = preg_replace("/[^a-zA-Z0-9_\s]/", "", $route->name);
+        	        if ($route->name == '')
         	        {
                         throw DrestException::serviceNameIsEmpty();
         	        }
-        	        if ($metadata->getServicesMetaData($service->name) !== false)
+        	        if ($metadata->getRoutesMetaData($route->name) !== false)
         	        {
-        	            throw DrestException::serviceAlreadyDefinedWithName($class->name, $service->name);
+        	            throw DrestException::serviceAlreadyDefinedWithName($class->name, $route->name);
         	        }
-                    $serviceMetaData->setName($service->name);
+                    $routeMetaData->setName($route->name);
 
                     // Set verbs (will throw if invalid)
-        	        if (isset($service->verbs))
+        	        if (isset($route->verbs))
         	        {
-        	            $serviceMetaData->setVerbs($service->verbs);
+        	            $routeMetaData->setVerbs($route->verbs);
         	        }
 
         	        // Set content type (will throw if invalid)
-        	        $serviceMetaData->setContentType($service->content);
+        	        $routeMetaData->setContentType($route->content);
 
         	        // Add the route
         	        /** @todo: run validation checks on route syntax? */
-        	        $serviceMetaData->setRoutePattern($service->route_pattern);
+        	        $routeMetaData->setRoutePattern($route->route_pattern);
 
-        	        if (is_array($service->route_conditions))
+        	        if (is_array($route->route_conditions))
         	        {
-                        $serviceMetaData->setRouteConditions($service->route_conditions);
+                        $routeMetaData->setRouteConditions($route->route_conditions);
         	        }
 
-        	        // Add repository method
-        	        $serviceMetaData->setRepositoryMethod($service->repository_method);
+        	        // Add call method
+        	        $routeMetaData->setCallMethod($route->call_method);
 
-                    $metadata->addServiceMetaData($serviceMetaData);
+                    $metadata->addRouteMetaData($routeMetaData);
         	    }
 
-        	}
-        	if ($annotatedObject instanceof \Doctrine\ORM\Mapping\Entity)
-        	{
-        	    if (isset($annotatedObject->repositoryClass))
-        	    {
-        	        // Inject the annotated repository class into out metadata
-        	        $metadata->setRepositoryClass($annotatedObject->repositoryClass);
-        	    }
         	}
         }
 

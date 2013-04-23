@@ -10,8 +10,11 @@ namespace Drest\Mapping\Annotation;
 final class Resource
 {
     /** @var array */
-    public $services;
+    public $routes;
 
     /** @var array */
     public $writers;
+
+    /** @var string */
+    public $service_class;
 }

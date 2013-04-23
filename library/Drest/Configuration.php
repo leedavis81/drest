@@ -36,6 +36,7 @@ class Configuration
         // By default only allow the Accept header detection
         $this->setDetectContentOptions(array(self::DETECT_CONTENT_ACCEPT_HEADER));
         $this->setDebugMode(false);
+        $this->setDefaultServiceClass('Drest\Service');
     }
 
 
@@ -114,6 +115,24 @@ class Configuration
     public function getDetectContentOptions()
     {
         return $this->_attributes['detectContentOptions'];
+    }
+
+    /**
+     * Set the default service class to use
+     * @param string $className
+     */
+    public function setDefaultServiceClass($className)
+    {
+        $this->_attributes['defaultServiceClass'] = $className;
+    }
+
+    /**
+     * Get the default service class
+     * @return string $className
+     */
+    public function getDefaultServiceClassName()
+    {
+        return $this->_attributes['defaultServiceClass'];
     }
 
     /**

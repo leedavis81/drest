@@ -7,7 +7,7 @@ namespace Drest\Mapping\Annotation;
  * @Annotation
  * @Target({"ANNOTATION"})
  */
-final class Service
+final class Route
 {
     /** @var string */
     public $name;
@@ -22,11 +22,8 @@ final class Service
     public $route_conditions;
 
     /** @var string */
-    public $repository_method;
+    public $call_method;
 
     /** @var array */
     public $verbs;
-
-    /** @var array */
-    public $expose;
 }

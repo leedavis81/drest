@@ -9,6 +9,7 @@ $loader = require '../../../vendor/autoload.php';
 
 // Add the entities namespace to the loader
 $loader->add('Entities', __DIR__.'/../');
+$loader->add('Service', __DIR__.'/../');
 
 
 // Create an example doctrine application

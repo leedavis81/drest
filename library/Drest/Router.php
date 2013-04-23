@@ -24,7 +24,6 @@ class Router
 	public function getMatchedRoutes(Request $request)
 	{
 		$matches = array();
-		$url = '/users/1';
 
 		foreach ($this->routes as $route)
 		{
