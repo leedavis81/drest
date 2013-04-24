@@ -10,7 +10,7 @@ matrix:
     - php: 5.5
 
 before_script:
-  - echo '{"config":{"github-oauth":{"github.com":"6f880c1b17f63793e72497f9658853a33ba81136"}}}' > ~/.composer/config.json
+  - echo '{\"config\":{\"github-oauth\":{\"github.com\":\"6f880c1b17f63793e72497f9658853a33ba81136\"}}}' > ~/.composer/config.json
   - composer install --dev --no-interactive
 
 script: phpunit --configuration tests/phpunit.xml
