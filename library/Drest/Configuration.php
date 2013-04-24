@@ -35,8 +35,10 @@ class Configuration
     {
         // By default only allow the Accept header detection
         $this->setDetectContentOptions(array(self::DETECT_CONTENT_ACCEPT_HEADER));
+        $this->setDefaultWriters(array('Json', 'Xml'));
+
         $this->setDebugMode(false);
-        $this->setDefaultServiceClass('Drest\Service');
+        $this->setDefaultServiceClass('Drest\Service\DefaultService');
     }
 
 
@@ -118,7 +120,7 @@ class Configuration
     }
 
     /**
-     * Set the default service class to use
+     * Set the default service class to be used
      * @param string $className
      */
     public function setDefaultServiceClass($className)
@@ -130,7 +132,7 @@ class Configuration
      * Get the default service class
      * @return string $className
      */
-    public function getDefaultServiceClassName()
+    public function getDefaultServiceClass()
     {
         return $this->_attributes['defaultServiceClass'];
     }
@@ -175,6 +177,24 @@ class Configuration
     public function getPathsToConfigFiles()
     {
         return $this->_attributes['pathsToConfigFiles'];
+    }
+
+    /**
+     * Get the default writer classes to be used across the entire API
+     * @return array writer classes
+     */
+    public function getDefaultWriters()
+    {
+        return $this->_attributes['defaultWriters'];
+    }
+
+    /**
+     * Set the default writers to be used across the entire API. Any writers defined locally on a resource will take presedence
+     * @param array $writers
+     */
+    public function setDefaultWriters(array $writers)
+    {
+        $this->_attributes['defaultWriters'] = $writers;
     }
 
     /**

@@ -183,11 +183,8 @@ class Manager
         // Set the matched service object into the service class
         $service->setMatchedRoute($route);
 
-        $callMethod = $route->getCallMethod();
-        if (empty($callMethod) && $service instanceof Service\DefaultService)
-        {
-            $callMethod = $service->getDefaultMethod();
-        }
+        // Use a default call if the DefaultService class is being used (allow for extension)
+        $callMethod = (get_class($service) === 'Drest\Service\DefaultService') ? $service->getDefaultMethod() : $route->getCallMethod();
         if (!method_exists($service, $callMethod))
         {
             throw DrestException::unknownServiceMethod(get_class($service), $callMethod);
@@ -195,6 +192,11 @@ class Manager
 
         // @todo: encapsulate the data within the service class - don't expose it out here
         $data = $service->$callMethod();
+
+        if (sizeof($data) > 1)
+        {
+            throw DrestException::dataMustBeInASingleArrayEntry();
+        }
 
         // Pass the results to a writer
         if ($this->response->getStatusCode() == 200 && isset($data))
@@ -206,7 +208,6 @@ class Manager
 	}
 
     /**
-     *
      * Detect the writer to be applied, pass in the data and write the content to the response object
      * @param Drest\Mapping\RouteMetaData $route
      * @param array $data
@@ -216,12 +217,31 @@ class Manager
 	    $writers = $route->getClassMetaData()->getWriters();
 	    if (empty($writers))
 	    {
-	        throw DrestException::noWritersSetForRoute($route);
+	        $writers = $this->config->getDefaultWriters();
+	        if (empty($writers))
+	        {
+	            throw DrestException::noWritersSetForRoute($route);
+	        }
 	    }
 
         $writerFound = false;
 	    foreach ($writers as $writer)
 	    {
+	        if (!is_object($writer))
+	        {
+	            // Check if the class is namespaced, if so instantiate from root
+	            $className = (strstr($writer, '\\') !== false) ? '\\' . ltrim($writer, '\\') : $writer;
+                $className = (!class_exists($className)) ? '\\Drest\\Writer\\' . ltrim($className, '\\') : $className;
+	            if (!class_exists($className))
+	            {
+	                throw DrestException::unknownWriterClass($writer);
+	            }
+	            $writer = new $className();
+	        }
+	        if (!$writer instanceof Writer\AbstractWriter)
+	        {
+	            throw DrestException::writerMustBeInstanceOfDrestWriter();
+	        }
             if ($this->detectContentWriter($writer))
             {
                 $this->response->setBody($writer->write($data));
@@ -360,9 +380,14 @@ class Manager
 	    $classMetaData = $this->metadataFactory->getMetadataForClass($entityName);
 
 	    $serviceClassName = '\\' . $classMetaData->getServiceClassName();
-	    if ($serviceClassName === null)
+
+	    $serviceClassName = $classMetaData->getServiceClassName();
+	    if ($serviceClassName !== null)
 	    {
-	        $serviceClassName = $this->config->getDefaultServiceClassName();
+            $serviceClassName = (strpos($serviceClassName, '\\') === 0) ? $serviceClassName : '\\' . $serviceClassName;
+	    } else
+	    {
+            $serviceClassName = $this->config->getDefaultServiceClass();
 	    }
 
 	    $service = new $serviceClassName($this->em, $this->getRequest(), $this->getResponse());

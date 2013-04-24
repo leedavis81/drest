@@ -221,7 +221,7 @@ class RouteMetaData
 	 */
 	public function getRouteParams()
 	{
-        return $this->route_params;
+        return (!empty($this->route_params)) ? $this->route_params : array();
 	}
 
 	/**

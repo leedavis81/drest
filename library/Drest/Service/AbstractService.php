@@ -81,7 +81,7 @@ class AbstractService
                 break;
             default:
                 $functionName = strtolower($this->request->getHttpMethod());
-                $functionName .= ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_service->getContentType()]));
+                $functionName .= ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()]));
                 break;
 	    }
 	    return $functionName;
@@ -121,6 +121,23 @@ class AbstractService
 	public function getMatchedRoute()
 	{
 	    return $this->matched_route;
+	}
+
+	/**
+	 * Method used to wrap results in a single entry array keyed by entity name.
+	 * Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a descriptive output
+	 * @return array $data
+	 */
+	protected function wrapResults(array $data)
+	{
+	    $classMetaData = $this->matched_route->getClassMetaData();
+
+	    $methodName = 'get' . ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()])) . 'Name';
+	    if (!method_exists($classMetaData, $methodName))
+	    {
+	        throw DrestException::unknownContentType($this->matched_route->getContentType());
+	    }
+	    return array($classMetaData->$methodName() => $data);
 	}
 
 }

@@ -120,20 +120,10 @@ class ClassMetaData implements \Serializable
 			{
 				throw DrestException::unknownWriterClass(get_class($writer));
 			}
-			$this->writers[get_class($writer)] = $writer;
+			$this->writers[] = $writer;
 		} elseif(is_string($writer))
 		{
-			$namespacedClass = 'Drest\\Writer\\' . $writer;
-			if (class_exists($writer, false))
-			{
-				$this->writers[$writer] = new $writer();
-			} elseif (class_exists($namespacedClass))
-			{
-				$this->writers[$namespacedClass] = new $namespacedClass();
-			} else
-			{
-				throw DrestException::unknownWriterClass($writer);
-			}
+		    $this->writers[] = $writer;
 		} else
 		{
 		    throw DrestException::writerMustBeObjectOrString();
@@ -142,6 +132,7 @@ class ClassMetaData implements \Serializable
 
 	/**
 	 * Get the writers available on this resource
+	 * @return array writers can be strings or an already instantiated object
 	 */
 	public function getWriters()
 	{
@@ -157,6 +148,44 @@ class ClassMetaData implements \Serializable
 	    return $this->className;
 	}
 
+	/**
+	 * Get the text name that represents a single element. eg: user
+	 * @return string $element_name
+	 */
+	public function getElementName()
+	{
+        // attempt to pull an entity name from the class
+	    $classNameParts = explode('\\', $this->className);
+	    if (is_array($classNameParts))
+	    {
+	         return strtolower(array_pop($classNameParts));
+	    }
+	}
+
+	/**
+	 * Get a plural term for the element name
+	 * @return string $collection_name
+	 */
+	public function getCollectionName()
+	{
+	    $elementName = $this->getElementName();
+	    switch ($elementName[strlen($elementName)-2])
+	    {
+	        case 'sh':
+	        case 'ch':
+	            return $elementName . 'es';
+	            break;
+	    }
+	    switch ($elementName[strlen($elementName)-1])
+	    {
+	        case 'x':
+	        case 's':
+	        case 'z':
+                return $elementName . 'es';
+                break;
+	    }
+	    return $elementName . 's';
+	}
 
 	/**
 	 * Set the service class name

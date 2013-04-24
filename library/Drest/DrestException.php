@@ -90,6 +90,11 @@ class DrestException extends Exception
         return new self('No matched route has been set on this service class. The content type is needed for a default service method call');
     }
 
+    public static function dataMustBeInASingleArrayEntry()
+    {
+        return new self('Data returned from a service should always be nested within a single entry array. Eg array(\'user\' => array(...)) or array(\'users\' => array(....))');
+    }
+
 
 
     // Writer Exceptions
@@ -105,7 +110,12 @@ class DrestException extends Exception
 
     public static function writerMustBeObjectOrString()
     {
-		return new self('Writer must be an object of Drest\\Writer\\Interface or a string representing the class name');
+		return new self('Writer must be an object of Drest\\Writer\\InterfaceWriter or a string representing the class name');
+    }
+
+    public static function writerMustBeInstanceOfDrestWriter()
+    {
+        return new self('Writer must be an instance of Drest\\Writer\\InterfaceWriter, please ensure any custom writers classes implement this');
     }
 
     public static function unableToMatchAWriter()
