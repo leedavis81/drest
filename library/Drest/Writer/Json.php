@@ -16,6 +16,15 @@ class Json extends AbstractWriter
         return json_encode($data);
 	}
 
+    /**
+     * Content type to be used when this writer is matched
+     * @return string content type
+     */
+    public function getContentType()
+    {
+        return 'application/json';
+    }
+
 	public function getMatchableAcceptHeaders()
 	{
 	    return array(

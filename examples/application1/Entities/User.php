@@ -18,7 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
  *      		route_pattern="/user/:id+",
  *      		route_conditions={"id": "\d+"},
  *      		verbs={"GET"},
- *      		content="element"
+ *      		content="element",
+ *      		expose={"username", "email_address", "profile" : {"id", "lastname"}, "phone_numbers" : {"number"}}
  *      	),
  *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"GET"}, call_method="addUser", content="element"),
  *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection")
@@ -26,7 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  *
  * @ORM\Table(name="user")
- * @ORM\Entity(repositoryClass="Drest\Repository")
+ * @ORM\Entity
  */
 class User
 {
@@ -47,6 +48,12 @@ class User
     private $profile;
 
     /**
+     * @var \Doctrine\Common\Collections\ArrayCollection $phone_numbers
+     * @ORM\OneToMany(targetEntity="PhoneNumber", mappedBy="user", cascade={"persist", "remove"}, fetch="EAGER")
+     */
+    private $phone_numbers;
+
+    /**
      * @var string $username
      * @ORM\Column(name="username", type="string", length=255)
      */
@@ -58,4 +65,9 @@ class User
      */
     private $email_address;
 
+
+    public function __construct()
+    {
+        $this->phone_numbers = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 }

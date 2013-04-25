@@ -158,8 +158,17 @@ class ClassMetaData implements \Serializable
 	    $classNameParts = explode('\\', $this->className);
 	    if (is_array($classNameParts))
 	    {
-	         return strtolower(array_pop($classNameParts));
+            return strtolower(\Drest\Inflector::singularize(array_pop($classNameParts)));
 	    }
+	}
+
+	/**
+	 * Get an alias for this entity - used for DQL / QueryBuilder
+	 * @return string alias unique string representing this entity
+	 */
+	public function getEntityAlias()
+	{
+        return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $this->getClassName()));
 	}
 
 	/**
@@ -169,22 +178,7 @@ class ClassMetaData implements \Serializable
 	public function getCollectionName()
 	{
 	    $elementName = $this->getElementName();
-	    switch ($elementName[strlen($elementName)-2])
-	    {
-	        case 'sh':
-	        case 'ch':
-	            return $elementName . 'es';
-	            break;
-	    }
-	    switch ($elementName[strlen($elementName)-1])
-	    {
-	        case 'x':
-	        case 's':
-	        case 'z':
-                return $elementName . 'es';
-                break;
-	    }
-	    return $elementName . 's';
+	    return \Drest\Inflector::pluralize($elementName);
 	}
 
 	/**

@@ -32,7 +32,7 @@ class Profile
     private $id;
 
     /**
-     * @var Entities\User $admin_user
+     * @var Entities\User $user
      * @ORM\OneToOne(targetEntity="User", inversedBy="profile", fetch="LAZY")
      */
     private $user;

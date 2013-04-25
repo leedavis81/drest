@@ -78,7 +78,7 @@ class RouteMetaData
 
 	/**
 	 * Content type to be used. Can either be a single entity element, or a collection. Contains value of respective constant
-	 * @var integer
+	 * @var integer $content_type
 	 */
 	protected $content_type;
 
@@ -87,6 +87,12 @@ class RouteMetaData
 	 * @var string $call_method
 	 */
 	protected $call_method;
+
+	/**
+	 * An array of fields to be exposed to the end client
+	 * @var array $expose
+	 */
+	protected $expose = array();
 
 
 	/**
@@ -240,6 +246,24 @@ class RouteMetaData
 	public function setCallMethod($call_method)
 	{
 	    $this->call_method = $call_method;
+	}
+
+	/**
+	 * An array of fields we're allowed to expose to the client
+	 * @param array $expose
+	 */
+	public function setExpose(array $expose)
+	{
+        $this->expose = $expose;
+	}
+
+	/**
+	 * Get the field exposure on this route
+	 * @reutrn array $expose
+	 */
+	public function getExpose()
+	{
+	    return $this->expose;
 	}
 
     /**

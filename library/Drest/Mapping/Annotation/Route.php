@@ -26,4 +26,7 @@ final class Route
 
     /** @var array */
     public $verbs;
+
+    /** @var array */
+    public $expose;
 }

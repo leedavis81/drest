@@ -88,6 +88,7 @@ class Manager
         $this->registerRoutes();
     }
 
+
     /**
      * Read any defined route patterns that have been annotated into the router
      */
@@ -238,15 +239,17 @@ class Manager
 	            {
 	                throw DrestException::unknownWriterClass($writer);
 	            }
-	            $writer = new $className($route);
+	            $writer = new $className();
 	        }
 	        if (!$writer instanceof Writer\AbstractWriter)
 	        {
 	            throw DrestException::writerMustBeInstanceOfDrestWriter();
 	        }
+
             if ($this->detectContentWriter($writer))
             {
-                $this->response->setBody($writer->write($data));
+                $this->response->setBody(trim($writer->write($data)));
+                $this->response->setHttpHeader('Content-Type', $writer->getContentType());
                 $writerFound = true;
                 break;
             }
@@ -392,7 +395,7 @@ class Manager
             $serviceClassName = $this->config->getDefaultServiceClass();
 	    }
 
-	    $service = new $serviceClassName($this->em, $this->getRequest(), $this->getResponse());
+	    $service = new $serviceClassName($this->em, $this);
 
 	    if (!$service instanceof Service\AbstractService)
 	    {
@@ -403,4 +406,13 @@ class Manager
 
 	    return $service;
 	}
+
+    /**
+     * Get metadata for an entity class
+     * @param Drest\Mapping\ClassMetaData $classMetaData
+     */
+    public function getClassMetadata($className)
+    {
+        return $this->metadataFactory->getMetadataForClass($className);
+    }
 }

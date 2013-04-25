@@ -19,25 +19,34 @@ class DefaultService extends AbstractService
 {
 
 
-
 	/**
 	 * Default method to return a single entity item
 	 */
 	public function getElement()
 	{
 	    $classMetaData = $this->matched_route->getClassMetaData();
-	    $qb = $this->em->createQueryBuilder()->select('a')->from($classMetaData->getClassName(), 'a');
+
+	    $elementName = $classMetaData->getEntityAlias();
+	    $qb = $this->em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName);
+
+
+	    $qb = $this->addDefaultFields($this->matched_route->getExpose(), $qb, $this->em->getClassMetadata($classMetaData->getClassName()));
+	    //$qb = $this->addDefaultJoins($qb, $elementName);
+
+
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
-            $qb->andWhere('a.' . $key . ' = :' . $key);
+            $qb->andWhere($elementName . '.' . $key  . ' = :' . $key);
             $qb->setParameter($key, $value);
         }
+
         try
         {
-            // @todo: run a helper untility to autowrap this stuff for us
-            return array($classMetaData->getElementName() => $qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
+            return $this->writeData($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
         } catch (ORM\ORMException $e)
         {
+            echo $e->getMessage();
+            echo $e->getTraceAsString(); die;
             if ($e instanceof ORM\NonUniqueResultException)
             {
                 $this->response->setStatusCode(Response::STATUS_CODE_300);
@@ -52,9 +61,12 @@ class DefaultService extends AbstractService
 	{
         $classMetaData = $this->matched_route->getClassMetaData();
 
-        $elementName = strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $classMetaData->getClassName()));
-	    $qb = $this->em->createQueryBuilder()->select($elementName . ', b')->from($classMetaData->getClassName(), $elementName);
-	    $qb->leftJoin($elementName . '.profile', 'b');
+        $elementName = $classMetaData->getEntityAlias();
+	    $qb = $this->em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName);
+
+	    $qb = $this->addDefaultFields($qb, $elementName);
+	    $qb = $this->addDefaultJoins($qb, $elementName);
+
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
             $qb->andWhere($elementName . '.' . $key . ' = :' . $key);
@@ -83,6 +95,119 @@ class DefaultService extends AbstractService
                 $this->response->setStatusCode(Response::STATUS_CODE_404);
             }
         }
+	}
+
+
+
+	protected function addDefaultFields($fields, \Doctrine\ORM\QueryBuilder $qb, \Doctrine\ORM\Mapping\ClassMetadata $classMetaData)
+	{
+
+	    $classAlias = $this->getAlias($classMetaData->getName());
+	    $ormAssociationMappings = $classMetaData->getAssociationMappings();
+
+	    // Process single fields into a partial set
+	    $selectFields = array_filter($fields, function($offset) use ($classMetaData){
+	        if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames()))
+	        {
+	            return true;
+	        }
+	        return false;
+	    });
+
+        // @todo: keep a reference of the additional id's we added, we need to remove them from the dataset
+	    $requiredIdentifiers = array_diff($classMetaData->getIdentifierFieldNames(), $selectFields);
+        $qb->addSelect('partial ' . $classAlias . '.{'  . implode(', ', array_merge($selectFields, $requiredIdentifiers)) . '}');
+
+
+	    // Process relational field with no deeper expose restrictions
+	    $relationalFields = array_filter($fields, function($offset) use ($classMetaData) {
+            if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames()))
+	        {
+	            return true;
+	        }
+	        return false;
+	    });
+
+	    foreach ($relationalFields as $relationalField)
+	    {
+            $qb->leftJoin($classAlias . '.' . $relationalField, $this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
+	        $qb->addSelect($this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
+	    }
+
+	    foreach ($fields as $key => $value)
+	    {
+	        if (is_array($value) && isset($ormAssociationMappings[$key]))
+	        {
+	            $qb->leftJoin($classAlias . '.' . $key, $this->getAlias($ormAssociationMappings[$key]['targetEntity']));
+                $qb = $this->addDefaultFields($value, $qb, $this->em->getClassMetadata($ormAssociationMappings[$key]['targetEntity']));
+	        }
+	    }
+
+        return $qb;
+	}
+
+
+	/**
+	 * Set the fields the user wants returned to the query builder
+	 */
+	protected function addDefaultFields2($fields, \Doctrine\ORM\QueryBuilder $qb, \Doctrine\ORM\Mapping\ClassMetadata $classMetaData)
+	{
+	    // Check for expose field definitions
+        foreach ($fields as $key => $value)
+        {
+            if (is_array($value))
+            {
+                $ormAssociationMappings = $classMetaData->getAssociationMappings();
+                if (isset($ormAssociationMappings[$key]))
+                {
+
+                    $qb->leftJoin($this->getAlias($classMetaData->getName()) . '.' . $ormAssociationMappings[$key]['fieldName'], $this->getAlias($ormAssociationMappings[$key]['targetEntity']));
+                    $qb = $this->addDefaultFields($value, $qb, $this->em->getClassMetadata($ormAssociationMappings[$key]['targetEntity']));
+                }
+            } else
+            {
+                $ormAssociationMappings = $classMetaData->getAssociationMappings();
+                //var_dump($ormAssociationMappings); die;
+                if (isset($ormAssociationMappings[$value]))
+                {
+                    // Add it to the join
+                    $qb->leftJoin($this->getAlias($classMetaData->getName()) . '.' . $ormAssociationMappings[$value]['fieldName'], $this->getAlias($ormAssociationMappings[$value]['targetEntity']));
+                    $qb->addSelect($this->getAlias($classMetaData->getName()) . '.' . $value);
+                } else
+                {
+                    //echo 'adding: ' . $drestMetaData->getEntityAlias() . '.' . $value . PHP_EOL;
+                    $qb->addSelect($this->getAlias($classMetaData->getName()) . '.' . $value);
+                }
+            }
+        }
+        return $qb;
+	}
+
+	/**
+	 * Get a unique alias name from an entity class name
+	 * @param string $className
+	 */
+	protected function getAlias($className)
+	{
+        return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $className));
+	}
+
+	/**
+	 *
+	 * @todo: Only drops down one tier - this needs to expand to all exposed field definitions
+	 * @param \Doctrine\ORM\QueryBuilder $qb
+	 * @param unknown_type $rootAlias
+	 */
+	protected function addDefaultJoins(\Doctrine\ORM\QueryBuilder $qb, $rootAlias)
+	{
+	    $classMetaData = $this->matched_route->getClassMetaData();
+	    foreach ($this->em->getClassMetadata($classMetaData->getClassName())->getAssociationMappings() as $associationMapping)
+	    {
+	        $alias = strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $associationMapping['targetEntity']));
+	        $qb->addSelect($alias);
+	        $qb->leftJoin($rootAlias . '.' . $associationMapping['fieldName'], $alias);
+	    }
+        return $qb;
 	}
 
 	public function postElement()

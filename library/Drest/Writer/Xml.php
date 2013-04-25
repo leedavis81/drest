@@ -5,8 +5,7 @@ namespace Drest\Writer;
 use Drest\DrestException;
 
 /**
- *
- * Conversion borrowed from http://www.lalit.org/lab/convert-php-array-to-xml-with-attributes
+ * XML Conversion inspired from http://www.lalit.org/lab/convert-php-array-to-xml-with-attributes
  * @author Lee
  */
 class Xml extends AbstractWriter
@@ -18,6 +17,20 @@ class Xml extends AbstractWriter
      */
     protected $xml;
 
+    /**
+     * Name of the current node being parsed
+     * @param string $current_node_name
+     */
+    protected $current_node_name;
+
+    /**
+     * Content type to be used when this writer is matched
+     * @return string content type
+     */
+    public function getContentType()
+    {
+        return 'application/xml';
+    }
 
 	public function getMatchableAcceptHeaders()
 	{
@@ -41,15 +54,13 @@ class Xml extends AbstractWriter
         );
 	}
 
-
 	/**
 	 * @see Drest\Writer\Writer::write()
 	 */
 	public function write($data)
 	{
-	    var_dump($data);
 	    $this->xml =  new \DomDocument('1.0', 'UTF-8');
-	    $this->xml->formatOutput = true;
+	    //$this->xml->formatOutput = true;
 
 	    $this->xml->appendChild($this->convert(key($data), $data[key($data)]));
 	    return $this->xml->saveXML();
@@ -63,54 +74,20 @@ class Xml extends AbstractWriter
      */
     protected function convert($root_node, $data = array())
     {
-        $node = $this->xml->createElement($root_node);
-
-        if(is_array($data))
+        if(!$this->isValidTagName($root_node))
         {
-            if(isset($data['@attributes']))
-            {
-                foreach($data['@attributes'] as $key => $value)
-                {
-                    if(!$this->isValidTagName($key))
-                    {
-                        throw new \Exception('[Array2XML] Illegal character in attribute name. attribute: '.$key.' in node: '. $root_node);
-                    }
-                    $node->setAttribute($key, $this->bool2str($value));
-                }
-                unset($data['@attributes']);
-            }
-
-            if(isset($data['@value']))
-            {
-                $node->appendChild($this->xml->createTextNode($this->bool2str($data['@value'])));
-                unset($data['@value']);
-                return $node;
-            } else if(isset($data['@cdata']))
-            {
-                $node->appendChild($this->xml->createCDATASection($this->bool2str($data['@cdata'])));
-                unset($data['@cdata']);
-                return $node;
-            }
+            throw new \Exception('Array to XML Conversion - Illegal character in element name: '. $root_node);
         }
+
+        $node = $this->xml->createElement($root_node);
 
         if(is_array($data))
         {
             foreach($data as $key => $value)
             {
-                var_dump($key);
-                if(!$this->isValidTagName($key))
-                {
-                    throw new \Exception('[Array2XML] Illegal character in tag name. tag: '.$key.' in node: '. $root_node);
-                }
-                if(is_array($value) && is_numeric(key($value)))
-                {
-                    foreach($value as $k=>$v)
-                    {
-                        $node->appendChild($this->convert($key, $v));
-                    }
-                } else {
-                    $node->appendChild($this->convert($key, $value));
-                }
+                $this->current_node_name = $root_node;
+                $key = (is_numeric($key)) ? \Drest\Inflector::singularize($this->current_node_name) : $key;
+                $node->appendChild($this->convert($key, $value));
                 unset($data[$key]);
             }
         } else
@@ -121,7 +98,7 @@ class Xml extends AbstractWriter
         return $node;
     }
 
-    /*
+    /**
      * Get string representation of boolean value
      */
     protected function bool2str($v)
@@ -133,7 +110,7 @@ class Xml extends AbstractWriter
         return $v;
     }
 
-    /*
+    /**
      * Check if the tag name or attribute name contains illegal characters
      * Ref: http://www.w3.org/TR/xml/#sec-common-syn
      */
@@ -147,8 +124,4 @@ class Xml extends AbstractWriter
             return false;
         }
     }
-
-
-
-
 }

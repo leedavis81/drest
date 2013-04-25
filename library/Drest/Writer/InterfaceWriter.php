@@ -6,17 +6,17 @@ use Drest\Mapping\RouteMetaData;
 interface InterfaceWriter
 {
 
-    /**
-     * construct an instance of a writer by passing in the matched route metadata
-     * @param Drest\Mapping\RouteMetaData $routeMetaData
-     */
-    public function __construct(RouteMetaData $routeMetaData);
-
 	/**
 	 * Write the data out in the required format
 	 * @param mixed $data - The data to be passed into the writer
 	 */
 	public function write($data);
+
+    /**
+     * Content type to be used when this writer is matched
+     * @return string content type
+     */
+    public function getContentType();
 
 	/**
 	 * Return an array of applicable accept header values that should match this writer

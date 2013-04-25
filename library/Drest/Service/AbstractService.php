@@ -7,6 +7,7 @@ use Drest\DrestException;
 use Doctrine\ORM\EntityManager,
 	Drest\Response,
 	Drest\Request,
+	Drest\Manager,
 	Drest\Mapping\RouteMetaData;
 
 class AbstractService
@@ -17,6 +18,12 @@ class AbstractService
      * @var \Doctrine\ORM\EntityManager $em
      */
     protected $em;
+
+    /**
+     * Drest Manager
+     * @var \Drest\Manager $dm
+     */
+    protected $dm;
 
 	/**
 	 * Drest request object
@@ -46,15 +53,15 @@ class AbstractService
     /**
      * Initialise a new instance of a Drest service
      * @param \Doctrine\ORM\EntityManager $em The EntityManager to use.
-     * @param Drest\Request $request
-     * @param Drest\Response $response
+     * @param \Drest\Manager $dm The Drest Manager object
      */
-    public function __construct(EntityManager $em, Request $request, Response $response)
+    public function __construct(EntityManager $em, Manager $dm)
     {
         $this->em = $em;
+        $this->dm = $dm;
 
-        $this->setRequest($request);
-        $this->setResponse($response);
+        $this->setRequest($dm->getRequest());
+        $this->setResponse($dm->getResponse());
     }
 
 	/**

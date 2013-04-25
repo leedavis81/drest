@@ -229,6 +229,12 @@ class AnnotationDriver implements DriverInterface
                         $routeMetaData->setRouteConditions($route->route_conditions);
         	        }
 
+        	        // Set the exposure array
+        	        if (is_array($route->expose))
+        	        {
+        	            $routeMetaData->setExpose($route->expose);
+        	        }
+
         	        // Add call method
         	        $routeMetaData->setCallMethod($route->call_method);
 
