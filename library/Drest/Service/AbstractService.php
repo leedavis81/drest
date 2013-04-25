@@ -36,6 +36,12 @@ class AbstractService
 	 */
 	protected $matched_route;
 
+	/**
+	 * The data to be returned in the response
+	 * @var array $data
+	 */
+	protected $data;
+
 
     /**
      * Initialise a new instance of a Drest service
@@ -124,12 +130,14 @@ class AbstractService
 	}
 
 	/**
-	 * Method used to wrap results in a single entry array keyed by entity name.
-	 * Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a descriptive output
+	 * Method used to write to the $data aray. Also wraps results in a single entry array keyed by entity name.
+	 * Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
 	 * @return array $data
 	 */
-	protected function wrapResults(array $data)
+	protected function writeData(array $data)
 	{
+	    $this->clearData();
+
 	    $classMetaData = $this->matched_route->getClassMetaData();
 
 	    $methodName = 'get' . ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()])) . 'Name';
@@ -137,7 +145,28 @@ class AbstractService
 	    {
 	        throw DrestException::unknownContentType($this->matched_route->getContentType());
 	    }
-	    return array($classMetaData->$methodName() => $data);
+	    $this->data = array($classMetaData->$methodName() => $data);
+	}
+
+	/**
+	 * Retrieved the data stored on this service
+	 * @return array $data
+	 */
+	public function getData()
+	{
+        if (!empty($this->data) && sizeof($this->data) > 1)
+        {
+            throw DrestException::dataMustBeInASingleArrayEntry();
+        }
+	    return $this->data;
+	}
+
+	/**
+	 * Clear the data array
+	 */
+	public function clearData()
+	{
+	    $this->data = array();
 	}
 
 }

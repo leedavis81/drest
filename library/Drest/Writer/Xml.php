@@ -47,7 +47,7 @@ class Xml extends AbstractWriter
 	 */
 	public function write($data)
 	{
-	    var_dump($data); die;
+	    var_dump($data);
 	    $this->xml =  new \DomDocument('1.0', 'UTF-8');
 	    $this->xml->formatOutput = true;
 
@@ -97,6 +97,7 @@ class Xml extends AbstractWriter
         {
             foreach($data as $key => $value)
             {
+                var_dump($key);
                 if(!$this->isValidTagName($key))
                 {
                     throw new \Exception('[Array2XML] Illegal character in tag name. tag: '.$key.' in node: '. $root_node);
@@ -138,7 +139,16 @@ class Xml extends AbstractWriter
      */
     protected function isValidTagName($tag)
     {
-        $pattern = '/^[a-z_]+[a-z0-9\:\-\.\_]*[^:]*$/i';
-        return preg_match($pattern, $tag, $matches) && $matches[0] == $tag;
+        try
+        {
+            new \DOMElement(':'.$tag);
+            return true;
+        } catch (\DOMException $e) {
+            return false;
+        }
     }
+
+
+
+
 }

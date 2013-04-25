@@ -38,8 +38,8 @@ class Profile
     private $user;
 
     /**
-     * @var string $username
-     * @ORM\Column(name="username", type="string")
+     * @var string $title
+     * @ORM\Column(name="title", type="string")
      */
     private $title;
 

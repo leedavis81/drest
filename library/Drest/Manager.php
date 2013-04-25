@@ -183,26 +183,28 @@ class Manager
         // Set the matched service object into the service class
         $service->setMatchedRoute($route);
 
+        // This is a new request, clear out out any existing old data on the cached service object
+        $service->clearData();
+
         // Use a default call if the DefaultService class is being used (allow for extension)
         $callMethod = (get_class($service) === 'Drest\Service\DefaultService') ? $service->getDefaultMethod() : $route->getCallMethod();
         if (!method_exists($service, $callMethod))
         {
             throw DrestException::unknownServiceMethod(get_class($service), $callMethod);
         }
+        $service->$callMethod();
 
-        // @todo: encapsulate the data within the service class - don't expose it out here
-        $data = $service->$callMethod();
-
-        if (sizeof($data) > 1)
+        // Only run the writers if the body hasn't already been written too
+        if ($this->response->getBody() == '')
         {
-            throw DrestException::dataMustBeInASingleArrayEntry();
+            // Pass the results to a writer
+            $data = $service->getData();
+            if ($this->response->getStatusCode() == 200 && !empty($data))
+            {
+                $this->execWriter($route, $data);
+            }
         }
 
-        // Pass the results to a writer
-        if ($this->response->getStatusCode() == 200 && isset($data))
-        {
-            $this->execWriter($route, $data);
-        }
 
         return $this->getResponse();
 	}
@@ -236,7 +238,7 @@ class Manager
 	            {
 	                throw DrestException::unknownWriterClass($writer);
 	            }
-	            $writer = new $className();
+	            $writer = new $className($route);
 	        }
 	        if (!$writer instanceof Writer\AbstractWriter)
 	        {

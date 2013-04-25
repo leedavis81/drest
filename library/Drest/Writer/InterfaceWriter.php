@@ -1,9 +1,17 @@
 <?php
-
 namespace Drest\Writer;
+
+use Drest\Mapping\RouteMetaData;
 
 interface InterfaceWriter
 {
+
+    /**
+     * construct an instance of a writer by passing in the matched route metadata
+     * @param Drest\Mapping\RouteMetaData $routeMetaData
+     */
+    public function __construct(RouteMetaData $routeMetaData);
+
 	/**
 	 * Write the data out in the required format
 	 * @param mixed $data - The data to be passed into the writer

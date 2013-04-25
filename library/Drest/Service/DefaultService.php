@@ -51,17 +51,22 @@ class DefaultService extends AbstractService
 	public function getCollection()
 	{
         $classMetaData = $this->matched_route->getClassMetaData();
-	    $qb = $this->em->createQueryBuilder()->select('a')->from($classMetaData->getClassName(), 'a');
+
+        $elementName = strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $classMetaData->getClassName()));
+	    $qb = $this->em->createQueryBuilder()->select($elementName . ', b')->from($classMetaData->getClassName(), $elementName);
+	    $qb->leftJoin($elementName . '.profile', 'b');
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
-            $qb->andWhere('a.' . $key . ' = :' . $key);
+            $qb->andWhere($elementName . '.' . $key . ' = :' . $key);
             $qb->setParameter($key, $value);
         }
         try
         {
-            return $this->wrapResults($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
+            return $this->writeData($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
         } catch (ORM\ORMException $e)
         {
+            echo $e->getMessage();
+            echo $e->getTraceAsString(); die;
             /*
             ORM\NonUniqueResultException
             ORM\NoResultException
