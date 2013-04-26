@@ -49,6 +49,13 @@ class AbstractService
 	 */
 	protected $data;
 
+    /**
+     * addional key fields that are included in partial queries to make the DQL valid
+     * These columns should be purged from the result set
+     * @var array $addedKeyFields
+     */
+    protected $addedKeyFields;
+
 
     /**
      * Initialise a new instance of a Drest service
@@ -136,9 +143,73 @@ class AbstractService
 	    return $this->matched_route;
 	}
 
+
+    /**
+     * A recursive function to process the specified expose fields
+     * @param array $fields - expose fields to process
+     * @param \Doctrine\ORM\QueryBuilder $qb
+     * @param \Doctrine\ORM\Mapping\ClassMetadata $classMetaData
+	 * @param string $key - The key of the expose entry being processed
+     * @param array $addedKeyFields
+     */
+	protected function registerExpose($fields, \Doctrine\ORM\QueryBuilder $qb, \Doctrine\ORM\Mapping\ClassMetadata $classMetaData, &$addedKeyFields = array(), $key = null)
+	{
+	    $classAlias = $this->getAlias($classMetaData->getName());
+	    $ormAssociationMappings = $classMetaData->getAssociationMappings();
+
+	    // Process single fields into a partial set
+	    $selectFields = array_filter($fields, function($offset) use ($classMetaData){
+	        if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames()))
+	        {
+	            return true;
+	        }
+	        return false;
+	    });
+
+	    $keyFieldDiff = array_diff($classMetaData->getIdentifierFieldNames(), $selectFields);
+
+	    if (!empty($keyFieldDiff))
+	    {
+
+            $addedKeyFields = $keyFieldDiff;
+	        $selectFields = array_merge($selectFields, $keyFieldDiff);
+	    }
+
+        $qb->addSelect('partial ' . $classAlias . '.{'  . implode(', ', $selectFields) . '}');
+
+	    // Process relational field with no deeper expose restrictions
+	    $relationalFields = array_filter($fields, function($offset) use ($classMetaData) {
+            if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames()))
+	        {
+	            return true;
+	        }
+	        return false;
+	    });
+
+	    foreach ($relationalFields as $relationalField)
+	    {
+            $qb->leftJoin($classAlias . '.' . $relationalField, $this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
+	        $qb->addSelect($this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
+	    }
+
+	    foreach ($fields as $key => $value)
+	    {
+	        if (is_array($value) && isset($ormAssociationMappings[$key]))
+	        {
+	            $qb->leftJoin($classAlias . '.' . $key, $this->getAlias($ormAssociationMappings[$key]['targetEntity']));
+                $qb = $this->registerExpose($value, $qb, $this->em->getClassMetadata($ormAssociationMappings[$key]['targetEntity']), $addedKeyFields[$key], $key);
+	        }
+	    }
+
+	    $this->addedKeyFields = $addedKeyFields;
+        return $qb;
+	}
+
 	/**
-	 * Method used to write to the $data aray. Also wraps results in a single entry array keyed by entity name.
-	 * Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
+	 * Method used to write to the $data aray.
+	 * - 	wraps results in a single entry array keyed by entity name.
+	 * 		Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
+	 * - 	Removes any addition expose fields required for a partial DQL query
 	 * @return array $data
 	 */
 	protected function writeData(array $data)
@@ -147,6 +218,9 @@ class AbstractService
 
 	    $classMetaData = $this->matched_route->getClassMetaData();
 
+	    // Recursively remove any additionally added pk fields
+        $this->removeAddedKeyFields($this->addedKeyFields, $data);
+
 	    $methodName = 'get' . ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()])) . 'Name';
 	    if (!method_exists($classMetaData, $methodName))
 	    {
@@ -154,6 +228,45 @@ class AbstractService
 	    }
 	    $this->data = array($classMetaData->$methodName() => $data);
 	}
+
+
+	/**
+	 * Functional recursive method to remove any fields added to make the partial DQL work and remove the data
+	 * @param array $addedKeyFields
+	 * @param array $data - pass by reference
+	 */
+	protected function removeAddedKeyFields($addedKeyFields, &$data)
+	{
+	    $addedKeyFields = (array) $addedKeyFields;
+	    foreach ($data as $key => $value)
+	    {
+            if (is_array($value) && isset($addedKeyFields[$key]))
+            {
+                if (is_int($key))
+                {
+                    for ($x = 0; $x <= sizeof($value); $x++)
+                    {
+                        if (isset($data[$x]) && is_array($data[$x]))
+                        {
+                            $this->removeAddedKeyFields($addedKeyFields[$key], $data[$x]);
+                        }
+                    }
+                } else
+                {
+                    $this->removeAddedKeyFields($addedKeyFields[$key], $data[$key]);
+                }
+
+            } else
+            {
+                if (is_array($addedKeyFields) && in_array($key, $addedKeyFields))
+                {
+                    unset($data[$key]);
+                }
+            }
+	    }
+	    return $data;
+	}
+
 
 	/**
 	 * Retrieved the data stored on this service

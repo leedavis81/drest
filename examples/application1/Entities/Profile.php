@@ -38,6 +38,12 @@ class Profile
     private $user;
 
     /**
+     * @var Doctrine\Common\Collections\ArrayCollection $addresses
+     * @ORM\OneToMany(targetEntity="Address", mappedBy="profile", fetch="LAZY")
+     */
+    private $addresses;
+
+    /**
      * @var string $title
      * @ORM\Column(name="title", type="string")
      */
@@ -55,4 +61,9 @@ class Profile
      */
     private $lastname;
 
+
+    public function __construct()
+    {
+        $this->addresses = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 }

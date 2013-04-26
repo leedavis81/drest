@@ -60,7 +60,7 @@ class Xml extends AbstractWriter
 	public function write($data)
 	{
 	    $this->xml =  new \DomDocument('1.0', 'UTF-8');
-	    //$this->xml->formatOutput = true;
+	    $this->xml->formatOutput = true;
 
 	    $this->xml->appendChild($this->convert(key($data), $data[key($data)]));
 	    return $this->xml->saveXML();

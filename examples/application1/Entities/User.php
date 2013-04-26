@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
  *      		route_conditions={"id": "\d+"},
  *      		verbs={"GET"},
  *      		content="element",
- *      		expose={"username", "email_address", "profile" : {"id", "lastname"}, "phone_numbers" : {"number"}}
+ *      		expose={"username", "email_address", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers" : {"number"}}
  *      	),
  *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"GET"}, call_method="addUser", content="element"),
  *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection")
