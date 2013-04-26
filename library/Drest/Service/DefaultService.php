@@ -96,8 +96,6 @@ class DefaultService extends AbstractService
 	}
 
 
-
-
 	/**
 	 * Get a unique alias name from an entity class name
 	 * @param string $className

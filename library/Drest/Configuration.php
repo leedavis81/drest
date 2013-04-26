@@ -39,6 +39,7 @@ class Configuration
 
         $this->setDebugMode(false);
         $this->setDefaultServiceClass('Drest\Service\DefaultService');
+        $this->setDefaultExposureDepth(1);
     }
 
 
@@ -135,6 +136,24 @@ class Configuration
     public function getDefaultServiceClass()
     {
         return $this->_attributes['defaultServiceClass'];
+    }
+
+    /**
+     * Set the default depth of columns to expose to client
+     * @param integer $depth
+     */
+    public function setDefaultExposureDepth($depth)
+    {
+        $this->_attributes['defaultExposureDepth'] = (int) $depth;
+    }
+
+    /**
+     * Get the default exposure depth
+     * @return integer $depth
+     */
+    public function getDefaultExposureDepth()
+    {
+        return (int) $this->_attributes['defaultExposureDepth'];
     }
 
     /**
