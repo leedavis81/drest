@@ -235,6 +235,12 @@ class AnnotationDriver implements DriverInterface
         	            $routeMetaData->setExpose($route->expose);
         	        }
 
+        	        // Set the allow options value
+        	        if (isset($route->allow_options))
+        	        {
+        	            $routeMetaData->setAllowedOptionRequest($route->allow_options);
+        	        }
+
         	        // Add call method
         	        $routeMetaData->setCallMethod($route->call_method);
 

@@ -172,21 +172,6 @@ class DrestException extends Exception
         return new self('Invalid HTTP Status code used "' . $code . '"');
     }
 
-    // Routing
-    public static function noMatchedRoutes()
-    {
-        return new self('There are no routes configured to match this request path');
-    }
-
-    public static function multipleRoutesFound($services)
-    {
-        $helperText = '';
-        foreach ($services as $service)
-        {
-            $helperText .= '"' . $service->getName() . '"';
-        }
-        return new self('Multiple routes have matched to this request. See service definitions for: ' . $helperText);
-    }
 
 }
 

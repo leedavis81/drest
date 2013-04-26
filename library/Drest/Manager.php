@@ -11,7 +11,9 @@ use Doctrine\Common\EventManager,
 	Drest\Mapping\MetadataFactory,
 
 	Drest\Request,
-	Drest\DrestException;
+	Drest\DrestException,
+	Drest\Route\MultipleRoutesException,
+	Drest\Route\NoMatchException;
 
 
 class Manager
@@ -173,7 +175,18 @@ class Manager
 	protected function execute($request = null, $response = null)
 	{
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
-        $route = $this->getMatchedRoute();
+		try {
+            $route = $this->getMatchedRoute(true);
+		} catch (\Exception $e)
+		{
+		    if ($e instanceof NoMatchException && $this->doOptionsCheck())
+		    {
+                return $this->getResponse();
+		    } else
+		    {
+		        throw $e;
+		    }
+		}
 
         // Check exposure field definitions, if non are set use the default depth setting
         //$route = $this->setupExposeFields($route);
@@ -271,7 +284,37 @@ class Manager
         return $fields;
 	}
 
+	/**
+	 * No match on route has occured. Check the HTTP verb used for an options response
+	 * Returns true if it is, and option information was successfully written to the reponse object
+	 * @return boolean $success
+	 */
+	protected function doOptionsCheck()
+	{
+	    // Is this an OPTIONS request
+	    if ($this->request->getHttpMethod() != Request::METHOD_OPTIONS)
+	    {
+	        return false;
+	    }
+
+	    // Do a match on all routes - dont include a verb check
+	    $verbs = array();
+        foreach ($this->getMatchedRoutes(false) as $route)
+        {
+            $allowedOptions = $route->isAllowedOptionRequest();
+            if (false === (($allowedOptions === -1) ? $this->config->getAllowOptionsRequest() : (bool) $allowedOptions))
+            {
+                continue;
+            }
+            $verbs = array_merge($verbs, $route->getVerbs());
+        }
+
+        $this->getResponse()->setHttpHeader('Allow', implode(', ', $verbs));
+        return true;
+	}
+
     /**
+     * @todo: split this up, one method for detections, another for performing the write
      * Detect the writer to be applied, pass in the data and write the content to the response object
      * @param Drest\Mapping\RouteMetaData $route
      * @param array $data
@@ -364,21 +407,33 @@ class Manager
 
 	/**
 	 * Runs through all the registered routes and returns a single match
-	 * @throws DrestException if no routes are found, or there are multiple matches
+	 * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb
+	 * @throws NoMatchException if no routes are found
+	 * @throws MultipleRoutesException If there are multiple matches
 	 * @return Drest\Mapping\RouteMetaData $route
 	 */
-	protected function getMatchedRoute()
+	protected function getMatchedRoute($matchVerb = true)
 	{
-        $matchedRoutes = $this->router->getMatchedRoutes($this->getRequest());
+        $matchedRoutes = $this->router->getMatchedRoutes($this->getRequest(), (bool) $matchVerb);
         $routesSize = sizeof($matchedRoutes);
         if ($routesSize == 0)
         {
-            throw DrestException::noMatchedRoutes();
+            throw NoMatchException::noMatchedRoutes();
         } elseif (sizeof($matchedRoutes) > 1)
 		{
-            throw DrestException::multipleRoutesFound($matchedRoutes);
+		    throw MultipleRoutesException::multipleRoutesFound($matchedRoutes);
 		}
 		return $matchedRoutes[0];
+	}
+
+	/**
+	 * Get all possible match routes for this request
+	 * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb
+	 * @return array of Drest\Mapping\RouteMetaData object
+	 */
+	protected function getMatchedRoutes($matchVerb = true)
+	{
+	    return $this->router->getMatchedRoutes($this->getRequest(), (bool) $matchVerb);
 	}
 
 	/**

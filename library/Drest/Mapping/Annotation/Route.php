@@ -29,4 +29,7 @@ final class Route
 
     /** @var array */
     public $expose;
+
+    /** @var boolean */
+    public $allow_options;
 }

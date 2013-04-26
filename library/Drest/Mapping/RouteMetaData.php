@@ -94,6 +94,15 @@ class RouteMetaData
 	 */
 	protected $expose = array();
 
+	/**
+	 * Whether this route is open to allow OPTION requests to detail available $verbs
+	 * -1 = not set
+	 * 0  = not allowed
+	 * 1  = allowed
+	 * @var integer $allowed_option_request;
+	 */
+	protected $allowed_option_request = -1;
+
 
 	/**
 	 * Set this objects parent metadata class
@@ -266,14 +275,40 @@ class RouteMetaData
 	    return $this->expose;
 	}
 
+	/**
+	 * Set whether we would like to expose this route (and its verbs) to OPTIONS requests
+	 * @param integer|boolean $value - if using integer -1 to unset, 0 for no and 1 if yes
+	 */
+	public function setAllowedOptionRequest($value = true)
+	{
+	    if (is_bool($value))
+	    {
+	        $this->allowed_option_request = ($value) ? 1 : 0;
+	    } elseif ($value != -1)
+	    {
+	        throw new Exception('Invalid Allow Options value, must be -1 to unset, 0 for no or 1 for yes. Or you can use boolean values');
+	    }
+	    $this->allowed_option_request = $value;
+	}
+
+	/**
+	 * Is this route allowed to expose its verbs to OPTIONS requests
+	 * @return integer $result -1 if not set, 0 if no and 1 if yes
+	 */
+	public function isAllowedOptionRequest()
+	{
+        return $this->allowed_option_request;
+	}
+
     /**
      * Does this request matches the route pattern
      * @param Drest\Request $request
-     * @return bool
+     * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb - useful for OPTIONS requests
+     * @return boolean $result
      */
-    public function matches(\Drest\Request $request)
+    public function matches(\Drest\Request $request, $matchVerb = true)
     {
-		if ($this->usesHttpVerbs())
+		if ($matchVerb && $this->usesHttpVerbs())
 		{
 			try {
 			    $method = $request->getHttpMethod();

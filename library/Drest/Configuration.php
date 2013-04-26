@@ -40,6 +40,7 @@ class Configuration
         $this->setDebugMode(false);
         $this->setDefaultServiceClass('Drest\Service\DefaultService');
         $this->setDefaultExposureDepth(1);
+        $this->setAllowOptionsRequest(true);
     }
 
 
@@ -154,6 +155,25 @@ class Configuration
     public function getDefaultExposureDepth()
     {
         return (int) $this->_attributes['defaultExposureDepth'];
+    }
+
+    /**
+     * A setting to generically allow OPTIONS requests across the entire API.
+     * This can be overriden by using the @Route\Metadata $allowOptions parameter
+     * @param boolean $value
+     */
+    public function setAllowOptionsRequest($value)
+    {
+        $this->_attributes['allowOptionsRequest'] = (bool) $value;
+    }
+
+    /**
+     * Are we globally allowing OPTIONS requests across all routes
+     * @return boolean $value
+     */
+    public function getAllowOptionsRequest()
+    {
+        return $this->_attributes['allowOptionsRequest'];
     }
 
     /**
