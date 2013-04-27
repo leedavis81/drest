@@ -25,12 +25,23 @@ class DefaultService extends AbstractService
 	public function getElement()
 	{
 	    $classMetaData = $this->matched_route->getClassMetaData();
-
 	    $elementName = $classMetaData->getEntityAlias();
-	    $qb = $this->em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName);
 
-	    $qb = $this->registerExpose($this->matched_route->getExpose(), $qb, $this->em->getClassMetadata($classMetaData->getClassName()));
-	    //$qb = $this->addDefaultJoins($qb, $elementName);
+        $qb = $this->registerExpose(
+	        $this->matched_route->getExpose(),
+	        $this->em->createQueryBuilder(),
+	        $this->em->getClassMetadata($classMetaData->getClassName())
+        );
+
+        // No data has been exposed
+        // @todo: tidy
+        if (sizeof($qb->getDQLPart('select')) === 0)
+        {
+            $this->setData(array());
+            $this->renderDeterminedWriter();
+            return;
+        }
+
 
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
@@ -40,11 +51,9 @@ class DefaultService extends AbstractService
 
         try
         {
-            return $this->writeData($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
+            $this->setData($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
         } catch (ORM\ORMException $e)
         {
-            echo $e->getMessage();
-            echo $e->getTraceAsString(); die;
             if ($e instanceof ORM\NonUniqueResultException)
             {
                 $this->response->setStatusCode(Response::STATUS_CODE_300);
@@ -53,17 +62,30 @@ class DefaultService extends AbstractService
                 $this->response->setStatusCode(Response::STATUS_CODE_404);
             }
         }
+
+        $this->renderDeterminedWriter();
 	}
 
 	public function getCollection()
 	{
         $classMetaData = $this->matched_route->getClassMetaData();
-
         $elementName = $classMetaData->getEntityAlias();
-	    $qb = $this->em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName);
 
-	    $qb = $this->addDefaultFields($qb, $elementName);
-	    $qb = $this->addDefaultJoins($qb, $elementName);
+	    $qb = $this->registerExpose(
+	        $this->matched_route->getExpose(),
+	        $this->em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName),
+	        $this->em->getClassMetadata($classMetaData->getClassName())
+        );
+
+        // No data has been exposed
+        // @todo: tidy
+        if (sizeof($qb->getDQLPart('select')) === 0)
+        {
+            $this->setData(array());
+            var_dump($this->data); die;
+            $this->renderDeterminedWriter();
+            return;
+        }
 
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
@@ -72,7 +94,7 @@ class DefaultService extends AbstractService
         }
         try
         {
-            return $this->writeData($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
+            $this->setData($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
         } catch (ORM\ORMException $e)
         {
             echo $e->getMessage();
@@ -93,6 +115,7 @@ class DefaultService extends AbstractService
                 $this->response->setStatusCode(Response::STATUS_CODE_404);
             }
         }
+        $this->renderDeterminedWriter();
 	}
 
 
@@ -103,24 +126,6 @@ class DefaultService extends AbstractService
 	protected function getAlias($className)
 	{
         return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $className));
-	}
-
-	/**
-	 *
-	 * @todo: Only drops down one tier - this needs to expand to all exposed field definitions
-	 * @param \Doctrine\ORM\QueryBuilder $qb
-	 * @param unknown_type $rootAlias
-	 */
-	protected function addDefaultJoins(\Doctrine\ORM\QueryBuilder $qb, $rootAlias)
-	{
-	    $classMetaData = $this->matched_route->getClassMetaData();
-	    foreach ($this->em->getClassMetadata($classMetaData->getClassName())->getAssociationMappings() as $associationMapping)
-	    {
-	        $alias = strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $associationMapping['targetEntity']));
-	        $qb->addSelect($alias);
-	        $qb->leftJoin($rootAlias . '.' . $associationMapping['fieldName'], $alias);
-	    }
-        return $qb;
 	}
 
 	public function postElement()

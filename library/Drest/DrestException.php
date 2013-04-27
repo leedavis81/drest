@@ -118,6 +118,11 @@ class DrestException extends Exception
         return new self('Writer must be an instance of Drest\\Writer\\InterfaceWriter, please ensure any custom writers classes implement this');
     }
 
+    public static function unableToDetermineAWriter()
+    {
+        return new self('Unable to determine a writer class using both global and service configurations');
+    }
+
     public static function unableToMatchAWriter()
     {
         return new self('Unable to match a writer instance using Configuration::DETECT_CONTENT_* methods set');

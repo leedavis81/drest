@@ -5,7 +5,7 @@ namespace Drest\Service;
 use Drest\DrestException;
 
 use Doctrine\ORM\EntityManager,
-	Drest\Response,
+	Drest\Writer,
 	Drest\Request,
 	Drest\Manager,
 	Drest\Mapping\RouteMetaData;
@@ -44,6 +44,12 @@ class AbstractService
 	protected $matched_route;
 
 	/**
+	 * A writer instance determined either from configuration or client media accept type - can be null if none matched
+	 * @var Drest\Writer\AbstractWriter $writer
+	 */
+	protected $writer;
+
+	/**
 	 * The data to be returned in the response
 	 * @var array $data
 	 */
@@ -67,8 +73,8 @@ class AbstractService
         $this->em = $em;
         $this->dm = $dm;
 
-        $this->setRequest($dm->getRequest());
-        $this->setResponse($dm->getResponse());
+        $this->request = $dm->getRequest();
+        $this->response = $dm->getResponse();
     }
 
 	/**
@@ -107,23 +113,6 @@ class AbstractService
 	    return $functionName;
 	}
 
-	/**
-	 * Inject the request object into the service
-	 * @param Drest\Request $request
-	 */
-	public function setRequest(Request $request)
-	{
-	    $this->request = $request;
-	}
-
-	/**
-	 * Inject the response object into the service
-	 * @param Drest\Response $response
-	 */
-	public function setResponse(Response $response)
-	{
-	    $this->response = $response;
-	}
 
 	/**
 	 * Set the matched route object
@@ -143,6 +132,14 @@ class AbstractService
 	    return $this->matched_route;
 	}
 
+	/**
+	 * Set any predetermined writer instance
+	 * @param Writer\AbstractWriter $writer
+	 */
+	public function setWriter(Writer\AbstractWriter $writer)
+	{
+	    $this->writer = $writer;
+	}
 
     /**
      * A recursive function to process the specified expose fields
@@ -154,10 +151,15 @@ class AbstractService
      */
 	protected function registerExpose($fields, \Doctrine\ORM\QueryBuilder $qb, \Doctrine\ORM\Mapping\ClassMetadata $classMetaData, &$addedKeyFields = array(), $key = null)
 	{
+	    if (empty($fields))
+	    {
+	        return $qb;
+	    }
+
 	    $classAlias = $this->getAlias($classMetaData->getName());
 	    $ormAssociationMappings = $classMetaData->getAssociationMappings();
 
-	    // Process single fields into a partial set
+	    // Process single fields into a partial set - Filter fields not avialble on class meta data
 	    $selectFields = array_filter($fields, function($offset) use ($classMetaData){
 	        if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames()))
 	        {
@@ -166,16 +168,18 @@ class AbstractService
 	        return false;
 	    });
 
+	    // merge required identifier fields with select fields
 	    $keyFieldDiff = array_diff($classMetaData->getIdentifierFieldNames(), $selectFields);
-
 	    if (!empty($keyFieldDiff))
 	    {
-
             $addedKeyFields = $keyFieldDiff;
 	        $selectFields = array_merge($selectFields, $keyFieldDiff);
 	    }
 
-        $qb->addSelect('partial ' . $classAlias . '.{'  . implode(', ', $selectFields) . '}');
+	    if (!empty($selectFields))
+	    {
+            $qb->addSelect('partial ' . $classAlias . '.{'  . implode(', ', $selectFields) . '}');
+	    }
 
 	    // Process relational field with no deeper expose restrictions
 	    $relationalFields = array_filter($fields, function($offset) use ($classMetaData) {
@@ -212,7 +216,7 @@ class AbstractService
 	 * - 	Removes any addition expose fields required for a partial DQL query
 	 * @return array $data
 	 */
-	protected function writeData(array $data)
+	protected function setData(array $data)
 	{
 	    $this->clearData();
 
@@ -227,6 +231,21 @@ class AbstractService
 	        throw DrestException::unknownContentType($this->matched_route->getContentType());
 	    }
 	    $this->data = array($classMetaData->$methodName() => $data);
+	}
+
+	/**
+	 * Write out any data stored on the $data array using the matched writer
+	 * @throws DrestException if no writer was determined
+	 */
+	protected function renderDeterminedWriter()
+	{
+        if (is_null($this->writer))
+        {
+            throw DrestException::unableToDetermineAWriter();
+        }
+
+        $this->response->setBody($this->writer->write($this->data));
+        $this->response->setHttpHeader('Content-Type', $this->writer->getContentType());
 	}
 
 

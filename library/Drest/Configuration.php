@@ -34,10 +34,9 @@ class Configuration
     public function __construct()
     {
         // By default only allow the Accept header detection
+        $this->setDebugMode(false);
         $this->setDetectContentOptions(array(self::DETECT_CONTENT_ACCEPT_HEADER));
         $this->setDefaultWriters(array('Json', 'Xml'));
-
-        $this->setDebugMode(false);
         $this->setDefaultServiceClass('Drest\Service\DefaultService');
         $this->setDefaultExposureDepth(1);
         $this->setAllowOptionsRequest(true);

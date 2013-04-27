@@ -175,6 +175,7 @@ class Manager
 	protected function execute($request = null, $response = null)
 	{
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
+		// @todo: tidy this up
 		try {
             $route = $this->getMatchedRoute(true);
 		} catch (\Exception $e)
@@ -182,10 +183,8 @@ class Manager
 		    if ($e instanceof NoMatchException && $this->doOptionsCheck())
 		    {
                 return $this->getResponse();
-		    } else
-		    {
-		        throw $e;
 		    }
+            throw $e;
 		}
 
         // Check exposure field definitions, if non are set use the default depth setting
@@ -200,6 +199,11 @@ class Manager
         // Set the matched service object into the service class
         $service->setMatchedRoute($route);
 
+        try
+        {
+            $service->setWriter($this->getDeterminedWriter($route));
+        } catch (DrestException $e) {}
+
         // This is a new request, clear out out any existing old data on the cached service object
         $service->clearData();
 
@@ -210,17 +214,6 @@ class Manager
             throw DrestException::unknownServiceMethod(get_class($service), $callMethod);
         }
         $service->$callMethod();
-
-        // Only run the writers if the body hasn't already been written too
-        if ($this->response->getBody() == '')
-        {
-            // Pass the results to a writer
-            $data = $service->getData();
-            if ($this->response->getStatusCode() == 200 && !empty($data))
-            {
-                $this->execWriter($route, $data);
-            }
-        }
 
         return $this->getResponse();
 	}
@@ -313,25 +306,22 @@ class Manager
         return true;
 	}
 
-    /**
-     * @todo: split this up, one method for detections, another for performing the write
-     * Detect the writer to be applied, pass in the data and write the content to the response object
-     * @param Drest\Mapping\RouteMetaData $route
-     * @param array $data
-     */
-	protected function execWriter(Mapping\RouteMetaData $route, array $data = array())
-	{
-	    $writers = $route->getClassMetaData()->getWriters();
-	    if (empty($writers))
-	    {
-	        $writers = $this->config->getDefaultWriters();
-	        if (empty($writers))
-	        {
-	            throw DrestException::noWritersSetForRoute($route);
-	        }
-	    }
 
-        $writerFound = false;
+	/**
+	 * Detect an instance of a writer class using a matched route, or default writer classes
+	 * @param Mapping\RouteMetaData $route
+	 * @return Drest\Writer\AbstractWriter $writer
+	 * @throw DrestException of unable to instantiate a write from config settings
+	 */
+	protected function getDeterminedWriter(Mapping\RouteMetaData $route = null)
+	{
+	    $writers = (!is_null($route)) ? $route->getClassMetaData()->getWriters() : $this->config->getDefaultWriters();
+        if (empty($writers))
+	    {
+	        throw DrestException::noWritersSetForRoute($route);
+        }
+
+        $writerObjects = array();
 	    foreach ($writers as $writer)
 	    {
 	        if (!is_object($writer))
@@ -343,67 +333,31 @@ class Manager
 	            {
 	                throw DrestException::unknownWriterClass($writer);
 	            }
-	            $writer = new $className();
+	            $writerObjects[] = $writer = new $className();
 	        }
 	        if (!$writer instanceof Writer\AbstractWriter)
 	        {
 	            throw DrestException::writerMustBeInstanceOfDrestWriter();
 	        }
 
-            if ($this->detectContentWriter($writer))
+	        // This writer matches the required media type requested by the client
+            if ($writer->isExpectedContent($this->config->getDetectContentOptions(), $this->request))
             {
-                $this->response->setBody(trim($writer->write($data)));
-                $this->response->setHttpHeader('Content-Type', $writer->getContentType());
-                $writerFound = true;
-                break;
+                return $writer;
             }
 	    }
 
-	    if (!$writerFound)
+	    // Return the first instantiated writer instance
+	    if (isset($writerObjects[0]))
 	    {
-	        throw DrestException::unableToMatchAWriter();
-	    }
-	}
-
-	/**
-	 * If content type can be detected through config mechanism, then this returns true
-	 * @param Writer\AbstractWriter $writer
-	 * @return boolean upon success of matching a content writer
-	 */
-	protected function detectContentWriter(Writer\AbstractWriter $writer)
-	{
-	    foreach ($this->config->getDetectContentOptions() as $detectContentOption)
-	    {
-	        switch ($detectContentOption)
-	        {
-                case Configuration::DETECT_CONTENT_ACCEPT_HEADER:
-                    $acceptHeader = explode(';', $this->request->getHeaders('Accept'));
-                    // See if the Accept header matches for this writer
-                    if (in_array($this->request->getHeaders('Accept'), $writer->getMatchableAcceptHeaders()))
-                    {
-                        return true;
-                    }
-                break;
-	            case Configuration::DETECT_CONTENT_EXTENSION:
-	                // See if an extension has been supplied
-	                $ext = $this->request->getExtension();
-                    if (!empty($ext) && in_array($this->request->getExtension(), $writer->getMatchableExtensions()))
-                    {
-                        return true;
-                    }
-                break;
-                case Configuration::DETECT_CONTENT_PARAM:
-                    // Inspect the request object for a "format" parameter
-                    if (in_array($this->request->getQuery('format'), $writer->getMatchableFormatParams()))
-                    {
-                        return true;
-                    }
-                break;
-	        }
+	        return $writerObjects[0];
 	    }
 
-	    return false;
+		// We have no writer instances from either annotations or config object
+        throw DrestException::unableToDetermineAWriter();
 	}
+
+
 
 	/**
 	 * Runs through all the registered routes and returns a single match

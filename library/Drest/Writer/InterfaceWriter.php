@@ -1,7 +1,8 @@
 <?php
 namespace Drest\Writer;
 
-use Drest\Mapping\RouteMetaData;
+use Drest\Mapping\RouteMetaData,
+    Drest\Request;
 
 interface InterfaceWriter
 {
@@ -17,6 +18,14 @@ interface InterfaceWriter
      * @return string content type
      */
     public function getContentType();
+
+    /**
+     * Uses configuration options to determine whether this writer instance is the media type expected by the client
+     * @param array $configOptions - configuration options for content detection
+     * @param Drest\Request $request - request object
+     * @return boolean $result
+     */
+    public function isExpectedContent(array $configOptions, Request $request);
 
 	/**
 	 * Return an array of applicable accept header values that should match this writer
