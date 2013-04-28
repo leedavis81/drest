@@ -90,9 +90,14 @@ class DrestException extends Exception
         return new self('No matched route has been set on this service class. The content type is needed for a default service method call');
     }
 
-    public static function dataMustBeInASingleArrayEntry()
+    public static function dataWrapNameMustBeAString()
     {
-        return new self('Data returned from a service should always be nested within a single entry array. Eg array(\'user\' => array(...)) or array(\'users\' => array(....))');
+        return new self('Data wrap name must be a string value. Eg array(\'user\' => array(...))');
+    }
+
+    public static function invalidParentKeyNameForResultSet()
+    {
+        return new self('Parent key name in ResultSet object is invalid. Must be an alphanumeric string (underscores allowed)');
     }
 
 

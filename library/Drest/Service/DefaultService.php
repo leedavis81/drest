@@ -34,11 +34,10 @@ class DefaultService extends AbstractService
         );
 
         // No data has been exposed
-        // @todo: tidy
+        // @todo: tidy - this can be moved into the setup call on abstract service. If no expose fields are present, fail early (for all GET requests)
         if (sizeof($qb->getDQLPart('select')) === 0)
         {
-            $this->setData(array());
-            $this->renderDeterminedWriter();
+            $this->renderDeterminedWriter($this->createResultSet(array()));
             return;
         }
 
@@ -51,7 +50,7 @@ class DefaultService extends AbstractService
 
         try
         {
-            $this->setData($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
+            $resultSet = $this->createResultSet($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
         } catch (ORM\ORMException $e)
         {
             if ($e instanceof ORM\NonUniqueResultException)
@@ -63,7 +62,7 @@ class DefaultService extends AbstractService
             }
         }
 
-        $this->renderDeterminedWriter();
+        $this->renderDeterminedWriter($resultSet);
 	}
 
 	public function getCollection()
@@ -81,9 +80,7 @@ class DefaultService extends AbstractService
         // @todo: tidy
         if (sizeof($qb->getDQLPart('select')) === 0)
         {
-            $this->setData(array());
-            var_dump($this->data); die;
-            $this->renderDeterminedWriter();
+            $this->renderDeterminedWriter($this->createResultSet(array()));
             return;
         }
 
@@ -94,11 +91,11 @@ class DefaultService extends AbstractService
         }
         try
         {
-            $this->setData($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
+            $this->renderDeterminedWriter($this->createResultSet($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY)));
         } catch (ORM\ORMException $e)
         {
             echo $e->getMessage();
-            echo $e->getTraceAsString(); die;
+            echo $e->getTraceAsString();
             /*
             ORM\NonUniqueResultException
             ORM\NoResultException
@@ -115,7 +112,6 @@ class DefaultService extends AbstractService
                 $this->response->setStatusCode(Response::STATUS_CODE_404);
             }
         }
-        $this->renderDeterminedWriter();
 	}
 
 

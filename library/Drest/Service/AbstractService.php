@@ -2,12 +2,12 @@
 namespace Drest\Service;
 
 
-use Drest\DrestException;
-
 use Doctrine\ORM\EntityManager,
+	Drest\DrestException,
 	Drest\Writer,
 	Drest\Request,
 	Drest\Manager,
+	Drest\ResultSet,
 	Drest\Mapping\RouteMetaData;
 
 class AbstractService
@@ -51,9 +51,9 @@ class AbstractService
 
 	/**
 	 * The data to be returned in the response
-	 * @var array $data
+	 * @var Drest\ResultSet $data
 	 */
-	protected $data;
+	protected $resultSet;
 
     /**
      * addional key fields that are included in partial queries to make the DQL valid
@@ -77,6 +77,40 @@ class AbstractService
         $this->response = $dm->getResponse();
     }
 
+    /**
+     * Called on sucessful routing of a service call
+     * Prepares the service to a request to be rendered
+     * @todo: Fires off any events registered to preLoad
+     */
+    public function setupRequest()
+    {
+    	if (!$this->matched_route instanceof RouteMetaData)
+	    {
+            DrestException::noMatchedRouteSet();
+	    }
+
+	    // @todo: Run verb type setup operations
+	    switch ($this->request->getHttpMethod())
+	    {
+	        case Request::METHOD_GET:
+	            break;
+	    }
+    }
+
+    /**
+     * Run the call method required on this service object
+     */
+    public function runCallMethod()
+    {
+        // Use a default call if the DefaultService class is being used (allow for extension)
+        $callMethod = (get_class($this) === 'Drest\Service\DefaultService') ? $this->getDefaultMethod() : $this->matched_route->getCallMethod();
+        if (!method_exists($this, $callMethod))
+        {
+            throw DrestException::unknownServiceMethod(get_class($this), $callMethod);
+        }
+        $this->$callMethod();
+    }
+
 	/**
 	 * Inspects the request object and returns the default service method based on the entity type and verb used
 	 * Eg. a GET request to a single element will return getElement()
@@ -86,18 +120,13 @@ class AbstractService
 	 */
 	public function getDefaultMethod()
 	{
-	    if (!$this->matched_route instanceof RouteMetaData)
-	    {
-            DrestException::noMatchedRouteSet();
-	    }
-
 	    $functionName = '';
 	    $httpMethod = $this->request->getHttpMethod();
 	    switch ($httpMethod)
 	    {
 	        case Request::METHOD_OPTIONS:
             case Request::METHOD_TRACE:
-                $functionName = strtolower($this->request->getHttpMethod()) . 'Request';
+                $functionName = strtolower($httpMethod) . 'Request';
 	            break;
             case Request::METHOD_CONNECT:
             case Request::METHOD_PATCH:
@@ -106,7 +135,7 @@ class AbstractService
                 //@todo: support implementation for these
                 break;
             default:
-                $functionName = strtolower($this->request->getHttpMethod());
+                $functionName = strtolower($httpMethod);
                 $functionName .= ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()]));
                 break;
 	    }
@@ -214,40 +243,29 @@ class AbstractService
 	 * - 	wraps results in a single entry array keyed by entity name.
 	 * 		Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
 	 * - 	Removes any addition expose fields required for a partial DQL query
-	 * @return array $data
+	 * @param array $data - the data fetched from the database
+	 * @param string $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singulise on single element request
+	 * @return Drest\ResultSet $data
 	 */
-	protected function setData(array $data)
+	protected function createResultSet(array $data, $keyName = null)
 	{
-	    $this->clearData();
-
 	    $classMetaData = $this->matched_route->getClassMetaData();
 
 	    // Recursively remove any additionally added pk fields
         $this->removeAddedKeyFields($this->addedKeyFields, $data);
 
-	    $methodName = 'get' . ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()])) . 'Name';
-	    if (!method_exists($classMetaData, $methodName))
-	    {
-	        throw DrestException::unknownContentType($this->matched_route->getContentType());
-	    }
-	    $this->data = array($classMetaData->$methodName() => $data);
-	}
-
-	/**
-	 * Write out any data stored on the $data array using the matched writer
-	 * @throws DrestException if no writer was determined
-	 */
-	protected function renderDeterminedWriter()
-	{
-        if (is_null($this->writer))
+        if (is_null($keyName))
         {
-            throw DrestException::unableToDetermineAWriter();
+    	    $methodName = 'get' . ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()])) . 'Name';
+    	    if (!method_exists($classMetaData, $methodName))
+    	    {
+    	        throw DrestException::unknownContentType($this->matched_route->getContentType());
+    	    }
+    	    $keyName = $classMetaData->$methodName();
         }
 
-        $this->response->setBody($this->writer->write($this->data));
-        $this->response->setHttpHeader('Content-Type', $this->writer->getContentType());
+	    return ResultSet::create($data, $keyName);
 	}
-
 
 	/**
 	 * Functional recursive method to remove any fields added to make the partial DQL work and remove the data
@@ -286,26 +304,20 @@ class AbstractService
 	    return $data;
 	}
 
-
 	/**
-	 * Retrieved the data stored on this service
-	 * @return array $data
+	 * Write out as result set on the writer object that was determined
+	 * @param Drest\ResultSet $resultSet
+	 * @throws DrestException if no writer was determined
 	 */
-	public function getData()
+	protected function renderDeterminedWriter(ResultSet $resultSet)
 	{
-        if (!empty($this->data) && sizeof($this->data) > 1)
+        if (is_null($this->writer))
         {
-            throw DrestException::dataMustBeInASingleArrayEntry();
+            throw DrestException::unableToDetermineAWriter();
         }
-	    return $this->data;
-	}
 
-	/**
-	 * Clear the data array
-	 */
-	public function clearData()
-	{
-	    $this->data = array();
+        $this->response->setBody($this->writer->write($resultSet));
+        $this->response->setHttpHeader('Content-Type', $this->writer->getContentType());
 	}
 
 }

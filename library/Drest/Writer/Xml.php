@@ -2,7 +2,8 @@
 
 namespace Drest\Writer;
 
-use Drest\DrestException;
+use Drest\DrestException,
+    Drest\ResultSet;
 
 /**
  * XML Conversion inspired from http://www.lalit.org/lab/convert-php-array-to-xml-with-attributes
@@ -57,11 +58,12 @@ class Xml extends AbstractWriter
 	/**
 	 * @see Drest\Writer\Writer::write()
 	 */
-	public function write($data)
+	public function write(ResultSet $data)
 	{
 	    $this->xml =  new \DomDocument('1.0', 'UTF-8');
 	    $this->xml->formatOutput = true;
 
+	    $data = $data->toArray();
 	    $this->xml->appendChild($this->convert(key($data), $data[key($data)]));
 	    return $this->xml->saveXML();
 	}

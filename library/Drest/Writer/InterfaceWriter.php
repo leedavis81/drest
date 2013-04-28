@@ -2,6 +2,7 @@
 namespace Drest\Writer;
 
 use Drest\Mapping\RouteMetaData,
+    Drest\ResultSet,
     Drest\Request;
 
 interface InterfaceWriter
@@ -9,9 +10,9 @@ interface InterfaceWriter
 
 	/**
 	 * Write the data out in the required format
-	 * @param mixed $data - The data to be passed into the writer
+	 * @param Drest\ResultSet $data - The data to be passed into the writer
 	 */
-	public function write($data);
+	public function write(ResultSet $data);
 
     /**
      * Content type to be used when this writer is matched

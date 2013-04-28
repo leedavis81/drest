@@ -2,7 +2,8 @@
 
 namespace Drest\Writer;
 
-use Drest\DrestException;
+use Drest\DrestException,
+    Drest\ResultSet;
 
 class Json extends AbstractWriter
 {
@@ -10,10 +11,10 @@ class Json extends AbstractWriter
 	/**
 	 * @see Drest\Writer\Writer::write()
 	 */
-	public function write($data)
+	public function write(ResultSet $data)
 	{
 	    // This abstraction all seems a little pointless considering..
-        return json_encode($data);
+        return json_encode($data->toArray());
 	}
 
     /**

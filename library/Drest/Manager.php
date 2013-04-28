@@ -109,8 +109,8 @@ class Manager
     /**
      * Static call to create the Drest Manager instance
      *
-     * @param unknown_type $config
-     * @param unknown_type $eventManager
+     * @param Drest\Configuration $config
+     * @param Drest\EventManager $eventManager
      */
 	public static function create(EntityManager $em, Configuration $config, EventManager $eventManager = null)
 	{
@@ -204,16 +204,10 @@ class Manager
             $service->setWriter($this->getDeterminedWriter($route));
         } catch (DrestException $e) {}
 
-        // This is a new request, clear out out any existing old data on the cached service object
-        $service->clearData();
+        // Set up the service for a new request
+        $service->setupRequest();
 
-        // Use a default call if the DefaultService class is being used (allow for extension)
-        $callMethod = (get_class($service) === 'Drest\Service\DefaultService') ? $service->getDefaultMethod() : $route->getCallMethod();
-        if (!method_exists($service, $callMethod))
-        {
-            throw DrestException::unknownServiceMethod(get_class($service), $callMethod);
-        }
-        $service->$callMethod();
+        $service->runCallMethod();
 
         return $this->getResponse();
 	}
