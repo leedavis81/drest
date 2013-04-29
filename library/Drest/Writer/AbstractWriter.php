@@ -16,16 +16,23 @@ abstract class AbstractWriter implements InterfaceWriter
      */
     final public function isExpectedContent(array $configOptions, Request $request)
     {
-	    foreach ($configOptions as $detectContentOption)
+	    foreach ($configOptions as $detectContentOption => $detectContentValue)
 	    {
 	        switch ($detectContentOption)
 	        {
-                case Configuration::DETECT_CONTENT_ACCEPT_HEADER:
-                    $acceptHeader = explode(';', $request->getHeaders('Accept'));
-                    // See if the Accept header matches for this writer
-                    if (in_array($request->getHeaders('Accept'), $this->getMatchableAcceptHeaders()))
+                case Configuration::DETECT_CONTENT_HEADER:
+                    $headers = explode(',', $request->getHeaders($detectContentValue));
+                    foreach ($headers as $headerEntry)
                     {
-                        return true;
+                        if (false !== ($pos = strpos($headerEntry, ';')))
+                        {
+                            $headerEntry = substr($headerEntry, 0, $pos);
+                        }
+                        // See if the header matches for this writer
+                        if (in_array(trim($headerEntry), $this->getMatchableAcceptHeaders()))
+                        {
+                            return true;
+                        }
                     }
                 break;
 	            case Configuration::DETECT_CONTENT_EXTENSION:
@@ -38,7 +45,7 @@ abstract class AbstractWriter implements InterfaceWriter
                 break;
                 case Configuration::DETECT_CONTENT_PARAM:
                     // Inspect the request object for a "format" parameter
-                    if (in_array($request->getQuery('format'), $this->getMatchableFormatParams()))
+                    if (in_array($request->getQuery($detectContentValue), $this->getMatchableFormatParams()))
                     {
                         return true;
                     }

@@ -3,7 +3,7 @@
 namespace Drest\Writer;
 
 use Drest\DrestException,
-    Drest\ResultSet;
+    Drest\Query\ResultSet;
 
 class Json extends AbstractWriter
 {

@@ -6,11 +6,14 @@ use Doctrine\Common\EventManager,
     Doctrine\Common\Annotations\Annotation,
     Doctrine\Common\Annotations\AnnotationRegistry,
     Doctrine\Common\Annotations\AnnotationReader,
+
 	Doctrine\ORM\EntityManager,
+	Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo,
 
 	Drest\Mapping\MetadataFactory,
 
 	Drest\Request,
+	Drest\Query,
 	Drest\DrestException,
 	Drest\Route\MultipleRoutesException,
 	Drest\Route\NoMatchException;
@@ -187,8 +190,13 @@ class Manager
             throw $e;
 		}
 
-        // Check exposure field definitions, if non are set use the default depth setting
-        //$route = $this->setupExposeFields($route);
+        // Setup exposure fields
+        $route->setExpose(
+            Query\ExposeFields::create($route)
+            ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+            ->configureExposureRequest($this->request)
+            ->toArray()
+        );
 
         // Set paramaters matched on the route to the request object
         $this->request->setRouteParam($route->getRouteParams());
@@ -212,64 +220,6 @@ class Manager
         return $this->getResponse();
 	}
 
-	/**
-	 * Set the default exposure fields using the configured depth default
-	 * @param \Drest\Mapping\RouteMetaData $route
-	 * @return \Drest\Mapping\RouteMetaData $route
-	 */
-	protected function setupExposeFields(\Drest\Mapping\RouteMetaData $route)
-	{
-        $expose = $route->getExpose();
-        if (!empty($expose))
-        {
-            return $route;
-        }
-
-        // expose={"username", "email_address", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers" : {"number"}}
-        array(
-            'username',
-            'email_address',
-            'profile' => array(
-                'id',
-                'lastname',
-				'addresses'
-            )
-        );
-
-
-        $fields = array();
-        $depth = $this->config->getDefaultExposureDepth();
-        $depth = 3;
-        $fields = $this->processDefaultExposeDepth($fields, $route->getClassMetaData()->getClassName(), $depth);
-
-        echo '********RESULT***********' . PHP_EOL;
-        var_dump($fields);
-
-        return $route;
-	}
-
-
-	/**
-	 * Recursive function to generate default expose columns
-	 */
-	protected function processDefaultExposeDepth(&$fields, $class, $depth = 0)
-	{
-        if ($depth > 0)
-        {
-            $metaData = $this->em->getClassMetadata($class);
-            $fields = $metaData->getColumnNames();
-
-            if (($depth - 1) > 0)
-            {
-                foreach ($metaData->getAssociationMappings() as $key => $assocMapping)
-                {
-                    $this->processDefaultExposeDepth($fields[$key], $assocMapping['targetEntity'], --$depth);
-                }
-            }
-            $this->processDefaultExposeDepth($fields, $class, --$depth);
-        }
-        return $fields;
-	}
 
 	/**
 	 * No match on route has occured. Check the HTTP verb used for an options response

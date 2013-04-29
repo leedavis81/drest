@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManager,
 	Drest\Writer,
 	Drest\Request,
 	Drest\Manager,
-	Drest\ResultSet,
+	Drest\Query\ResultSet,
 	Drest\Mapping\RouteMetaData;
 
 class AbstractService
@@ -245,7 +245,7 @@ class AbstractService
 	 * - 	Removes any addition expose fields required for a partial DQL query
 	 * @param array $data - the data fetched from the database
 	 * @param string $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singulise on single element request
-	 * @return Drest\ResultSet $data
+	 * @return Drest\Query\ResultSet $data
 	 */
 	protected function createResultSet(array $data, $keyName = null)
 	{
@@ -306,7 +306,7 @@ class AbstractService
 
 	/**
 	 * Write out as result set on the writer object that was determined
-	 * @param Drest\ResultSet $resultSet
+	 * @param Drest\Query\ResultSet $resultSet
 	 * @throws DrestException if no writer was determined
 	 */
 	protected function renderDeterminedWriter(ResultSet $resultSet)

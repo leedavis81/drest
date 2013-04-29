@@ -1,5 +1,5 @@
 <?php
-namespace Drest;
+namespace Drest\Query;
 
 /**
  * Drest result set

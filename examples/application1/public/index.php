@@ -52,9 +52,9 @@ try
 	$drestConfig = new Configuration();
 
 	$drestConfig->setDetectContentOptions(array(
-	    Configuration::DETECT_CONTENT_ACCEPT_HEADER,
-	    Configuration::DETECT_CONTENT_EXTENSION,
-	    Configuration::DETECT_CONTENT_PARAM
+	    Configuration::DETECT_CONTENT_HEADER => 'Accept',
+	    Configuration::DETECT_CONTENT_EXTENSION => true,
+	    Configuration::DETECT_CONTENT_PARAM => 'format'
     ));
 
 	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());

@@ -5,20 +5,30 @@ namespace Drest;
 use Drest\DrestException,
 	Drest\Mapping\Driver\AnnotationsDriver,
 	Doctrine\Common\Cache\Cache,
-    Doctrine\Common\Annotations\AnnotationRegistry;
+    Doctrine\Common\Annotations\AnnotationRegistry,
+
+    Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
 
 
 class Configuration
 {
 
-    const DETECT_CONTENT_ACCEPT_HEADER = 1;
+    const DETECT_CONTENT_HEADER = 1;
     const DETECT_CONTENT_EXTENSION = 2;
     const DETECT_CONTENT_PARAM = 3;
 
+    const EXPOSE_REQUEST_HEADER = 1;
+    const EXPOSE_REQUEST_PARAM = 2;
+
     public static $detectContentOptions = array(
-        self::DETECT_CONTENT_ACCEPT_HEADER => 'Accept Header',
+        self::DETECT_CONTENT_HEADER => 'Accept Header',
         self::DETECT_CONTENT_EXTENSION => 'Extension',
         self::DETECT_CONTENT_PARAM => 'Parameter'
+    );
+
+    public static $exposeRequestOptions = array(
+        self::EXPOSE_REQUEST_HEADER => 'X-Expose',
+        self::EXPOSE_REQUEST_PARAM => 'Parameter'
     );
 
     /**
@@ -35,10 +45,13 @@ class Configuration
     {
         // By default only allow the Accept header detection
         $this->setDebugMode(false);
-        $this->setDetectContentOptions(array(self::DETECT_CONTENT_ACCEPT_HEADER));
+        $this->setDetectContentOptions(array(
+            self::DETECT_CONTENT_HEADER => 'Accept'
+        ));
         $this->setDefaultWriters(array('Json', 'Xml'));
         $this->setDefaultServiceClass('Drest\Service\DefaultService');
-        $this->setDefaultExposureDepth(1);
+        $this->setExposureDepth(1);
+        $this->setExposureRelationsFetchType(null);
         $this->setAllowOptionsRequest(true);
     }
 
@@ -93,26 +106,42 @@ class Configuration
 
     /**
      * Set the methods to be used for detecting content type to be used, overwrites previous settings
-     * self::DETECT_CONTENT_ACCEPT_HEADER 	= Uses the accept header to detect the required content
+     * Eg ->setDetectContentOptions(array(self::DETECT_CONTENT_HEADER => $headerName))
+     * self::DETECT_CONTENT_HEADER 	= Uses the a header to detect the required content (typically use Accept)
      * self::DETECT_CONTENT_EXTENSION 		= Uses an extension on the url eg .xml
      * self::DETECT_CONTENT_PARAM 			= Uses a the "format" parameter
-     * @param mixed $values pass in either a single constant value, or an array of them.
+     * @param array $values pass in either a single array value using the constant value as a key, or a multi-dimensional array.
      */
-    public function setDetectContentOptions($values)
+    public function setDetectContentOptions($options)
     {
-        $values = (array) $values;
+        $options = (array) $options;
         $this->_attributes['detectContentOptions'] = array();
-        foreach ($values as $value)
+        foreach ($options as $key => $value)
         {
-            if (array_key_exists($value, self::$detectContentOptions))
-            {
-                $this->_attributes['detectContentOptions'][] = $value;
-            }
+            $this->setDetectContentOption($key, $value);
         }
     }
 
     /**
-     * detect content options
+     * Set a content option for detecting the media type to be used. To unset pass null as a value
+     * For any options that don't required a value, set them to true to activate them
+     * @param integer $option
+     * @param string $value
+     */
+    public function setDetectContentOption($option, $value)
+    {
+        if (array_key_exists($option, self::$detectContentOptions))
+        {
+            $this->_attributes['detectContentOptions'][$option] = $value;
+        } else
+        {
+            throw DrestException::unknownDetectContentOption();
+        }
+    }
+
+    /**
+     * Get detect content options. Returns an array indexed using constants as array key (value will be the value to be used for the content options)
+     * Eg array(self::DETECT_CONTENT_HEADER => 'Accept')
      * @return array
      */
     public function getDetectContentOptions()
@@ -142,7 +171,7 @@ class Configuration
      * Set the default depth of columns to expose to client
      * @param integer $depth
      */
-    public function setDefaultExposureDepth($depth)
+    public function setExposureDepth($depth)
     {
         $this->_attributes['defaultExposureDepth'] = (int) $depth;
     }
@@ -151,9 +180,43 @@ class Configuration
      * Get the default exposure depth
      * @return integer $depth
      */
-    public function getDefaultExposureDepth()
+    public function getExposureDepth()
     {
         return (int) $this->_attributes['defaultExposureDepth'];
+    }
+
+    /**
+     * Set the exposure fields by following relations that have the a certain fetch type.
+     * This is useful if you only want to display fields that are loaded eagerly.
+     * eg ->setExposureRelationsFetchType(ORMClassMetaDataInfo::FETCH_EAGER)
+     * @param unknown_type $fetch
+     */
+    public function setExposureRelationsFetchType($fetch)
+    {
+        switch ($fetch)
+        {
+            case ORMClassMetaDataInfo::FETCH_EAGER:
+            case ORMClassMetaDataInfo::FETCH_LAZY:
+            case ORMClassMetaDataInfo::FETCH_EXTRA_LAZY:
+            case null:
+                $this->_attributes['defaultExposureRelationsFetchType'] = $fetch;
+                break;
+            default:
+                throw DrestException::invalidExposeRelationFetchType();
+                break;
+        }
+    }
+
+    /**
+     * Gets the configured expose relations fetch type - returns null if not set
+     * @return integer|null $result
+     */
+    public function getExposureRelationsFetchType()
+    {
+        if (isset($this->_attributes['defaultExposureRelationsFetchType']))
+        {
+            return $this->_attributes['defaultExposureRelationsFetchType'];
+        }
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace Drest\Writer;
 
 use Drest\DrestException,
-    Drest\ResultSet;
+    Drest\Query\ResultSet;
 
 /**
  * XML Conversion inspired from http://www.lalit.org/lab/convert-php-array-to-xml-with-attributes

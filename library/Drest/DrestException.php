@@ -53,9 +53,14 @@ class DrestException extends Exception
         return new self('Used an unknown HTTP verb of "' . $verb . '"');
     }
 
-    public static function unknownContentType($type)
+    public static function unknownContentOption($type)
     {
         return new self('Used an unknown content type of "' . $type . '". values ELEMENT or COLLECTION should be used.');
+    }
+
+    public static  function unknownDetectContentOption()
+    {
+        return new self('Content option used is invalid. Please see DETECT_CONTENT_* options in Drest\Configuration');
     }
 
     public static function pathToConfigFilesRequired()
@@ -71,6 +76,11 @@ class DrestException extends Exception
     public static function unableToLoadMetaDataFromDriver()
     {
         return new self('Unable to load metadata using supplied driver');
+    }
+
+    public static function invalidExposeRelationFetchType()
+    {
+        return new self('Invalid relation fetch type used. Please see Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_* for avaiable options');
     }
 
 

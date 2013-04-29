@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 // Alternative
 //  *      		expose={"username", "email_address", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers" : {"number"}}
-
+// Use short expose syntax in http headers / request params:  username|email_address|profile[id|lastname|addresses[id]]|phone_numbers
 /**
  * User
  * @Drest\Resource(
