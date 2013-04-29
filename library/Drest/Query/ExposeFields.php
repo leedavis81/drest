@@ -1,5 +1,8 @@
 <?php
+use Drest\DrestException;
 namespace Drest\Query;
+
+use Drest\Configuration;
 
 use Drest\Request,
     Drest\Mapping\RouteMetaData,
@@ -82,19 +85,66 @@ class ExposeFields implements \Iterator
 
 	/**
 	 * Configure the expose object to filter out fields that have been explicitly requested by the client
+	 * @param array $requestOptions
 	 * @param Request $request
 	 * @return Drest\Query\ExposeFields $this object instance
 	 */
-	public function configureExposureRequest(Request $request)
+	public function configureExposureRequest(array $requestOptions, Request $request)
 	{
+
+	    /**@@@@@@@@@@@@@@@@@@@@@@TODO: finish this @@@@@@@@@@@@@@@@@@@@@ */
+	    return $this;
+
 	    if (empty($this->route_expose))
 	    {
 	        // Determing the filtered expose using set exposure methods
 	        // @todo: pull this from config options / request
             // $this->filterRequestedExpose($requestedExpose, $this->fields);
+            $exposeString = '';
+	        foreach ($requestOptions as $requestOption => $requestValue)
+	        {
+	            switch ($requestOption)
+	            {
+	                case Configuration::EXPOSE_REQUEST_HEADER:
+	                    $exposeString = $request->getHeaders($requestValue);
+	                    break;
+	                case Configuration::EXPOSE_REQUEST_PARAM:
+	                    $exposeString = $request->getParams($requestValue);
+	                    break;
+	                case Configuration::EXPOSE_REQUEST_PARAM_GET:
+	                    $exposeString = $request->getQuery($requestValue);
+                        break;
+	                case Configuration::EXPOSE_REQUEST_PARAM_POST:
+	                    $exposeString = $request->getPost($requestValue);
+	                    break;
+	            }
+	        }
+	        if (!empty($exposeString))
+	        {
+	            $this->route->setExpose($this->parseExposeString($exposeString));
+	        }
 	    }
 
         return $this;
+	}
+
+	/**
+	 * Parses an expose string into an array
+	 * Example: "username|email_address|profile[id|lastname|addresses[id]]|phone_numbers"
+	 * @param string $string
+	 * @return array $result
+	 * @throws DrestException - if any syntax error occurs, or unable to parse the string
+	 */
+	protected function parseExposeString($string)
+	{
+        $string = preg_replace("/[^a-zA-Z0-9\[\]\|_\s]/", "", $string);
+        if (strpos($string, '['))
+        foreach (str_split($string) as $character)
+        {
+
+        }
+
+        die;
 	}
 
 

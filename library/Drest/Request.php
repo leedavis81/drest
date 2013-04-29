@@ -118,9 +118,10 @@ class Request
 
 	/**
 	 * Get all parameters that have been passed (including anything parsed from the route) - GET|POST|COOKIE|ROUTE
+	 * @return mixed $params an array of all params, or a specific entry
 	 * return array $parameters
 	 */
-	public function getParams()
+	public function getParams($name = null)
 	{
 	    return $this->adapter->getParams();
 	}

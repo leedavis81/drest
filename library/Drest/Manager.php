@@ -194,7 +194,7 @@ class Manager
         $route->setExpose(
             Query\ExposeFields::create($route)
             ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
-            ->configureExposureRequest($this->request)
+            ->configureExposureRequest($this->config->getExposeRequestOptions(), $this->request)
             ->toArray()
         );
 
@@ -300,7 +300,6 @@ class Manager
 		// We have no writer instances from either annotations or config object
         throw DrestException::unableToDetermineAWriter();
 	}
-
 
 
 	/**

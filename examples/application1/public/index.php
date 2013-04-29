@@ -57,6 +57,8 @@ try
 	    Configuration::DETECT_CONTENT_PARAM => 'format'
     ));
 
+    $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
+
 	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 
 	$drestConfig->setDebugMode(true);

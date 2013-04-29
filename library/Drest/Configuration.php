@@ -19,6 +19,8 @@ class Configuration
 
     const EXPOSE_REQUEST_HEADER = 1;
     const EXPOSE_REQUEST_PARAM = 2;
+    const EXPOSE_REQUEST_PARAM_GET = 3;
+    const EXPOSE_REQUEST_PARAM_POST = 4;
 
     public static $detectContentOptions = array(
         self::DETECT_CONTENT_HEADER => 'Accept Header',
@@ -28,7 +30,9 @@ class Configuration
 
     public static $exposeRequestOptions = array(
         self::EXPOSE_REQUEST_HEADER => 'X-Expose',
-        self::EXPOSE_REQUEST_PARAM => 'Parameter'
+        self::EXPOSE_REQUEST_PARAM => 'Parameter',
+        self::EXPOSE_REQUEST_PARAM_GET => 'Get Parameter',
+        self::EXPOSE_REQUEST_PARAM_POST => 'Post Parameter'
     );
 
     /**
@@ -107,14 +111,13 @@ class Configuration
     /**
      * Set the methods to be used for detecting content type to be used, overwrites previous settings
      * Eg ->setDetectContentOptions(array(self::DETECT_CONTENT_HEADER => $headerName))
-     * self::DETECT_CONTENT_HEADER 	= Uses the a header to detect the required content (typically use Accept)
+     * self::DETECT_CONTENT_HEADER 			= Uses the a header to detect the required content (typically use Accept)
      * self::DETECT_CONTENT_EXTENSION 		= Uses an extension on the url eg .xml
      * self::DETECT_CONTENT_PARAM 			= Uses a the "format" parameter
      * @param array $values pass in either a single array value using the constant value as a key, or a multi-dimensional array.
      */
-    public function setDetectContentOptions($options)
+    public function setDetectContentOptions(array $options)
     {
-        $options = (array) $options;
         $this->_attributes['detectContentOptions'] = array();
         foreach ($options as $key => $value)
         {
@@ -147,6 +150,45 @@ class Configuration
     public function getDetectContentOptions()
     {
         return $this->_attributes['detectContentOptions'];
+    }
+
+    /**
+     * Set the methods to be used for detecting the expose content from the client. Overwrites any previous value
+     * Eg ->setExposeRequestOptions(array(self::EXPOSE_REQUEST_HEADER => $headerName))
+     * @param array $options
+     */
+    public function setExposeRequestOptions(array $options)
+    {
+        $this->_attributes['exposeRequestOptions'] = array();
+        foreach ($options as $key => $value)
+        {
+            $this->setExposeRequestOption($key, $value);
+        }
+    }
+
+    /**
+     * Method used to retreive the required expose contents from the client. To unset pass null as value
+     * @param integer $option
+     * @param string $value
+     */
+    public function setExposeRequestOption($option, $value)
+    {
+        if (array_key_exists($option, self::$exposeRequestOptions))
+        {
+            $this->_attributes['exposeRequestOptions'][$option] = $value;
+        } else
+        {
+            throw DrestException::unknownExposeRequestOption();
+        }
+    }
+
+    /**
+     * Get the expose request options
+     * @return array $options
+     */
+    public function getExposeRequestOptions()
+    {
+        return $this->_attributes['exposeRequestOptions'];
     }
 
     /**

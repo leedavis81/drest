@@ -83,6 +83,16 @@ class DrestException extends Exception
         return new self('Invalid relation fetch type used. Please see Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_* for avaiable options');
     }
 
+    public static function unknownExposeRequestOption()
+    {
+        return new self('Unknown expose request option used. Please see EXPOSE_REQUEST_* options in Drest\Configuration');
+    }
+
+    public static function unableToParseExposeFieldsString()
+    {
+        return new self('Unable to parse expose fields string. Must contain required field names to be pipe delimited with each nesting within square brackets. For example:  "username|email_address|profile[id|lastname|addresses[id]]|phone_numbers"');
+    }
+
 
     // Service Exceptions
     public static function entityServiceNotAnInstanceOfDrestService($entityClass)

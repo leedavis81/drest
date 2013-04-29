@@ -29,9 +29,14 @@ abstract class AdapterAbstract implements AdapterInterface
 	/** (non-PHPdoc)
 	 * @see Drest\Request\Adapter.Request::getParams()
 	 */
-	public function getParams()
+	public function getParams($name = null)
 	{
-		return array_merge($this->getRouteParam(), $this->getCookie(), $this->getPost(), $this->getQuery());
+	    $params = array_merge($this->getRouteParam(), $this->getCookie(), $this->getPost(), $this->getQuery());
+	    if (is_null($name))
+	    {
+	        return $params;
+	    }
+	    return (isset($params[$name])) ? $params[$name] : null;
 	}
 
 	/** (non-PHPdoc)
