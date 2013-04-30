@@ -205,8 +205,6 @@ class DrestException extends Exception
     {
         return new self('Invalid HTTP Status code used "' . $code . '"');
     }
-
-
 }
 
 
