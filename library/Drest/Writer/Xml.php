@@ -63,8 +63,8 @@ class Xml extends AbstractWriter
 	    $this->xml =  new \DomDocument('1.0', 'UTF-8');
 	    $this->xml->formatOutput = true;
 
-	    $data = $data->toArray();
-	    $this->xml->appendChild($this->convert(key($data), $data[key($data)]));
+	    $dataArray = $data->toArray();
+        $this->xml->appendChild($this->convert(key($dataArray), $dataArray[key($dataArray)]));
 	    return $this->xml->saveXML();
 	}
 

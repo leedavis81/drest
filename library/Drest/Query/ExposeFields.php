@@ -4,7 +4,7 @@ namespace Drest\Query;
 use Drest\Configuration;
 
 use Drest\Request,
-    Drest\DrestException,
+    Drest\Query\InvalidExposeFieldsException,
     Drest\Mapping\RouteMetaData,
     Doctrine\ORM\EntityManager;
 
@@ -91,12 +91,8 @@ class ExposeFields implements \Iterator
 	 */
 	public function configureExposureRequest(array $requestOptions, Request $request)
 	{
-
 	    if (empty($this->route_expose))
 	    {
-	        // Determing the filtered expose using set exposure methods
-	        // @todo: pull this from config options / request
-            // $this->filterRequestedExpose($requestedExpose, $this->fields);
             $exposeString = '';
 	        foreach ($requestOptions as $requestOption => $requestValue)
 	        {
@@ -118,7 +114,9 @@ class ExposeFields implements \Iterator
 	        }
 	        if (!empty($exposeString))
 	        {
-	            $this->route->setExpose($this->parseExposeString($exposeString));
+    	        $requestedExposure = $this->parseExposeString($exposeString);
+    	        $this->filterRequestedExpose($requestedExposure, $this->fields);
+                $this->fields = $requestedExposure;
 	        }
 	    }
 
@@ -130,27 +128,59 @@ class ExposeFields implements \Iterator
 	 * Example: "username|email_address|profile[id|lastname|addresses[id]]|phone_numbers"
 	 * @param string $string
 	 * @return array $result
-	 * @throws DrestException - if any syntax error occurs, or unable to parse the string
+	 * @throws InvalidExposeFieldsException - if any syntax error occurs, or unable to parse the string
 	 */
 	protected function parseExposeString($string)
 	{
 	    $string = trim($string);
 	    if (preg_match("/[^a-zA-Z0-9\[\]\|_]/", $string) === 1)
 	    {
-            throw DrestException::invalidExposeFieldsString();
+            throw InvalidExposeFieldsException::invalidExposeFieldsString();
 	    }
 
         $results = array();
-        $this->recurseString($string, $results);
-        var_dump($results);
-        die;
+        $this->recurseExposeString(trim($string, '|'), $results);
+        return $results;
 	}
 
-	protected function recurseString($string, array &$results)
+	/**
+	 * Recursvely process the passed expose string
+	 * @param string $string - the string to be processed
+	 * @param array $results - passed by reference
+	 * @throws InvalidExposeFieldsException if unable to correctly parse the square brackets.
+	 */
+	protected function recurseExposeString($string, &$results)
 	{
-        if ($openBracket = strpos($string, '['))
+	    $results = (array) $results;
+        if (($openBracket = strpos($string, '[')) !== false)
+        {
+            if (($closeBracket = strpos(substr($string, $openBracket), ']')) === false)
+            {
+                throw InvalidExposeFieldsException::unableToParseExposeString($string);
+            }
 
+            if (($closeBracket-1) === 0)
+            {
+                $string = (($openBracket + ($closeBracket + 1)) >= strlen($string))
+                          ? substr($string, 0, $openBracket)
+                          : substr($string, 0, $openBracket) . '|' . substr($string, ($openBracket + ($closeBracket + 1)));
+            } else
+            {
+                 $extractString = substr($string, $openBracket+1, $closeBracket-1);
+                 $key = (($stopPos = strrpos(substr($string, 0, $openBracket), '|')) !== false)
+                        ? substr($string, $stopPos+1, ($openBracket - ($stopPos +1)))
+                        : substr($string, 0, $openBracket);
 
+                 $this->recurseExposeString($extractString, $results[$key]);
+
+                 $string = (($openBracket + ($closeBracket + 1)) >= strlen($string))
+                           ? substr($string, 0, intval($stopPos))
+                           : substr($string, 0, intval($stopPos)) . '|' . substr($string, ($openBracket + ($closeBracket + 1)));
+            }
+        }
+        $results = array_merge(array_filter(explode('|', $string), function($item){
+            return (empty($item)) ? false : true;
+        }), $results);
 	}
 
 

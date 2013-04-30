@@ -3,12 +3,12 @@ namespace Drest\Route;
 
 class MultipleRoutesException extends \Exception
 {
-    public static function multipleRoutesFound($services)
+    public static function multipleRoutesFound($routes)
     {
         $helperText = '';
-        foreach ($services as $service)
+        foreach ($routes as $route)
         {
-            $helperText .= '"' . $service->getName() . '"';
+            $helperText .= '"' . $route->getName() . '"';
         }
         return new self('Multiple routes have matched to this request. See service definitions for: ' . $helperText);
     }

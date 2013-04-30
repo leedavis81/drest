@@ -5,7 +5,7 @@ namespace Drest\Writer;
 use Drest\DrestException,
     Drest\Query\ResultSet;
 
-class Json extends AbstractWriter
+class Text extends AbstractWriter
 {
 
 	/**
@@ -13,8 +13,9 @@ class Json extends AbstractWriter
 	 */
 	public function write(ResultSet $data)
 	{
-        //This abstraction all seems a little pointless considering..
-        return json_encode($data->toArray());
+	    // Echo only the first entry of the result set
+	    $data->rewind();
+        return $data->current();
 	}
 
     /**
@@ -23,31 +24,21 @@ class Json extends AbstractWriter
      */
     public function getContentType()
     {
-        return 'application/json';
+        return 'text/plain';
     }
 
 	public function getMatchableAcceptHeaders()
 	{
-	    return array(
-            'application/json',
-            'application/x-javascript',
-            'text/javascript',
-            'text/x-javascript',
-            'text/x-json'
-	    );
+	    return array();
 	}
 
 	public function getMatchableExtensions()
 	{
-        return array(
-        	'json'
-        );
+        return array();
 	}
 
 	public function getMatchableFormatParams()
 	{
-        return array(
-        	'json'
-        );
+        return array();
 	}
 }

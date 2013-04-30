@@ -47,15 +47,23 @@ class Configuration
      */
     public function __construct()
     {
-        // By default only allow the Accept header detection
+        // Turn off debug mode
         $this->setDebugMode(false);
+        // Allow content detection using the Accept header
         $this->setDetectContentOptions(array(
             self::DETECT_CONTENT_HEADER => 'Accept'
         ));
+        // Use Json and XML as the default writers
         $this->setDefaultWriters(array('Json', 'Xml'));
+        // Default service class to be used
         $this->setDefaultServiceClass('Drest\Service\DefaultService');
-        $this->setExposureDepth(1);
+        // Depth of exposure on entity fields => relations
+        $this->setExposureDepth(2);
+        // Dont follow any relation type
         $this->setExposureRelationsFetchType(null);
+        // Don't set any expose request options
+        $this->setExposeRequestOptions(array());
+        // Allow OPTIONS request on resources
         $this->setAllowOptionsRequest(true);
     }
 
@@ -231,7 +239,7 @@ class Configuration
      * Set the exposure fields by following relations that have the a certain fetch type.
      * This is useful if you only want to display fields that are loaded eagerly.
      * eg ->setExposureRelationsFetchType(ORMClassMetaDataInfo::FETCH_EAGER)
-     * @param unknown_type $fetch
+     * @param integer $fetch
      */
     public function setExposureRelationsFetchType($fetch)
     {

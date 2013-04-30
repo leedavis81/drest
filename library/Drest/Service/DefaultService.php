@@ -41,7 +41,6 @@ class DefaultService extends AbstractService
             return;
         }
 
-
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
             $qb->andWhere($elementName . '.' . $key  . ' = :' . $key);

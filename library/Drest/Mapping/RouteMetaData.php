@@ -286,7 +286,7 @@ class RouteMetaData
 	        $this->allowed_option_request = ($value) ? 1 : 0;
 	    } elseif ($value != -1)
 	    {
-	        throw new Exception('Invalid Allow Options value, must be -1 to unset, 0 for no or 1 for yes. Or you can use boolean values');
+	        throw DrestException::invalidAllowedOptionsValue();
 	    }
 	    $this->allowed_option_request = $value;
 	}

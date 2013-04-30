@@ -2,6 +2,8 @@
 namespace Drest;
 
 
+use Drest\Query\ResultSet;
+
 use Doctrine\Common\EventManager,
     Doctrine\Common\Annotations\Annotation,
     Doctrine\Common\Annotations\AnnotationRegistry,
@@ -14,6 +16,8 @@ use Doctrine\Common\EventManager,
 
 	Drest\Request,
 	Drest\Query,
+	Drest\Service\AbstractService,
+	Drest\Writer\AbstractWriter,
 	Drest\DrestException,
 	Drest\Route\MultipleRoutesException,
 	Drest\Route\NoMatchException;
@@ -60,9 +64,15 @@ class Manager
 
 	/**
 	 * A cache for initialised service classes
-	 * @var array contains array of service classes of instance \Drest\Service\AbstractService
+	 * @var array contains array of service classes of instance Drest\Service\AbstractService
 	 */
 	protected $services;
+
+	/**
+	 * The last matched service object from a dispatch() request
+	 * @var Drest\Service\AbstractService $matched_service
+	 */
+	protected $matched_service;
 
 
     /**
@@ -93,22 +103,6 @@ class Manager
         $this->registerRoutes();
     }
 
-
-    /**
-     * Read any defined route patterns that have been annotated into the router
-     */
-    protected function registerRoutes()
-    {
-    	foreach ($this->metadataFactory->getAllClassNames() as $class)
-		{
-            $classMetaData = $this->metadataFactory->getMetadataForClass($class);
-            foreach ($classMetaData->getRoutesMetaData() as $route)
-            {
-                $this->router->registerRoute($route);
-            }
-		}
-    }
-
     /**
      * Static call to create the Drest Manager instance
      *
@@ -130,6 +124,20 @@ class Manager
         return new self($em, $config, $eventManager);
 	}
 
+    /**
+     * Read any defined route patterns that have been annotated into the router
+     */
+    protected function registerRoutes()
+    {
+    	foreach ($this->metadataFactory->getAllClassNames() as $class)
+		{
+            $classMetaData = $this->metadataFactory->getMetadataForClass($class);
+            foreach ($classMetaData->getRoutesMetaData() as $route)
+            {
+                $this->router->registerRoute($route);
+            }
+		}
+    }
 
     /**
      * Dispatch a REST request
@@ -148,28 +156,59 @@ class Manager
 	        {
 	            throw $e;
 	        }
-
-            return $this->systemError();
+            return $this->systemError($e);
 	    }
 	}
 
 	/**
-	 * Called when an error occurs when routing the request outside of debug mode
+	 * Called when an error occurs on dispatch and we're not in debug mode
 	 * Sets a general error response document
+	 * @todo: abstract this, it shouldn't be here
+	 * @param Exception $exception
 	 */
-	private function systemError()
+	private function systemError(\Exception $exception)
 	{
         $response = $this->getResponse();
-        // A Drest exception has occured, send an unknown error response
-        $response->setStatusCode(Response::STATUS_CODE_500);
 
         // @todo: standardise the error response, current defaults to the framework impl - return error in format (writer) requested
+        switch (get_class($exception))
+        {
+            case 'Drest\Query\InvalidExposeFieldsException':
+                $response->setStatusCode(Response::STATUS_CODE_400);
+                $error_message = $exception->getMessage();
+                break;
+            case 'Drest\Route\NoMatchException':
+                $response->setStatusCode(Response::STATUS_CODE_404);
+                break;
+            default:
+                // Drest\Route\MultipleRoutesException
+                $response->setStatusCode(Response::STATUS_CODE_500);
+                $error_message = 'An unknown error occured';
+                break;
+        }
+
+        $resultSet = ResultSet::create(array($error_message), 'errors');
+
+        // Use a predetermined writer to generate the error output, else default to text
+        if ($this->matched_service instanceof AbstractService &&
+            $this->matched_service->getWriter() instanceof AbstractWriter)
+        {
+            $this->matched_service->renderDeterminedWriter($resultSet);
+        } else
+        {
+            try {
+                $writer = $this->getDeterminedWriter();
+            } catch (\Exception $e) {
+                $writer = new \Drest\Writer\Text();
+            }
+            $response->setBody($writer->write($resultSet));
+            $response->setHttpHeader('Content-Type', $writer->getContentType());
+        }
 
         return $response;
 	}
 
 	/**
-	 *
 	 * Execute a dispatched request
      * @param object $request - Framework request object
      * @param object $response - Framework response object
@@ -202,20 +241,20 @@ class Manager
         $this->request->setRouteParam($route->getRouteParams());
 
         // Get the service class
-        $service = $this->getService($route->getClassMetaData()->getClassName());
+        $this->matched_service = $this->getService($route->getClassMetaData()->getClassName());
 
         // Set the matched service object into the service class
-        $service->setMatchedRoute($route);
+        $this->matched_service->setMatchedRoute($route);
 
         try
         {
-            $service->setWriter($this->getDeterminedWriter($route));
+            $this->matched_service->setWriter($this->getDeterminedWriter($route));
         } catch (DrestException $e) {}
 
         // Set up the service for a new request
-        $service->setupRequest();
+        $this->matched_service->setupRequest();
 
-        $service->runCallMethod();
+        $this->matched_service->runCallMethod();
 
         return $this->getResponse();
 	}
@@ -244,6 +283,11 @@ class Manager
                 continue;
             }
             $verbs = array_merge($verbs, $route->getVerbs());
+        }
+
+        if (empty($verbs))
+        {
+            return false;
         }
 
         $this->getResponse()->setHttpHeader('Allow', implode(', ', $verbs));

@@ -1,6 +1,8 @@
 <?php
 namespace Drest\Query;
 
+use Drest\DrestException;
+
 /**
  * Drest result set
  * @author Lee
@@ -35,7 +37,7 @@ class ResultSet implements \Iterator
         $keyName = preg_replace("/[^a-zA-Z0-9_\s]/", "", $keyName);
         if (!is_string($keyName))
         {
-            DrestException::invalidParentKeyNameForResultSet();
+            throw DrestException::invalidParentKeyNameForResultSet();
         }
         $this->data = array($keyName => $data);
 

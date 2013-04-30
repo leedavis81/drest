@@ -170,6 +170,15 @@ class AbstractService
 	    $this->writer = $writer;
 	}
 
+	/**
+	 * Get the predetermined writer
+	 * @param Writer\AbstractWriter $writer
+	 */
+	public function getWriter()
+	{
+	    return $this->writer;
+	}
+
     /**
      * A recursive function to process the specified expose fields
      * @param array $fields - expose fields to process
@@ -185,6 +194,7 @@ class AbstractService
 	        return $qb;
 	    }
 
+	    $addedKeyFields = (array) $addedKeyFields;
 	    $classAlias = $this->getAlias($classMetaData->getName());
 	    $ormAssociationMappings = $classMetaData->getAssociationMappings();
 
@@ -233,6 +243,8 @@ class AbstractService
                 $qb = $this->registerExpose($value, $qb, $this->em->getClassMetadata($ormAssociationMappings[$key]['targetEntity']), $addedKeyFields[$key], $key);
 	        }
 	    }
+
+	    //var_dump($addedKeyFields);
 
 	    $this->addedKeyFields = $addedKeyFields;
         return $qb;
@@ -309,7 +321,7 @@ class AbstractService
 	 * @param Drest\Query\ResultSet $resultSet
 	 * @throws DrestException if no writer was determined
 	 */
-	protected function renderDeterminedWriter(ResultSet $resultSet)
+	public function renderDeterminedWriter(ResultSet $resultSet)
 	{
         if (is_null($this->writer))
         {

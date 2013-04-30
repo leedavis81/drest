@@ -47,6 +47,9 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 ), $ormConfig);
 
 
+
+
+
 try
 {
 	$drestConfig = new Configuration();
@@ -56,6 +59,8 @@ try
 	    Configuration::DETECT_CONTENT_EXTENSION => true,
 	    Configuration::DETECT_CONTENT_PARAM => 'format'
     ));
+
+    $drestConfig->setExposureDepth(3);
 
     $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
 
@@ -73,7 +78,28 @@ try
 }
 
 
+
+
+
 echo $drestManager->dispatch();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
