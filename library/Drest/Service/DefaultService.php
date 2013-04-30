@@ -53,7 +53,6 @@ class DefaultService extends AbstractService
             $resultSet = $this->createResultSet($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
         } catch (ORM\ORMException $e)
         {
-            var_dump($e);
             if ($e instanceof ORM\NonUniqueResultException)
             {
                 $this->response->setStatusCode(Response::STATUS_CODE_300);

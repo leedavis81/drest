@@ -88,6 +88,11 @@ class DrestException extends Exception
         return new self('Unknown expose request option used. Please see EXPOSE_REQUEST_* options in Drest\Configuration');
     }
 
+    public static function invalidExposeFieldsString()
+    {
+        return new self('Characters used in the expose fields string are invalid. Only character allowed are [a-z], [A-Z], [0-9], "[", "]", "|" and "_"');
+    }
+
     public static function unableToParseExposeFieldsString()
     {
         return new self('Unable to parse expose fields string. Must contain required field names to be pipe delimited with each nesting within square brackets. For example:  "username|email_address|profile[id|lastname|addresses[id]]|phone_numbers"');

@@ -1,10 +1,10 @@
 <?php
-use Drest\DrestException;
 namespace Drest\Query;
 
 use Drest\Configuration;
 
 use Drest\Request,
+    Drest\DrestException,
     Drest\Mapping\RouteMetaData,
     Doctrine\ORM\EntityManager;
 
@@ -92,9 +92,6 @@ class ExposeFields implements \Iterator
 	public function configureExposureRequest(array $requestOptions, Request $request)
 	{
 
-	    /**@@@@@@@@@@@@@@@@@@@@@@TODO: finish this @@@@@@@@@@@@@@@@@@@@@ */
-	    return $this;
-
 	    if (empty($this->route_expose))
 	    {
 	        // Determing the filtered expose using set exposure methods
@@ -137,14 +134,23 @@ class ExposeFields implements \Iterator
 	 */
 	protected function parseExposeString($string)
 	{
-        $string = preg_replace("/[^a-zA-Z0-9\[\]\|_\s]/", "", $string);
-        if (strpos($string, '['))
-        foreach (str_split($string) as $character)
-        {
+	    $string = trim($string);
+	    if (preg_match("/[^a-zA-Z0-9\[\]\|_]/", $string) === 1)
+	    {
+            throw DrestException::invalidExposeFieldsString();
+	    }
 
-        }
-
+        $results = array();
+        $this->recurseString($string, $results);
+        var_dump($results);
         die;
+	}
+
+	protected function recurseString($string, array &$results)
+	{
+        if ($openBracket = strpos($string, '['))
+
+
 	}
 
 
