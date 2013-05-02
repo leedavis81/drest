@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
  *      		verbs={"GET"},
  *      		content="element"
  *      	),
- *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"GET"}, call_method="addUser", content="element"),
+ *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"POST"}, call_method="addUser", content="element"),
  *          @Drest\Route(name="update_user", route_pattern="/user/:id+", route_conditions={"id": "\d+"}, verbs={"PUT"}, content="element"),
  *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection")
  *      }

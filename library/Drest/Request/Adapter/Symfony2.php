@@ -110,7 +110,7 @@ class Symfony2 extends AdapterAbstract
 	 */
 	public function getUri()
 	{
-	    return $this->getRequest()->getRequestUri();
+	    return $this->getRequest()->getUri();
 	}
 
 	/**

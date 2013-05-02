@@ -114,7 +114,7 @@ class ZendFramework2 extends AdapterAbstract
 	 */
 	public function getUri()
 	{
-	    return $this->getRequest()->getUri();
+	    return $this->getRequest()->getUri()->toString();
 	}
 
 	/**

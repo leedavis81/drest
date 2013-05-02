@@ -31,6 +31,7 @@ class Request
 	 */
 	public function __construct($request_object = null)
 	{
+	    //@todo: remove this, the request object should have no knowlegde of the adapted classes
 		$zf2class = 'Zend\Http\Request';
 		$sy2class = 'Symfony\Component\HttpFoundation\Request';
 		if (is_null($request_object))

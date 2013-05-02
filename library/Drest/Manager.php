@@ -147,8 +147,10 @@ class Manager
      */
 	public function dispatch($request = null, $response = null)
 	{
+	    $this->setRequest(Request::create($request));
+	    $this->setResponse(Response::create($response));
 	    try {
-	        return $this->execute($request, $response);
+	        return $this->execute();
 	    } catch (\Exception $e)
 	    {
 	        // Check debug mode, if set on them rethrow the exception
@@ -210,11 +212,9 @@ class Manager
 
 	/**
 	 * Execute a dispatched request
-     * @param object $request - Framework request object
-     * @param object $response - Framework response object
      * @return Drest\Reponse $response return's a Drest response object which can be sent calling toString()
 	 */
-	protected function execute($request = null, $response = null)
+	protected function execute()
 	{
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
 		// @todo: tidy this up

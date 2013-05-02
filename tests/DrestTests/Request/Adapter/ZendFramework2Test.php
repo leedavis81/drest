@@ -11,7 +11,7 @@ class ZendFramework2Test extends DrestTestCase
 {
 
 	/**
-	 * Get an instance of the request object with a symfony adapter used
+	 * Get an instance of the request object with a zf2 adapter used
 	 * @return Drest\Request\Request;
 	 */
 	public static function getZF2AdapterRequest()
@@ -26,8 +26,8 @@ class ZendFramework2Test extends DrestTestCase
 		$request = self::getZF2AdapterRequest();
 
 		$method = 'OPTIONS';
-		$symRequestObject = $request->getRequest();
-		$symRequestObject->setMethod($method);
+		$zf2RequestObject = $request->getRequest();
+		$zf2RequestObject->setMethod($method);
 
 		$this->assertEquals($method, $request->getHttpMethod());
 	}

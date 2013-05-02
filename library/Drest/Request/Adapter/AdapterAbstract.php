@@ -71,8 +71,9 @@ abstract class AdapterAbstract implements AdapterInterface
 	 */
 	public function getPath()
 	{
-        $urlParts = preg_split('/[!?#.]/', $this->getUri());
-        return $urlParts[0];
+	    $path = implode('/', array_slice(explode('/', $this->getUri()), 3));
+        $pathParts = preg_split('/[!?#.]/', $path);
+        return '/' . $pathParts[0];
 	}
 
 	/**

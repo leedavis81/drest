@@ -78,10 +78,11 @@ try
 }
 
 
-
-
-
 echo $drestManager->dispatch();
+
+//echo $drestManager->dispatch(new \Zend\Http\PhpEnvironment\Request(), new Zend\Http\PhpEnvironment\Response());
+
+
 
 
 
