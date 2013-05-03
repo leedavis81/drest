@@ -263,8 +263,19 @@ class AbstractService
 	{
 	    $classMetaData = $this->matched_route->getClassMetaData();
 
-	    // Recursively remove any additionally added pk fields
-        $this->removeAddedKeyFields($this->addedKeyFields, $data);
+	    // Recursively remove any additionally added pk fields ($data must be a single record hierarchy. Iterate if we're getting a collection)
+	    switch ($this->matched_route->getContentType())
+	    {
+	        case RouteMetaData::CONTENT_TYPE_ELEMENT:
+                $this->removeAddedKeyFields($this->addedKeyFields, $data);
+	            break;
+	        case RouteMetaData::CONTENT_TYPE_COLLECTION:
+                for ($x = 0; $x < sizeof($data); $x++)
+                {
+                    $this->removeAddedKeyFields($this->addedKeyFields, $data[$x]);
+                }
+	            break;
+	    }
 
         if (is_null($keyName))
         {

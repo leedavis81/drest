@@ -97,6 +97,16 @@ class DrestException extends Exception
         return new self('Invalid Allow Options value, must be -1 to unset, 0 for no or 1 for yes. Or you can use boolean values');
     }
 
+    public static function basePathMustBeAString()
+    {
+        return new self('Base path used is invalid. Must be a string');
+    }
+
+    public static function basePathNotRegistered()
+    {
+        return new self('The requested base path has not been registered');
+    }
+
 
     // Service Exceptions
     public static function entityServiceNotAnInstanceOfDrestService($entityClass)

@@ -33,11 +33,15 @@ class Symfony2 extends AdapterAbstract
 	 */
 	public function getCookie($name = null)
 	{
-		if ($name !== null && $this->getRequest()->cookies->has($name))
+	    if ($name === null)
+	    {
+	        return $this->getRequest()->cookies->all();
+	    }
+		if ($this->getRequest()->cookies->has($name))
 		{
 			return $this->getRequest()->cookies->get($name);
 		}
-		return $this->getRequest()->cookies->all();
+		return '';
 	}
 
 	/**
@@ -45,11 +49,15 @@ class Symfony2 extends AdapterAbstract
 	 */
 	public function getHeaders($name = null)
 	{
-		if ($name !== null && $this->getRequest()->headers->has($name))
+	    if ($name === null)
+	    {
+	        return $this->getRequest()->headers->all();
+	    }
+		if ($this->getRequest()->headers->has($name))
 		{
 			return $this->getRequest()->headers->get($name);
 		}
-		return $this->getRequest()->headers->all();
+		return '';
 	}
 
 
@@ -72,11 +80,15 @@ class Symfony2 extends AdapterAbstract
 	 */
 	public function getPost($name = null)
 	{
-		if ($name !== null && $this->getRequest()->request->has($name))
+	    if ($name === null)
+	    {
+	        return $this->getRequest()->request->all();
+	    }
+		if ($this->getRequest()->request->has($name))
 		{
 			return $this->getRequest()->request->get($name);
 		}
-		return $this->getRequest()->request->all();
+		return '';
 	}
 
 	/**
@@ -84,11 +96,15 @@ class Symfony2 extends AdapterAbstract
 	 */
 	public function getQuery($name = null)
 	{
-		if ($name !== null && $this->getRequest()->query->has($name))
+	    if ($name === null)
+	    {
+	        return $this->getRequest()->query->all();
+	    }
+		if ($this->getRequest()->query->has($name))
 		{
 			return $this->getRequest()->query->get($name);
 		}
-		return $this->getRequest()->query->all();
+        return '';
 	}
 
 	/**

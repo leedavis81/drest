@@ -154,7 +154,7 @@ class ExposeFields implements \Iterator
 	    $results = (array) $results;
         if (($openBracket = strpos($string, '[')) !== false)
         {
-            if (($closeBracket = strpos(substr($string, $openBracket), ']')) === false)
+            if (($closeBracket = strrpos(substr($string, $openBracket), ']')) === false)
             {
                 throw InvalidExposeFieldsException::unableToParseExposeString($string);
             }

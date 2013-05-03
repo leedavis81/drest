@@ -65,6 +65,8 @@ class Configuration
         $this->setExposeRequestOptions(array());
         // Allow OPTIONS request on resources
         $this->setAllowOptionsRequest(true);
+        // Set the route base paths to be an empty array
+        $this->_attributes['routeBasePaths'] = array();
     }
 
 
@@ -328,6 +330,63 @@ class Configuration
     public function getPathsToConfigFiles()
     {
         return $this->_attributes['pathsToConfigFiles'];
+    }
+
+    /**
+     * Add a base path to be used when matching routes. Eg /v1 would be useful IF you want versioning in the URL
+     * @param string $basePath
+     */
+    public function addRouteBasePath($basePath)
+    {
+        if (!is_string($basePath))
+        {
+            throw DrestException::basePathMustBeAString();
+        }
+        $this->_attributes['routeBasePaths'][] = trim($basePath, '/');
+    }
+
+    /**
+     * Remove a route base path (if it has been registered)
+     * @param string $basePath
+     * @return boolean true if $basePath was unset
+     */
+    public function removeRouteBasePath($basePath)
+    {
+        $basePath = trim($basePath, '/');
+        if (!is_string($basePath))
+        {
+            return false;
+        }
+        if (($offset = array_search($basePath, $this->_attributes['routeBasePaths'])) !== false)
+        {
+            unset($this->_attributes['routeBasePaths'][$offset]);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Have base paths been registered - or look for a specific entry
+     * @param string $basePath - optional, has a specific route path been registered
+     * @return boolean true if route base paths have been registered
+     */
+    public function hasRouteBasePaths($basePath = null)
+    {
+        if (!is_null($basePath))
+        {
+            $basePath = trim($basePath, '/');
+            return in_array($basePath, $this->_attributes['routeBasePaths']);
+        }
+        return (sizeof($this->_attributes['routeBasePaths']) > 0) ? true : false;
+    }
+
+    /**
+     * Get all registered base path or a specific entry
+     * @return array $basePaths
+     */
+    public function getRouteBasePaths($basePath = null)
+    {
+        return $this->_attributes['routeBasePaths'];
     }
 
     /**

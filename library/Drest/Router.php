@@ -8,13 +8,17 @@ namespace Drest;
  */
 class Router
 {
-
 	/**
-	 * A collection of registered service objects
+	 * A collection of registered route objects
 	 * @var array $routes
 	 */
 	protected $routes = array();
 
+    /**
+     * An array of Route Base Paths
+     * @var array $routeBasePaths
+     */
+	protected $routeBasePaths = array();
 
 	/**
 	 * Get matched routes
@@ -28,31 +32,50 @@ class Router
 
 		foreach ($this->routes as $route)
 		{
-		    if ($route->matches($request, $matchVerb))
+		    if (sizeof($this->routeBasePaths) > 0)
 		    {
-		        $matches[] = $route;
+		        foreach ($this->routeBasePaths as $basePath)
+		        {
+		            if ($route->matches($request, $matchVerb, $basePath))
+        		    {
+        		        $matches[] = $route;
+        		    }
+		        }
+		    } else
+		    {
+    		    if ($route->matches($request, $matchVerb))
+    		    {
+    		        $matches[] = $route;
+    		    }
 		    }
-
 		}
 		return $matches;
 	}
 
 	/**
 	 * Register a route definition (pulled from annotations) into the router stack
-	 * @param \Drest\Mapping\ServiceMetaData $service
+	 * @param \Drest\Mapping\RouteMetaData $route
 	 */
-	public function registerRoute($service)
+	public function registerRoute($route)
 	{
-		$this->routes[$service->getName()] = $service;
+		$this->routes[$route->getName()] = $route;
 	}
 
 	/**
-	 *
 	 * A check to see if the router object has already been populated with a route object by $name
 	 * @param sting $name
 	 */
 	public function hasRoute($name)
 	{
 		return isset($this->routes[$name]);
+	}
+
+	/**
+	 * Set any route base paths
+	 * @param array $basePaths
+	 */
+	public function setRouteBasePaths(array $basePaths)
+	{
+	    $this->routeBasePaths = $basePaths;
 	}
 }

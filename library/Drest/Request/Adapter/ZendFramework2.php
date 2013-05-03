@@ -37,11 +37,15 @@ class ZendFramework2 extends AdapterAbstract
 	 */
 	public function getCookie($name = null)
 	{
-		if ($name !== null && $this->getRequest()->getCookie()->offsetExists($name))
+	    if ($name === null)
+	    {
+            return $this->getRequest()->getCookie()->getAllCookies(\Zend\Http\Cookies::COOKIE_STRING_ARRAY);
+	    }
+		if ($this->getRequest()->getCookie()->offsetExists($name))
 		{
 			return $this->getRequest()->getCookie()->offsetGet($name);
 		}
-		return $this->getRequest()->getCookie()->getAllCookies(\Zend\Http\Cookies::COOKIE_STRING_ARRAY);
+		return '';
 	}
 
 	/**
@@ -49,11 +53,15 @@ class ZendFramework2 extends AdapterAbstract
 	 */
 	public function getHeaders($name = null)
 	{
-		if ($name !== null && $this->getRequest()->getHeaders()->has($name))
+	    if ($name === null)
+	    {
+	        return $this->getRequest()->getHeaders()->toArray();
+	    }
+		if ($this->getRequest()->getHeaders()->has($name))
 		{
 			return $this->getRequest()->getHeaders()->get($name)->getFieldValue();
 		}
-		return $this->getRequest()->getHeaders()->toArray();
+		return '';
 	}
 
 	/**
@@ -61,11 +69,15 @@ class ZendFramework2 extends AdapterAbstract
 	 */
 	public function getPost($name = null)
 	{
+	    if ($name === null)
+	    {
+            return $this->getRequest()->getPost()->toArray();
+	    }
 		if ($name !== null && $this->getRequest()->getPost()->offsetExists($name))
 		{
 			return $this->getRequest()->getPost($name);
 		}
-		return $this->getRequest()->getPost()->toArray();
+		return '';
 	}
 
 	/**
@@ -87,13 +99,16 @@ class ZendFramework2 extends AdapterAbstract
 	 */
 	public function getQuery($name = null)
 	{
+	    if ($name === null)
+	    {
+	        return $this->getRequest()->getQuery()->toArray();
+	    }
 		if ($name !== null && $this->getRequest()->getQuery()->offsetExists($name))
 		{
 			return $this->getRequest()->getQuery($name);
 		}
-		return $this->getRequest()->getQuery()->toArray();
+		return '';
 	}
-
 
 	/**
 	 * @see Drest\Request\Adapter.Request::setQuery()

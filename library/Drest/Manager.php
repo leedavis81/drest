@@ -171,7 +171,6 @@ class Manager
 	private function systemError(\Exception $exception)
 	{
         $response = $this->getResponse();
-
         // @todo: standardise the error response, current defaults to the framework impl - return error in format (writer) requested
         switch (get_class($exception))
         {
@@ -181,6 +180,7 @@ class Manager
                 break;
             case 'Drest\Route\NoMatchException':
                 $response->setStatusCode(Response::STATUS_CODE_404);
+                $error_message = $exception->getMessage();
                 break;
             default:
                 // Drest\Route\MultipleRoutesException
@@ -355,6 +355,12 @@ class Manager
 	 */
 	protected function getMatchedRoute($matchVerb = true)
 	{
+	    // Inject any route base Paths that have been registered
+	    if ($this->config->hasRouteBasePaths())
+	    {
+	        $this->router->setRouteBasePaths($this->config->getRouteBasePaths());
+	    }
+
         $matchedRoutes = $this->router->getMatchedRoutes($this->getRequest(), (bool) $matchVerb);
         $routesSize = sizeof($matchedRoutes);
         if ($routesSize == 0)

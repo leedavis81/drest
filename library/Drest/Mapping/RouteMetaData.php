@@ -128,7 +128,7 @@ class RouteMetaData
 	 */
 	public function getRoutePattern()
 	{
-	    return $this->routePattern;
+	    return $this->route_pattern;
 	}
 
 	/**
@@ -304,9 +304,10 @@ class RouteMetaData
      * Does this request matches the route pattern
      * @param Drest\Request $request
      * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb - useful for OPTIONS requests
+     * @param string $basePath - add a base path to the route pattern
      * @return boolean $result
      */
-    public function matches(\Drest\Request $request, $matchVerb = true)
+    public function matches(\Drest\Request $request, $matchVerb = true, $basePath = null)
     {
 		if ($matchVerb && $this->usesHttpVerbs())
 		{
@@ -323,7 +324,8 @@ class RouteMetaData
 		}
 
         //Convert URL params into regex patterns, construct a regex for this route, init params
-        $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'), str_replace(')', ')?', (string) $this->route_pattern));
+        $routePattern = (is_null($basePath)) ? (string) $this->route_pattern : '/' . $basePath . '/' . ltrim((string) $this->route_pattern, '/');
+        $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'), str_replace(')', ')?', $routePattern));
         if (substr($this->route_pattern, -1) === '/')
         {
             $patternAsRegex .= '?';
@@ -356,6 +358,7 @@ class RouteMetaData
         {
             if (!preg_match('/^' . $condition . '$/', $this->route_params[$key]))
             {
+                $this->param_names_path = $this->route_params = $this->unmapped_route_params = array();
                 return false;
             }
         }

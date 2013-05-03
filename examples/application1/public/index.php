@@ -1,4 +1,5 @@
 <?php
+use DrestTests\Writer\WriterTestCase;
 use Drest\Configuration;
 
 
@@ -47,9 +48,6 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 ), $ormConfig);
 
 
-
-
-
 try
 {
 	$drestConfig = new Configuration();
@@ -81,26 +79,6 @@ try
 echo $drestManager->dispatch();
 
 //echo $drestManager->dispatch(new \Zend\Http\PhpEnvironment\Request(), new Zend\Http\PhpEnvironment\Response());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
