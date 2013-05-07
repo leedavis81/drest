@@ -16,21 +16,8 @@ $loader->add('Service', __DIR__.'/../');
 // Create an example doctrine application
 $ormConfig = new \Doctrine\ORM\Configuration();
 
-// globally used cache driver, in production use APC or memcached
-$cache = new Doctrine\Common\Cache\ArrayCache;
-// standard annotation reader
-$annotationReader = new Doctrine\Common\Annotations\AnnotationReader;
-$cachedAnnotationReader = new Doctrine\Common\Annotations\CachedReader(
-    $annotationReader, // use reader
-    $cache // and a cache driver
-);
-
-
 $pathToEntities = array(__DIR__ . '/../Entities');
 $ORMDriver = $ormConfig->newDefaultAnnotationDriver($pathToEntities, false);
-
-// @todo: Do we need this here?? yes! - move this somewhere internally
-Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
 
 $ormConfig->setMetadataDriverImpl($ORMDriver);
 

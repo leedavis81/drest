@@ -116,6 +116,9 @@ class Manager
 //            throw DrestException::missingMappingDriverImpl();
 //        }
 
+        // Register the annotations classes
+        \Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
+
 		if ($eventManager === null)
 		{
 			$eventManager = new EventManager();

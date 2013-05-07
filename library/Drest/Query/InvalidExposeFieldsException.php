@@ -10,6 +10,6 @@ class InvalidExposeFieldsException extends \Exception
 
     public static function unableToParseExposeString($string)
     {
-        return new self('Unable to parse the given expose string. Ensure syntax is correct, and square brackets are correctly closed. ' . $string);
+        return new self('Unable to parse the given expose string. Ensure syntax is correct, and square brackets are correctly opened / closed. ' . $string);
     }
 }

@@ -8,6 +8,12 @@ use Drest\Request,
     Drest\Mapping\RouteMetaData,
     Doctrine\ORM\EntityManager;
 
+
+/**
+ * Handles processing logic for expose fields.
+ * @author Lee
+ *
+ */
 class ExposeFields implements \Iterator
 {
     /**
@@ -123,7 +129,25 @@ class ExposeFields implements \Iterator
         return $this;
 	}
 
+
 	/**
+	 * An awesome solution was posted on (link below) to parse these using a regex
+	 * http://stackoverflow.com/questions/16415558/regex-top-level-contents-from-a-string
+	 *
+     *   preg_match_all(
+     *       '/(?<=\[)     # Assert that the previous characters is a [
+     *         (?:         # Match either...
+     *          [^[\]]*    # any number of characters except brackets
+     *         |           # or
+     *          \[         # an opening bracket
+     *          (?R)       # containing a match of this very regex
+     *          \]         # followed by a closing bracket
+     *         )*          # Repeat as needed
+     *         (?=\])      # Assert the next character is a ]/x',
+     *       $string, $result, PREG_PATTERN_ORDER);
+     *
+     * @todo: Adapt the parser to use the regex above (will also need alter it to grab parent keys)
+     *
 	 * Parses an expose string into an array
 	 * Example: "username|email_address|profile[id|lastname|addresses[id]]|phone_numbers"
 	 * @param string $string
@@ -151,38 +175,100 @@ class ExposeFields implements \Iterator
 	 */
 	protected function recurseExposeString($string, &$results)
 	{
+	    if (substr_count($string, '[') !== substr_count($string, ']'))
+	    {
+	        throw InvalidExposeFieldsException::unableToParseExposeString($string);
+	    }
+
 	    $results = (array) $results;
-        if (($openBracket = strpos($string, '[')) !== false)
+
+        $parts = $this->parseStringParts($string);
+        foreach ($parts->parts as $part)
         {
-            if (($closeBracket = strrpos(substr($string, $openBracket), ']')) === false)
-            {
-                throw InvalidExposeFieldsException::unableToParseExposeString($string);
-            }
-
-            if (($closeBracket-1) === 0)
-            {
-                $string = (($openBracket + ($closeBracket + 1)) >= strlen($string))
-                          ? substr($string, 0, $openBracket)
-                          : substr($string, 0, $openBracket) . '|' . substr($string, ($openBracket + ($closeBracket + 1)));
-            } else
-            {
-                 $extractString = substr($string, $openBracket+1, $closeBracket-1);
-                 $key = (($stopPos = strrpos(substr($string, 0, $openBracket), '|')) !== false)
-                        ? substr($string, $stopPos+1, ($openBracket - ($stopPos +1)))
-                        : substr($string, 0, $openBracket);
-
-                 $this->recurseExposeString($extractString, $results[$key]);
-
-                 $string = (($openBracket + ($closeBracket + 1)) >= strlen($string))
-                           ? substr($string, 0, intval($stopPos))
-                           : substr($string, 0, intval($stopPos)) . '|' . substr($string, ($openBracket + ($closeBracket + 1)));
-            }
+            $this->recurseExposeString($part['contents'], $results[$part['tagName']]);
         }
-        $results = array_merge(array_filter(explode('|', $string), function($item){
+
+        $results = array_merge(array_filter(explode('|', $parts->remaining_string), function($item){
             return (empty($item)) ? false : true;
         }), $results);
 	}
 
+	/**
+	 * Get information on parsed (top-level) brackets
+	 * @param string $string
+	 * @return object $information contains parse information object containing a $parts array eg array(
+	 * 	'openBracket' => xx, 		- The position of the open bracket
+	 * 	'closeBracket' => xx 		- The position of the close bracket
+	 *  'contents' => xx			- The contents of the bracket
+	 *  'tagName' => xx				- The name of the accompanying tag
+	 * )
+	 */
+	private function parseStringParts($string)
+	{
+	    $information = new \stdClass();
+	    $information->parts = array();
+	    $openPos = null;
+	    $closePos = null;
+	    $bracketCounter = 0;
+	    foreach (str_split($string) as $key => $char)
+	    {
+	        if ($char === '[')
+	        {
+	            if (is_null($openPos) && $bracketCounter === 0)
+	            {
+	                $openPos = $key;
+	            }
+	            $bracketCounter++;
+	        }
+            if ($char === ']')
+	        {
+                if (is_null($closePos) && $bracketCounter === 1)
+	            {
+	                $closePos = $key;
+	            }
+	            $bracketCounter--;
+	        }
+
+            if (is_numeric($openPos) && is_numeric($closePos))
+            {
+                // Work backwards from openPos until we hit [|]
+                $stopPos = 0;
+                foreach (array('|', '[', ']', '%') as $stopChar)
+                {
+                    if (($pos = strrpos(substr($string, 0, $openPos), $stopChar)) !== false)
+                    {
+                        $stopPos = (++$pos > $stopPos) ? $pos : $stopPos;
+                    }
+                }
+
+                if (($openPos + 1 === $closePos))
+                {
+                    // Where no offset has been defined, blank out the [] characters
+                    $rangeSize = ($closePos - $openPos)+1;
+                    $string = substr_replace($string, str_repeat('%', $rangeSize), $openPos, $rangeSize);
+                } else
+                {
+                    $information->parts[] = array(
+                    	'openBracket' => $openPos,
+                    	'closeBracket' => $closePos,
+                        'contents' => substr($string, $openPos + 1, ($closePos - $openPos) - 1),
+                        'tagName' => substr($string, $stopPos, ($openPos - $stopPos)),
+                        'tagStart' => $stopPos,
+                        'tagEnd' => ($openPos - 1)
+                    );
+                    $rangeSize = ($closePos - $stopPos)+1;
+                    $string = substr_replace($string, str_repeat('%', $rangeSize), $stopPos, $rangeSize);
+                }
+                $openPos = $closePos = null;
+            }
+	    }
+
+	    $string = str_replace('%', '', $string);
+	    $string = str_replace('||', '|', $string);
+
+	    $information->remaining_string = trim($string, '|');
+	    return $information;
+	}
 
 	/**
 	 * Filter out requested expose fields against what's allowed
