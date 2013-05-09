@@ -4,6 +4,7 @@ namespace DrestTests\Query;
 use DrestTests\DrestTestCase,
     Drest\Mapping\RouteMetaData,
     Drest\Query\ExposeFields,
+    Drest\Configuration,
     AltrEgo\AltrEgo;
 
 class ExposeFieldsTest extends DrestTestCase
@@ -95,20 +96,38 @@ class ExposeFieldsTest extends DrestTestCase
 	    $aeExpose->parseExposeString($exposeString);
 	}
 
-	/**
-	 *
-	 * @todo: shouldn't need to pass by reference to make this work!
-	 */
-	public function testfilterRequestedExpose()
+    public function testConfigureExposureRequest()
 	{
-        $aeExpose = AltrEgo::create(ExposeFields::create(new RouteMetaData()));
+        $routeMetaData = new RouteMetaData();
+	    $expose = ExposeFields::create($routeMetaData);
 
-        $requested = array('username', 'address');
-        $allowed = array('username', 'email');
-        $aeExpose->filterRequestedExpose(&$requested, &$allowed);
+	    $request = new \Drest\Request();
+	    $request->setPost('expose', 'username|address');
 
-        $expected = array('username');
-	    $this->assertEquals($expected, $requested);
+	    $expose->configureExposureRequest(array(
+	        Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
+        ), $request);
+
+        // No explicit expose has been set by depth setting, this should be empty
+	    $this->assertEquals(array(), $expose->toArray());
+	}
+
+	public function testConfigureExposureRequestWithExplicitExpose()
+	{
+	    $routeMetaData = new RouteMetaData();
+	    $explicit_expose = array('username', 'email');
+	    $routeMetaData->setExpose($explicit_expose);
+
+	    $expose = ExposeFields::create($routeMetaData);
+
+	    $request = new \Drest\Request();
+	    $request->setPost('expose', 'username|address');
+
+	    $expose->configureExposureRequest(array(
+	        Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
+        ), $request);
+
+	    $this->assertEquals($explicit_expose, $expose->toArray());
 	}
 
 
