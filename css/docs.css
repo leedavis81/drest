@@ -1,0 +1,141 @@
+/* @license
+ * MyFonts Webfont Build ID 2341569, 2012-08-09T16:00:31-0400
+ * 
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are 
+ * explicitly restricted from using the Licensed Webfonts(s).
+ * 
+ * You may obtain a valid license at the URLs below.
+ *
+ * Webfont: Proxima Nova Regular by Mark Simonson
+ * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/regular/
+ * 
+ * Webfont: Proxima Nova Bold by Mark Simonson
+ * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/bold/
+ * 
+ * Webfont: Proxima Nova Thin by Mark Simonson
+ * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/thin/
+ * 
+ * Webfont: Proxima Nova Light by Mark Simonson
+ * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/light/
+ * 
+ * Â© 2012 Bitstream Inc
+*/
+
+/* TODO: Switch the names of these files over to ProximaNova_Bold */
+ @font-face {font-family: 'ProximaNova-Bold';src: url('/fonts/ProximaNova_Bold.eot');src: url('/fonts/ProximaNova_Bold.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Bold.woff') format('woff'),url('/fonts/ProximaNova_Bold.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Light';src: url('/fonts/ProximaNova_Light.eot');src: url('/fonts/ProximaNova_Light.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Light.woff') format('woff'),url('/fonts/ProximaNova_Light.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Regular';src: url('/fonts/ProximaNova_Regular.eot');src: url('/fonts/ProximaNova_Regular.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Regular.woff') format('woff'),url('/fonts/ProximaNova_Regular.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Thin';src: url('/fonts/ProximaNova_Thin.eot');src: url('/fonts/ProximaNova_Thin.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Thin.woff') format('woff'),url('/fonts/ProximaNova_Thin.ttf') format('truetype');}
+
+body {
+  padding-top: 100px;
+  font-family: 'ProximaNova-Regular', Helvetica, sans-serif;
+	background-color: #f1f1f1;
+}
+
+.navbar-inner {
+  padding: 5px 0px;
+  background-image: none;
+  background-color: #333;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+}
+
+.navbar .nav.pull-left li {
+  line-height: 22px
+}
+.navbar .nav.pull-left a {
+  margin-right: 40px;
+  text-decoration: none;
+  color: #dedede;
+  font-size: 15px;
+  font-family: 'ProximaNova-Bold';
+  font-weight: normal;
+  text-shadow: none;
+}
+.navbar .nav.pull-left li:last-child a {
+  margin-right: 0px;
+}
+.navbar .nav.pull-left a:hover {
+  color: #ff7600;
+}
+
+#menu {
+  min-height: 800px;
+  border-right: 1px solid #eee;
+  width: 180px;
+}
+@media (min-width: 1200px) {
+  width: 200px;
+}
+@media (max-width: 979px) and (min-width: 768px) {
+  #menu {
+    width: 140px;
+  }
+}
+@media (max-width: 768px) {
+  #menu {
+    min-height: 0px;
+    border: none;
+    position: static;
+    width: auto;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+  }
+}
+
+#menu li.nav-header {
+  color: #000;
+  font-family: 'ProximaNova-Bold';
+  font-weight: normal;
+  letter-spacing: 2px;
+}
+#menu li a {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+#menu li a {
+  color: #999;
+  text-shadow: none;
+}
+#menu li.active a {
+  background-color: #33a5c8;
+  color: #fff;
+}
+
+@media (max-width: 979px) {
+  body {
+    padding-top: 0px;
+  }
+}
+
+pre .str, code .str { color: #65B042; } /* string  - green */
+pre .kwd, code .kwd { color: #E28964; } /* keyword - dark pink */
+pre .com, code .com { color: #AEAEAE; font-style: italic; } /* comment - gray */
+pre .typ, code .typ { color: #89bdff; } /* type - light blue */
+pre .lit, code .lit { color: #3387CC; } /* literal - blue */
+pre .pun, code .pun { color: #fff; } /* punctuation - white */
+pre .pln, code .pln { color: #fff; } /* plaintext - white */
+pre .tag, code .tag { color: #89bdff; } /* html/xml tag    - light blue */
+pre .atn, code .atn { color: #bdb76b; } /* html/xml attribute name  - khaki */
+pre .atv, code .atv { color: #65B042; } /* html/xml attribute value - green */
+pre .dec, code .dec { color: #3387CC; } /* decimal - blue */
+
+pre.prettyprint, code.prettyprint {
+        background-color: #000;
+        -moz-border-radius: 8px;
+        -webkit-border-radius: 8px;
+        -o-border-radius: 8px;
+        -ms-border-radius: 8px;
+        -khtml-border-radius: 8px;
+        border-radius: 8px;
+}
+
+pre.prettyprint {
+        width: 95%;
+        margin: 1em auto;
+        padding: 1em !important;
+        white-space: pre-wrap;
+}

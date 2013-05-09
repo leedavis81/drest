@@ -1,76 +1,102 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Drest by leedavis81</title>
+---
+layout: default
+title: Drest Documentation
+---
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Drest</h1>
-        <p>Drive a REST service directly from your doctrine entities</p>
+<div class="page-header">
+  <h1>Dress up your doctrine entities</h1>
+  <h3>And expose them as RESful resource endpoints</h3>  
+</div>
+<br>
+<h4>* Quickly annotate existing Doctrine entities to become a fully functional REST resource.</h4>
+<pre>@Drest\Resource(
+    routes={
+        @Drest\Route(
+            name="get_user",
+            route_pattern="/user/:id",
+            verbs={"GET"},
+            content="element"
+)})</pre>
+<br>
+<h4>* Utilises the internal router for matching resource route patterns to client requests.</h4>
+<pre>
+[GET] http://myapplication.com/api/user/123
+</pre>
+<br>
+<h4>* Specify what data you want to expose from your entities (including relations), or let the client choose!</h4>
+<pre>
+// Set exactly what fields you want to expose
+@Drest\Route(
+    expose={"username", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers"}
+ )
+ 
+ // or let the client choose
+$config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
+[GET] http://myapplication.com/api/user/123?expose=username|profile[id, lastname]
 
-        <p class="view"><a href="https://github.com/leedavis81/Drest">View the Project on GitHub <small>leedavis81/Drest</small></a></p>
+// Also you can set a specific maximum depth you want to expose - (uses doctrines relations)
+$config->setExposureDepth(3);</pre>
+<br>
+<h4>Comes with JSON and XML response writers with the ability easily create and use your own.</h4>
+<pre>
+// Set the default writers to be used
+$config->setDefaultWriters(array('Json', 'Xml'));
 
+// Or only allow certain writers per resource
+ @Drest\Resource(
+    writers={"Json"}
+    .....
+)</pre>
+<br>
+<h4>Allows media type detection from client request or header information, getting you one step close to RMM level 3.</h4>
+<pre>
+// Determine the requested media type by reading:
+$drestConfig->setDetectContentOptions(array(
+    Configuration::DETECT_CONTENT_HEADER => 'Accept',   // An HTTP Header called "Accept"  
+    Configuration::DETECT_CONTENT_EXTENSION => true,    // A dot extension on the URL (eg .json)
+    Configuration::DETECT_CONTENT_PARAM => 'format'     // A parameter parsed called "format" (eg format=xml)
+));</pre>
+<br>
+<h4>Use it independently from your existing framework stack, or alongside it*.</h4>
+<pre>
+// Dispatch from an application endpoint (index.phtml)
+echo $dm->dispatch();
 
-        <ul>
-          <li><a href="https://github.com/leedavis81/Drest/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/leedavis81/Drest/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/leedavis81/Drest">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3>Welcome to GitHub Pages.</h3>
-
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
-<h3>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/leedavis81">leedavis81</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("&lt;script&gt;   (function(i,s,o,g,r,a,m){i[&#39;GoogleAnalyticsObject&#39;]=r;i[r]=i[r]||function(){   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)   })(window,document,&#39;script&#39;,&#39;//www.google-analytics.com/analytics.js&#39;,&#39;ga&#39;);    ga(&#39;create&#39;, &#39;UA-39981824-1&#39;, &#39;github.io&#39;);   ga(&#39;send&#39;, &#39;pageview&#39;);  &lt;/script&gt;");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
-
-  </body>
-</html>
+// Or from within a controller in your framework
+$updatedResponseObject =  $dm->dispatch($myZf2RequestObject, $mySym2ResponseObject);
+</pre>
+<p>* On the condition that both request / response adapters have been created for that particular framework </p>
+<br>
+<h4>Allows extension points so you can configure requests to your specific needs.</h4>        
+<pre>
+ @Drest\Resource(
+    service_class="MyService",
+    routes={
+        @Drest\Route(
+            name="get_user",
+            route_pattern="/user/:id+",
+            verbs={"GET"},
+            content="element",
+            call_method="myMethod"
+ )})
+ 
+class MyService extends Drest\Service\AbstractService
+{
+    /**
+     * From here you'll have access to the following objects:
+     * @var \Doctrine\ORM\EntityManager     $em         - Doctrine Entity Manager
+     * @var \Drest\Manager                  $dm         - Drest Manager
+     * @var \Drest\Request                  $request    - Drest Request Object
+     * @var \Drest\Response                 $response   - Drest Response Object
+     * @var \Drest\Mapping\RouteMetaData    $route      - The mathced route
+     * @var \Drest\Writer\AbstractWriter    $writer     - The pre-determined media writer
+     */
+    public function myMethod()
+    {
+        // You can do what you like here
+        $query = $this->em->createQuery(...
+        $results = $this->createResultSet($query->execute..)..
+        $this->renderDeterminedWriter($results); // or not
+    }
+}
+</pre>
