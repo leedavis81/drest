@@ -1,0 +1,102 @@
+---
+layout: default
+title: Drest Documentation
+---
+
+<div class="page-header">
+  <h1>Dress up your doctrine entities</h1>
+  <h3>And expose them as RESful resource endpoints</h3>  
+</div>
+<br>
+<h4>* Quickly annotate existing Doctrine entities to become a fully functional REST resource.</h4>
+<pre>@Drest\Resource(
+    routes={
+        @Drest\Route(
+            name="get_user",
+            route_pattern="/user/:id",
+            verbs={"GET"},
+            content="element"
+)})</pre>
+<br>
+<h4>* Utilises the internal router for matching resource route patterns to client requests.</h4>
+<pre>
+[GET] http://myapplication.com/api/user/123
+</pre>
+<br>
+<h4>* Specify what data you want to expose from your entities (including relations), or let the client choose!</h4>
+<pre>
+// Set exactly what fields you want to expose
+@Drest\Route(
+    expose={"username", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers"}
+ )
+ 
+ // or let the client choose
+$config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
+[GET] http://myapplication.com/api/user/123?expose=username|profile[id, lastname]
+
+// Also you can set a specific maximum depth you want to expose - (uses doctrines relations)
+$config->setExposureDepth(3);</pre>
+<br>
+<h4>Comes with JSON and XML response writers with the ability easily create and use your own.</h4>
+<pre>
+// Set the default writers to be used
+$config->setDefaultWriters(array('Json', 'Xml'));
+
+// Or only allow certain writers per resource
+ @Drest\Resource(
+    writers={"Json"}
+    .....
+)</pre>
+<br>
+<h4>Allows media type detection from client request or header information, getting you one step close to RMM level 3.</h4>
+<pre>
+// Determine the requested media type by reading:
+$drestConfig->setDetectContentOptions(array(
+    Configuration::DETECT_CONTENT_HEADER => 'Accept',   // An HTTP Header called "Accept"  
+    Configuration::DETECT_CONTENT_EXTENSION => true,    // A dot extension on the URL (eg .json)
+    Configuration::DETECT_CONTENT_PARAM => 'format'     // A parameter parsed called "format" (eg format=xml)
+));</pre>
+<br>
+<h4>Use it independently from your existing framework stack, or alongside it*.</h4>
+<pre>
+// Dispatch from an application endpoint (index.phtml)
+echo $dm->dispatch();
+
+// Or from within a controller in your framework
+$updatedResponseObject =  $dm->dispatch($myZf2RequestObject, $mySym2ResponseObject);
+</pre>
+<p>* On the condition that both request / response adapters have been created for that particular framework </p>
+<br>
+<h4>Allows extension points so you can configure requests to your specific needs.</h4>        
+<pre>
+ @Drest\Resource(
+    service_class="MyService",
+    routes={
+        @Drest\Route(
+            name="get_user",
+            route_pattern="/user/:id+",
+            verbs={"GET"},
+            content="element",
+            call_method="myMethod"
+ )})
+ 
+class MyService extends Drest\Service\AbstractService
+{
+    /**
+     * From here you'll have access to the following objects:
+     * @var \Doctrine\ORM\EntityManager     $em         - Doctrine Entity Manager
+     * @var \Drest\Manager                  $dm         - Drest Manager
+     * @var \Drest\Request                  $request    - Drest Request Object
+     * @var \Drest\Response                 $response   - Drest Response Object
+     * @var \Drest\Mapping\RouteMetaData    $route      - The mathced route
+     * @var \Drest\Writer\AbstractWriter    $writer     - The pre-determined media writer
+     */
+    public function myMethod()
+    {
+        // You can do what you like here
+        $query = $this->em->createQuery(...
+        $results = $this->createResultSet($query->execute..)..
+        $this->renderDeterminedWriter($results); // or not
+    }
+}
+</pre>

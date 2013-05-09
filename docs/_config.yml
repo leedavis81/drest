@@ -1,0 +1,3 @@
+name: Drest Documentation Site
+pygments: true
+permalink: /:categories/:title
