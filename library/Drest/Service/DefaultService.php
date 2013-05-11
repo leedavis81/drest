@@ -114,15 +114,6 @@ class DefaultService extends AbstractService
 	}
 
 
-	/**
-	 * Get a unique alias name from an entity class name
-	 * @param string $className
-	 */
-	protected function getAlias($className)
-	{
-        return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $className));
-	}
-
 	public function postElement()
 	{
 	}

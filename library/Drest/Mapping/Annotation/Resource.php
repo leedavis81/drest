@@ -14,7 +14,4 @@ final class Resource
 
     /** @var array */
     public $writers;
-
-    /** @var string */
-    public $service_class;
 }

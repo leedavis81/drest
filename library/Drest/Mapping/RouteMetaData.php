@@ -83,10 +83,15 @@ class RouteMetaData
 	protected $content_type;
 
 	/**
-	 * The call method to be called upon successful routing
-	 * @var string $call_method
+	 * The service call to be executed upon successful routing
+	 * @var array $service_call_class
 	 */
-	protected $call_method;
+	protected $service_call_class;
+
+	/**
+	 * @var array $service_call_method
+	 */
+	protected $service_call_method;
 
 	/**
 	 * An array of fields to be exposed to the end client
@@ -222,12 +227,35 @@ class RouteMetaData
 	}
 
 	/**
-	 * Get the call method to be used
-	 * @return string
+	 * Set the service call information (on the route class) to be used upon routing a match
+	 * @param array $service_call - should be format array("CLASSNAME", "METHODNAME")
 	 */
-	public function getCallMethod()
+	public function setServiceCall(array $service_call)
 	{
-	    return $this->call_method;
+	    if (sizeof($service_call) !== 2)
+	    {
+	        throw DrestException::invalidServiceCallFormat();
+	    }
+	    $this->service_call_class = (!empty($service_call[0])) ? $service_call[0] : null;
+	    $this->service_call_method = (!empty($service_call[1])) ? $service_call[1] : null;
+	}
+
+	/**
+	 * Get the service call class name
+	 * @return string $service_class
+	 */
+	public function getServiceCallClass()
+	{
+        return $this->service_call_class;
+	}
+
+	/**
+	 * Get the service call method to be used
+	 * @return string $service_call_method
+	 */
+	public function getServiceCallMethod()
+	{
+	    return $this->service_call_method;
 	}
 
 	/**
@@ -246,15 +274,6 @@ class RouteMetaData
 	public function getUnmappedRouteParams()
 	{
 	    return $this->unmapped_route_params;
-	}
-
-	/**
-	 * Set the call method (on the route class) to be used upon routing match
-	 * @param string $call_method
-	 */
-	public function setCallMethod($call_method)
-	{
-	    $this->call_method = $call_method;
 	}
 
 	/**

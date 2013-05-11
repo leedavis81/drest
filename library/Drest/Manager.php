@@ -13,6 +13,7 @@ use Doctrine\Common\EventManager,
 	Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo,
 
 	Drest\Mapping\MetadataFactory,
+	Drest\Mapping\RouteMetaData,
 
 	Drest\Request,
 	Drest\Query,
@@ -69,10 +70,10 @@ class Manager
 	protected $services;
 
 	/**
-	 * The last matched service object from a dispatch() request
-	 * @var Drest\Service\AbstractService $matched_service
+	 * The matched service object from a dispatch() request
+	 * @var Drest\Service\AbstractService $service
 	 */
-	protected $matched_service;
+	protected $service;
 
 
     /**
@@ -195,10 +196,10 @@ class Manager
         $resultSet = ResultSet::create(array($error_message), 'errors');
 
         // Use a predetermined writer to generate the error output, else default to text
-        if ($this->matched_service instanceof AbstractService &&
-            $this->matched_service->getWriter() instanceof AbstractWriter)
+        if ($this->service instanceof AbstractService &&
+            $this->service->getWriter() instanceof AbstractWriter)
         {
-            $this->matched_service->renderDeterminedWriter($resultSet);
+            $this->service->renderDeterminedWriter($resultSet);
         } else
         {
             try {
@@ -244,20 +245,20 @@ class Manager
         $this->request->setRouteParam($route->getRouteParams());
 
         // Get the service class
-        $this->matched_service = $this->getService($route->getClassMetaData()->getClassName());
+        $this->service = $this->getService($route);
 
         // Set the matched service object into the service class
-        $this->matched_service->setMatchedRoute($route);
+        $this->service->setMatchedRoute($route);
 
         try
         {
-            $this->matched_service->setWriter($this->getDeterminedWriter($route));
+            $this->service->setWriter($this->getDeterminedWriter($route));
         } catch (DrestException $e) {}
 
         // Set up the service for a new request
-        $this->matched_service->setupRequest();
+        $this->service->setupRequest();
 
-        $this->matched_service->runCallMethod();
+        $this->service->runCallMethod();
 
         return $this->getResponse();
 	}
@@ -435,41 +436,30 @@ class Manager
 
 
     /**
-     * Get the service class for this entity
-     * @param string $entityName
-     * @return Drest\Service\AbstractService $service
+     * Get the service class for the matched route - provides default service class if none present
+     * @param Drest\Mapping\RouteMetaData $route - the matched route
+     * @return Drest\Service\AbstractService $service - the service class
      * @throws DrestException if defined service class is not an instance of Drest\Service\AbstractService
      */
-	public function getService($entityName)
+	public function getService(RouteMetaData $route)
 	{
-        $entityName = ltrim($entityName, '\\');
-	    if (isset($this->services[$entityName]))
-	    {
-	        return $this->services[$entityName];
-	    }
+	    $serviceClassName = ltrim($route->getServiceCallClass(), '\\');
+	    $serviceClassName = (!empty($serviceClassName)) ? (strpos($serviceClassName, '\\') === 0) ? $serviceClassName : '\\' . $serviceClassName
+	                                                     : $this->config->getDefaultServiceClass();
 
-	    $classMetaData = $this->metadataFactory->getMetadataForClass($entityName);
-
-	    $serviceClassName = '\\' . $classMetaData->getServiceClassName();
-
-	    $serviceClassName = $classMetaData->getServiceClassName();
-	    if ($serviceClassName !== null)
+        // Return the already cached instance of the service class
+		if (!empty($serviceClassName) && isset($this->services[$serviceClassName]))
 	    {
-            $serviceClassName = (strpos($serviceClassName, '\\') === 0) ? $serviceClassName : '\\' . $serviceClassName;
-	    } else
-	    {
-            $serviceClassName = $this->config->getDefaultServiceClass();
+	        return $this->services[$serviceClassName];
 	    }
 
 	    $service = new $serviceClassName($this->em, $this);
-
 	    if (!$service instanceof Service\AbstractService)
 	    {
-	        throw DrestException::entityServiceNotAnInstanceOfDrestService($classMetaData->getClassName());
+	        throw DrestException::serviceClassNotAnInstanceOfDrestService(get_class($service));
 	    }
 
 	    $this->services[$serviceClassName] = $service;
-
 	    return $service;
 	}
 

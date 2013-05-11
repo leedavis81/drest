@@ -32,12 +32,6 @@ class ClassMetaData implements \Serializable
 	protected $className;
 
 	/**
-	 * Name of the service class associated with this resource
-	 * @var string $serviceClassName
-	 */
-	protected $serviceClassName;
-
-	/**
 	 * A reflection of the class
 	 * @var \ReflectionClass $reflection
 	 */
@@ -182,24 +176,6 @@ class ClassMetaData implements \Serializable
 	}
 
 	/**
-	 * Set the service class name
-	 * @param string $serviceClassName
-	 */
-	public function setServiceClassName($serviceClassName)
-	{
-	    $this->serviceClassName = $serviceClassName;
-	}
-
-	/**
-	 * Get the service class name
-	 * @return string $serviceClassName
-	 */
-	public function getServiceClassName()
-	{
-	    return $this->serviceClassName;
-	}
-
-	/**
 	 * Serialise this object
 	 * @return array
 	 */
@@ -209,7 +185,6 @@ class ClassMetaData implements \Serializable
             $this->routes,
             $this->writers,
             $this->className,
-            $this->serviceClassName,
             $this->filePath,
             $this->createdAt
         ));
@@ -224,7 +199,6 @@ class ClassMetaData implements \Serializable
             $this->routes,
             $this->writers,
             $this->className,
-            $this->serviceClassName,
             $this->filePath,
             $this->createdAt
         ) = unserialize($string);

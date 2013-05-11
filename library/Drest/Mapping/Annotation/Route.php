@@ -21,8 +21,8 @@ final class Route
     /** @var array */
     public $route_conditions;
 
-    /** @var string */
-    public $call_method;
+    /** @var array */
+    public $service_call;
 
     /** @var array */
     public $verbs;

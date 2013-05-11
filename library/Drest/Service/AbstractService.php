@@ -49,12 +49,6 @@ class AbstractService
 	 */
 	protected $writer;
 
-	/**
-	 * The data to be returned in the response
-	 * @var Drest\ResultSet $data
-	 */
-	protected $resultSet;
-
     /**
      * addional key fields that are included in partial queries to make the DQL valid
      * These columns should be purged from the result set
@@ -100,10 +94,10 @@ class AbstractService
     /**
      * Run the call method required on this service object
      */
-    public function runCallMethod()
+    final public function runCallMethod()
     {
         // Use a default call if the DefaultService class is being used (allow for extension)
-        $callMethod = (get_class($this) === 'Drest\Service\DefaultService') ? $this->getDefaultMethod() : $this->matched_route->getCallMethod();
+        $callMethod = (get_class($this) === 'Drest\Service\DefaultService') ? $this->getDefaultMethod() : $this->matched_route->getServiceCallMethod();
         if (!method_exists($this, $callMethod))
         {
             throw DrestException::unknownServiceMethod(get_class($this), $callMethod);
@@ -118,7 +112,7 @@ class AbstractService
 	 * 	   a POST request to a single element will return postElement()
 	 * @return string $methodName
 	 */
-	public function getDefaultMethod()
+	final public function getDefaultMethod()
 	{
 	    $functionName = '';
 	    $httpMethod = $this->request->getHttpMethod();
@@ -325,6 +319,15 @@ class AbstractService
             }
 	    }
 	    return $data;
+	}
+
+	/**
+	 * Get a unique alias name from an entity class name
+	 * @param string $className
+	 */
+	protected function getAlias($className)
+	{
+        return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $className));
 	}
 
 	/**

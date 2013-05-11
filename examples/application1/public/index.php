@@ -34,7 +34,6 @@ $em = \Doctrine\ORM\EntityManager::create(array(
 	'driver' => 'pdo_mysql'
 ), $ormConfig);
 
-
 try
 {
 	$drestConfig = new Configuration();

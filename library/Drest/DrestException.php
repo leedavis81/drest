@@ -38,14 +38,19 @@ class DrestException extends Exception
         return new self('The annotated resource on class ' . $className . ' doesn\'t have any service definitionions. Ensure you have "services={@Drest\Service(..)} set');
     }
 
-    public static function serviceAlreadyDefinedWithName($class, $name)
+    public static function routeAlreadyDefinedWithName($class, $name)
     {
-        return new self('Service on class ' . $class . ' already exists with name ' . $name . '. These must be unique');
+        return new self('Route on class ' . $class . ' already exists with the name ' . $name . '. These must be unique');
     }
 
-    public static function serviceNameIsEmpty()
+    public static function routeNameIsEmpty()
     {
-        return new self('Service name used cannot be blank, and must only contain alphanumerics or underscore');
+        return new self('Route name used cannot be blank, and must only contain alphanumerics or underscore');
+    }
+
+    public static function invalidServiceCallFormat()
+    {
+        return new self('Service call infromation is invalid. Must be in the format service_call={"CLASSNAME", "METHODNAME"}');
     }
 
     public static function invalidHttpVerbUsed($verb)
@@ -109,9 +114,9 @@ class DrestException extends Exception
 
 
     // Service Exceptions
-    public static function entityServiceNotAnInstanceOfDrestService($entityClass)
+    public static function serviceClassNotAnInstanceOfDrestService($class)
     {
-    	return new self('Service class for entity "' . $entityClass . '" is not an instance of Drest\Service.');
+    	return new self('Service class  "' . $class . '" is not an instance of Drest\Service.');
     }
 
     public static function unknownServiceMethod($class, $method)

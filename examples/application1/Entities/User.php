@@ -2,6 +2,8 @@
 namespace Entities;
 
 // uniqueConstraints={@UniqueConstraint(name="api_key_idx", columns={"api_key"})})
+use Drest\Request;
+
 use Drest\Mapping\Annotation as Drest;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,9 +20,10 @@ use Doctrine\ORM\Mapping as ORM;
  *      		route_pattern="/user/:id+",
  *      		route_conditions={"id": "\d+"},
  *      		verbs={"GET"},
- *      		content="element"
+ *      		content="element",
+ *      		service_call={"Service\User", "getMyCustomElement"}
  *      	),
- *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"POST"}, call_method="addUser", content="element"),
+ *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"POST"}, content="element"),
  *          @Drest\Route(name="update_user", route_pattern="/user/:id+", route_conditions={"id": "\d+"}, verbs={"PUT"}, content="element"),
  *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection")
  *      }
@@ -70,4 +73,16 @@ class User
     {
         $this->phone_numbers = new \Doctrine\Common\Collections\ArrayCollection();
     }
+
+
+    /**
+     * Populate this object from a POST request
+     * @Drest\Post(target="post_user", inject="service")
+     */
+    public function populatePost(Request $request)
+    {
+        $this->email_address = $request->getPost('email_address');
+    }
+
+
 }

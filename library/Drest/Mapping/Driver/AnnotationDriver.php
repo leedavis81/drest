@@ -193,7 +193,6 @@ class AnnotationDriver implements DriverInterface
         	    }
 
         	    $metadata->addWriters($annotatedObject->writers);
-        	    $metadata->setServiceClassName($annotatedObject->service_class);
 
         	    foreach ($annotatedObject->routes as $route)
         	    {
@@ -203,11 +202,11 @@ class AnnotationDriver implements DriverInterface
         	        $route->name = preg_replace("/[^a-zA-Z0-9_\s]/", "", $route->name);
         	        if ($route->name == '')
         	        {
-                        throw DrestException::serviceNameIsEmpty();
+                        throw DrestException::routeNameIsEmpty();
         	        }
         	        if ($metadata->getRoutesMetaData($route->name) !== false)
         	        {
-        	            throw DrestException::serviceAlreadyDefinedWithName($class->name, $route->name);
+        	            throw DrestException::routeAlreadyDefinedWithName($class->name, $route->name);
         	        }
                     $routeMetaData->setName($route->name);
 
@@ -241,8 +240,11 @@ class AnnotationDriver implements DriverInterface
         	            $routeMetaData->setAllowedOptionRequest($route->allow_options);
         	        }
 
-        	        // Add call method
-        	        $routeMetaData->setCallMethod($route->call_method);
+        	        // Add service call method
+        	        if (is_array($route->service_call))
+        	        {
+        	            $routeMetaData->setServiceCall($route->service_call);
+        	        }
 
                     $metadata->addRouteMetaData($routeMetaData);
         	    }
