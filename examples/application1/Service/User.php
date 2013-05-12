@@ -15,4 +15,9 @@ class User extends AbstractService
 
         $this->renderDeterminedWriter($resultSet);
     }
+
+    public function postMyElement()
+    {
+
+    }
 }

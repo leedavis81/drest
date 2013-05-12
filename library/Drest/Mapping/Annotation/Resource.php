@@ -5,7 +5,7 @@ namespace Drest\Mapping\Annotation;
 
 /**
  * @Annotation
- * @Target({"CLASS"})
+ * @Target("CLASS")
  */
 final class Resource
 {

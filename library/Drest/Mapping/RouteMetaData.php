@@ -94,6 +94,12 @@ class RouteMetaData
 	protected $service_call_method;
 
 	/**
+	 * A handle function call for this route (if one is configured)
+	 * @var string $handle_call
+	 */
+	protected $handle_call;
+
+	/**
 	 * An array of fields to be exposed to the end client
 	 * @var array $expose
 	 */
@@ -292,6 +298,37 @@ class RouteMetaData
 	public function getExpose()
 	{
 	    return $this->expose;
+	}
+
+
+	/**
+	 * Set the handle function call
+	 * @param string $handle_call
+	 */
+	public function setHandleCall($handle_call)
+	{
+        if (is_string($handle_call))
+        {
+            $this->handle_call = $handle_call;
+        }
+	}
+
+	/**
+	 * Get the handle call function
+	 * @return string $handle_call
+	 */
+	public function getHandleCall()
+	{
+	    return $this->handle_call;
+	}
+
+	/**
+	 *
+	 * Does this route have an annotated handle call
+	 */
+	public function hasHandleCall()
+	{
+	    return isset($this->handle);
 	}
 
 	/**

@@ -5,7 +5,7 @@ namespace Drest\Mapping\Annotation;
 
 /**
  * @Annotation
- * @Target({"ANNOTATION"})
+ * @Target("ANNOTATION")
  */
 final class Route
 {

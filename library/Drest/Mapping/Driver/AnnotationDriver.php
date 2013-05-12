@@ -182,6 +182,7 @@ class AnnotationDriver implements DriverInterface
         }
 
         $metadata = new Mapping\ClassMetadata($class);
+
         foreach ($this->reader->getClassAnnotations($class) as $annotatedObject)
         {
         	if ($annotatedObject instanceof Annotation\Resource)
@@ -248,6 +249,34 @@ class AnnotationDriver implements DriverInterface
 
                     $metadata->addRouteMetaData($routeMetaData);
         	    }
+
+                foreach ($class->getMethods() as $method)
+                {
+                    if ($method->isPublic())
+                    {
+                        foreach ($this->reader->getMethodAnnotations($method) as $methodAnnotation)
+                        {
+                            if ($methodAnnotation instanceof Annotation\Handle)
+                            {
+                                // Make sure the for is not empty
+                                if (empty($methodAnnotation->for) || !is_string($methodAnnotation->for))
+                                {
+                                    throw DrestException::handleForCannotBeEmpty();
+                                }
+                                if (($routeMetaData = $metadata->getRoutesMetaData($methodAnnotation->for)) === false)
+                                {
+                                    throw DrestException::handleAnnotationDoesntMatchRouteName($methodAnnotation->for);
+                                }
+                                if ($routeMetaData->hasHandleCall())
+                                {
+                                    // There is already a handle set for this route
+                                    throw DrestException::alreadyHandleDefinedForRoute($routeMetaData);
+                                }
+                                $routeMetaData->setHandleCall($method->getName());
+                            }
+                        }
+                    }
+                }
 
         	}
         }

@@ -1,7 +1,8 @@
 <?php
 namespace Drest;
 
-use Exception;
+use Exception,
+    Drest\Mapping;
 
 /**
  * Base exception class for all ORM exceptions.
@@ -112,6 +113,20 @@ class DrestException extends Exception
         return new self('The requested base path has not been registered');
     }
 
+    public static function alreadyHandleDefinedForRoute(\Drest\Mapping\RouteMetaData $route)
+    {
+        return new self('There is a handle already defined for the route ' . $route->getName() . ' on class ' . $route->getClassMetaData()->getClassName());
+    }
+
+    public static function handleAnnotationDoesntMatchRouteName($name)
+    {
+        return new self('The configured handle "' . $name . '" doesn\'t match any route of that name. Ensure @Drest\Handle(for="my_route") matches @Drest\Route(name="my_route")');
+    }
+
+    public static function handleForCannotBeEmpty()
+    {
+        return new self('The @Drest\Handle configuration MUST contain a valid / matching "for" value');
+    }
 
     // Service Exceptions
     public static function serviceClassNotAnInstanceOfDrestService($class)

@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 // Alternative
 //  *      		expose={"username", "email_address", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers" : {"number"}}
 // Use short expose syntax in http headers / request params:  username|email_address|profile[id|lastname|addresses[id]]|phone_numbers
+// service_call={"Service\User", "getMyCustomElement"}
 /**
  * User
  * @Drest\Resource(
@@ -20,12 +21,11 @@ use Doctrine\ORM\Mapping as ORM;
  *      		route_pattern="/user/:id+",
  *      		route_conditions={"id": "\d+"},
  *      		verbs={"GET"},
- *      		content="element",
- *      		service_call={"Service\User", "getMyCustomElement"}
+ *      		content="element"
  *      	),
  *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"POST"}, content="element"),
  *          @Drest\Route(name="update_user", route_pattern="/user/:id+", route_conditions={"id": "\d+"}, verbs={"PUT"}, content="element"),
- *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection")
+ *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection", expose={"username", "profile"})
  *      }
  * )
  *
@@ -76,8 +76,7 @@ class User
 
 
     /**
-     * Populate this object from a POST request
-     * @Drest\Post(target="post_user", inject="service")
+     * @Drest\Handle(for="post_user")
      */
     public function populatePost(Request $request)
     {
