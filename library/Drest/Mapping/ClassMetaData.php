@@ -8,7 +8,8 @@ namespace Drest\Mapping;
  * @author Lee
  *
  */
-use Drest\DrestException;
+use Drest\DrestException,
+    Drest\Writer\WriterException;
 
 class ClassMetaData implements \Serializable
 {
@@ -112,7 +113,7 @@ class ClassMetaData implements \Serializable
 		{
 			if (!$writer instanceof \Drest\Writer\InterfaceWriter)
 			{
-				throw DrestException::unknownWriterClass(get_class($writer));
+				throw WriterException::unknownWriterClass(get_class($writer));
 			}
 			$this->writers[] = $writer;
 		} elseif(is_string($writer))
@@ -120,7 +121,7 @@ class ClassMetaData implements \Serializable
 		    $this->writers[] = $writer;
 		} else
 		{
-		    throw DrestException::writerMustBeObjectOrString();
+		    throw WriterException::writerMustBeObjectOrString();
 		}
 	}
 

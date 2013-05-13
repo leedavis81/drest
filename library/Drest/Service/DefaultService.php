@@ -33,14 +33,6 @@ class DefaultService extends AbstractService
 	        $this->em->getClassMetadata($classMetaData->getClassName())
         );
 
-        // No data has been exposed
-        // @todo: tidy - this can be moved into the setup call on abstract service. If no expose fields are present, fail early (for all GET requests)
-        if (sizeof($qb->getDQLPart('select')) === 0)
-        {
-            $this->renderDeterminedWriter($this->createResultSet(array()));
-            return;
-        }
-
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
             $qb->andWhere($elementName . '.' . $key  . ' = :' . $key);
@@ -75,14 +67,6 @@ class DefaultService extends AbstractService
 	        $this->em->getClassMetadata($classMetaData->getClassName())
         );
 
-        // No data has been exposed
-        // @todo: tidy
-        if (sizeof($qb->getDQLPart('select')) === 0)
-        {
-            $this->renderDeterminedWriter($this->createResultSet(array()));
-            return;
-        }
-
         foreach ($this->matched_route->getRouteParams() as $key => $value)
         {
             $qb->andWhere($elementName . '.' . $key . ' = :' . $key);
@@ -90,11 +74,9 @@ class DefaultService extends AbstractService
         }
         try
         {
-            $this->renderDeterminedWriter($this->createResultSet($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY)));
+            $resultSet = $this->createResultSet($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
         } catch (ORM\ORMException $e)
         {
-            echo $e->getMessage();
-            echo $e->getTraceAsString();
             /*
             ORM\NonUniqueResultException
             ORM\NoResultException
@@ -111,15 +93,40 @@ class DefaultService extends AbstractService
                 $this->response->setStatusCode(Response::STATUS_CODE_404);
             }
         }
+
+        $this->renderDeterminedWriter($resultSet);
 	}
 
 
 	public function postElement()
 	{
+        $classMetaData = $this->matched_route->getClassMetaData();
+
+        $entityClass = $classMetaData->getClassName();
+        $object = new $entityClass;
+
+        // Run any attached handle function
+        if ($this->matched_route->hasHandleCall())
+        {
+            $handleMethod = $this->matched_route->getHandleCall();
+            $object->$handleMethod($this->request);
+        }
+        // try to persist the object
+        try
+        {
+            $this->em->persist($object);
+            $this->em->flush($object);
+        } catch (\Exception $e)
+        {
+             return $this->response->setStatusCode(Response::STATUS_CODE_500);
+        }
+
+        $this->response->setStatusCode(Response::STATUS_CODE_201);
 	}
 
 	public function postCollection()
 	{
+
 	}
 
 	public function putElement()

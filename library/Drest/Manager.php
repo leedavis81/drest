@@ -19,6 +19,8 @@ use Doctrine\Common\EventManager,
 	Drest\Query,
 	Drest\Service\AbstractService,
 	Drest\Writer\AbstractWriter,
+	Drest\Writer\WriterException,
+	Drest\Writer\UnableToMatchWriterException,
 	Drest\DrestException,
 	Drest\Route\MultipleRoutesException,
 	Drest\Route\NoMatchException;
@@ -112,10 +114,7 @@ class Manager
      */
 	public static function create(EntityManager $em, Configuration $config, EventManager $eventManager = null)
 	{
-		// Run some configuration checks
-//		if ( ! $config->getMetadataDriverImpl()) {
-//            throw DrestException::missingMappingDriverImpl();
-//        }
+		// Check there is a metadata driver registered (only annotations driver allowed atm
 
         // Register the annotations classes
         \Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
@@ -186,6 +185,10 @@ class Manager
                 $response->setStatusCode(Response::STATUS_CODE_404);
                 $error_message = $exception->getMessage();
                 break;
+            case 'Drest\Writer\UnableToMatchWriterException';
+                $response->setStatusCode(Response::STATUS_CODE_415);
+                $error_message = 'Requested media type is not supported';
+                break;
             default:
                 // Drest\Route\MultipleRoutesException
                 $response->setStatusCode(Response::STATUS_CODE_500);
@@ -233,13 +236,16 @@ class Manager
             throw $e;
 		}
 
-        // Setup exposure fields
-        $route->setExpose(
-            Query\ExposeFields::create($route)
-            ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
-            ->configureExposureRequest($this->config->getExposeRequestOptions(), $this->request)
-            ->toArray()
-        );
+        // Setup exposure fields on GET requests
+        if ($this->getRequest()->getHttpMethod() == Request::METHOD_GET)
+        {
+            $route->setExpose(
+                Query\ExposeFields::create($route)
+                ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+                ->configureExposureRequest($this->config->getExposeRequestOptions(), $this->request)
+                ->toArray()
+            );
+        }
 
         // Set paramaters matched on the route to the request object
         $this->request->setRouteParam($route->getRouteParams());
@@ -250,15 +256,21 @@ class Manager
         // Set the matched service object into the service class
         $this->service->setMatchedRoute($route);
 
+
         try
         {
+            // This method could either determine a default writer, or a throw 415 unsupported
             $this->service->setWriter($this->getDeterminedWriter($route));
-        } catch (DrestException $e) {}
+        } catch (UnableToMatchWriterException $e)
+        {
+            return $this->systemError($e);
+        }
 
         // Set up the service for a new request
-        $this->service->setupRequest();
-
-        $this->service->runCallMethod();
+        if ($this->service->setupRequest())
+        {
+            $this->service->runCallMethod();
+        }
 
         return $this->getResponse();
 	}
@@ -303,14 +315,14 @@ class Manager
 	 * Detect an instance of a writer class using a matched route, or default writer classes
 	 * @param Mapping\RouteMetaData $route
 	 * @return Drest\Writer\AbstractWriter $writer
-	 * @throw DrestException of unable to instantiate a write from config settings
+	 * @throw WriterException of unable to instantiate a write from config settings
 	 */
 	protected function getDeterminedWriter(Mapping\RouteMetaData $route = null)
 	{
 	    $writers = (!is_null($route)) ? $route->getClassMetaData()->getWriters() : $this->config->getDefaultWriters();
         if (empty($writers))
 	    {
-	        throw DrestException::noWritersSetForRoute($route);
+	        throw WriterException::noWritersSetForRoute($route);
         }
 
         $writerObjects = array();
@@ -323,13 +335,13 @@ class Manager
                 $className = (!class_exists($className)) ? '\\Drest\\Writer\\' . ltrim($className, '\\') : $className;
 	            if (!class_exists($className))
 	            {
-	                throw DrestException::unknownWriterClass($writer);
+	                throw WriterException::unknownWriterClass($writer);
 	            }
 	            $writerObjects[] = $writer = new $className();
 	        }
 	        if (!$writer instanceof Writer\AbstractWriter)
 	        {
-	            throw DrestException::writerMustBeInstanceOfDrestWriter();
+	            throw WriterException::writerMustBeInstanceOfDrestWriter();
 	        }
 
 	        // This writer matches the required media type requested by the client
@@ -339,14 +351,18 @@ class Manager
             }
 	    }
 
-	    // Return the first instantiated writer instance
-	    if (isset($writerObjects[0]))
+	    // If we don't match the requested media type, throw a not supported error
+	    if (!$this->config->get415ForNoWriterMatchSetting())
 	    {
-	        return $writerObjects[0];
+    	    // Return the first instantiated writer instance
+    	    if (isset($writerObjects[0]))
+    	    {
+    	        return $writerObjects[0];
+    	    }
 	    }
 
 		// We have no writer instances from either annotations or config object
-        throw DrestException::unableToDetermineAWriter();
+        throw \Drest\Writer\UnableToMatchWriterException::noMatch();
 	}
 
 

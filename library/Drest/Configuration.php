@@ -67,6 +67,8 @@ class Configuration
         $this->setAllowOptionsRequest(true);
         // Set the route base paths to be an empty array
         $this->_attributes['routeBasePaths'] = array();
+        // Dont send a 415 if we dont match a writer, default to first available writer
+        $this->set415ForNoWriterMatch(false);
     }
 
 
@@ -160,6 +162,26 @@ class Configuration
     public function getDetectContentOptions()
     {
         return $this->_attributes['detectContentOptions'];
+    }
+
+    /**
+     *
+     * When no content type is detected, the response will default to using the first available.
+     * To switch this feature off and send a 415 error, call this configuration function
+     * @param boolean $value
+     */
+    public function set415ForNoWriterMatch($value = true)
+    {
+        $this->_attributes['send415ForNoWriterMatch'] = $value;
+    }
+
+    /**
+     * Get the 415 for no writer match setting
+     * @return boolean $value
+     */
+    public function get415ForNoWriterMatchSetting()
+    {
+        return $this->_attributes['send415ForNoWriterMatch'];
     }
 
     /**

@@ -328,7 +328,7 @@ class RouteMetaData
 	 */
 	public function hasHandleCall()
 	{
-	    return isset($this->handle);
+	    return isset($this->handle_call);
 	}
 
 	/**

@@ -39,7 +39,8 @@ class ResultSet implements \Iterator
         {
             throw DrestException::invalidParentKeyNameForResultSet();
         }
-        $this->data = array($keyName => $data);
+        $this->data = $data;
+        $this->keyName = $keyName;
 
         $this->position = 0;
     }
@@ -50,7 +51,7 @@ class ResultSet implements \Iterator
      */
     public function toArray()
     {
-        return $this->data;
+        return array($this->keyName => $this->data);
     }
 
     public function current()

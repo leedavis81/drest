@@ -15,25 +15,25 @@ class AbstractService
 
     /**
      * Doctrine Entity Manager
-     * @var \Doctrine\ORM\EntityManager $em
+     * @var Doctrine\ORM\EntityManager $em
      */
     protected $em;
 
     /**
      * Drest Manager
-     * @var \Drest\Manager $dm
+     * @var Drest\Manager $dm
      */
     protected $dm;
 
 	/**
 	 * Drest request object
-	 * @var \Drest\Request $request
+	 * @var Drest\Request $request
 	 */
 	protected $request;
 
 	/**
 	 * Drest response object
-	 * @var \Drest\Response $response
+	 * @var Drest\Response $response
 	 */
 	protected $response;
 
@@ -75,20 +75,34 @@ class AbstractService
      * Called on sucessful routing of a service call
      * Prepares the service to a request to be rendered
      * @todo: Fires off any events registered to preLoad
+     * @return boolean $result - if false then fail fast no call to runCallMethod() should be made.
      */
     public function setupRequest()
     {
+        // Make sure we have a route matched
+        //@todo: this shouldn't throw an exception, pass failure to the error handler
     	if (!$this->matched_route instanceof RouteMetaData)
 	    {
             DrestException::noMatchedRouteSet();
 	    }
 
-	    // @todo: Run verb type setup operations
+        // If its a GET request and no expose fields are present, fail early
+	    $expose = $this->matched_route->getExpose();
+        if ($this->request->getHttpMethod() == Request::METHOD_GET && (empty($expose) || (sizeof($expose) == 1 && empty($expose[0]))))
+        {
+            $this->renderDeterminedWriter($this->createResultSet(array()));
+            return false;
+        }
+
+
+	    // @todo: Run verb type setup operations (do we want to break down by verb? or entity name? - evm)
 	    switch ($this->request->getHttpMethod())
 	    {
 	        case Request::METHOD_GET:
 	            break;
 	    }
+
+	    return true;
     }
 
     /**
@@ -339,7 +353,7 @@ class AbstractService
 	{
         if (is_null($this->writer))
         {
-            throw DrestException::unableToDetermineAWriter();
+            throw \Drest\Writer\UnableToMatchWriterException::noMatch();
         }
 
         $this->response->setBody($this->writer->write($resultSet));
