@@ -8,7 +8,8 @@ use Doctrine\ORM\EntityManager,
 	Drest\Request,
 	Drest\Manager,
 	Drest\Query\ResultSet,
-	Drest\Mapping\RouteMetaData;
+	Drest\Mapping\RouteMetaData,
+	Drest\ErrorHandler\AbstractHandler;
 
 class AbstractService
 {
@@ -48,6 +49,12 @@ class AbstractService
 	 * @var Drest\Writer\AbstractWriter $writer
 	 */
 	protected $writer;
+
+	/**
+	 * The error handler instance
+	 * @var Drest\ErrorHandler\AbstractHandler $error_handler
+	 */
+	protected $error_handler;
 
     /**
      * addional key fields that are included in partial queries to make the DQL valid
@@ -185,6 +192,29 @@ class AbstractService
 	public function getWriter()
 	{
 	    return $this->writer;
+	}
+
+	/**
+	 * Set the error handler object
+	 * @param Drest\ErrorHandler\AbstractHandler $error_handler
+	 */
+	public function setErrorHandler(AbstractHandler $error_handler)
+	{
+	    $this->error_handler = $error_handler;
+	}
+
+	/**
+	 * Handle an error
+	 * @param \Exception $e
+  	 * @param $defaultResponseCode the default response code to use if no match on exception type occurs
+  	 * @return ResultSet the error result set
+	 */
+	public function handleError(\Exception $e, $defaultResponseCode = 500)
+	{
+	    $this->error_handler->error($e, $defaultResponseCode);
+	    $this->response->setStatusCode($this->error_handler->getReponseCode());
+
+        return $this->error_handler->getResultSet();
 	}
 
     /**
@@ -345,15 +375,14 @@ class AbstractService
 	}
 
 	/**
-	 * Write out as result set on the writer object that was determined
+	 * Write out as result set on the writer object that was determined - if no writer has been determined - defaults to text
 	 * @param Drest\Query\ResultSet $resultSet
-	 * @throws DrestException if no writer was determined
 	 */
 	public function renderDeterminedWriter(ResultSet $resultSet)
 	{
         if (is_null($this->writer))
         {
-            throw \Drest\Writer\UnableToMatchWriterException::noMatch();
+            $this->writer = new \Drest\Writer\Text();
         }
 
         $this->response->setBody($this->writer->write($resultSet));

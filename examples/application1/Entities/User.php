@@ -25,7 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
  *      	),
  *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"POST"}, content="element"),
  *          @Drest\Route(name="update_user", route_pattern="/user/:id+", route_conditions={"id": "\d+"}, verbs={"PUT"}, content="element"),
- *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection", expose={"username", "profile"})
+ *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection")
  *      }
  * )
  *
@@ -81,6 +81,7 @@ class User
     public function populatePost(Request $request)
     {
         $this->email_address = $request->getPost('email_address');
+        $this->username = $request->getPost('username');
     }
 
 

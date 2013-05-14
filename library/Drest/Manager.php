@@ -2,8 +2,6 @@
 namespace Drest;
 
 
-use Drest\Query\ResultSet;
-
 use Doctrine\Common\EventManager,
     Doctrine\Common\Annotations\Annotation,
     Doctrine\Common\Annotations\AnnotationRegistry,
@@ -14,6 +12,8 @@ use Doctrine\Common\EventManager,
 
 	Drest\Mapping\MetadataFactory,
 	Drest\Mapping\RouteMetaData,
+
+	Drest\ErrorHandler\AbstractHandler,
 
 	Drest\Request,
 	Drest\Query,
@@ -77,6 +77,12 @@ class Manager
 	 */
 	protected $service;
 
+	/**
+	 * Error handler object
+	 * @var Drest\ErrorHandler\AbstractHandler $error_handler
+	 */
+	protected $error_handler;
+
 
     /**
      * Creates an instance of the Drest Manager using the passed configuration object
@@ -134,7 +140,7 @@ class Manager
     {
     	foreach ($this->metadataFactory->getAllClassNames() as $class)
 		{
-            $classMetaData = $this->metadataFactory->getMetadataForClass($class);
+            $classMetaData = $this->getClassMetadata($class);
             foreach ($classMetaData->getRoutesMetaData() as $route)
             {
                 $this->router->registerRoute($route);
@@ -144,89 +150,92 @@ class Manager
 
     /**
      * Dispatch a REST request
-     * @param object $request - Framework request object
-     * @param object $response - Framework response object
+     * @param object $request 		- Framework request object
+     * @param object $response 		- Framework response object
+     * @param string $namedRoute 	- Define the named Route to be dispatch - by passes the internal router
+     * @param array $routeParams	- Route parameters to be used when dispatching a namedRoute request
      * @return Drest\Reponse $response return's a Drest response object which can be sent calling toString()
      */
-	public function dispatch($request = null, $response = null)
+	public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = array())
 	{
 	    $this->setRequest(Request::create($request));
 	    $this->setResponse(Response::create($response));
 	    try {
-	        return $this->execute();
+	        return $this->execute($namedRoute, $routeParams);
 	    } catch (\Exception $e)
 	    {
-	        // Check debug mode, if set on them rethrow the exception
+	        // Check debug mode, if set on then rethrow the exception
 	        if ($this->config->inDebugMode())
 	        {
 	            throw $e;
 	        }
-            return $this->systemError($e);
+	        return $this->handleError($e);
 	    }
 	}
 
 	/**
-	 * Called when an error occurs on dispatch and we're not in debug mode
-	 * Sets a general error response document
-	 * @todo: abstract this, it shouldn't be here
-	 * @param Exception $exception
+	 * Handle an error by passing the exception to the registered error handler
+	 * @param \Exception $e
+	 * @return Drest\Reponse $response
 	 */
-	private function systemError(\Exception $exception)
+	private function handleError(\Exception $e)
 	{
-        $response = $this->getResponse();
-        // @todo: standardise the error response, current defaults to the framework impl - return error in format (writer) requested
-        switch (get_class($exception))
+	    $eh = $this->getErrorHandler();
+	    $eh->setResponse($this->getResponse());
+	    $eh->error($e);
+
+        try {
+            $this->service->setWriter($this->getDeterminedWriter());
+        } catch (UnableToMatchWriterException $e)
         {
-            case 'Drest\Query\InvalidExposeFieldsException':
-                $response->setStatusCode(Response::STATUS_CODE_400);
-                $error_message = $exception->getMessage();
-                break;
-            case 'Drest\Route\NoMatchException':
-                $response->setStatusCode(Response::STATUS_CODE_404);
-                $error_message = $exception->getMessage();
-                break;
-            case 'Drest\Writer\UnableToMatchWriterException';
-                $response->setStatusCode(Response::STATUS_CODE_415);
-                $error_message = 'Requested media type is not supported';
-                break;
-            default:
-                // Drest\Route\MultipleRoutesException
-                $response->setStatusCode(Response::STATUS_CODE_500);
-                $error_message = 'An unknown error occured';
-                break;
+            $eh->error($e);
         }
 
-        $resultSet = ResultSet::create(array($error_message), 'errors');
+	    $this->service->renderDeterminedWriter($eh->getResultSet());
+	    return $this->response;
+	}
 
-        // Use a predetermined writer to generate the error output, else default to text
-        if ($this->service instanceof AbstractService &&
-            $this->service->getWriter() instanceof AbstractWriter)
-        {
-            $this->service->renderDeterminedWriter($resultSet);
-        } else
-        {
-            try {
-                $writer = $this->getDeterminedWriter();
-            } catch (\Exception $e) {
-                $writer = new \Drest\Writer\Text();
-            }
-            $response->setBody($writer->write($resultSet));
-            $response->setHttpHeader('Content-Type', $writer->getContentType());
-        }
 
-        return $response;
+	/**
+	 * Get a route based on Entity::route_name. eg Entities\User::get_users
+	 * Syntax checking is performed
+	 * @param string $name
+	 * @param array $params
+	 * @throws DrestException on invalid syntax or unmatched named route
+	 * @return Drest\Mapping\RouteMetaData $route
+	 */
+	protected function getNamedRoute($name, array $params = array())
+	{
+	    if (substr_count($name, '::') !== 1)
+	    {
+	        throw DrestException::invalidNamedRouteSyntax();
+	    }
+	    $parts = explode('::', $name);
+
+	    // Allow exception to bubble up
+	    $classMetaData = $this->getClassMetadata($parts[0]);
+	    if (($route = $classMetaData->getRoutesMetaData($parts[1])) === false)
+	    {
+            throw DrestException::unableToFindRouteByName($parts[1], $classMetaData->getClassName());
+	    }
+
+	    $route->setRouteParams($params);
+	    return $route;
 	}
 
 	/**
 	 * Execute a dispatched request
-     * @return Drest\Reponse $response return's a Drest response object which can be sent calling toString()
+     * @param string $namedRoute 		- Define the named Route to be dispatched - bypasses the internal router lookup
+     * @param array $routeParams		- Route parameters to be used for dispatching a namedRoute request
+     * @return Drest\Reponse $response 	- Returns a Drest response object which can be sent calling toString()
 	 */
-	protected function execute()
+	protected function execute($namedRoute = null, array $routeParams = array())
 	{
+
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
 		// @todo: tidy this up
 		try {
-            $route = $this->getMatchedRoute(true);
+            $route = (!is_null($namedRoute)) ? $this->getNamedRoute($namedRoute, $routeParams) : $this->getMatchedRoute(true);
 		} catch (\Exception $e)
 		{
 		    if ($e instanceof NoMatchException && $this->doOptionsCheck())
@@ -253,18 +262,12 @@ class Manager
         // Get the service class
         $this->service = $this->getService($route);
 
-        // Set the matched service object into the service class
+        // Set the matched service object and the error handler into the service class
         $this->service->setMatchedRoute($route);
+        $this->service->setErrorHandler($this->getErrorHandler());
 
-
-        try
-        {
-            // This method could either determine a default writer, or a throw 415 unsupported
-            $this->service->setWriter($this->getDeterminedWriter($route));
-        } catch (UnableToMatchWriterException $e)
-        {
-            return $this->systemError($e);
-        }
+        // Set the writer
+        $this->service->setWriter($this->getDeterminedWriter($route));
 
         // Set up the service for a new request
         if ($this->service->setupRequest())
@@ -450,6 +453,29 @@ class Manager
 	    $this->response = $response;
 	}
 
+	/**
+	 * Get the error handler object, if none has been injected use default from config
+	 * @return Drest\ErrorHandler\AbstractHandler $error_handler
+	 */
+	public function getErrorHandler()
+	{
+	    if (!$this->error_handler instanceof AbstractHandler)
+	    {
+	        // Force creation of an instance of the default error handler
+	        $className = $this->config->getDefaultErrorHandlerClass();
+	        $this->error_handler = new $className();
+	    }
+        return $this->error_handler;
+	}
+
+	/**
+	 * Set the error handler to use
+	 * @param Drest\ErrorHandler\AbstractHandler $error_handler
+	 */
+	public function setErrorHandler(AbstractHandler $error_handler)
+	{
+        $this->error_handler = $error_handler;
+	}
 
     /**
      * Get the service class for the matched route - provides default service class if none present

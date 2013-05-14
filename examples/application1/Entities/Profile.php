@@ -2,7 +2,7 @@
 namespace Entities;
 
 use Doctrine\ORM\Mapping as ORM;
-//use Drest\Mapping\Annotation as Drest;
+use Drest\Mapping\Annotation as Drest;
 // * @Drest\Resource(
 // * 		writers={"Xml", "Json"},
 // *      services={
@@ -16,6 +16,17 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Profile
+ *
+ *
+ * @Drest\Resource(
+ * 		writers={"Xml", "Json"},
+ *      routes={
+ *      	@Drest\Route(name="get_profile", route_pattern="/profile/:id", verbs={"GET"}, content="element"),
+ *          @Drest\Route(name="post_profile", route_pattern="/profile", verbs={"POST"}, content="element"),
+ *          @Drest\Route(name="get_profiles", route_pattern="/profiles", verbs={"GET"}, content="collection"),
+ *      }
+ * )
+ *
  *
  * @ORM\Table(name="profile")
  * @ORM\Entity

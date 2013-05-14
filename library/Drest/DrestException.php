@@ -127,6 +127,17 @@ class DrestException extends Exception
         return new self('The @Drest\Handle configuration MUST contain a valid / matching "for" value');
     }
 
+
+    public static function invalidNamedRouteSyntax()
+    {
+        return new self('Invalid named route syntax. Must use a formatted string of: {EntityClassName}::{RouteName}. Eg "Entities\\User::get_users"');
+    }
+
+    public static function unableToFindRouteByName($routeName, $className)
+    {
+        return new self('Unable to find the named route "' . $routeName . '" on class ' . $className);
+    }
+
     // Service Exceptions
     public static function serviceClassNotAnInstanceOfDrestService($class)
     {

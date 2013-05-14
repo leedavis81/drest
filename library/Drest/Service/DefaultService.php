@@ -3,6 +3,8 @@
 namespace Drest\Service;
 
 
+use Drest\Query\ResultSet;
+
 use Doctrine\ORM,
 	Drest\Response,
 	Drest\Request,
@@ -42,15 +44,9 @@ class DefaultService extends AbstractService
         try
         {
             $resultSet = $this->createResultSet($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
-        } catch (ORM\ORMException $e)
+        } catch (\Exception $e)
         {
-            if ($e instanceof ORM\NonUniqueResultException)
-            {
-                $this->response->setStatusCode(Response::STATUS_CODE_300);
-            } else
-            {
-                $this->response->setStatusCode(Response::STATUS_CODE_404);
-            }
+            $resultSet = $this->handleError($e, Response::STATUS_CODE_404);
         }
 
         $this->renderDeterminedWriter($resultSet);
@@ -75,23 +71,9 @@ class DefaultService extends AbstractService
         try
         {
             $resultSet = $this->createResultSet($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
-        } catch (ORM\ORMException $e)
+        } catch (\Exception $e)
         {
-            /*
-            ORM\NonUniqueResultException
-            ORM\NoResultException
-            ORM\OptimisticLockException
-            ORM\PessimisticLockException
-            ORM\TransactionRequiredException
-            ORM\UnexpectedResultException
-            */
-            if ($e instanceof ORM\NoResultException)
-            {
-                $this->response->setStatusCode(Response::STATUS_CODE_204);
-            } else
-            {
-                $this->response->setStatusCode(Response::STATUS_CODE_404);
-            }
+            $resultSet = $this->handleError($e, Response::STATUS_CODE_404);
         }
 
         $this->renderDeterminedWriter($resultSet);
@@ -116,12 +98,16 @@ class DefaultService extends AbstractService
         {
             $this->em->persist($object);
             $this->em->flush($object);
+
+            $this->response->setStatusCode(Response::STATUS_CODE_201);
+            $resultSet = ResultSet::create(array(), 'response');
         } catch (\Exception $e)
         {
-             return $this->response->setStatusCode(Response::STATUS_CODE_500);
+            $resultSet = $this->handleError($e, Response::STATUS_CODE_500);
         }
 
-        $this->response->setStatusCode(Response::STATUS_CODE_201);
+
+        $this->renderDeterminedWriter($resultSet);
 	}
 
 	public function postCollection()

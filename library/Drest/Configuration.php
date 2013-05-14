@@ -69,8 +69,9 @@ class Configuration
         $this->_attributes['routeBasePaths'] = array();
         // Dont send a 415 if we dont match a writer, default to first available writer
         $this->set415ForNoWriterMatch(false);
+        // Set the default error handler class (immutable)
+        $this->_attributes['defaultErrorHandlerClass'] = 'Drest\\ErrorHandler\\DefaultHandler';
     }
-
 
     /**
      * Set the debug mode - when on all DrestExceptions are rethrown, otherwise 500 errors are returned from the REST service
@@ -427,6 +428,15 @@ class Configuration
     public function setDefaultWriters(array $writers)
     {
         $this->_attributes['defaultWriters'] = $writers;
+    }
+
+    /**
+     * Get the default error handler class
+     * @return string $className
+     */
+    public function getDefaultErrorHandlerClass()
+    {
+        return $this->_attributes['defaultErrorHandlerClass'];
     }
 
     /**

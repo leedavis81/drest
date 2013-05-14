@@ -50,8 +50,7 @@ class RouteMetaData
 	protected $param_names_path = array();
 
 	/**
-	 * Key-value array of URL parameters populated after a match has been successful
-	 * - These can only be set upon a match
+	 * Key-value array of URL parameters populated after a match has been successful - or directly by using available setter
 	 * @var array $route_params
 	 */
 	protected $route_params;
@@ -60,7 +59,7 @@ class RouteMetaData
 	 * An index array of URL parameters that exist but didn't match a route pattern parameter
 	 * Eg: pattern: /user/:id+  with url: /user/1/some/additional/params. The value id => 1 will go into $route_params
 	 * All the rest will go in here.
-	 * @var array $route_params
+	 * @var array $unmapped_route_params
 	 */
 	protected $unmapped_route_params;
 
@@ -264,6 +263,18 @@ class RouteMetaData
 	    return $this->service_call_method;
 	}
 
+
+	/**
+	 * Inject route params onto this object without performing a match. Useful when calling a named route directly
+	 * @param array $params - should be an associative array. keyed values are ignored
+	 */
+	public function setRouteParams(array $params = array())
+	{
+	    $this->route_params = array_flip(array_filter(array_flip($params), function($entry){
+	        return !is_int($entry);
+	    }));
+	}
+
 	/**
 	 * Get any params that were set after a sucessful match
 	 * @return array $params
@@ -271,6 +282,17 @@ class RouteMetaData
 	public function getRouteParams()
 	{
         return (!empty($this->route_params)) ? $this->route_params : array();
+	}
+
+	/**
+	 * Inject unmapped route params onto this object without performing a match. Useful when calling a named route directly
+	 * @param array $params - should be a keyed array. associative values are ignored
+	 */
+	public function setUnmappedRouteParams(array $params = array())
+	{
+	    $this->unmapped_route_params = array_flip(array_filter(array_flip($params), function($entry){
+	        return !is_string($entry);
+	    }));
 	}
 
 	/**
@@ -355,6 +377,7 @@ class RouteMetaData
 	{
         return $this->allowed_option_request;
 	}
+
 
     /**
      * Does this request matches the route pattern
