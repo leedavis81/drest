@@ -32,6 +32,6 @@
     },    
     "bin": ["bin", "bin/drest.php"],
     "autoload": {
-        "psr-0": { "Drest": "library/", "DrestTest": "tests/"}
+        "psr-0": { "Drest": "src/", "DrestTest": "tests/"}
     }
 }
