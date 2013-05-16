@@ -5,14 +5,15 @@
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
+         verbose="true"
          processIsolation="false"
          stopOnFailure="false"
-         syntaxCheck="false"
-         bootstrap="./DrestTests/Bootstrap.php">
+         syntaxCheck="true"
+         bootstrap="./tests/DrestTests/Bootstrap.php">
 
     <testsuites>
         <testsuite name="Drest Test Suite">
-            <directory>./DrestTests</directory>
+            <directory>./tests/DrestTests</directory>
         </testsuite>
     </testsuites>
     

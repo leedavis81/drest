@@ -4,7 +4,6 @@
     "keywords": ["rest", "api", "doctrine2"],
     "license": "MIT",
     "type": "library",
-    "version": "0.0.1-dev",
     "authors": [
         {
             "name": "Lee Davis",
