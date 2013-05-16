@@ -12,10 +12,11 @@ matrix:
 before_script:
   - mkdir -p ~/.composer
   - echo '{"config":{"github-oauth":{"github.com":"6f880c1b17f63793e72497f9658853a33ba81136"}}}' > ~/.composer/config.json
+  - composer self-update
   - composer update --prefer-source --dev --no-interaction
 
 script: 
-  - ./vendor/bin/phpunit --coverage-clover ./build/logs/clover.xml
+  - vendor/bin/phpunit
 
 after_script:
   - php vendor/bin/coveralls -v

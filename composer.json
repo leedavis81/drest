@@ -24,7 +24,7 @@
         "doctrine/orm": ">= 2.3.3",
         "zendframework/zend-http": ">= 2.1.5",
         "symfony/http-foundation": "v2.2.1",
-        "satooshi/php-coveralls": "v0.6.1"
+        "satooshi/php-coveralls": "~0.6"
     },
     "suggest": {
         "symfony/yaml": "If you want to use YAML Metadata Mapping Driver",
