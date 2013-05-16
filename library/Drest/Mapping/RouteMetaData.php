@@ -76,10 +76,10 @@ class RouteMetaData
 	protected $verbs;
 
 	/**
-	 * Content type to be used. Can either be a single entity element, or a collection. Contains value of respective constant
-	 * @var integer $content_type
+	 * Whether get requests to this route should be exposed / handled as collections
+	 * @var boolean $collection
 	 */
-	protected $content_type;
+	protected $collection = false;
 
 	/**
 	 * The service call to be executed upon successful routing
@@ -179,28 +179,22 @@ class RouteMetaData
 		$this->name = $name;
 	}
 
+
 	/**
-	 * Get the content type to be used for this route
-	 * @return string $content_type
+	 * Whether requests to this route should be handled as collections
+	 * @param boolean $value
 	 */
-	public function getContentType()
+	public function setCollection($value = true)
 	{
-	    return $this->content_type;
+        $this->collection = (bool) $value;
 	}
 
 	/**
-	 * Sets the content type to be used for this route
-	 * @param string $content_type
-	 * @throws DrestException if content type is invalid
+	 * Should this route be handled as a collection
 	 */
-	public function setContentType($content_type)
+	public function isCollection()
 	{
-	    $constant = 'self::CONTENT_TYPE_' . strtoupper($content_type);
-        if (!defined($constant))
-        {
-            throw DrestException::unknownContentType($content_type);
-        }
-        $this->content_type = constant($constant);
+	    return (bool) $this->collection;
 	}
 
 	/**

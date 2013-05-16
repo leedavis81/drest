@@ -151,7 +151,7 @@ class AbstractService
                 break;
             default:
                 $functionName = strtolower($httpMethod);
-                $functionName .= ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()]));
+                $functionName .= ($this->matched_route->isCollection()) ? 'Collection' : 'Element';
                 break;
 	    }
 	    return $functionName;
@@ -302,27 +302,29 @@ class AbstractService
 	    $classMetaData = $this->matched_route->getClassMetaData();
 
 	    // Recursively remove any additionally added pk fields ($data must be a single record hierarchy. Iterate if we're getting a collection)
-	    switch ($this->matched_route->getContentType())
+	    if ($this->matched_route->isCollection())
 	    {
-	        case RouteMetaData::CONTENT_TYPE_ELEMENT:
-                $this->removeAddedKeyFields($this->addedKeyFields, $data);
-	            break;
-	        case RouteMetaData::CONTENT_TYPE_COLLECTION:
-                for ($x = 0; $x < sizeof($data); $x++)
-                {
-                    $this->removeAddedKeyFields($this->addedKeyFields, $data[$x]);
-                }
-	            break;
+            for ($x = 0; $x < sizeof($data); $x++)
+            {
+                $this->removeAddedKeyFields($this->addedKeyFields, $data[$x]);
+            }
+	    } else
+	    {
+	        $this->removeAddedKeyFields($this->addedKeyFields, $data);
 	    }
 
         if (is_null($keyName))
         {
-    	    $methodName = 'get' . ucfirst(strtolower(RouteMetaData::$contentTypes[$this->matched_route->getContentType()])) . 'Name';
-    	    if (!method_exists($classMetaData, $methodName))
-    	    {
-    	        throw DrestException::unknownContentType($this->matched_route->getContentType());
-    	    }
-    	    $keyName = $classMetaData->$methodName();
+	        reset($data);
+            if (sizeof($data) === 1 && is_string(key($data)))
+            {
+                // Use the single keyed array as the result set key
+                 $keyName = key($data);
+                 $data = $data[key($data)];
+            } else
+            {
+                $keyName = ($this->matched_route->isCollection()) ? $classMetaData->getCollectionName() : $classMetaData->getElementName();
+            }
         }
 
 	    return ResultSet::create($data, $keyName);

@@ -24,7 +24,8 @@
         "leedavis81/altr-ego": "v1.0.0",
         "doctrine/orm": ">= 2.3.3",
         "zendframework/zend-http": ">= 2.1.5",
-        "symfony/http-foundation": "v2.2.1"        
+        "symfony/http-foundation": "v2.2.1",
+        "satooshi/php-coveralls": "v0.6.1"
     },
     "suggest": {
         "symfony/yaml": "If you want to use YAML Metadata Mapping Driver",

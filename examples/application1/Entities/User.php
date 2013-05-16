@@ -18,14 +18,15 @@ use Doctrine\ORM\Mapping as ORM;
  *      routes={
  *      	@Drest\Route(
  *      		name="get_user",
- *      		route_pattern="/user/:id+",
- *      		route_conditions={"id": "\d+"},
- *      		verbs={"GET"},
- *      		content="element"
+ *      		routePattern="/user/:id",
+ *      		routeConditions={"id": "\d+"},
+ *      		verbs={"GET"}
  *      	),
- *          @Drest\Route(name="post_user", route_pattern="/user", verbs={"POST"}, content="element"),
- *          @Drest\Route(name="update_user", route_pattern="/user/:id+", route_conditions={"id": "\d+"}, verbs={"PUT"}, content="element"),
- *          @Drest\Route(name="get_users", route_pattern="/users", verbs={"GET"}, content="collection")
+ *      	@Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
+ *      	@Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),
+ *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}),
+ *          @Drest\Route(name="update_user", routePattern="/user/:id+", routeConditions={"id": "\d+"}, verbs={"PUT"}),
+ *          @Drest\Route(name="get_users", routePattern="/users", verbs={"GET"}, collection=true)
  *      }
  * )
  *

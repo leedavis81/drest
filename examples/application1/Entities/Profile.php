@@ -21,9 +21,9 @@ use Drest\Mapping\Annotation as Drest;
  * @Drest\Resource(
  * 		writers={"Xml", "Json"},
  *      routes={
- *      	@Drest\Route(name="get_profile", route_pattern="/profile/:id", verbs={"GET"}, content="element"),
- *          @Drest\Route(name="post_profile", route_pattern="/profile", verbs={"POST"}, content="element"),
- *          @Drest\Route(name="get_profiles", route_pattern="/profiles", verbs={"GET"}, content="collection"),
+ *      	@Drest\Route(name="get_profile", routePattern="/profile/:id", verbs={"GET"}, content="element"),
+ *          @Drest\Route(name="post_profile", routePattern="/profile", verbs={"POST"}, content="element"),
+ *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, content="collection"),
  *      }
  * )
  *

@@ -217,16 +217,18 @@ class AnnotationDriver implements DriverInterface
         	            $routeMetaData->setVerbs($route->verbs);
         	        }
 
-        	        // Set content type (will throw if invalid)
-        	        $routeMetaData->setContentType($route->content);
+        	        if (isset($route->collection))
+        	        {
+        	            $routeMetaData->setCollection($route->collection);
+        	        }
 
         	        // Add the route
         	        /** @todo: run validation checks on route syntax? */
-        	        $routeMetaData->setRoutePattern($route->route_pattern);
+        	        $routeMetaData->setRoutePattern($route->routePattern);
 
-        	        if (is_array($route->route_conditions))
+        	        if (is_array($route->routeConditions))
         	        {
-                        $routeMetaData->setRouteConditions($route->route_conditions);
+                        $routeMetaData->setRouteConditions($route->routeConditions);
         	        }
 
         	        // Set the exposure array
@@ -236,15 +238,15 @@ class AnnotationDriver implements DriverInterface
         	        }
 
         	        // Set the allow options value
-        	        if (isset($route->allow_options))
+        	        if (isset($route->allowOptions))
         	        {
-        	            $routeMetaData->setAllowedOptionRequest($route->allow_options);
+        	            $routeMetaData->setAllowedOptionRequest($route->allowOptions);
         	        }
 
         	        // Add service call method
-        	        if (is_array($route->service_call))
+        	        if (is_array($route->serviceCall))
         	        {
-        	            $routeMetaData->setServiceCall($route->service_call);
+        	            $routeMetaData->setServiceCall($route->serviceCall);
         	        }
 
                     $metadata->addRouteMetaData($routeMetaData);

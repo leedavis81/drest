@@ -16,13 +16,13 @@ final class Route
     public $content;
 
     /** @var string */
-    public $route_pattern;
+    public $routePattern;
 
     /** @var array */
-    public $route_conditions;
+    public $routeConditions;
 
     /** @var array */
-    public $service_call;
+    public $serviceCall;
 
     /** @var array */
     public $verbs;
@@ -31,5 +31,8 @@ final class Route
     public $expose;
 
     /** @var boolean */
-    public $allow_options;
+    public $allowOptions;
+
+    /** @var boolean */
+    public $collection;
 }

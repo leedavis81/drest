@@ -100,12 +100,12 @@ class DefaultService extends AbstractService
             $this->em->flush($object);
 
             $this->response->setStatusCode(Response::STATUS_CODE_201);
+            //@todo: send "created" links etc to the "representation" class
             $resultSet = ResultSet::create(array(), 'response');
         } catch (\Exception $e)
         {
             $resultSet = $this->handleError($e, Response::STATUS_CODE_500);
         }
-
 
         $this->renderDeterminedWriter($resultSet);
 	}
