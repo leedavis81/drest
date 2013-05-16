@@ -14,4 +14,4 @@ before_script:
   - echo '{"config":{"github-oauth":{"github.com":"6f880c1b17f63793e72497f9658853a33ba81136"}}}' > ~/.composer/config.json
   - composer install --dev --no-interaction
 
-script: phpunit --configuration tests/phpunit.xml
+script: phpunit --configuration tests/phpunit.xml --coverage-clover ./build/logs/clover.xml
