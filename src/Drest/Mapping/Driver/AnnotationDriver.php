@@ -193,7 +193,7 @@ class AnnotationDriver implements DriverInterface
         	        throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($class->name);
         	    }
 
-        	    $metadata->addWriters($annotatedObject->writers);
+        	    $metadata->addRepresentations($annotatedObject->representations);
 
         	    foreach ($annotatedObject->routes as $route)
         	    {

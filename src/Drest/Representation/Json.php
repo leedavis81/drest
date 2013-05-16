@@ -1,19 +1,22 @@
 <?php
-
-namespace Drest\Writer;
+namespace Drest\Representation;
 
 use Drest\DrestException,
     Drest\Query\ResultSet;
 
-class Json extends AbstractWriter
+/**
+ *
+ * Server implementation of the JSON representation
+ * @author Lee
+ *
+ */
+class Json extends AbstractRepresentation
 {
-
 	/**
-	 * @see Drest\Writer\Writer::write()
+	 * @see Drest\Representation\InterfaceRepresentation::write()
 	 */
 	public function write(ResultSet $data)
 	{
-        //This abstraction all seems a little pointless considering..
         return json_encode($data->toArray());
 	}
 

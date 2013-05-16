@@ -9,7 +9,7 @@ namespace Drest\Mapping;
  *
  */
 use Drest\DrestException,
-    Drest\Writer\WriterException;
+    Drest\Representation\RepresentationException;
 
 class ClassMetaData implements \Serializable
 {
@@ -21,10 +21,10 @@ class ClassMetaData implements \Serializable
 	protected $routes = array();
 
 	/**
-	 * An array of Drest\Writer\InterfaceWriter object defined on this entity
-	 * @var array $writers
+	 * An array of Drest\Representation\AbstractRepresentation object defined on this entity
+	 * @var array $representations
 	 */
-	protected $writers = array();
+	protected $representations = array();
 
 	/**
 	 * Name of the class that we collected metadata for (eg Entities\User)
@@ -92,46 +92,46 @@ class ClassMetaData implements \Serializable
 	}
 
 	/**
-	 * Add an array of writers
-	 * @param array $writers
+	 * Add an array of representations
+	 * @param array $representations
 	 */
-	public function addWriters(array $writers)
+	public function addRepresentations(array $representations)
 	{
-	    foreach ($writers as $writer)
+	    foreach ($representations as $representation)
 	    {
-	        $this->addWriter($writer);
+	        $this->addRepresentation($representation);
 	    }
 	}
 
 	/**
-	 * Set a writer instance to be used on this resource
-	 * @param object|string $writer - can be either an instance of Drest\Writer\InterfaceWriter of a string (shorthand allowed - Json / Xml) referencing the class.
+	 * Set a representation instance to be used on this resource
+	 * @param object|string $representation - can be either an instance of Drest\Representation\AbstractRepresentation or a string (shorthand allowed - Json / Xml) referencing the class.
 	 */
-	public function addWriter($writer)
+	public function addRepresentation($representation)
 	{
-		if (is_object($writer))
+		if (is_object($representation))
 		{
-			if (!$writer instanceof \Drest\Writer\InterfaceWriter)
+			if (!$representation instanceof \Drest\Representation\AbstractRepresentation)
 			{
-				throw WriterException::unknownWriterClass(get_class($writer));
+				throw RepresentationException::unknownRepresentationClass(get_class($representation));
 			}
-			$this->writers[] = $writer;
-		} elseif(is_string($writer))
+			$this->representations[] = $representation;
+		} elseif(is_string($representation))
 		{
-		    $this->writers[] = $writer;
+		    $this->representations[] = $representation;
 		} else
 		{
-		    throw WriterException::writerMustBeObjectOrString();
+		    throw RepresentationException::representationMustBeObjectOrString();
 		}
 	}
 
 	/**
-	 * Get the writers available on this resource
-	 * @return array writers can be strings or an already instantiated object
+	 * Get the representations available on this resource
+	 * @return array representations can be strings or an already instantiated object
 	 */
-	public function getWriters()
+	public function getRepresentations()
 	{
-	    return $this->writers;
+	    return $this->representations;
 	}
 
 	/**
@@ -184,7 +184,7 @@ class ClassMetaData implements \Serializable
     {
         return serialize(array(
             $this->routes,
-            $this->writers,
+            $this->representations,
             $this->className,
             $this->filePath,
             $this->createdAt
@@ -198,7 +198,7 @@ class ClassMetaData implements \Serializable
     {
         list(
             $this->routes,
-            $this->writers,
+            $this->representations,
             $this->className,
             $this->filePath,
             $this->createdAt

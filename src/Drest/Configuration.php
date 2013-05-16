@@ -53,8 +53,8 @@ class Configuration
         $this->setDetectContentOptions(array(
             self::DETECT_CONTENT_HEADER => 'Accept'
         ));
-        // Use Json and XML as the default writers
-        $this->setDefaultWriters(array('Json', 'Xml'));
+        // Use Json and XML as the default representations
+        $this->setDefaultRepresentations(array('Json', 'Xml'));
         // Default service class to be used
         $this->setDefaultServiceClass('Drest\Service\DefaultService');
         // Depth of exposure on entity fields => relations
@@ -67,8 +67,8 @@ class Configuration
         $this->setAllowOptionsRequest(true);
         // Set the route base paths to be an empty array
         $this->_attributes['routeBasePaths'] = array();
-        // Dont send a 415 if we dont match a writer, default to first available writer
-        $this->set415ForNoWriterMatch(false);
+        // Dont send a 415 if we dont match a representation class, default to first available one
+        $this->set415ForNoMediaMatch(false);
         // Set the default error handler class (immutable)
         $this->_attributes['defaultErrorHandlerClass'] = 'Drest\\ErrorHandler\\DefaultHandler';
     }
@@ -166,23 +166,22 @@ class Configuration
     }
 
     /**
-     *
      * When no content type is detected, the response will default to using the first available.
      * To switch this feature off and send a 415 error, call this configuration function
      * @param boolean $value
      */
-    public function set415ForNoWriterMatch($value = true)
+    public function set415ForNoMediaMatch($value = true)
     {
-        $this->_attributes['send415ForNoWriterMatch'] = $value;
+        $this->_attributes['send415ForNoMediaMatch'] = $value;
     }
 
     /**
-     * Get the 415 for no writer match setting
+     * Get the 415 for no representation match setting
      * @return boolean $value
      */
-    public function get415ForNoWriterMatchSetting()
+    public function get415ForNoMediaMatchSetting()
     {
-        return $this->_attributes['send415ForNoWriterMatch'];
+        return $this->_attributes['send415ForNoMediaMatch'];
     }
 
     /**
@@ -413,21 +412,21 @@ class Configuration
     }
 
     /**
-     * Get the default writer classes to be used across the entire API
-     * @return array writer classes
+     * Get the default representation classes to be used across the entire API
+     * @return array representation classes
      */
-    public function getDefaultWriters()
+    public function getDefaultRepresentations()
     {
-        return $this->_attributes['defaultWriters'];
+        return $this->_attributes['defaultRepresentations'];
     }
 
     /**
-     * Set the default writers to be used across the entire API. Any writers defined locally on a resource will take presedence
-     * @param array $writers
+     * Set the default representation classes to be used across the entire API. Any representations defined locally on a resource will take presedence
+     * @param array $representations
      */
-    public function setDefaultWriters(array $writers)
+    public function setDefaultRepresentations(array $representations)
     {
-        $this->_attributes['defaultWriters'] = $writers;
+        $this->_attributes['defaultRepresentations'] = $representations;
     }
 
     /**

@@ -4,7 +4,7 @@ namespace DrestTests\Entities;
 use Doctrine\ORM\Mapping as ORM;
 //use Drest\Mapping\Annotation as Drest;
 // * @Drest\Resource(
-// * 		writers={"Xml", "Json"},
+// * 		representations={"Xml", "Json"},
 // *      services={
 // *      	@Drest\Service(name="get_profile", route_pattern="/profile/:id", verbs={"GET"}, repository_method="getProfile", content="element"),
 // *          @Drest\Service(name="post_profile", route_pattern="/profile", verbs={"POST"}, repository_method="addProfile", content="element"),

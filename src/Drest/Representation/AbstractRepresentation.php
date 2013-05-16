@@ -1,11 +1,11 @@
 <?php
-namespace Drest\Writer;
+namespace Drest\Representation;
 
 use Drest\Mapping\RouteMetaData,
     Drest\Configuration,
     Drest\Request;
 
-abstract class AbstractWriter implements InterfaceWriter
+abstract class AbstractRepresentation implements InterfaceRepresentation
 {
 
     /**

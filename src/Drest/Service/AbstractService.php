@@ -4,7 +4,7 @@ namespace Drest\Service;
 
 use Doctrine\ORM\EntityManager,
 	Drest\DrestException,
-	Drest\Writer,
+	Drest\Representation,
 	Drest\Request,
 	Drest\Manager,
 	Drest\Query\ResultSet,
@@ -45,10 +45,10 @@ class AbstractService
 	protected $matched_route;
 
 	/**
-	 * A writer instance determined either from configuration or client media accept type - can be null if none matched
-	 * @var Drest\Writer\AbstractWriter $writer
+	 * A representation instance determined either from configuration or client media accept type - can be null if none matched
+	 * @var Drest\Representation\AbstractRepresentation $representation
 	 */
-	protected $writer;
+	protected $representation;
 
 	/**
 	 * The error handler instance
@@ -97,7 +97,7 @@ class AbstractService
 	    $expose = $this->matched_route->getExpose();
         if ($this->request->getHttpMethod() == Request::METHOD_GET && (empty($expose) || (sizeof($expose) == 1 && empty($expose[0]))))
         {
-            $this->renderDeterminedWriter($this->createResultSet(array()));
+            $this->renderDeterminedRepresentation($this->createResultSet(array()));
             return false;
         }
 
@@ -177,21 +177,21 @@ class AbstractService
 	}
 
 	/**
-	 * Set any predetermined writer instance
-	 * @param Writer\AbstractWriter $writer
+	 * Set any predetermined representation instance
+	 * @param Representation\AbstractRepresentation $representation
 	 */
-	public function setWriter(Writer\AbstractWriter $writer)
+	public function setRepresentation(Representation\AbstractRepresentation $representation)
 	{
-	    $this->writer = $writer;
+	    $this->representation = $representation;
 	}
 
 	/**
-	 * Get the predetermined writer
-	 * @param Writer\AbstractWriter $writer
+	 * Get the predetermined representation
+	 * @param Representation\AbstractRepresentation $representation
 	 */
-	public function getWriter()
+	public function getRepresentation()
 	{
-	    return $this->writer;
+	    return $this->representation;
 	}
 
 	/**
@@ -377,18 +377,18 @@ class AbstractService
 	}
 
 	/**
-	 * Write out as result set on the writer object that was determined - if no writer has been determined - defaults to text
+	 * Write out as result set on the representation object that was determined - if no representation has been determined - defaults to text
 	 * @param Drest\Query\ResultSet $resultSet
 	 */
-	public function renderDeterminedWriter(ResultSet $resultSet)
+	public function renderDeterminedRepresentation(ResultSet $resultSet)
 	{
-        if (is_null($this->writer))
+        if (is_null($this->representation))
         {
-            $this->writer = new \Drest\Writer\Text();
+            $this->representation = new \Drest\Representation\Text();
         }
 
-        $this->response->setBody($this->writer->write($resultSet));
-        $this->response->setHttpHeader('Content-Type', $this->writer->getContentType());
+        $this->response->setBody($this->representation->write($resultSet));
+        $this->response->setHttpHeader('Content-Type', $this->representation->getContentType());
 	}
 
 }

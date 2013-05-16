@@ -18,9 +18,11 @@ use Doctrine\Common\EventManager,
 	Drest\Request,
 	Drest\Query,
 	Drest\Service\AbstractService,
-	Drest\Writer\AbstractWriter,
-	Drest\Writer\WriterException,
-	Drest\Writer\UnableToMatchWriterException,
+
+	Drest\Representation\AbstractRepresentation,
+	Drest\Representation\RepresentationException,
+	Drest\Representation\UnableToMatchRepresentationException,
+
 	Drest\DrestException,
 	Drest\Route\MultipleRoutesException,
 	Drest\Route\NoMatchException;
@@ -185,13 +187,13 @@ class Manager
 	    $eh->error($e);
 
         try {
-            $this->service->setWriter($this->getDeterminedWriter());
-        } catch (UnableToMatchWriterException $e)
+            $this->service->setRepresentation($this->getDeterminedRepresentation());
+        } catch (UnableToMatchRepresentationException $e)
         {
             $eh->error($e);
         }
 
-	    $this->service->renderDeterminedWriter($eh->getResultSet());
+	    $this->service->renderDeterminedRepresentation($eh->getResultSet());
 	    return $this->response;
 	}
 
@@ -266,8 +268,8 @@ class Manager
         $this->service->setMatchedRoute($route);
         $this->service->setErrorHandler($this->getErrorHandler());
 
-        // Set the writer
-        $this->service->setWriter($this->getDeterminedWriter($route));
+        // Set the representation
+        $this->service->setRepresentation($this->getDeterminedRepresentation($route));
 
         // Set up the service for a new request
         if ($this->service->setupRequest())
@@ -313,59 +315,58 @@ class Manager
         return true;
 	}
 
-
 	/**
-	 * Detect an instance of a writer class using a matched route, or default writer classes
+	 * Detect an instance of a representation class using a matched route, or default representation classes
 	 * @param Mapping\RouteMetaData $route
-	 * @return Drest\Writer\AbstractWriter $writer
-	 * @throw WriterException of unable to instantiate a write from config settings
+	 * @return Drest\Representation\AbstractRepresentation $representation
+	 * @throw RepresentationException if unable to instantiate a representation object from config settings
 	 */
-	protected function getDeterminedWriter(Mapping\RouteMetaData $route = null)
+	protected function getDeterminedRepresentation(Mapping\RouteMetaData $route = null)
 	{
-	    $writers = (!is_null($route)) ? $route->getClassMetaData()->getWriters() : $this->config->getDefaultWriters();
-        if (empty($writers))
+	    $representations = (!is_null($route)) ? $route->getClassMetaData()->getRepresentations() : $this->config->getDefaultRepresentations();
+        if (empty($representations))
 	    {
-	        throw WriterException::noWritersSetForRoute($route);
+	        throw RepresentationException::noRepresentationsSetForRoute($route);
         }
 
-        $writerObjects = array();
-	    foreach ($writers as $writer)
+        $representationObjects = array();
+	    foreach ($representations as $representation)
 	    {
-	        if (!is_object($writer))
+	        if (!is_object($representation))
 	        {
 	            // Check if the class is namespaced, if so instantiate from root
-	            $className = (strstr($writer, '\\') !== false) ? '\\' . ltrim($writer, '\\') : $writer;
-                $className = (!class_exists($className)) ? '\\Drest\\Writer\\' . ltrim($className, '\\') : $className;
+	            $className = (strstr($representation, '\\') !== false) ? '\\' . ltrim($representation, '\\') : $representation;
+                $className = (!class_exists($className)) ? '\\Drest\\Representation\\' . ltrim($className, '\\') : $className;
 	            if (!class_exists($className))
 	            {
-	                throw WriterException::unknownWriterClass($writer);
+	                throw RepresentationException::unknownRepresentationClass($representation);
 	            }
-	            $writerObjects[] = $writer = new $className();
+	            $representationObjects[] = $representation = new $className();
 	        }
-	        if (!$writer instanceof Writer\AbstractWriter)
+	        if (!$representation instanceof AbstractRepresentation)
 	        {
-	            throw WriterException::writerMustBeInstanceOfDrestWriter();
+	            throw RepresentationException::representationMustBeInstanceOfDrestRepresentation();
 	        }
 
-	        // This writer matches the required media type requested by the client
-            if ($writer->isExpectedContent($this->config->getDetectContentOptions(), $this->request))
+	        // This representation matches the required media type requested by the client
+            if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request))
             {
-                return $writer;
+                return $representation;
             }
 	    }
 
 	    // If we don't match the requested media type, throw a not supported error
-	    if (!$this->config->get415ForNoWriterMatchSetting())
+	    if (!$this->config->get415ForNoMediaMatchSetting())
 	    {
-    	    // Return the first instantiated writer instance
-    	    if (isset($writerObjects[0]))
+    	    // Return the first instantiated representation instance
+    	    if (isset($representationObjects[0]))
     	    {
-    	        return $writerObjects[0];
+    	        return $representationObjects[0];
     	    }
 	    }
 
-		// We have no writer instances from either annotations or config object
-        throw \Drest\Writer\UnableToMatchWriterException::noMatch();
+		// We have no representation instances from either annotations or config object
+		throw \Drest\Representation\UnableToMatchRepresentationException::noMatch();
 	}
 
 

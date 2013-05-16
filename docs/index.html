@@ -37,14 +37,14 @@ $config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose
 // Also you can set a specific maximum depth you want to expose - (uses doctrines relations)
 $config->setExposureDepth(3);</pre>
 <br>
-<h4>Comes with JSON and XML response writers with the ability easily create and use your own.</h4>
+<h4>Comes with JSON and XML representations with the ability easily create and use your own.</h4>
 <pre>
-// Set the default writers to be used
-$config->setDefaultWriters(array('Json', 'Xml'));
+// Set the default representations to be used
+$config->setDefaultRepresentations(array('Json', 'Xml'));
 
-// Or only allow certain writers per resource
+// Or only allow certain representations per resource
  @Drest\Resource(
-    writers={"Json"}
+    representations={"Json"}
     .....
 )</pre>
 <br>
@@ -84,12 +84,12 @@ class MyService extends Drest\Service\AbstractService
 {
     /**
      * From here you'll have access to the following objects:
-     * @var \Doctrine\ORM\EntityManager     $em         - Doctrine Entity Manager
-     * @var \Drest\Manager                  $dm         - Drest Manager
-     * @var \Drest\Request                  $request    - Drest Request Object
-     * @var \Drest\Response                 $response   - Drest Response Object
-     * @var \Drest\Mapping\RouteMetaData    $route      - The mathced route
-     * @var \Drest\Writer\AbstractWriter    $writer     - The pre-determined media writer
+     * @var \Doctrine\ORM\EntityManager                     $em                 - Doctrine Entity Manager
+     * @var \Drest\Manager                                  $dm                 - Drest Manager
+     * @var \Drest\Request                                  $request            - Drest Request Object
+     * @var \Drest\Response                                 $response           - Drest Response Object
+     * @var \Drest\Mapping\RouteMetaData                    $route              - The mathced route
+     * @var \Drest\Representation\AbstractRepresentation    $representation     - The pre-determined media representation
      */
     public function myMethod()
     {

@@ -1,5 +1,4 @@
 <?php
-use DrestTests\Writer\WriterTestCase;
 use Drest\Configuration;
 
 

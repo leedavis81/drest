@@ -1,15 +1,14 @@
 <?php
 
-namespace Drest\Writer;
+namespace Drest\Representation;
 
 use Drest\DrestException,
     Drest\Query\ResultSet;
 
-class Text extends AbstractWriter
+class Text extends AbstractRepresentation
 {
-
 	/**
-	 * @see Drest\Writer\Writer::write()
+	 * @see Drest\Representation\InterfaceRepresentation::write()
 	 */
 	public function write(ResultSet $data)
 	{

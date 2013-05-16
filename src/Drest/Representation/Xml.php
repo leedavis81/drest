@@ -1,6 +1,6 @@
 <?php
 
-namespace Drest\Writer;
+namespace Drest\Representation;
 
 use Drest\DrestException,
     Drest\Query\ResultSet;
@@ -9,7 +9,7 @@ use Drest\DrestException,
  * XML Conversion inspired from http://www.lalit.org/lab/convert-php-array-to-xml-with-attributes
  * @author Lee
  */
-class Xml extends AbstractWriter
+class Xml extends AbstractRepresentation
 {
 
     /**

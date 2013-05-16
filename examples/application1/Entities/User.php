@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User
  * @Drest\Resource(
- * 		writers={"Json", "Xml"},
+ * 		representations={"Json", "Xml"},
  *      routes={
  *      	@Drest\Route(
  *      		name="get_user",

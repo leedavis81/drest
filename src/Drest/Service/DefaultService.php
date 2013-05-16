@@ -49,7 +49,7 @@ class DefaultService extends AbstractService
             $resultSet = $this->handleError($e, Response::STATUS_CODE_404);
         }
 
-        $this->renderDeterminedWriter($resultSet);
+        $this->renderDeterminedRepresentation($resultSet);
 	}
 
 	public function getCollection()
@@ -76,7 +76,7 @@ class DefaultService extends AbstractService
             $resultSet = $this->handleError($e, Response::STATUS_CODE_404);
         }
 
-        $this->renderDeterminedWriter($resultSet);
+        $this->renderDeterminedRepresentation($resultSet);
 	}
 
 
@@ -107,7 +107,7 @@ class DefaultService extends AbstractService
             $resultSet = $this->handleError($e, Response::STATUS_CODE_500);
         }
 
-        $this->renderDeterminedWriter($resultSet);
+        $this->renderDeterminedRepresentation($resultSet);
 	}
 
 	public function postCollection()

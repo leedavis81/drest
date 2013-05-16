@@ -13,7 +13,7 @@ class User extends AbstractService
     {
         $resultSet = ResultSet::create(array('title' => 'mr', 'name' => 'lee', 'email' => 'sdfsdf@sdfsdf.com'), 'user');
 
-        $this->renderDeterminedWriter($resultSet);
+        $this->renderDeterminedRepresentation($resultSet);
     }
 
     public function postMyElement()

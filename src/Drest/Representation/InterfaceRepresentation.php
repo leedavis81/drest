@@ -1,13 +1,12 @@
 <?php
-namespace Drest\Writer;
+namespace Drest\Representation;
 
 use Drest\Mapping\RouteMetaData,
     Drest\Query\ResultSet,
     Drest\Request;
 
-interface InterfaceWriter
+interface InterfaceRepresentation
 {
-
 	/**
 	 * Write the data out in the required format
 	 * @param Drest\Query\ResultSet $data - The data to be passed into the writer
@@ -46,4 +45,5 @@ interface InterfaceWriter
 	 * @return array
 	 */
 	public function getMatchableFormatParams();
+
 }

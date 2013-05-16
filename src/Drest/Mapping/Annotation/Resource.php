@@ -13,5 +13,5 @@ final class Resource
     public $routes;
 
     /** @var array */
-    public $writers;
+    public $representations;
 }
