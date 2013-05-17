@@ -16,7 +16,10 @@
         "php": ">=5.3.3",
         "doctrine/annotations": "v1.1.1",
         "doctrine/cache": "v1.0",
-        "symfony/console": "v2.2.1"
+        "symfony/console": "v2.2.1",
+
+        "guzzle/guzzle": "v3.5.0",
+        "zendframework/zend-code": "2.2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
