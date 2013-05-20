@@ -1,6 +1,7 @@
 <?php
 namespace Drest\Client\Representation;
 
+// This is to be merged with the server side representation class
 class Json extends AbstractRepresentation
 {
 

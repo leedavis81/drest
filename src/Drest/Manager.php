@@ -240,7 +240,7 @@ class Manager
             $route = (!is_null($namedRoute)) ? $this->getNamedRoute($namedRoute, $routeParams) : $this->getMatchedRoute(true);
 		} catch (\Exception $e)
 		{
-		    if ($e instanceof NoMatchException && $this->doOptionsCheck())
+		    if ($e instanceof NoMatchException && ($this->doCGOptionsCheck() || $this->doOptionsCheck()))
 		    {
                 return $this->getResponse();
 		    }
@@ -282,13 +282,41 @@ class Manager
 
 
 	/**
+	 * Check if the client has requested the CG classes with an OPTIONS call
+	 */
+	protected function doCGOptionsCheck()
+	{
+        if ($this->request->getHttpMethod() != Request::METHOD_OPTIONS)
+	    {
+	        return false;
+	    }
+
+	    // Check cg_class header param
+	    // @todo: use a constant for the header name, and it's potential values
+	    $cgClasses = $this->request->getHeaders('drest-cg');
+	    if (empty($cgClasses))
+	    {
+	        return false;
+	    }
+
+	    if ($cgClasses === '*')
+	    {
+            // Provide class information for ALL routes
+	    } elseif ($cgClasses === 'route')
+	    {
+	        // Provide class information for only a specific route
+	    }
+
+	    return true;
+	}
+
+	/**
 	 * No match on route has occured. Check the HTTP verb used for an options response
 	 * Returns true if it is, and option information was successfully written to the reponse object
 	 * @return boolean $success
 	 */
 	protected function doOptionsCheck()
 	{
-	    // Is this an OPTIONS request
 	    if ($this->request->getHttpMethod() != Request::METHOD_OPTIONS)
 	    {
 	        return false;

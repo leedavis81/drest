@@ -11,13 +11,7 @@ use Drest\DrestException;
 
 class RouteMetaData
 {
-	const CONTENT_TYPE_ELEMENT = 1;
-	const CONTENT_TYPE_COLLECTION = 2;
 
-	public static $contentTypes = array(
-	    self::CONTENT_TYPE_ELEMENT => 'Element',
-	    self::CONTENT_TYPE_COLLECTION => 'Collection'
-	);
 
 	/**
 	 * This route objects parent
