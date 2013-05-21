@@ -27,10 +27,8 @@ $drestConfig = new Drest\Configuration();
 $drestManager = new Drest\Manager();
 
 
-
-
 $helperSet =  new \Symfony\Component\Console\Helper\HelperSet(array(
-		'dm' => new \Drest\Tools\Console\Helper\DrestManagerHelper($dm),
+		'dm' => new \Drest\Tools\Console\Helper\DrestManagerHelper($drestManager),
         'dialog' => new \Symfony\Component\Console\Helper\DialogHelper(),
         'formatter' => new \Symfony\Component\Console\Helper\FormatterHelper()
 ));

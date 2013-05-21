@@ -286,27 +286,35 @@ class Manager
 	 */
 	protected function doCGOptionsCheck()
 	{
-        if ($this->request->getHttpMethod() != Request::METHOD_OPTIONS)
+	    $genClasses = $this->request->getHeaders(ClassGenerator::HEADER_PARAM);
+        if ($this->request->getHttpMethod() != Request::METHOD_OPTIONS || empty($genClasses))
 	    {
 	        return false;
 	    }
 
-	    // Check cg_class header param
-	    // @todo: use a constant for the header name, and it's potential values
-	    $cgClasses = $this->request->getHeaders('drest-cg');
-	    if (empty($cgClasses))
+	    $classGenerator = new \Drest\ClassGenerator($this->em);
+
+	    $classMetaDatas = array();
+	    if (!empty($genClasses))
 	    {
-	        return false;
+            foreach ($this->metadataFactory->getAllClassNames() as $className)
+	        {
+	            $metaData = $this->getClassMetadata($className);
+                foreach ($metaData->getRoutesMetaData() as $route)
+                {
+    	            $route = $route->setExpose(
+                        Query\ExposeFields::create($route)
+                        ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+                        ->toArray()
+                    );
+                }
+                $classMetaDatas[] = $metaData;
+	        }
 	    }
 
-	    if ($cgClasses === '*')
-	    {
-            // Provide class information for ALL routes
-	    } elseif ($cgClasses === 'route')
-	    {
-	        // Provide class information for only a specific route
-	    }
+	    $classGenerator->create($classMetaDatas);
 
+	    $this->response->setBody($classGenerator->serialize());
 	    return true;
 	}
 

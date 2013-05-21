@@ -17,7 +17,7 @@ class Json extends AbstractRepresentation
 	 */
 	public function write(ResultSet $data)
 	{
-        return json_encode($data->toArray());
+	    $this->data = json_encode($data->toArray());
 	}
 
     /**

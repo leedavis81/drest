@@ -3,7 +3,8 @@ namespace Drest;
 
 
 use Guzzle\Http\Client as GuzzleClient,
-    Drest\Client\InterfaceClient;
+    Drest\Representation\AbstractRepresentation,
+    Drest\Representation\RepresentationException;
 
 class Client
 {
@@ -15,31 +16,45 @@ class Client
     protected $transport;
 
     /**
-     * The data representation to use
-     * @var Drest\Client\Representation\AbstractRepresentation $representation
+     * The data representation class to used when loading data
+     * @var string $representationClass
      */
-    protected $representation;
+    protected $representationClass;
 
 
     /**
      * Client constructor
-     * @param string           										$endpoint The rest endpoint to be used
-     * @param Drest\Client\Representation\AbstractRepresentation	$representation the data representation to use
+     * @param string	$endpoint The rest endpoint to be used
+     * @param mixed		$representation the data representation to use - can be a string or a class
      */
-    public function __construct($endpoint, Drest\Client\Representation\AbstractRepresentation $representation)
+    public function __construct($endpoint, $representation)
     {
-        if (!is_string($endpoint))
+        if (($endpoint = filter_var($endpoint, FILTER_VALIDATE_URL)) === false)
         {
-            // throw an error
+             // @todo: throw exception:  Invalid URL endpoint used
         }
 
-        // The representation type is injected into any object that's pulled through get
-        $this->representation = $representation;
-
+        // The representation type is injected into any object that's pulled through a [GET] request
+        if (!is_object($representation))
+	    {
+            // Check if the class is namespaced, if so instantiate from root
+            $className = (strstr($representation, '\\') !== false) ? '\\' . ltrim($representation, '\\') : $representation;
+            $className = (!class_exists($className)) ? '\\Drest\\Representation\\' . ltrim($className, '\\') : $className;
+            if (!class_exists($className))
+            {
+                throw RepresentationException::unknownRepresentationClass($representation);
+            }
+            $this->representationClass = $representation;
+        }
+        if ($representation instanceof AbstractRepresentation)
+        {
+            $this->representationClass = get_class($representation);
+        }
 
          // Possibly run a check to ensure the CG classes are upto date - generate a warning if not
 
         $this->transport = new GuzzleClient($endpoint);
+
     }
 
     /**
@@ -94,6 +109,11 @@ class Client
      */
     public function post($path, $object)
     {
+
+        // render the object into its representation
+        $object = $this->updateRepresentation($object);
+
+
         $this->transport->post($path, $headers, $body);
 
         // Handle the response (either errored or 201 created)
@@ -185,10 +205,15 @@ class Client
 
     /**
      *
-     * Calls the end point, then passes the response into the representation
+     * update the representation to match the data contained within the data object
+     * @return object $object
      */
-    protected function updateRepresentation()
+    protected function updateRepresentation($object)
     {
+        // This object must have a representation variable
+
+
+        var_dump(get_object_vars($object));die;
 
     }
 

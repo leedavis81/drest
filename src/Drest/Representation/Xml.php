@@ -65,7 +65,7 @@ class Xml extends AbstractRepresentation
 
 	    $dataArray = $data->toArray();
         $this->xml->appendChild($this->convert(key($dataArray), $dataArray[key($dataArray)]));
-	    return $this->xml->saveXML();
+	    $this->data = $this->xml->saveXML();
 	}
 
     /**

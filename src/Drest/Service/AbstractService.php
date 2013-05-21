@@ -387,7 +387,7 @@ class AbstractService
             $this->representation = new \Drest\Representation\Text();
         }
 
-        $this->response->setBody($this->representation->write($resultSet));
+        $this->response->setBody($this->representation->output($resultSet));
         $this->response->setHttpHeader('Content-Type', $this->representation->getContentType());
 	}
 

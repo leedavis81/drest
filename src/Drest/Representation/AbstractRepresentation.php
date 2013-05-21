@@ -2,11 +2,32 @@
 namespace Drest\Representation;
 
 use Drest\Mapping\RouteMetaData,
+    Drest\Query\ResultSet,
     Drest\Configuration,
     Drest\Request;
 
 abstract class AbstractRepresentation implements InterfaceRepresentation
 {
+
+    /**
+     * Stored Data representation
+     * @var string $data
+     */
+    protected $data;
+
+    /**
+     * Current state of the representation
+     * @todo: need to register listeners to detect a change in the objects state
+     * @var integer $state
+     */
+    protected $state;
+
+
+    public function __construct()
+    {
+        $this->state = self::STATE_CLEAN;
+    }
+
 
     /**
      * Uses configuration options to determine whether this writer instance is the media type expected by the client
@@ -55,4 +76,22 @@ abstract class AbstractRepresentation implements InterfaceRepresentation
 	    return false;
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see Drest\Representation.InterfaceRepresentation::__toString()
+     */
+    public function __toString()
+    {
+        return $this->data;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see Drest\Representation.InterfaceRepresentation::output()
+     */
+    public function output(ResultSet $data)
+    {
+        $this->write($data);
+        return $this->__toString();
+    }
 }

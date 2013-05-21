@@ -20,13 +20,14 @@ use Doctrine\ORM\Mapping as ORM;
  *      		name="get_user",
  *      		routePattern="/user/:id",
  *      		routeConditions={"id": "\d+"},
- *      		verbs={"GET"}
+ *      		verbs={"GET"},
+ *      		expose={"username", "email_address", "profile", "phone_numbers"}
  *      	),
  *      	@Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
  *      	@Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),
- *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}),
- *          @Drest\Route(name="update_user", routePattern="/user/:id+", routeConditions={"id": "\d+"}, verbs={"PUT"}),
- *          @Drest\Route(name="get_users", routePattern="/users", verbs={"GET"}, collection=true)
+ *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}, expose={"username", "email_address", "profile", "phone_numbers"}),
+ *          @Drest\Route(name="update_user", routePattern="/user/:id+", routeConditions={"id": "\d+"}, verbs={"PUT"}, expose={"email_address", "profile", "phone_numbers"}),
+ *          @Drest\Route(name="get_users", routePattern="/users", verbs={"GET"}, collection=true, expose={"username", "email_address", "profile", "phone_numbers"})
  *      }
  * )
  *

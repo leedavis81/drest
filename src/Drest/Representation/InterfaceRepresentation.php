@@ -7,8 +7,12 @@ use Drest\Mapping\RouteMetaData,
 
 interface InterfaceRepresentation
 {
+
+    const STATE_CLEAN = 1;
+    const STATE_UPDATED = 2;
+
 	/**
-	 * Write the data out in the required format
+	 * Write the results to the $data variable
 	 * @param Drest\Query\ResultSet $data - The data to be passed into the writer
 	 */
 	public function write(ResultSet $data);
@@ -46,4 +50,16 @@ interface InterfaceRepresentation
 	 */
 	public function getMatchableFormatParams();
 
+	/**
+	 * If this object is echo'd print out the contained data
+	 * @return string
+	 */
+	public function __toString();
+
+    /**
+     * Get the written output of this data representation
+     * @param ResultSet $data
+     * @return string $output
+     */
+    public function output(ResultSet $data);
 }

@@ -5,10 +5,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Drest\Mapping\Annotation as Drest;
 // * @Drest\Resource(
 // * 		representations={"Xml", "Json"},
-// *      services={
-// *      	@Drest\Service(name="get_profile", route_pattern="/profile/:id", verbs={"GET"}, repository_method="getProfile", content="element"),
-// *          @Drest\Service(name="post_profile", route_pattern="/profile", verbs={"POST"}, repository_method="addProfile", content="element"),
-// *          @Drest\Service(name="get_profiles", route_pattern="/profiles", verbs={"GET"}, repository_method="getProfiles", content="collection"),
+// *      routes={
+// *      	@Drest\Route(name="get_profile", routePattern="/profile/:id", verbs={"GET"}, content="element"),
+// *          @Drest\Route(name="post_profile", routePattern="/profile", verbs={"POST"}, content="element"),
+// *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, content="collection"),
 // *      }
 // * )
 
@@ -18,14 +18,6 @@ use Drest\Mapping\Annotation as Drest;
  * Profile
  *
  *
- * @Drest\Resource(
- * 		representations={"Xml", "Json"},
- *      routes={
- *      	@Drest\Route(name="get_profile", routePattern="/profile/:id", verbs={"GET"}, content="element"),
- *          @Drest\Route(name="post_profile", routePattern="/profile", verbs={"POST"}, content="element"),
- *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, content="collection"),
- *      }
- * )
  *
  *
  * @ORM\Table(name="profile")
