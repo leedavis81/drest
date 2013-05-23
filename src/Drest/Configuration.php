@@ -70,7 +70,7 @@ class Configuration
         // Dont send a 415 if we dont match a representation class, default to first available one
         $this->set415ForNoMediaMatch(false);
         // Set the default error handler class (immutable)
-        $this->_attributes['defaultErrorHandlerClass'] = 'Drest\\ErrorHandler\\DefaultHandler';
+        $this->_attributes['defaultErrorHandlerClass'] = 'Drest\\Error\\Handler\\DefaultHandler';
     }
 
     /**

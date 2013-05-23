@@ -3,3 +3,4 @@
 .settings
 composer.lock
 vendor
+examples/application1/Client

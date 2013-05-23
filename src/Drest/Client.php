@@ -3,8 +3,10 @@ namespace Drest;
 
 
 use Guzzle\Http\Client as GuzzleClient,
+
     Drest\Representation\AbstractRepresentation,
-    Drest\Representation\RepresentationException;
+    Drest\Representation\RepresentationException,
+    Drest\Response\ErrorException;
 
 class Client
 {
@@ -109,16 +111,75 @@ class Client
      */
     public function post($path, $object)
     {
-
-        // render the object into its representation
+        //@todo: render the object into its representation form
         $object = $this->updateRepresentation($object);
 
-
-        $this->transport->post($path, $headers, $body);
+        $request = $this->transport->createRequest(
+        	'POST'
+        );
 
         // Handle the response (either errored or 201 created)
+        try {
+            $response = $this->transport->send($request);
+        } catch (\Guzzle\Http\Exception\BadResponseException $exception)
+        {
+            $response = $exception->getResponse();
+//$response = new \Guzzle\Http\Message\Response($statusCode);
 
-        $this->transport->send();
+            $errorException = new ErrorException('An error occured on this request', 0, $exception);
+            $errorException->setResponse($response);
+            foreach ($this->getErrorDocumentClasses() as $errorClass)
+            {
+                if ($errorClass::getContentType() === $response->getContentType())
+                {
+                    $errorDocument = $errorClass::createFromString($response->getBody(true));
+                    $errorException->setErrorDocument($errorDocument);
+                    break;
+                }
+            }
+            throw $errorException;
+        }
+
+        echo 'Status Code:' . $response->getStatusCode() . PHP_EOL;
+        echo 'Headers:' . PHP_EOL;
+        var_dump($response->getHeaders());
+        echo 'Body:' . PHP_EOL;
+        var_dump($response->getBody(true));
+    }
+
+
+    /**
+     * Get all registered error document classes
+     * @return array $classes
+     */
+    public function getErrorDocumentClasses()
+    {
+        $classes = array();
+        $path = realpath(__DIR__ . DIRECTORY_SEPARATOR . 'Error' . DIRECTORY_SEPARATOR . 'Response');
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($iterator as $file)
+        {
+            if (!$file->getExtension() === 'php')
+            {
+                continue;
+            }
+            $path = $file->getRealPath();
+            require_once $path;
+        }
+
+        foreach (get_declared_classes() as $className)
+        {
+            $reflClass = new \ReflectionClass($className);
+            if (array_key_exists('Drest\\Error\\Response\\ResponseInterface', $reflClass->getInterfaces()))
+            {
+                $classes[] = $className;
+            }
+        }
+        return $classes;
     }
 
     /**
@@ -204,16 +265,26 @@ class Client
 
 
     /**
-     *
      * update the representation to match the data contained within the data object
      * @return object $object
      */
     protected function updateRepresentation($object)
     {
+
+        $object->_rep_ = 'Im the rep';
+
+        var_dump($object);
         // This object must have a representation variable
 
+        // Pull in all accessible object vars
 
-        var_dump(get_object_vars($object));die;
+            // Iterate over them all and convert any association object to an array
+
+        // Push the array into a ResultSet::create() and into the objects representation
+
+        // Set an UPDATED flag if any data has been changed
+            // maintain a change set of "updated" fields
+            // maintain a change set of "new" fields
 
     }
 

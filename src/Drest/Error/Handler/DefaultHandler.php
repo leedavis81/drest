@@ -1,14 +1,20 @@
 <?php
-namespace Drest\ErrorHandler;
+namespace Drest\Error\Handler;
 
-use Drest\Query\ResultSet;
+use Drest\Error\Response\ResponseInterface,
+    Drest\Response;
 
-use Drest\Response;
-
+/**
+ * Default error handler class
+ * These can be customised by creating your own handler that extends the AbstractHandler class
+ * These should only be provided with the failure exception
+ * @author Lee
+ *
+ */
 class DefaultHandler extends AbstractHandler
 {
 
-    public function error(\Exception $e, $defaultResponseCode = 500)
+    public function error(\Exception $e, $defaultResponseCode = 500, ResponseInterface &$errorDocument)
     {
         switch (get_class($e))
         {
@@ -51,7 +57,6 @@ class DefaultHandler extends AbstractHandler
                 $this->response_code = $defaultResponseCode;
                 break;
         }
-        $this->setResult(ResultSet::create(array($error_message), 'error'));
+        $errorDocument->setMessage($error_message);
     }
-
 }

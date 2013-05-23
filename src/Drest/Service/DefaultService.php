@@ -46,7 +46,7 @@ class DefaultService extends AbstractService
             $resultSet = $this->createResultSet($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
         } catch (\Exception $e)
         {
-            $resultSet = $this->handleError($e, Response::STATUS_CODE_404);
+            return $this->handleError($e, Response::STATUS_CODE_404);
         }
 
         $this->renderDeterminedRepresentation($resultSet);
@@ -73,7 +73,7 @@ class DefaultService extends AbstractService
             $resultSet = $this->createResultSet($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
         } catch (\Exception $e)
         {
-            $resultSet = $this->handleError($e, Response::STATUS_CODE_404);
+            return $this->handleError($e, Response::STATUS_CODE_404);
         }
 
         $this->renderDeterminedRepresentation($resultSet);
@@ -104,7 +104,7 @@ class DefaultService extends AbstractService
             $resultSet = ResultSet::create(array(), 'response');
         } catch (\Exception $e)
         {
-            $resultSet = $this->handleError($e, Response::STATUS_CODE_500);
+            return $this->handleError($e, Response::STATUS_CODE_500);
         }
 
         $this->renderDeterminedRepresentation($resultSet);

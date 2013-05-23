@@ -12,6 +12,9 @@ use Drest\DrestException,
  */
 class Json extends AbstractRepresentation
 {
+
+    protected $defaultErrorResponseClass = 'Drest\\Error\\Response\\Json';
+
 	/**
 	 * @see Drest\Representation\InterfaceRepresentation::write()
 	 */

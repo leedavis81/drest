@@ -4,6 +4,7 @@ namespace Drest\Representation;
 use Drest\Mapping\RouteMetaData,
     Drest\Query\ResultSet,
     Drest\Configuration,
+    Drest\Error\Response as ErrorResponse,
     Drest\Request;
 
 abstract class AbstractRepresentation implements InterfaceRepresentation
@@ -23,11 +24,30 @@ abstract class AbstractRepresentation implements InterfaceRepresentation
     protected $state;
 
 
+    /**
+     * Error response document to be used. Can be overwritten from class extension
+     * @var string
+     */
+    protected $defaultErrorResponseClass = 'Drest\\Error\\Response\\Text';
+
+    // @todo: ditch this ?
     public function __construct()
     {
         $this->state = self::STATE_CLEAN;
     }
 
+    /**
+     * Get the default error response object associated with this representation.
+     * @return Drest\Error\Response\ResponseInterface $response
+     */
+    public function getDefaultErrorResponse()
+    {
+        if (class_exists($this->defaultErrorResponseClass))
+        {
+            return new $this->defaultErrorResponseClass();
+        }
+        return new ErrorResponse\Text();
+    }
 
     /**
      * Uses configuration options to determine whether this writer instance is the media type expected by the client

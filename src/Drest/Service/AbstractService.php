@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManager,
 	Drest\Manager,
 	Drest\Query\ResultSet,
 	Drest\Mapping\RouteMetaData,
-	Drest\ErrorHandler\AbstractHandler;
+	Drest\Error\Handler\AbstractHandler;
 
 class AbstractService
 {
@@ -52,7 +52,7 @@ class AbstractService
 
 	/**
 	 * The error handler instance
-	 * @var Drest\ErrorHandler\AbstractHandler $error_handler
+	 * @var Drest\Error\Handler\AbstractHandler $error_handler
 	 */
 	protected $error_handler;
 
@@ -196,7 +196,7 @@ class AbstractService
 
 	/**
 	 * Set the error handler object
-	 * @param Drest\ErrorHandler\AbstractHandler $error_handler
+	 * @param Drest\Error\Handler\AbstractHandler $error_handler
 	 */
 	public function setErrorHandler(AbstractHandler $error_handler)
 	{
@@ -204,17 +204,24 @@ class AbstractService
 	}
 
 	/**
-	 * Handle an error
+	 * Handle an error - set the resulting error document to the response object
 	 * @param \Exception $e
   	 * @param $defaultResponseCode the default response code to use if no match on exception type occurs
+  	 * @param Drest\Error\Response\ResponseInterface $errorDocument
   	 * @return ResultSet the error result set
 	 */
-	public function handleError(\Exception $e, $defaultResponseCode = 500)
+	public function handleError(\Exception $e, $defaultResponseCode = 500, Drest\Error\Response\ResponseInterface $errorDocument = null)
 	{
-	    $this->error_handler->error($e, $defaultResponseCode);
-	    $this->response->setStatusCode($this->error_handler->getReponseCode());
+	    if (is_null($errorDocument))
+	    {
+	        $errorDocument = $this->representation->getDefaultErrorResponse();
+	    }
 
-        return $this->error_handler->getResultSet();
+	    $this->error_handler->error($e, $defaultResponseCode, $errorDocument);
+
+	    $this->response->setStatusCode($this->error_handler->getReponseCode());
+        $this->response->setHttpHeader('Content-Type', $errorDocument::getContentType());
+	    $this->response->setBody($errorDocument->render());
 	}
 
     /**

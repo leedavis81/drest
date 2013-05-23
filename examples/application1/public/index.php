@@ -49,7 +49,7 @@ try
 
 	$drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 
-	$drestConfig->setDebugMode(true);
+	$drestConfig->setDebugMode(false);
 
 	$drestConfig->addPathsToConfigFiles($pathToEntities);
 

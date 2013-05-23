@@ -13,7 +13,7 @@ use Doctrine\Common\EventManager,
 	Drest\Mapping\MetadataFactory,
 	Drest\Mapping\RouteMetaData,
 
-	Drest\ErrorHandler\AbstractHandler,
+	Drest\Error\Handler\AbstractHandler,
 
 	Drest\Request,
 	Drest\Query,
@@ -81,7 +81,7 @@ class Manager
 
 	/**
 	 * Error handler object
-	 * @var Drest\ErrorHandler\AbstractHandler $error_handler
+	 * @var Drest\Error\Handler\AbstractHandler $error_handler
 	 */
 	protected $error_handler;
 
@@ -183,17 +183,21 @@ class Manager
 	private function handleError(\Exception $e)
 	{
 	    $eh = $this->getErrorHandler();
-	    $eh->setResponse($this->getResponse());
-	    $eh->error($e);
 
         try {
-            $this->service->setRepresentation($this->getDeterminedRepresentation());
+            $representation = $this->getDeterminedRepresentation();
+            $errorDocument = $representation->getDefaultErrorResponse();
+	        $eh->error($e, 500, $errorDocument);
         } catch (UnableToMatchRepresentationException $e)
         {
-            $eh->error($e);
+            $errorDocument = new \Drest\Error\Response\Text();
+            $eh->error($e, 500, $errorDocument);
         }
 
-	    $this->service->renderDeterminedRepresentation($eh->getResultSet());
+        $this->response->setStatusCode($eh->getReponseCode());
+        $this->response->setHttpHeader('Content-Type', $errorDocument::getContentType());
+        $this->response->setBody($errorDocument->render());
+
 	    return $this->response;
 	}
 
@@ -262,7 +266,7 @@ class Manager
         $this->request->setRouteParam($route->getRouteParams());
 
         // Get the service class
-        $this->service = $this->getService($route);
+        $this->service = $this->getServiceByRoute($route);
 
         // Set the matched service object and the error handler into the service class
         $this->service->setMatchedRoute($route);
@@ -492,7 +496,7 @@ class Manager
 
 	/**
 	 * Get the error handler object, if none has been injected use default from config
-	 * @return Drest\ErrorHandler\AbstractHandler $error_handler
+	 * @return Drest\Error\Handler\AbstractHandler $error_handler
 	 */
 	public function getErrorHandler()
 	{
@@ -507,7 +511,7 @@ class Manager
 
 	/**
 	 * Set the error handler to use
-	 * @param Drest\ErrorHandler\AbstractHandler $error_handler
+	 * @param Drest\Error\Handler\AbstractHandler $error_handler
 	 */
 	public function setErrorHandler(AbstractHandler $error_handler)
 	{
@@ -515,12 +519,12 @@ class Manager
 	}
 
     /**
-     * Get the service class for the matched route - provides default service class if none present
+     * Get the service class for a matched route - provides default service class if none present
      * @param Drest\Mapping\RouteMetaData $route - the matched route
      * @return Drest\Service\AbstractService $service - the service class
      * @throws DrestException if defined service class is not an instance of Drest\Service\AbstractService
      */
-	public function getService(RouteMetaData $route)
+	public function getServiceByRoute(RouteMetaData $route)
 	{
 	    $serviceClassName = ltrim($route->getServiceCallClass(), '\\');
 	    $serviceClassName = (!empty($serviceClassName)) ? (strpos($serviceClassName, '\\') === 0) ? $serviceClassName : '\\' . $serviceClassName

@@ -12,6 +12,8 @@ use Drest\DrestException,
 class Xml extends AbstractRepresentation
 {
 
+    protected $defaultErrorResponseClass = 'Drest\\Error\\Response\\Xml';
+
     /**
      * DOM document
      * @var DomDocument $xml

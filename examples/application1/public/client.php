@@ -4,7 +4,10 @@ ini_set('display_errors', 'On');
 
 $loader = require '../../../vendor/autoload.php';
 
-require '../Reps/User.php';
+require '../Client/Entities/User.php';
+require '../Client/Entities/Profile.php';
+require '../Client/Entities/PhoneNumber.php';
+
 
 $client = new Drest\Client('http://drest-example1.localhost', new Drest\Representation\Json());
 
@@ -13,10 +16,21 @@ $client = new Drest\Client('http://drest-example1.localhost', new Drest\Represen
 //$user = $client->get('/user/1', 'title|firstname');
 
 
-$user = new \Reps\User(new Drest\Representation\Json());
+$user = new \Client\Entities\User();
+
 $user->email_address = 'hello@somewhere.com';
 $user->username = 'hatchet';
+$user->profile = new \Client\Entities\Profile();
+$user->profile->title = 'Mr';
+$user->profile->firstname = 'Soft';
 
-$client->post('/users', $user);
+try
+{
+    $client->post('/user', $user);
+} catch (\Drest\Response\ErrorException $e)
+{
+    var_dump($e->getErrorDocument());
+}
 
-var_dump($user);
+
+//var_dump($user);
