@@ -16,6 +16,11 @@ class RepresentationException extends Exception
     	return new self('Unknown representation class "' . $class_name . '". Defined representation class must be an instance of Drest\\Representation\\AbstractRepresentation');
     }
 
+    public static function needRepresentationToUse()
+    {
+        return new self('Need to provide a valid representation class to interact with when constructing a Drest\\Client instance');
+    }
+
     public static function representationMustBeObjectOrString()
     {
 		return new self('Representation must be an object of Drest\\Representation\\InterfaceRepresentation or a string representing the class name');

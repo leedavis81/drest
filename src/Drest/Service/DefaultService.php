@@ -87,7 +87,11 @@ class DefaultService extends AbstractService
         $entityClass = $classMetaData->getClassName();
         $object = new $entityClass;
 
-        // Run any attached handle function
+
+        // Load the data into a representation class, and pass that into the handle
+
+
+        // Run any attached handle function - @todo: this might be obsolete
         if ($this->matched_route->hasHandleCall())
         {
             $handleMethod = $this->matched_route->getHandleCall();
@@ -104,9 +108,7 @@ class DefaultService extends AbstractService
             {
                 $this->response->setHttpHeader('Location', $location);
             }
-            $resultSet = ResultSet::create(array(
-            	'location' => ($location) ? $location : 'unknown'
-            ), 'response');
+            $resultSet = ResultSet::create(array(($location) ? $location : 'unknown'), 'location');
         } catch (\Exception $e)
         {
             return $this->handleError($e, Response::STATUS_CODE_500);

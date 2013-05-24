@@ -24,6 +24,18 @@ class Json extends AbstractRepresentation
 	    $this->data = json_encode($data->toArray());
 	}
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation\InterfaceRepresentation::createFromString($string)
+	 */
+	public static function createFromString($string)
+	{
+        $result = json_decode($string, true);
+        $instance = new self();
+        $instance->data = $result;
+        return $instance;
+	}
+
     /**
      * Content type to be used when this writer is matched
      * @return string content type

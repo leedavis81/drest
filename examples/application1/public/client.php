@@ -24,6 +24,14 @@ $user->profile = new \Client\Entities\Profile();
 $user->profile->title = 'Mr';
 $user->profile->firstname = 'Soft';
 
+$number1 = new \Client\Entities\PhoneNumber();
+$number1->number = '02087854545';
+
+$number2 = new \Client\Entities\PhoneNumber();
+$number2->number = '02087854545';
+
+$user->phone_numbers = array($number1, $number2);
+
 try
 {
     $client->post('/user', $user);

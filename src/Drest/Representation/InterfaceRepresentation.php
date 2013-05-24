@@ -11,6 +11,12 @@ interface InterfaceRepresentation
     const STATE_CLEAN = 1;
     const STATE_UPDATED = 2;
 
+    /**
+     * Representation parameter name when its appended to a data object
+     * @var string
+     */
+    const PARAM_NAME = '_drest_representation_';
+
 	/**
 	 * Write the results to the $data variable
 	 * @param Drest\Query\ResultSet $data - The data to be passed into the writer
@@ -49,6 +55,13 @@ interface InterfaceRepresentation
 	 * @return array
 	 */
 	public function getMatchableFormatParams();
+
+    /**
+     * Create an instance of this representation from a given string - $data is loaded up in it's representational form
+     * @param string $string
+     * @return Drest\Representation\AbstractRepresentation $representation
+     */
+    public static function createFromString($string);
 
 	/**
 	 * If this object is echo'd print out the contained data

@@ -40,4 +40,15 @@ class Text extends AbstractRepresentation
 	{
         return array();
 	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation\InterfaceRepresentation::createFromString($string)
+	 */
+	public static function createFromString($string)
+	{
+        $instance = new self();
+        $instance->data = $string;
+        return $instance;
+	}
 }

@@ -2,6 +2,8 @@
 namespace Drest;
 
 
+use Drest\Query\ResultSet;
+
 use Guzzle\Http\Client as GuzzleClient,
 
     Drest\Representation\AbstractRepresentation,
@@ -47,16 +49,27 @@ class Client
                 throw RepresentationException::unknownRepresentationClass($representation);
             }
             $this->representationClass = $representation;
-        }
-        if ($representation instanceof AbstractRepresentation)
+        } elseif ($representation instanceof AbstractRepresentation)
         {
             $this->representationClass = get_class($representation);
+        } else
+        {
+            throw RepresentationException::needRepresentationToUse();
         }
 
          // Possibly run a check to ensure the CG classes are upto date - generate a warning if not
 
         $this->transport = new GuzzleClient($endpoint);
 
+    }
+
+    /**
+     * get an instance of representation class we interacting with
+     * @return Drest\Representation\AbstractRepresentation $representation
+     */
+    protected function getRepresentationInstance()
+    {
+        return new $this->representationClass();
     }
 
     /**
@@ -111,10 +124,14 @@ class Client
      */
     public function post($path, $object)
     {
-        //@todo: render the object into its representation form
         $object = $this->updateRepresentation($object);
+        $representation = $this->getRepresentation($object);
 
-        $request = $this->transport->post($path);
+        $request = $this->transport->post(
+            $path,
+            array('Content-Type' => $representation->getContentType()),
+            $representation->__toString()
+        );
 
         // Handle the response (either errored or 201 created)
         try {
@@ -261,6 +278,18 @@ class Client
         $response->getStatusCode();
     }
 
+    /**
+     * Get the representation object (if it exists) from the data object
+     * @param Drest\Representation\AbstractRepresentation $object
+     */
+    public function getRepresentation($object)
+    {
+        $paramName = \Drest\Representation\InterfaceRepresentation::PARAM_NAME;
+        if (isset($object->$paramName))
+        {
+            return $object->$paramName;
+        }
+    }
 
     /**
      * update the representation to match the data contained within the data object
@@ -268,23 +297,38 @@ class Client
      */
     protected function updateRepresentation($object)
     {
+        $objectVars = get_object_vars($object);
+        $this->repIntoArray($objectVars);
 
-        $object->_rep_ = 'Im the rep';
+        $representation = $this->getRepresentationInstance();
+        $representation->write(ResultSet::create($objectVars, get_class($object)));
 
-        var_dump($object);
-        // This object must have a representation variable
+        $paramName = \Drest\Representation\InterfaceRepresentation::PARAM_NAME;
+        $object->$paramName = $representation;
 
-        // Pull in all accessible object vars
-
-            // Iterate over them all and convert any association object to an array
-
-        // Push the array into a ResultSet::create() and into the objects representation
-
-        // Set an UPDATED flag if any data has been changed
+        // @todo:  Set an UPDATED flag if any data has been changed
             // maintain a change set of "updated" fields
             // maintain a change set of "new" fields
-
+        return $object;
     }
 
+    /**
+     * Recurse the representation into an array
+     * @param array $vars
+     */
+    protected function repIntoArray(array &$vars)
+    {
+        foreach ($vars as $key => $var)
+        {
+            if (is_array($var))
+            {
+                $this->repIntoArray($vars[$key]);
+            } elseif (is_object($var))
+            {
+                $vars[$key] = get_object_vars($var);
+                $this->repIntoArray($vars[$key]);
+            }
+        }
+    }
 
 }
