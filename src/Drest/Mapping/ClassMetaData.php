@@ -1,5 +1,4 @@
 <?php
-
 namespace Drest\Mapping;
 
 /**
@@ -50,6 +49,12 @@ class ClassMetaData implements \Serializable
      */
     public $createdAt;
 
+    /**
+     * The origin route name - null if one isn't found
+     * @vat string $originRouteName
+     */
+    public $originRouteName;
+
 
 	/**
 	 * Construct an instance of this classes metadata
@@ -90,6 +95,22 @@ class ClassMetaData implements \Serializable
 	    }
 	    return false;
 	}
+
+    /**
+     * get the origin route (if one is available)
+     * @return null|Drest\Mapping\RouteMetaData $route
+     */
+    public function getOriginRoute()
+    {
+        if (!empty($this->originRouteName))
+        {
+            if (($route = $this->getRoutesMetaData($this->originRouteName)) !== false)
+            {
+                return $route;
+            }
+        }
+        return null;
+    }
 
 	/**
 	 * Add an array of representations
@@ -187,7 +208,8 @@ class ClassMetaData implements \Serializable
             $this->representations,
             $this->className,
             $this->filePath,
-            $this->createdAt
+            $this->createdAt,
+            $this->originRouteName
         ));
     }
 
@@ -201,7 +223,8 @@ class ClassMetaData implements \Serializable
             $this->representations,
             $this->className,
             $this->filePath,
-            $this->createdAt
+            $this->createdAt,
+            $this->originRouteName
         ) = unserialize($string);
 
         $this->reflection = new \ReflectionClass($this->className);

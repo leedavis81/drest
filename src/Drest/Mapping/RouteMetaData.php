@@ -366,6 +366,30 @@ class RouteMetaData
         return $this->allowed_option_request;
 	}
 
+	/**
+	 * Get the origin route (it could be this instance)
+	 * @return null|Drest\Mapping\RouteMetaData $route
+	 */
+	public function getOriginRoute()
+	{
+	    return $this->classMetaData->getOriginRoute();
+	}
+
+
+	/**
+	 * Generate the location string from the provided object
+	 * @param object $object
+	 * @param string $uri - the Uri to be prepended to the location
+	 * @return string|boolean $location origin location
+	 */
+	public function getOriginLocation($object, $url)
+	{
+	    if (($route = $this->getOriginRoute()) !== null && method_exists($object, 'getId'))
+        {
+            return $url . '/' .  ltrim(str_replace(':id', $object->getId(), $route->getRoutePattern()), '/');
+        }
+        return false;
+	}
 
     /**
      * Does this request matches the route pattern

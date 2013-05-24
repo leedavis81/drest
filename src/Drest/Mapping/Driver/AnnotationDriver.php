@@ -4,6 +4,8 @@
 namespace Drest\Mapping\Driver;
 
 
+use Drest\Mapping\RouteMetaData;
+
 use Drest\DrestException;
 
 use	Doctrine\Common\Annotations,
@@ -182,12 +184,13 @@ class AnnotationDriver implements DriverInterface
         }
 
         $metadata = new Mapping\ClassMetadata($class);
-
         foreach ($this->reader->getClassAnnotations($class) as $annotatedObject)
         {
         	if ($annotatedObject instanceof Annotation\Resource)
         	{
         	    $resourceFound = true;
+        	    $originFound = false;
+
         	    if ($annotatedObject->routes === null)
         	    {
         	        throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($class->name);
@@ -249,9 +252,35 @@ class AnnotationDriver implements DriverInterface
         	            $routeMetaData->setServiceCall($route->serviceCall);
         	        }
 
+        	        // If the origin flag is set, set the name on the classmetadata
+        	        if (!is_null($route->origin))
+        	        {
+        	            if ($originFound)
+        	            {
+        	                throw DrestException::resourceCanOnlyHaveOneRouteSetAsOrigin();
+        	            }
+        	            $metadata->originRouteName = $route->name;
+        	            $originFound = true;
+        	        }
+
                     $metadata->addRouteMetaData($routeMetaData);
         	    }
 
+                // Attempt to determine the origin by using pattern GET {optional_string}/{primary_key}
+                if (!$originFound)
+                {
+                    foreach ($metadata->getRoutesMetaData() as $route)
+                    {
+                        //@todo: possibly improve this by using the actual primary key (taken from $em metadata)
+                        if (in_array('GET', $route->getVerbs()) && preg_match('/^(.*)?\/:id$/', $route->getRoutePattern()))
+                        {
+                            $metadata->originRouteName = $route->getName();
+                            break;
+                        }
+                    }
+                }
+
+        	    // Set the handle calls
                 foreach ($class->getMethods() as $method)
                 {
                     if ($method->isPublic())

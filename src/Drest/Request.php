@@ -184,6 +184,15 @@ class Request
 	}
 
 	/**
+	 * Get the resource location (no path / name included)
+	 * @return string $url
+	 */
+	public function getUrl()
+	{
+        return $this->adapter->getUrl();
+	}
+
+	/**
 	 * Get the URI path - excludes URL meta data such as query parameters, hashes, extentions (?#!.)
 	 * @return string $path
 	 */

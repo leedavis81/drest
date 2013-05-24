@@ -237,7 +237,6 @@ class Manager
 	 */
 	protected function execute($namedRoute = null, array $routeParams = array())
 	{
-
 		// Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
 		// @todo: tidy this up
 		try {

@@ -93,15 +93,20 @@ class DefaultService extends AbstractService
             $handleMethod = $this->matched_route->getHandleCall();
             $object->$handleMethod($this->request);
         }
-        // try to persist the object
+
         try
         {
             $this->em->persist($object);
             $this->em->flush($object);
 
             $this->response->setStatusCode(Response::STATUS_CODE_201);
-            //@todo: send "created" links etc to the "representation" class
-            $resultSet = ResultSet::create(array(), 'response');
+            if (($location = $this->matched_route->getOriginLocation($object, $this->request->getUrl())) !== false)
+            {
+                $this->response->setHttpHeader('Location', $location);
+            }
+            $resultSet = ResultSet::create(array(
+            	'location' => ($location) ? $location : 'unknown'
+            ), 'response');
         } catch (\Exception $e)
         {
             return $this->handleError($e, Response::STATUS_CODE_500);

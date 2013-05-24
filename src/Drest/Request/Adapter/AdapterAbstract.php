@@ -76,6 +76,15 @@ abstract class AdapterAbstract implements AdapterInterface
         return '/' . $pathParts[0];
 	}
 
+    /**
+     * (non-PHPdoc)
+     * @see Drest\Request\Adapter.AdapterInterface::getUrl()
+     */
+	public function getUrl()
+	{
+        return implode('/', array_slice(explode('/', $this->getUri()), 0, 3));
+	}
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Drest\Request\Adapter.AdapterInterface::getExtension()

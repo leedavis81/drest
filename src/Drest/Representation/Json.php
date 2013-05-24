@@ -16,6 +16,7 @@ class Json extends AbstractRepresentation
     protected $defaultErrorResponseClass = 'Drest\\Error\\Response\\Json';
 
 	/**
+	 * (non-PHPdoc)
 	 * @see Drest\Representation\InterfaceRepresentation::write()
 	 */
 	public function write(ResultSet $data)
@@ -32,6 +33,10 @@ class Json extends AbstractRepresentation
         return 'application/json';
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see Drest\Representation.InterfaceRepresentation::getMatchableAcceptHeaders()
+     */
 	public function getMatchableAcceptHeaders()
 	{
 	    return array(
@@ -43,6 +48,10 @@ class Json extends AbstractRepresentation
 	    );
 	}
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation.InterfaceRepresentation::getMatchableExtensions()
+	 */
 	public function getMatchableExtensions()
 	{
         return array(
@@ -50,6 +59,10 @@ class Json extends AbstractRepresentation
         );
 	}
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation.InterfaceRepresentation::getMatchableFormatParams()
+	 */
 	public function getMatchableFormatParams()
 	{
         return array(

@@ -137,6 +137,11 @@ class DrestException extends Exception
         return new self('Unable to find the named route "' . $routeName . '" on class ' . $className);
     }
 
+    public static function resourceCanOnlyHaveOneRouteSetAsOrigin()
+    {
+        return new self('A resource can only have one route set as "origin"');
+    }
+
     /**
      * @deprecated
      */

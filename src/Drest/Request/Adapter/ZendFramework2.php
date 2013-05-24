@@ -132,6 +132,7 @@ class ZendFramework2 extends AdapterAbstract
 	    return $this->getRequest()->getUri()->toString();
 	}
 
+
 	/**
 	 * ZendFramework 2 Request object
 	 * @return \Zend\Http\Request $request

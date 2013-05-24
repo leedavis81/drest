@@ -35,4 +35,7 @@ final class Route
 
     /** @var boolean */
     public $collection;
+
+    /** @var boolean */
+    public $origin;
 }

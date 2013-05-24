@@ -114,9 +114,7 @@ class Client
         //@todo: render the object into its representation form
         $object = $this->updateRepresentation($object);
 
-        $request = $this->transport->createRequest(
-        	'POST'
-        );
+        $request = $this->transport->post($path);
 
         // Handle the response (either errored or 201 created)
         try {

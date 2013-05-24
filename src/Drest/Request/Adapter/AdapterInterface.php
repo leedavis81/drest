@@ -94,6 +94,12 @@ interface AdapterInterface
 	public function getUri();
 
 	/**
+	 * Get the resource location string
+	 * @return string $url
+	 */
+	public function getUrl();
+
+	/**
 	 * Get the URI path - excludes URL meta data such as query parameters, hashes, extentions (?#!.)
 	 * @return string $path
 	 */

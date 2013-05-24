@@ -76,6 +76,14 @@ class User
         $this->phone_numbers = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+    /**
+     * Get the Id
+     * @return integer $id
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * @Drest\Handle(for="post_user")

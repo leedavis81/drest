@@ -59,9 +59,9 @@ class Json implements ResponseInterface
     {
         $result = json_decode($string, true);
         $instance = new self();
-        if (isset($result['message']))
+        if (isset($result['error']))
         {
-            $instance->setMessage($result['message']);
+            $instance->setMessage($result['error']);
         }
         return $instance;
     }
