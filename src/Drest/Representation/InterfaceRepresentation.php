@@ -75,4 +75,10 @@ interface InterfaceRepresentation
      * @return string $output
      */
     public function output(ResultSet $data);
+
+    /**
+     * Get a array representation of the internally loaded data (loaded via write() or createFromString())
+     * @return array $data
+     */
+    public function toArray();
 }

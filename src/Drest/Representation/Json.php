@@ -24,6 +24,19 @@ class Json extends AbstractRepresentation
 	    $this->data = json_encode($data->toArray());
 	}
 
+    /**
+     * (non-PHPdoc)
+     * @see Drest\Representation.InterfaceRepresentation::toArray()
+     */
+    public function toArray()
+    {
+	    if (empty($this->data))
+	    {
+	         throw new \Exception('Json data hasn\'t been loaded. Use either ->write() or ->createFromString() to create it');
+	    }
+        return $this->data;
+    }
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Drest\Representation\InterfaceRepresentation::createFromString($string)

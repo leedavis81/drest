@@ -58,23 +58,6 @@ class Xml extends AbstractRepresentation
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Drest\Representation\InterfaceRepresentation::createFromString($string)
-	 */
-	public static function createFromString($string)
-	{
-        $instance = new self();
-
-        $instance->xml = simplexml_load_string($string);
-        if (!$instance->xml)
-        {
-            throw new \Exception('Unable to load XML document from string');
-        }
-        $instance->data = $instance->xml->saveXML();
-        return $instance;
-	}
-
-	/**
 	 * @see Drest\Writer\Writer::write()
 	 */
 	public function write(ResultSet $data)
@@ -119,102 +102,77 @@ class Xml extends AbstractRepresentation
         return $node;
     }
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation\InterfaceRepresentation::createFromString($string)
+	 */
+	public static function createFromString($string)
+	{
+        $instance = new self();
+
+	    $instance->xml = new \DomDocument('1.0', 'UTF-8');
+	    $instance->xml->formatOutput = true;
+
+        if (!$instance->xml->loadXML($string))
+        {
+            throw new \Exception('Unable to load XML document from string');
+        }
+
+        $instance->data = $instance->xml->saveXML();
+        return $instance;
+	}
+
     /**
-     *
      * Convert an XML to Array
      * @param \SimpleXMLElement $input_xml
      */
     public function toArray()
     {
-	    $this->xml =  new \DomDocument('1.0', 'UTF-8');
-	    $this->xml->formatOutput = true;
-
-	    if (!$this->xml instanceof \SimpleXMLElement)
+        $result = array();
+	    if (!$this->xml instanceof \DomDocument)
 	    {
 	         throw new \Exception('Xml data hasn\'t been loaded. Use either ->write() or ->createFromString() to create it');
 	    }
 
+		$result[$this->xml->documentElement->tagName] = $this->convertXmlToArray($this->xml->documentElement);
 
-		if(is_string($input_xml)) {
-			$parsed = $xml->loadXML($input_xml);
-			if(!$parsed) {
-				throw new Exception('[XML2Array] Error parsing the XML string.');
-			}
-		} else {
-			if(get_class($input_xml) != 'DOMDocument') {
-				throw new Exception('[XML2Array] The input XML object should be of type: DOMDocument.');
-			}
-			$xml = self::$xml = $input_xml;
-		}
-
-		$array[$xml->documentElement->tagName] = self::convert($xml->documentElement);
-        self::$xml = null;    // clear the xml node in the class for 2nd time use.
-        return $array;
+        return $result;
     }
 
+    /**
+     * recursive function to convert an XML document into an array
+     * @param DOMNode $node
+     * @return array $response
+     */
     protected function convertXmlToArray($node)
     {
 		$output = array();
-
-		switch ($node->nodeType) {
-			case XML_CDATA_SECTION_NODE:
-				$output['@cdata'] = trim($node->textContent);
-				break;
-
+		switch ($node->nodeType)
+		{
+			case XML_ELEMENT_NODE:
+			    foreach ($node->childNodes as $childNode)
+			    {
+			        $conversion = $this->convertXmlToArray($childNode);
+                    if (isset($childNode->tagName))
+			        {
+                        if ($node->tagName === \Drest\Inflector::pluralize($childNode->tagName))
+                        {
+                            $output[] = $conversion;
+                        } else
+                        {
+                            $output[$childNode->tagName] = $conversion;
+                        }
+			        } elseif (!empty($conversion))
+			        {
+			            $output = $conversion;
+			        }
+			    }
+                break;
 			case XML_TEXT_NODE:
 				$output = trim($node->textContent);
 				break;
-
-			case XML_ELEMENT_NODE:
-
-				// for each child node, call the covert function recursively
-				for ($i=0, $m=$node->childNodes->length; $i<$m; $i++) {
-					$child = $node->childNodes->item($i);
-					$v = self::convert($child);
-					if(isset($child->tagName)) {
-						$t = $child->tagName;
-
-						// assume more nodes of same kind are coming
-						if(!isset($output[$t])) {
-							$output[$t] = array();
-						}
-						$output[$t][] = $v;
-					} else {
-						//check if it is not an empty text node
-						if($v !== '') {
-							$output = $v;
-						}
-					}
-				}
-
-				if(is_array($output)) {
-					// if only one node of its kind, assign it directly instead if array($value);
-					foreach ($output as $t => $v) {
-						if(is_array($v) && count($v)==1) {
-							$output[$t] = $v[0];
-						}
-					}
-					if(empty($output)) {
-						//for empty nodes
-						$output = '';
-					}
-				}
-
-				// loop through the attributes and collect them
-				if($node->attributes->length) {
-					$a = array();
-					foreach($node->attributes as $attrName => $attrNode) {
-						$a[$attrName] = (string) $attrNode->value;
-					}
-					// if its an leaf node, store the value in @value instead of directly storing it.
-					if(!is_array($output)) {
-						$output = array('@value' => $output);
-					}
-					$output['@attributes'] = $a;
-				}
-				break;
 		}
-		return $output;
+		return !empty($output) ? $output: '';
     }
 
     /**
