@@ -28,13 +28,19 @@ class Json extends AbstractRepresentation
      * (non-PHPdoc)
      * @see Drest\Representation.InterfaceRepresentation::toArray()
      */
-    public function toArray()
+    public function toArray($includeKey = true)
     {
 	    if (empty($this->data))
 	    {
 	         throw new \Exception('Json data hasn\'t been loaded. Use either ->write() or ->createFromString() to create it');
 	    }
-        return $this->data;
+
+	    $arrayData = json_decode($this->data, true);
+	    if (!$includeKey && sizeof($arrayData) == 1 && is_string(key($arrayData)))
+	    {
+	        return $arrayData[key($arrayData)];
+	    }
+        return $arrayData;
     }
 
 	/**
@@ -43,9 +49,8 @@ class Json extends AbstractRepresentation
 	 */
 	public static function createFromString($string)
 	{
-        $result = json_decode($string, true);
         $instance = new self();
-        $instance->data = $result;
+        $instance->data = $string;
         return $instance;
 	}
 

@@ -5,6 +5,12 @@ namespace Drest\Representation;
 use Drest\DrestException,
     Drest\Query\ResultSet;
 
+/**
+ *
+ * @todo: This is not interoperable - we should probably remove it.
+ * @author Lee
+ *
+ */
 class Text extends AbstractRepresentation
 {
 	/**

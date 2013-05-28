@@ -25,7 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
  *      	),
  *      	@Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
  *      	@Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),
- *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}, expose={"username", "email_address", "profile", "phone_numbers"}),
+ *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}, expose={"username", "email_address", "profile" : {"firstname", "lastname"}, "phone_numbers" : {"number"}}),
  *          @Drest\Route(name="update_user", routePattern="/user/:id+", routeConditions={"id": "\d+"}, verbs={"PUT"}, expose={"email_address", "profile", "phone_numbers"}),
  *          @Drest\Route(name="get_users", routePattern="/users", verbs={"GET"}, collection=true, expose={"username", "email_address", "profile", "phone_numbers"})
  *      }
@@ -88,10 +88,17 @@ class User
     /**
      * @Drest\Handle(for="post_user")
      */
-    public function populatePost(Request $request)
+    public function populatePost(array $data)
     {
-        $this->email_address = $request->getPost('email_address');
-        $this->username = $request->getPost('username');
+        var_dump($data);
+        if (isset($data['email_address']))
+        {
+            $this->email_address = $data['email_address'];
+        }
+        if (isset($data['username']))
+        {
+            $this->username = $data['username'];
+        }
     }
 
 

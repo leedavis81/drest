@@ -1,13 +1,14 @@
 <?php
 namespace Drest\Query;
 
-use Drest\Configuration;
 
 use Drest\Request,
     Drest\Query\InvalidExposeFieldsException,
     Drest\Mapping\RouteMetaData,
-    Doctrine\ORM\EntityManager;
+    Drest\Configuration,
+    Drest\Query\ResultSet,
 
+    Doctrine\ORM\EntityManager;
 
 /**
  * Handles processing logic for expose fields.
@@ -76,7 +77,10 @@ class ExposeFields implements \Iterator
 	 */
 	public function configureExposeDepth(EntityManager $em, $exposureDepth = 0, $exposureRelationsFetchType = null)
 	{
-	    if (empty($this->route_expose))
+	    if (!empty($this->route_expose))
+	    {
+	        $this->fields = $this->route_expose;
+	    } else
 	    {
     	    $this->processExposeDepth(
     	        $this->fields,
@@ -90,12 +94,77 @@ class ExposeFields implements \Iterator
 	}
 
 	/**
-	 * Configure the expose object to filter out fields that have been explicitly requested by the client
+	 * Configure the expose object to filter out fields that are not allowed to be use by the client.
+	 * Unlike the configuring of the Pull request, this function will return the formatted array in a ResultSet object
+	 * This is only applicable for a HTTP push (POST/PUT/PATCH) call
+	 * @param array $requestedExposure
+	 * @return array $requestedExposure
+	 * @return array $response
+	 */
+	public function configurePushRequest($requestedExposure)
+	{
+        // Offset the array by one of it has a string key and is size of 1
+	    if (sizeof($requestedExposure) == 1 && is_string(key($requestedExposure)))
+	    {
+	        $rootKey = key($requestedExposure);
+            $requestedExposure = $this->filterPushExpose($requestedExposure[key($requestedExposure)], $this->fields);
+
+            return ResultSet::create($requestedExposure, $rootKey);
+	    } else
+	    {
+	        // currently unable to handle the pushing of collection data
+	        // @todo: throw an exception
+	    }
+	}
+
+	/**
+	 * Filter out requested expose fields against what's allowed
+	 * @param array $requested - The requested expose definition
+	 * @param array $actual - current allowed expose definition
+	 * @return array $request - The requested expose data with non-allowed data stripped off
+	 */
+	protected function filterPushExpose($requested, $actual)
+	{
+	    $actual = (array) $actual;
+        foreach ($requested as $requestedKey => $requestedValue)
+        {
+            if ($requestedKey !== 0 && in_array($requestedKey, $actual))
+            {
+                continue;
+            }
+
+            if (is_array($requestedValue))
+            {
+                if (is_string($requestedKey) && isset($actual[$requestedKey]))
+                {
+                    $requested[$requestedKey] = $this->filterPushExpose($requestedValue, $actual[$requestedKey]);
+                    continue;
+                } elseif (is_int($requestedKey))
+                {
+                    $requested[$requestedKey] = $this->filterPushExpose($requestedValue, $actual);
+                    continue;
+                }
+            } else
+            {
+                if (in_array($requestedKey, $actual))
+                {
+                    continue;
+                }
+            }
+            unset($requested[$requestedKey]);
+        }
+        return $requested;
+	}
+
+
+	/**
+	 * Configure the expose object to filter out fields that have been explicitly requested by the client.
+	 * This is only applicable for a HTTP pull (GET) call. For configuring
 	 * @param array $requestOptions
 	 * @param Request $request
 	 * @return Drest\Query\ExposeFields $this object instance
 	 */
-	public function configureExposureRequest(array $requestOptions, Request $request)
+	public function configurePullRequest(array $requestOptions, Request $request)
 	{
 	    if (empty($this->route_expose))
 	    {

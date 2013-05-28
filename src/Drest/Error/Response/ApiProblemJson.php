@@ -1,8 +1,6 @@
 <?php
 namespace Drest\Error\Response;
 
-use Drest\Query\ResultSet;
-
 /**
  * ApiProblem Document (Json)
  * @author Lee

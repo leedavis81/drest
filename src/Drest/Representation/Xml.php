@@ -126,7 +126,7 @@ class Xml extends AbstractRepresentation
      * Convert an XML to Array
      * @param \SimpleXMLElement $input_xml
      */
-    public function toArray()
+    public function toArray($includeKey = true)
     {
         $result = array();
 	    if (!$this->xml instanceof \DomDocument)
@@ -134,7 +134,13 @@ class Xml extends AbstractRepresentation
 	         throw new \Exception('Xml data hasn\'t been loaded. Use either ->write() or ->createFromString() to create it');
 	    }
 
-		$result[$this->xml->documentElement->tagName] = $this->convertXmlToArray($this->xml->documentElement);
+	    if ($includeKey)
+	    {
+		    $result[$this->xml->documentElement->tagName] = $this->convertXmlToArray($this->xml->documentElement);
+	    } else
+	    {
+	        $result = $this->convertXmlToArray($this->xml->documentElement);
+	    }
 
         return $result;
     }

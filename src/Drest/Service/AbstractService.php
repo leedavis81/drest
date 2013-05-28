@@ -46,6 +46,7 @@ class AbstractService
 
 	/**
 	 * A representation instance determined either from configuration or client media accept type - can be null if none matched
+	 * Note this will be present on both a fetch (GET) request and on a push (POST / PUT) request if using the drest client
 	 * @var Drest\Representation\AbstractRepresentation $representation
 	 */
 	protected $representation;
@@ -225,7 +226,7 @@ class AbstractService
 	}
 
     /**
-     * A recursive function to process the specified expose fields
+     * A recursive function to process the specified expose fields for a fetch request (GET)
      * @param array $fields - expose fields to process
      * @param \Doctrine\ORM\QueryBuilder $qb
      * @param \Doctrine\ORM\Mapping\ClassMetadata $classMetaData
@@ -288,8 +289,6 @@ class AbstractService
                 $qb = $this->registerExpose($value, $qb, $this->em->getClassMetadata($ormAssociationMappings[$key]['targetEntity']), $addedKeyFields[$key], $key);
 	        }
 	    }
-
-	    //var_dump($addedKeyFields);
 
 	    $this->addedKeyFields = $addedKeyFields;
         return $qb;

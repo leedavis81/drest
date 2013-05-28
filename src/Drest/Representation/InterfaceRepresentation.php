@@ -78,7 +78,8 @@ interface InterfaceRepresentation
 
     /**
      * Get a array representation of the internally loaded data (loaded via write() or createFromString())
+     * @param $includeKey - Whether to include the first key in the returned data set
      * @return array $data
      */
-    public function toArray();
+    public function toArray($includeKey = true);
 }

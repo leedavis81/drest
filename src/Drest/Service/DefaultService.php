@@ -20,7 +20,6 @@ use Doctrine\ORM,
 class DefaultService extends AbstractService
 {
 
-
 	/**
 	 * Default method to return a single entity item
 	 */
@@ -87,15 +86,11 @@ class DefaultService extends AbstractService
         $entityClass = $classMetaData->getClassName();
         $object = new $entityClass;
 
-
-        // Load the data into a representation class, and pass that into the handle
-
-
-        // Run any attached handle function - @todo: this might be obsolete
+        // Run any attached handle function
         if ($this->matched_route->hasHandleCall())
         {
             $handleMethod = $this->matched_route->getHandleCall();
-            $object->$handleMethod($this->request);
+            $object->$handleMethod($this->representation->toArray(false));
         }
 
         try
@@ -111,6 +106,9 @@ class DefaultService extends AbstractService
             $resultSet = ResultSet::create(array(($location) ? $location : 'unknown'), 'location');
         } catch (\Exception $e)
         {
+            echo $e->getMessage();
+            echo $e->getTraceAsString();
+            die;
             return $this->handleError($e, Response::STATUS_CODE_500);
         }
 

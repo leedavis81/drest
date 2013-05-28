@@ -2,6 +2,8 @@
 namespace Drest;
 
 
+use Drest\Query\ResultSet;
+
 use Doctrine\Common\EventManager,
     Doctrine\Common\Annotations\Annotation,
     Doctrine\Common\Annotations\AnnotationRegistry,
@@ -250,18 +252,30 @@ class Manager
             throw $e;
 		}
 
+		// Get the reperesentation to be used
+		$representation = $this->getDeterminedRepresentation($route);
+
         // Setup exposure fields on GET requests
         if ($this->getRequest()->getHttpMethod() == Request::METHOD_GET)
         {
             $route->setExpose(
                 Query\ExposeFields::create($route)
                 ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
-                ->configureExposureRequest($this->config->getExposeRequestOptions(), $this->request)
+                ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
                 ->toArray()
+            );
+        } elseif ($this->getRequest()->getHttpMethod() == Request::METHOD_POST)
+        {
+            $representation = $representation->createFromString($this->request->getBody());
+            // Write the filtered expose data
+            $representation->write(
+                Query\ExposeFields::create($route)
+                    ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+                    ->configurePushRequest($representation->toArray())
             );
         }
 
-        // Set paramaters matched on the route to the request object
+        // Set parameters matched on the route to the request object
         $this->request->setRouteParam($route->getRouteParams());
 
         // Get the service class
@@ -269,17 +283,14 @@ class Manager
 
         // Set the matched service object and the error handler into the service class
         $this->service->setMatchedRoute($route);
+        $this->service->setRepresentation($representation);
         $this->service->setErrorHandler($this->getErrorHandler());
-
-        // Set the representation
-        $this->service->setRepresentation($this->getDeterminedRepresentation($route));
 
         // Set up the service for a new request
         if ($this->service->setupRequest())
         {
             $this->service->runCallMethod();
         }
-
         return $this->getResponse();
 	}
 
@@ -387,11 +398,26 @@ class Manager
 	            throw RepresentationException::representationMustBeInstanceOfDrestRepresentation();
 	        }
 
-	        // This representation matches the required media type requested by the client
-            if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request))
-            {
-                return $representation;
-            }
+	        switch ($this->request->getHttpMethod())
+	        {
+	            // Match on content option
+	            case Request::METHOD_GET:
+	        	    // This representation matches the required media type requested by the client
+                    if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request))
+                    {
+                        return $representation;
+                    }
+	                break;
+                // Match on content-type
+	            case Request::METHOD_POST:
+	            case Request::METHOD_PUT:
+                case Request::METHOD_PATCH:
+	                if ($representation->getContentType() === $this->request->getHeaders('Content-Type'))
+	                {
+	                    return $representation;
+	                }
+	                break;
+	        }
 	    }
 
 	    // If we don't match the requested media type, throw a not supported error

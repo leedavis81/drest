@@ -1,13 +1,11 @@
 <?php
 namespace Drest;
 
-
-use Drest\Query\ResultSet;
-
 use Guzzle\Http\Client as GuzzleClient,
 
     Drest\Representation\AbstractRepresentation,
     Drest\Representation\RepresentationException,
+    Drest\Query\ResultSet,
     Drest\Response\ErrorException;
 
 class Client
@@ -133,7 +131,7 @@ class Client
             $representation->__toString()
         );
 
-        // Handle the response (either errored or 201 created)
+        // @todo Handle the response (either errored or 201 created)
         try {
             $response = $this->transport->send($request);
         } catch (\Guzzle\Http\Exception\BadResponseException $exception)
@@ -301,7 +299,7 @@ class Client
         $this->repIntoArray($objectVars);
 
         $representation = $this->getRepresentationInstance();
-        $representation->write(ResultSet::create($objectVars, get_class($object)));
+        $representation->write(ResultSet::create($objectVars, strtolower(implode('', array_slice(explode('\\', get_class($object)), -1)))));
 
         $paramName = \Drest\Representation\InterfaceRepresentation::PARAM_NAME;
         $object->$paramName = $representation;

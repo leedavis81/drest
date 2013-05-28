@@ -9,7 +9,7 @@ require '../Client/Entities/Profile.php';
 require '../Client/Entities/PhoneNumber.php';
 
 
-$client = new Drest\Client('http://drest-example1.localhost', new Drest\Representation\Json());
+$client = new Drest\Client('http://drest-example1.localhost', new Drest\Representation\Xml());
 
 
 //echo 'Getting a user' . PHP_EOL;
@@ -28,7 +28,7 @@ $number1 = new \Client\Entities\PhoneNumber();
 $number1->number = '02087854545';
 
 $number2 = new \Client\Entities\PhoneNumber();
-$number2->number = '02087854545';
+$number2->number = '02087854546';
 
 $user->phone_numbers = array($number1, $number2);
 

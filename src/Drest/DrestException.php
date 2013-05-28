@@ -172,9 +172,9 @@ class DrestException extends Exception
         return new self('Data wrap name must be a string value. Eg array(\'user\' => array(...))');
     }
 
-    public static function invalidParentKeyNameForResultSet()
+    public static function invalidParentKeyNameForResults()
     {
-        return new self('Parent key name in ResultSet object is invalid. Must be an alphanumeric string (underscores allowed)');
+        return new self('Parent key name in a result set object is invalid. Must be an alphanumeric string (underscores allowed)');
     }
 
 
