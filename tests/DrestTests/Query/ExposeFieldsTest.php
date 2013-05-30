@@ -96,7 +96,7 @@ class ExposeFieldsTest extends DrestTestCase
 	    $aeExpose->parseExposeString($exposeString);
 	}
 
-    public function testConfigureExposureRequest()
+    public function testConfigureExposurePullRequest()
 	{
         $routeMetaData = new RouteMetaData();
 	    $expose = ExposeFields::create($routeMetaData);
@@ -104,7 +104,7 @@ class ExposeFieldsTest extends DrestTestCase
 	    $request = new \Drest\Request();
 	    $request->setPost('expose', 'username|address');
 
-	    $expose->configureExposureRequest(array(
+	    $expose->configurePullRequest(array(
 	        Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
         ), $request);
 
@@ -112,7 +112,7 @@ class ExposeFieldsTest extends DrestTestCase
 	    $this->assertEquals(array(), $expose->toArray());
 	}
 
-	public function testConfigureExposureRequestWithExplicitExpose()
+	public function testConfigureExposurePullRequestWithExplicitExpose()
 	{
 	    $routeMetaData = new RouteMetaData();
 	    $explicit_expose = array('username', 'email');
@@ -123,16 +123,11 @@ class ExposeFieldsTest extends DrestTestCase
 	    $request = new \Drest\Request();
 	    $request->setPost('expose', 'username|address');
 
-	    $expose->configureExposureRequest(array(
+	    $expose->configurePullRequest(array(
 	        Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
         ), $request);
 
 	    $this->assertEquals($explicit_expose, $expose->toArray());
 	}
-
-
-
-
-
 
 }

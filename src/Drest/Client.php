@@ -5,6 +5,7 @@ use Guzzle\Http\Client as GuzzleClient,
 
     Drest\Representation\AbstractRepresentation,
     Drest\Representation\RepresentationException,
+    Drest\Response,
     Drest\Query\ResultSet,
     Drest\Response\ErrorException;
 
@@ -27,16 +28,26 @@ class Client
     /**
      * Client constructor
      * @param string	$endpoint The rest endpoint to be used
-     * @param mixed		$representation the data representation to use - can be a string or a class
+     * @param mixed		$representation the data representation to use for all interactions - can be a string or a class
      */
     public function __construct($endpoint, $representation)
     {
         if (($endpoint = filter_var($endpoint, FILTER_VALIDATE_URL)) === false)
         {
-             // @todo: throw exception:  Invalid URL endpoint used
+             // @todo: create a an exception extension (ClientException)
+             throw new \Exception('Invalid URL endpoint');
         }
 
-        // The representation type is injected into any object that's pulled through a [GET] request
+        $this->setRepresentationClass($representation);
+        $this->transport = new GuzzleClient($endpoint);
+    }
+
+    /**
+     * The representation class to be used
+     * @param mixed $representation
+     */
+    public function setRepresentationClass($representation)
+    {
         if (!is_object($representation))
 	    {
             // Check if the class is namespaced, if so instantiate from root
@@ -46,7 +57,7 @@ class Client
             {
                 throw RepresentationException::unknownRepresentationClass($representation);
             }
-            $this->representationClass = $representation;
+            $this->representationClass = $className;
         } elseif ($representation instanceof AbstractRepresentation)
         {
             $this->representationClass = get_class($representation);
@@ -54,11 +65,6 @@ class Client
         {
             throw RepresentationException::needRepresentationToUse();
         }
-
-         // Possibly run a check to ensure the CG classes are upto date - generate a warning if not
-
-        $this->transport = new GuzzleClient($endpoint);
-
     }
 
     /**
@@ -117,13 +123,15 @@ class Client
 
     /**
      * Post an object
-     * @param string $path
-     * @param Drest\Client\Representation\AbstractRepresentation $object
+     * @param string $path													- the path to post this object to
+     * @param object $object 												- the object to be posted to given path
+     * @return Drest\Representation\AbstractRepresentation $representation 	- Populated representation instance
+     * @throws ErrorException 												- upon the return of any error document from the server
      */
-    public function post($path, $object)
+    public function post($path, &$object)
     {
-        $object = $this->updateRepresentation($object);
-        $representation = $this->getRepresentation($object);
+        $representation = $this->getRepresentationInstance();
+        $representation->update($object);
 
         $request = $this->transport->post(
             $path,
@@ -131,13 +139,11 @@ class Client
             $representation->__toString()
         );
 
-        // @todo Handle the response (either errored or 201 created)
         try {
             $response = $this->transport->send($request);
         } catch (\Guzzle\Http\Exception\BadResponseException $exception)
         {
             $response = $exception->getResponse();
-//$response = new \Guzzle\Http\Message\Response($statusCode);
 
             $errorException = new ErrorException('An error occured on this request', 0, $exception);
             $errorException->setResponse($response);
@@ -153,11 +159,10 @@ class Client
             throw $errorException;
         }
 
-        echo 'Status Code:' . $response->getStatusCode() . PHP_EOL;
-        echo 'Headers:' . PHP_EOL;
-        var_dump($response->getHeaders());
-        echo 'Body:' . PHP_EOL;
-        var_dump($response->getBody(true));
+        // Pass in a Drest response object to the representation
+        $representation->parsePushResponse(Response::create($response), Request::METHOD_POST);
+
+        return $representation;
     }
 
 
@@ -290,6 +295,16 @@ class Client
     }
 
     /**
+     * Does this object already have a loaded representation object attached
+     * @return boolean $result
+     */
+    protected function hasRepresentation($object)
+    {
+        $paramName = \Drest\Representation\InterfaceRepresentation::PARAM_NAME;
+        return isset($object->$paramName);
+    }
+
+    /**
      * update the representation to match the data contained within the data object
      * @return object $object
      */
@@ -301,12 +316,7 @@ class Client
         $representation = $this->getRepresentationInstance();
         $representation->write(ResultSet::create($objectVars, strtolower(implode('', array_slice(explode('\\', get_class($object)), -1)))));
 
-        $paramName = \Drest\Representation\InterfaceRepresentation::PARAM_NAME;
-        $object->$paramName = $representation;
 
-        // @todo:  Set an UPDATED flag if any data has been changed
-            // maintain a change set of "updated" fields
-            // maintain a change set of "new" fields
         return $object;
     }
 

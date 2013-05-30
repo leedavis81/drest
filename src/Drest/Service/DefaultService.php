@@ -103,12 +103,10 @@ class DefaultService extends AbstractService
             {
                 $this->response->setHttpHeader('Location', $location);
             }
-            $resultSet = ResultSet::create(array(($location) ? $location : 'unknown'), 'location');
+
+            $resultSet = ResultSet::create(array('location' => ($location) ? $location : 'unknown'), 'response');
         } catch (\Exception $e)
         {
-            echo $e->getMessage();
-            echo $e->getTraceAsString();
-            die;
             return $this->handleError($e, Response::STATUS_CODE_500);
         }
 

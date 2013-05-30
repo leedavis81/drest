@@ -3,6 +3,8 @@
 namespace Drest\Representation;
 
 use Drest\DrestException,
+    Drest\Response,
+    Drest\Request,
     Drest\Query\ResultSet;
 
 /**
@@ -21,41 +23,16 @@ class Xml extends AbstractRepresentation
     protected $xml;
 
     /**
+     * The location path of the entity (populated after a post call)
+     * @var string $locationPath
+     */
+    protected $locationPath;
+
+    /**
      * Name of the current node being parsed
      * @param string $current_node_name
      */
     protected $current_node_name;
-
-    /**
-     * Content type to be used when this writer is matched
-     * @return string content type
-     */
-    public function getContentType()
-    {
-        return 'application/xml';
-    }
-
-	public function getMatchableAcceptHeaders()
-	{
-        return array(
-            'application/xml',
-            'text/xml'
-        );
-	}
-
-	public function getMatchableExtensions()
-	{
-        return array(
-        	'xml'
-        );
-	}
-
-	public function getMatchableFormatParams()
-	{
-        return array(
-        	'xml'
-        );
-	}
 
 	/**
 	 * @see Drest\Writer\Writer::write()
@@ -102,26 +79,6 @@ class Xml extends AbstractRepresentation
         return $node;
     }
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Drest\Representation\InterfaceRepresentation::createFromString($string)
-	 */
-	public static function createFromString($string)
-	{
-        $instance = new self();
-
-	    $instance->xml = new \DomDocument('1.0', 'UTF-8');
-	    $instance->xml->formatOutput = true;
-
-        if (!$instance->xml->loadXML($string))
-        {
-            throw new \Exception('Unable to load XML document from string');
-        }
-
-        $instance->data = $instance->xml->saveXML();
-        return $instance;
-	}
-
     /**
      * Convert an XML to Array
      * @param \SimpleXMLElement $input_xml
@@ -144,6 +101,26 @@ class Xml extends AbstractRepresentation
 
         return $result;
     }
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation\InterfaceRepresentation::createFromString($string)
+	 */
+	public static function createFromString($string)
+	{
+        $instance = new self();
+
+	    $instance->xml = new \DomDocument('1.0', 'UTF-8');
+	    $instance->xml->formatOutput = true;
+
+        if (!$instance->xml->loadXML($string))
+        {
+            throw new \Exception('Unable to load XML document from string');
+        }
+
+        $instance->data = $instance->xml->saveXML();
+        return $instance;
+	}
 
     /**
      * recursive function to convert an XML document into an array
@@ -180,6 +157,84 @@ class Xml extends AbstractRepresentation
 		}
 		return !empty($output) ? $output: '';
     }
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation.InterfaceRepresentation::parseResponse()
+	 */
+	public function parsePushResponse(Response $response, $verb)
+	{
+	    switch ($verb)
+	    {
+	        case Request::METHOD_POST:
+
+	            $xml = new \DomDocument('1.0', 'UTF-8');
+	            $xml->loadXML($response->getBody());
+
+	            $body = $this->convertXmlToArray($xml->documentElement);
+                if (isset($body['location']) && strtolower($body['location']) !== 'unknown')
+                {
+                    $this->locationPath =  '/' . implode('/', array_slice(explode('/', $body['location']), 3));
+                }
+	            break;
+            case Request::METHOD_PUT:
+            case Request::METHOD_PATCH:
+                break;
+	    }
+	}
+
+    /**
+     * Does this representation have loaded location path
+     * @return boolean $response
+     */
+	public function hasLocationPath()
+	{
+	    return !empty($this->locationPath);
+	}
+
+	/**
+	 * Get the location path (if it's been loaded)
+	 * @return string $location_path
+	 */
+	public function getLocationPath()
+	{
+	    if (!empty($this->locationPath))
+	    {
+	        return $this->locationPath;
+	    }
+	}
+
+    /**
+     * Content type to be used when this writer is matched
+     * @return string content type
+     */
+    public function getContentType()
+    {
+        return 'application/xml';
+    }
+
+	public function getMatchableAcceptHeaders()
+	{
+        return array(
+            'application/xml',
+            'text/xml'
+        );
+	}
+
+	public function getMatchableExtensions()
+	{
+        return array(
+        	'xml'
+        );
+	}
+
+	public function getMatchableFormatParams()
+	{
+        return array(
+        	'xml'
+        );
+	}
 
     /**
      * Get string representation of boolean value

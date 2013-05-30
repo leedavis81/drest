@@ -3,17 +3,14 @@
 namespace Drest\Response\Adapter;
 
 use Drest\DrestException;
-class ZendFramework2 extends AdapterAbstract
+class Guzzle extends AdapterAbstract
 {
-
 	/** (non-PHPdoc)
      * @see Drest\Response\Adapter.AdapterInterface::__toString()
      */
     public function toString()
     {
-        //@todo: test / check this
-        $this->getResponse()->send();
-        return '';
+        return $this->getResponse()->__toString();
     }
 
 	/** (non-PHPdoc)
@@ -21,11 +18,20 @@ class ZendFramework2 extends AdapterAbstract
      */
     public function getHttpHeader($name = null)
     {
-		if ($name !== null && $this->getResponse()->getHeaders()->has($name))
+		if ($name !== null && $this->getResponse()->hasHeader($name))
 		{
-		    return $this->getResponse()->getHeaders()->get($name)->getFieldValue();
+            return $this->getResponse()->getHeader($name, true);
 		}
-		return $this->getResponse()->getHeaders()->toArray();
+
+		if (($this->getResponse()->getHeaders()->count() === 0))
+		{
+		    return array();
+		} else
+		{
+		    return array_map(function($item){
+		        return implode(', ', $item);
+		    }, $this->getResponse()->getHeaders()->getAll());
+		}
     }
 
 	/** (non-PHPdoc)
@@ -33,13 +39,17 @@ class ZendFramework2 extends AdapterAbstract
      */
     public function setHttpHeader($name, $value = null)
     {
+        $value = (array) $value;
     	if (is_array($name))
 		{
-		    $this->getResponse()->getHeaders()->clearHeaders();
-		    $this->getResponse()->getHeaders()->addHeaders($name);
+		    foreach ($this->getResponse()->getHeaders(false) as $key => $value)
+		    {
+		        $this->getResponse()->removeHeader($key);
+		    }
+		    $this->getResponse()->addHeaders($name);
 		} else
 		{
-		    $this->getResponse()->getHeaders()->addHeaders(array($name => $value));
+		    $this->getResponse()->addHeader($name, $value);
 		}
     }
 
@@ -49,7 +59,7 @@ class ZendFramework2 extends AdapterAbstract
      */
     public function getBody()
     {
-        return $this->getResponse()->getBody();
+        return $this->getResponse()->getBody(true);
     }
 
 	/** (non-PHPdoc)
@@ -57,7 +67,7 @@ class ZendFramework2 extends AdapterAbstract
      */
     public function setBody($body)
     {
-        $this->getResponse()->setContent($body);
+        $this->getResponse()->setBody($body);
     }
 
 	/** (non-PHPdoc)
@@ -73,17 +83,15 @@ class ZendFramework2 extends AdapterAbstract
      */
     public function setStatusCode($code, $text)
     {
-        $this->getResponse()->setStatusCode($code);
-        $this->getResponse()->setReasonPhrase($text);
+        $this->getResponse()->setStatus($code, $text);
     }
 
 	/**
-	 * ZendFramework 2 Response object
-	 * @return \Zend\Http\Response $response
+	 * Guzzle Response object
+	 * @return \Guzzle\Http\Message\Response $response
 	 */
 	public function getResponse()
 	{
 		return $this->response;
 	}
-
 }

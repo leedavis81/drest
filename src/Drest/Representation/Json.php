@@ -2,6 +2,8 @@
 namespace Drest\Representation;
 
 use Drest\DrestException,
+    Drest\Response,
+    Drest\Request,
     Drest\Query\ResultSet;
 
 /**
@@ -13,7 +15,17 @@ use Drest\DrestException,
 class Json extends AbstractRepresentation
 {
 
+    /**
+     * default error reponse document when handling an error
+     * @var string $defaultErrorResponseClass
+     */
     protected $defaultErrorResponseClass = 'Drest\\Error\\Response\\Json';
+
+    /**
+     * The location path of the entity (populated after a post call)
+     * @var string $locationPath
+     */
+    protected $locationPath;
 
 	/**
 	 * (non-PHPdoc)
@@ -52,6 +64,48 @@ class Json extends AbstractRepresentation
         $instance = new self();
         $instance->data = $string;
         return $instance;
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Drest\Representation.InterfaceRepresentation::parseResponse()
+	 */
+	public function parsePushResponse(Response $response, $verb)
+	{
+	    switch ($verb)
+	    {
+	        case Request::METHOD_POST:
+                $body = json_decode($response->getBody(), true);
+                if (isset($body['response']['location']) && strtolower($body['response']['location']) !== 'unknown')
+                {
+                    $this->locationPath = implode('/', array_slice(explode('/', $body['response']['location']), 3));
+                }
+	            break;
+            case Request::METHOD_PUT:
+            case Request::METHOD_PATCH:
+                break;
+	    }
+	}
+
+    /**
+     * Does this representation have loaded location path
+     * @return boolean $response
+     */
+	public function hasLocationPath()
+	{
+	    return !empty($this->locationPath);
+	}
+
+	/**
+	 * Get the location path (if it's been loaded)
+	 * @return string $location_path
+	 */
+	public function getLocationPath()
+	{
+	    if (!empty($this->locationPath))
+	    {
+	        return $this->locationPath;
+	    }
 	}
 
     /**

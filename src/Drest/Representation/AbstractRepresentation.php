@@ -9,7 +9,6 @@ use Drest\Mapping\RouteMetaData,
 
 abstract class AbstractRepresentation implements InterfaceRepresentation
 {
-
     /**
      * Stored Data representation
      * @var string $data
@@ -17,24 +16,10 @@ abstract class AbstractRepresentation implements InterfaceRepresentation
     protected $data;
 
     /**
-     * Current state of the representation
-     * @todo: need to register listeners to detect a change in the objects state
-     * @var integer $state
-     */
-    protected $state;
-
-
-    /**
      * Error response document to be used. Can be overwritten from class extension
      * @var string
      */
     protected $defaultErrorResponseClass = 'Drest\\Error\\Response\\Text';
-
-    // @todo: ditch this ?
-    public function __construct()
-    {
-        $this->state = self::STATE_CLEAN;
-    }
 
     /**
      * Get the default error response object associated with this representation.
@@ -47,6 +32,40 @@ abstract class AbstractRepresentation implements InterfaceRepresentation
             return new $this->defaultErrorResponseClass();
         }
         return new ErrorResponse\Text();
+    }
+
+    /**
+     * update the representation to match the data contained within a client data object
+     * - This will call the write method that will store its representation in the $data array
+     */
+    public function update($object)
+    {
+        if (is_object($object))
+        {
+            $objectVars = get_object_vars($object);
+            $this->repIntoArray($objectVars);
+
+            $this->write(ResultSet::create($objectVars, strtolower(implode('', array_slice(explode('\\', get_class($object)), -1)))));
+        }
+    }
+
+    /**
+     * Recurse the representation into an array
+     * @param array $vars
+     */
+    protected function repIntoArray(array &$vars)
+    {
+        foreach ($vars as $key => $var)
+        {
+            if (is_array($var))
+            {
+                $this->repIntoArray($vars[$key]);
+            } elseif (is_object($var))
+            {
+                $vars[$key] = get_object_vars($var);
+                $this->repIntoArray($vars[$key]);
+            }
+        }
     }
 
     /**

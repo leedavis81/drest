@@ -143,12 +143,15 @@ class Response
 
 	/**
 	 * Construct an instance of Drest Response object
-	 * @param mixed $response prefered router type
+	 * @param mixed $response prefered adapted response type
 	 */
 	public function __construct($response_object = null)
 	{
+	    //@todo: this really shouldn't have any knowledge of the adapters class name.
+	    // A better implementation would be to load all registered adapter classes and check for type
 		$zf2class = 'Zend\Http\Response';
 		$sy2class = 'Symfony\Component\HttpFoundation\Response';
+		$guzclass = 'Guzzle\Http\Message\Response';
 		if (is_null($response_object))
 		{
 			if (!class_exists($sy2class))
@@ -165,6 +168,9 @@ class Response
 			} elseif ($response_object instanceof $sy2class)
 			{
 				$this->adapter = new Adapter\Symfony2($response_object);
+			} elseif ($response_object instanceof $guzclass)
+			{
+			    $this->adapter = new Adapter\Guzzle($response_object);
 			} else
 			{
 				throw DrestException::unknownAdapterForResponseObject($response_object);

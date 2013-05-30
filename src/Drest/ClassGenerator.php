@@ -2,10 +2,14 @@
 namespace Drest;
 
 
+use Zend\Code\Generator\ParameterGenerator;
+
 use Drest\Mapping\RouteMetaData,
     Drest\Mapping\ClassMetaData,
+    Drest\Inflector,
 
     Doctrine\ORM\EntityManager,
+    Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata,
 
     Zend\Code\Generator;
 
@@ -24,16 +28,18 @@ class ClassGenerator
     const HEADER_PARAM = 'X-DrestCG';
 
     /**
+     * Param types - used in setter method generators
+     * @var integer
+     */
+    const PARAM_TYPE_ITEM                   = 1;
+    const PARAM_TYPE_RELATION_SINGLE        = 2;
+    const PARAM_TYPE_RELATION_COLLECTION    = 3;
+
+    /**
      * CG classes generated from routeMetaData
      * @var array $classes - uses className as the key
      */
     protected $classes = array();
-
-    /**
-     * The namespace to be used on the generated classes
-     * @var string $namespace
-     */
-    protected $namespace;
 
     /**
      * Entity manager - required to detect relation types and classNames on expose data
@@ -68,10 +74,6 @@ class ClassGenerator
             $this->recurseParams($expose, $classMetaData->getClassName());
         }
 
-
-        // @todo: how do we handle collection routes? - server will return an array of $rootClasses - shouldn't have any effect on the classes we generate
-        // $routeMetaData->isCollection();
-
         serialize($this->classes);
     }
 
@@ -84,20 +86,6 @@ class ClassGenerator
         return serialize($this->classes);
     }
 
-    /**
-     * Break the class into 2 parts, namespace / classname
-     * @param string $className
-     * @return array $parts - returns an array with 2 entrys, classname and namespace (respectively)
-     */
-    protected function getClassParts($className)
-    {
-        $parts = explode('\\', $className);
-
-        return array(
-            array_pop($parts),
-            implode('\\', $parts)
-        );
-    }
 
     /**
      * Recurse the expose parameters - pass the entities full classname (including namespace)
@@ -124,78 +112,212 @@ The variables declared are exposed by the rest endpoint provided when generating
 EOT;
             $docBlock = new Generator\DocBlockGenerator($short, $long);
             $cg->setDocBlock($docBlock);
-        }
 
-        list($className, $namespace) = $this->getClassParts($fullClassName);
+            $cg->addMethods(array($this->getStaticCreateMethod($this->getTargetType($fullClassName))));
+        }
 
         foreach ($expose as $key => $value)
         {
             if (is_array($value))
             {
-                $property = new Generator\PropertyGenerator();
-                $property->setName($key);
-                $property->setVisibility(Generator\AbstractMemberGenerator::FLAG_PUBLIC);
+                $property = $this->createProperty($key);
 
                 if ($ormClassMetaData->hasAssociation($key))
                 {
-                    $assocMapping = $this->handleAssocProperty($property, $ormClassMetaData, $key);
-                    if (!$cg->hasProperty($key))
-                    {
-                        $cg->addProperties(array($property));
-                    }
+                    $this->handleAssocProperty($key, $cg, $ormClassMetaData);
 
+                    $assocMapping = $ormClassMetaData->getAssociationMapping($key);
                     $this->recurseParams($value, $assocMapping['targetEntity']);
                 }
             } else
             {
-                $property = new Generator\PropertyGenerator();
-                $property->setName($value);
-
                 if ($ormClassMetaData->hasAssociation($value))
                 {
                     // This is an association field with no explicit include fields, include add data field (no relations)
-                    $assocMapping = $this->handleAssocProperty($property, $ormClassMetaData, $value);
-                    $targetEntity = $assocMapping['targetEntity'];
-                    $teCmd = $this->em->getClassMetadata($targetEntity);
+                    $this->handleAssocProperty($value, $cg, $ormClassMetaData);
+
+                    $assocMapping = $ormClassMetaData->getAssociationMapping($value);
+                    $teCmd = $this->em->getClassMetadata($assocMapping['targetEntity']);
                     $this->recurseParams($teCmd->getColumnNames(), $assocMapping['targetEntity']);
-                }
-                if (!$cg->hasProperty($value))
+                } else
                 {
-                    $property->setVisibility(Generator\AbstractMemberGenerator::FLAG_PUBLIC);
-                    $cg->addProperties(array($property));
+                    $this->handleNonAssocProperty($value, $cg);
                 }
             }
         }
 
-        if (!isset($this->classes[$fullClassName]))
+        // If the class is already set, overwrite it with it additional expose fields
+        $this->classes[$fullClassName] = $cg;
+    }
+
+    /**
+     * Build a ::create() method for each data class
+     * @param string $class - The name of the class returned (self)
+     * @return Zend\Code\Generator\MethodGenerator $method
+     */
+    private function getStaticCreateMethod($class)
+    {
+        $method = new Generator\MethodGenerator();
+        $method->setDocBlock('@return ' . $class . ' $instance');
+        $method->setBody('return new self();');
+        $method->setName('create');
+        $method->setStatic(true);
+        return $method;
+    }
+
+    /**
+     * Create a property instance
+     * @param string $name - property name
+     * @return Zend\Code\Generator\PropertyGenerator $property
+     */
+    private function createProperty($name)
+    {
+        $property = new Generator\PropertyGenerator();
+        $property->setName($name);
+        $property->setVisibility(Generator\AbstractMemberGenerator::FLAG_PUBLIC);
+        return $property;
+    }
+
+    /**
+     * get setter methods for a parameter based on type
+     * @param Zend\Code\Generator\ClassGenerator $cg
+     * @param string $name - the parameter name
+     * @param int $type - The type of parameter to be handled
+     * @param string $targetClass - the target classname to be set (only used in relational setters)
+     * @return array $methods
+     */
+    private function getSetterMethods(&$cg, $name, $type, $targetClass = null)
+    {
+        $methods = array();
+        switch ($type)
         {
-            $this->classes[$fullClassName] = $cg;
+            case self::PARAM_TYPE_ITEM:
+                $method = new Generator\MethodGenerator();
+                $method->setDocBlock('@param string $' . $name);
+
+                $method->setParameter(new ParameterGenerator($name));
+                $method->setBody('$this->' .  $name . ' = $' . $name . ';');
+
+                $method->setName('set' . $this->camelCaseMethodName($name));
+                $methods[] = $method;
+                break;
+            case self::PARAM_TYPE_RELATION_SINGLE:
+                $method = new Generator\MethodGenerator();
+                $method->setDocBlock('@param ' . $targetClass . ' $' . $name);
+
+                $method->setParameter(new ParameterGenerator($name, $this->getTargetType($targetClass)));
+                $method->setBody('$this->' .  $name . ' = $' . $name . ';');
+                $method->setName('set' . $this->camelCaseMethodName($name));
+                $methods[] = $method;
+                break;
+            case self::PARAM_TYPE_RELATION_COLLECTION:
+                $singledName = Inflector::singularize($name);
+                $method = new Generator\MethodGenerator();
+                $method->setDocBlock('@param ' . $targetClass . ' $' . $singledName);
+
+
+                $method->setParameter(new ParameterGenerator($singledName, $this->getTargetType($targetClass)));
+
+                $method->setBody('$this->' .  $name . '[] = $' . $singledName . ';');
+                $singleMethodName = 'add' . $this->camelCaseMethodName($singledName);
+                $method->setName($singleMethodName);
+                $methods[] = $method;
+
+                $pluralName = Inflector::pluralize($name);
+                if ($singledName === $pluralName)
+                {
+                    // Unable to generate a pluralized collection method
+                    break;
+                }
+
+                $pluralMethod = new Generator\MethodGenerator();
+                $pluralMethod->setDocBlock('@param array $' . $name);
+
+                $pluralMethod->setName('add' . $this->camelCaseMethodName($pluralName));
+                $pluralMethod->setParameter(new ParameterGenerator($pluralName, 'array'));
+                $pluralMethod->setBody("foreach (\$$pluralName as \$$singledName) \n{\n    \$this->$singleMethodName(\$$singledName);\n}");
+
+                $methods[] = $pluralMethod;
+                break;
+        }
+
+        // All setter methods will return $this
+        for ($x = 0; $x < sizeof($methods); $x++)
+        {
+            $docBlock = $methods[$x]->getDocBlock();
+            $docBlock->setShortDescription($docBlock->getShortDescription() . "\n@return " . $cg->getName() . ' $this');
+            $methods[$x]->setDocBlock($docBlock);
+            $methods[$x]->setBody($methods[$x]->getBody() . "\nreturn \$this;");
+        }
+        return $methods;
+    }
+
+    /**
+     * Handle a non associative property
+     * @param string $name - name of the field
+     * @param Zend\Code\Generator\ClassGenerator $cg - The class generator object to attach to
+     */
+    private function handleNonAssocProperty($name, Generator\ClassGenerator &$cg)
+    {
+        $property = $this->createProperty($name);
+        if (!$cg->hasProperty($name))
+        {
+            $cg->addProperties(array($property));
+            $cg->addMethods($this->getSetterMethods($cg, $name, self::PARAM_TYPE_ITEM));
         }
     }
 
     /**
-     *
      * Handle an associative property field
-     * Updates the property value to correctly reflect the association
-     * @param Generator\PropertyGenerator $property
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $ormClassMetaData
-     * @param string $name - the name of the property
-     * @return array the association mapping - if available
+     * @param string $name - name of the field
+     * @param Zend\Code\Generator\ClassGenerator $cg - The class generator object to attach to
+     * @param Doctrine\ORM\Mapping\ClassMetadata $ormClassMetaData - The ORM class meta data
      */
-    private function handleAssocProperty(Generator\PropertyGenerator &$property, \Doctrine\ORM\Mapping\ClassMetadata $ormClassMetaData, $name)
+    private function handleAssocProperty($name, Generator\ClassGenerator &$cg, ORMClassMetadata $ormClassMetaData)
     {
         $assocMapping = $ormClassMetaData->getAssociationMapping($name);
+        $property = $this->createProperty($name);
 
         if ($assocMapping['type'] & $ormClassMetaData::TO_MANY)
         {
             // This is a collection (should be an Array)
             $property->setDocBlock('@var array $' . $name);
             $property->setDefaultValue(array());
+            $paramType = self::PARAM_TYPE_RELATION_COLLECTION;
         } else
         {
             // This is a single relation
             $property->setDocBlock('@var ' . $assocMapping['targetEntity'] . ' $' . $name);
+            $paramType = self::PARAM_TYPE_RELATION_SINGLE;
         }
-        return $assocMapping;
+
+        if (!$cg->hasProperty($name))
+        {
+            $cg->addProperties(array($property));
+            $cg->addMethods($this->getSetterMethods($cg, $name, $paramType, $assocMapping['targetEntity']));
+        }
+    }
+
+
+    /**
+     * camel case a parameter into a suitable method name
+     * @param string $name
+     * @return string $name
+     */
+    private function camelCaseMethodName($name)
+    {
+        return implode('', array_map(function($item){
+            return ucfirst($item);
+        }, explode('_', $name)));
+    }
+
+    /**
+     * Get the target type class (excludes any namespace)
+     * @param string $targetClass
+     */
+    private function getTargetType($targetClass)
+    {
+        $parts = explode('\\', $targetClass);
+        return (sizeof($parts) > 1) ? implode('\\', array_slice($parts, 1)) : $targetClass;
     }
 }

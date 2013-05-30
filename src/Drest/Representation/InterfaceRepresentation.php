@@ -3,25 +3,29 @@ namespace Drest\Representation;
 
 use Drest\Mapping\RouteMetaData,
     Drest\Query\ResultSet,
-    Drest\Request;
+    Drest\Request,
+    Drest\Response;
 
 interface InterfaceRepresentation
 {
-
-    const STATE_CLEAN = 1;
-    const STATE_UPDATED = 2;
-
-    /**
-     * Representation parameter name when its appended to a data object
-     * @var string
-     */
-    const PARAM_NAME = '_drest_representation_';
-
 	/**
 	 * Write the results to the $data variable
 	 * @param Drest\Query\ResultSet $data - The data to be passed into the writer
 	 */
 	public function write(ResultSet $data);
+
+    /**
+     * update the representation to match the data contained within a client data object
+     * - This will call the write method that will store its representation in the $data array
+     */
+	public function update($object);
+
+	/**
+	 * Parse a response object returned from Drest\Client after attempting to push data to the server (POST / PUT / PATCH)
+	 * @param Drest\Response $response
+	 * @param string $verb
+	 */
+	public function parsePushResponse(Response $response, $verb);
 
     /**
      * Content type to be used when this writer is matched

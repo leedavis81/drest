@@ -90,7 +90,6 @@ class User
      */
     public function populatePost(array $data)
     {
-        var_dump($data);
         if (isset($data['email_address']))
         {
             $this->email_address = $data['email_address'];
