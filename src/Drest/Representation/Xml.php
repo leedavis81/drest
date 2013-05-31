@@ -158,32 +158,6 @@ class Xml extends AbstractRepresentation
 		return !empty($output) ? $output: '';
     }
 
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Drest\Representation.InterfaceRepresentation::parseResponse()
-	 */
-	public function parsePushResponse(Response $response, $verb)
-	{
-	    switch ($verb)
-	    {
-	        case Request::METHOD_POST:
-
-	            $xml = new \DomDocument('1.0', 'UTF-8');
-	            $xml->loadXML($response->getBody());
-
-	            $body = $this->convertXmlToArray($xml->documentElement);
-                if (isset($body['location']) && strtolower($body['location']) !== 'unknown')
-                {
-                    $this->locationPath =  '/' . implode('/', array_slice(explode('/', $body['location']), 3));
-                }
-	            break;
-            case Request::METHOD_PUT:
-            case Request::METHOD_PATCH:
-                break;
-	    }
-	}
-
     /**
      * Does this representation have loaded location path
      * @return boolean $response

@@ -20,13 +20,6 @@ interface InterfaceRepresentation
      */
 	public function update($object);
 
-	/**
-	 * Parse a response object returned from Drest\Client after attempting to push data to the server (POST / PUT / PATCH)
-	 * @param Drest\Response $response
-	 * @param string $verb
-	 */
-	public function parsePushResponse(Response $response, $verb);
-
     /**
      * Content type to be used when this writer is matched
      * @return string content type

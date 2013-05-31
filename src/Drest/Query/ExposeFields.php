@@ -97,19 +97,19 @@ class ExposeFields implements \Iterator
 	 * Configure the expose object to filter out fields that are not allowed to be use by the client.
 	 * Unlike the configuring of the Pull request, this function will return the formatted array in a ResultSet object
 	 * This is only applicable for a HTTP push (POST/PUT/PATCH) call
-	 * @param array $requestedExposure
+	 * @param array $pushed	- the data push on the request
 	 * @return array $requestedExposure
-	 * @return array $response
+	 * @return Drest\Query\ResultSet $response
 	 */
-	public function configurePushRequest($requestedExposure)
+	public function configurePushRequest($pushed)
 	{
         // Offset the array by one of it has a string key and is size of 1
-	    if (sizeof($requestedExposure) == 1 && is_string(key($requestedExposure)))
+	    if (sizeof($pushed) == 1 && is_string(key($pushed)))
 	    {
-	        $rootKey = key($requestedExposure);
-            $requestedExposure = $this->filterPushExpose($requestedExposure[key($requestedExposure)], $this->fields);
+	        $rootKey = key($pushed);
+            $pushed = $this->filterPushExpose($pushed[key($pushed)], $this->fields);
 
-            return ResultSet::create($requestedExposure, $rootKey);
+            return ResultSet::create($pushed, $rootKey);
 	    } else
 	    {
 	        // currently unable to handle the pushing of collection data

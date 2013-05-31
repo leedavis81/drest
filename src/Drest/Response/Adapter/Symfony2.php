@@ -19,7 +19,7 @@ class Symfony2 extends AdapterAbstract
      */
     public function getHttpHeader($name = null)
     {
-		if ($name !== null && $this->getResponse()->headers->has($name))
+		if ($name !== null)
 		{
             return $this->getResponse()->headers->get($name);
 		}

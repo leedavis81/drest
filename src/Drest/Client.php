@@ -5,13 +5,13 @@ use Guzzle\Http\Client as GuzzleClient,
 
     Drest\Representation\AbstractRepresentation,
     Drest\Representation\RepresentationException,
-    Drest\Response,
+    Drest\Client\Response,
     Drest\Query\ResultSet,
-    Drest\Response\ErrorException;
+    Drest\Error\ErrorException,
+    Guzzle\Http\Exception\BadResponseException;
 
 class Client
 {
-
     /**
      * The transport to be used
      * @var Guzzle\Http\Client
@@ -77,127 +77,66 @@ class Client
     }
 
     /**
-     *
-     * Performs an OPTIONS request to the drest endpoint and generates the retrieved classes in given directory
-     * @param string $directory
-     * @param string $path - Rather than regenerating all classes, generate all classes necessary for the object utilised under $path
+     * Get data from a path
+     * @param string $path   - the path to be requested
+     * @param array $headers - any additional headers you want to send on the request
      */
-    public function generateClasses($directory, $path = null)
+    public function get($path, array $headers = array())
     {
+        $representation = $this->getRepresentationInstance();
 
-    }
+        $headers['Accept'] = $representation->getContentType();
+        $request = $this->transport->get(
+            $path,
+            $headers
+        );
 
-    /**
-     * Static call to create an instance of this client
-     * @param unknown_type $endpoint
-     */
-    public static function create($endpoint)
-    {
-        return new self($endpoint);
-    }
-
-    /**
-     * Specify the fields you want to retrieve in pipe delimited format.
-     * @param string $fields
-     */
-    public function fields($fields)
-    {
-        // Check how the representation allows field limited requests
-
-        // Set the header / params based on type
-    }
-
-    public function get($path, $fields = null)
-    {
-
-        if (!is_null($fields))
+        try {
+            $response = $this->transport->send($request);
+        } catch (BadResponseException $exception)
         {
-            // We need to check the object graph for the request method used to filter expose fields
+            throw $this->handleErrorResponse($exception);
         }
 
-        $this->transport->get($path, $headers);
-
-
-        $this->transport->send();
+        $representation = $representation::createFromString($response->getBody(true));
+        return new Response($representation, $response);
     }
 
     /**
-     * Post an object
-     * @param string $path													- the path to post this object to
-     * @param object $object 												- the object to be posted to given path
-     * @return Drest\Representation\AbstractRepresentation $representation 	- Populated representation instance
-     * @throws ErrorException 												- upon the return of any error document from the server
+     * Post an object. You can optionally append variables to the path for posting (eg /users?sort=age).
+     * @param string 					$path					- the path to post this object to.
+     * @param object 					$object					- the object to be posted to given path
+     * @param array  					$headers				- an array of headers to send with the request
+     * @return Drest\Client\Response 	$response				- Response object with a populated representation instance
+     * @throws Drest\Error\ErrorException						- upon the return of any error document from the server
      */
-    public function post($path, &$object)
+    public function post($path, &$object, array $headers = array())
     {
         $representation = $this->getRepresentationInstance();
         $representation->update($object);
 
         $request = $this->transport->post(
             $path,
-            array('Content-Type' => $representation->getContentType()),
+            $headers,
             $representation->__toString()
         );
+
+        foreach ($this->getVarsFromPath($path) as $key => $value)
+        {
+            $request->setPostField($key, $value);
+        }
+        // Bug: Header must be set after adding post fields as Guzzle ammends the Content-Type header info.
+        // see: Guzzle\Http\Message\EntityEnclosingRequest::processPostFields()
+        $request->setHeader('Content-Type', $representation->getContentType());
 
         try {
             $response = $this->transport->send($request);
         } catch (\Guzzle\Http\Exception\BadResponseException $exception)
         {
-            $response = $exception->getResponse();
-
-            $errorException = new ErrorException('An error occured on this request', 0, $exception);
-            $errorException->setResponse($response);
-            foreach ($this->getErrorDocumentClasses() as $errorClass)
-            {
-                if ($errorClass::getContentType() === $response->getContentType())
-                {
-                    $errorDocument = $errorClass::createFromString($response->getBody(true));
-                    $errorException->setErrorDocument($errorDocument);
-                    break;
-                }
-            }
-            throw $errorException;
+            throw $this->handleErrorResponse($exception);
         }
 
-        // Pass in a Drest response object to the representation
-        $representation->parsePushResponse(Response::create($response), Request::METHOD_POST);
-
-        return $representation;
-    }
-
-
-    /**
-     * Get all registered error document classes
-     * @return array $classes
-     */
-    public function getErrorDocumentClasses()
-    {
-        $classes = array();
-        $path = realpath(__DIR__ . DIRECTORY_SEPARATOR . 'Error' . DIRECTORY_SEPARATOR . 'Response');
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
-
-        foreach ($iterator as $file)
-        {
-            if (!$file->getExtension() === 'php')
-            {
-                continue;
-            }
-            $path = $file->getRealPath();
-            require_once $path;
-        }
-
-        foreach (get_declared_classes() as $className)
-        {
-            $reflClass = new \ReflectionClass($className);
-            if (array_key_exists('Drest\\Error\\Response\\ResponseInterface', $reflClass->getInterfaces()))
-            {
-                $classes[] = $className;
-            }
-        }
-        return $classes;
+        return new Response($representation, $response);
     }
 
     /**
@@ -234,8 +173,6 @@ class Client
         $this->transport->delete($path, $headers, $body);
     }
 
-
-
     /**
      * Get the transport object
      * @return Guzzle\Http\Client $client
@@ -245,98 +182,77 @@ class Client
         return $this->transport;
     }
 
-
     /**
-     * Attach a single object to the managed dataObjects array
-     * @param Drest\Client\Representation\AbstractRepresentation $object
+     * Handle an error response exception / object
+     * @param Guzzle\Http\Exception\BadResponseException $exception
+     * @return Drest\Error\ErrorException $error_exception
      */
-    public function attach(\Drest\Client\Representation\AbstractRepresentation $object)
+    protected function handleErrorResponse(BadResponseException $exception)
     {
-        $this->dataObjects[] = $object;
-    }
-
-    /**
-     * Sync all the changes that have been made to all or a single attached object
-     * @param Drest\Client\Representation\AbstractRepresentation $object
-     */
-    public function sync(\Drest\Client\Representation\AbstractRepresentation $object = null)
-    {
-        if (!is_null($object))
+        $response = \Drest\Response::create($exception->getResponse());
+        $errorException = new ErrorException('An error occured on this request', 0, $exception);
+        $errorException->setResponse($response);
+        foreach ($this->getErrorDocumentClasses() as $errorClass)
         {
-
-        } else
-        {
-            // Go through the entire $dataObjects array
-        }
-
-    }
-
-
-    /**
-     * Method to handle the response from the guzzle transport layer
-     * @param \Guzzle\Http\Message\Response $response
-     */
-    protected function handleResponse(\Guzzle\Http\Message\Response $response)
-    {
-        $response->getStatusCode();
-    }
-
-    /**
-     * Get the representation object (if it exists) from the data object
-     * @param Drest\Representation\AbstractRepresentation $object
-     */
-    public function getRepresentation($object)
-    {
-        $paramName = \Drest\Representation\InterfaceRepresentation::PARAM_NAME;
-        if (isset($object->$paramName))
-        {
-            return $object->$paramName;
-        }
-    }
-
-    /**
-     * Does this object already have a loaded representation object attached
-     * @return boolean $result
-     */
-    protected function hasRepresentation($object)
-    {
-        $paramName = \Drest\Representation\InterfaceRepresentation::PARAM_NAME;
-        return isset($object->$paramName);
-    }
-
-    /**
-     * update the representation to match the data contained within the data object
-     * @return object $object
-     */
-    protected function updateRepresentation($object)
-    {
-        $objectVars = get_object_vars($object);
-        $this->repIntoArray($objectVars);
-
-        $representation = $this->getRepresentationInstance();
-        $representation->write(ResultSet::create($objectVars, strtolower(implode('', array_slice(explode('\\', get_class($object)), -1)))));
-
-
-        return $object;
-    }
-
-    /**
-     * Recurse the representation into an array
-     * @param array $vars
-     */
-    protected function repIntoArray(array &$vars)
-    {
-        foreach ($vars as $key => $var)
-        {
-            if (is_array($var))
+            if ($errorClass::getContentType() === $response->getHttpHeader('Content-Type'))
             {
-                $this->repIntoArray($vars[$key]);
-            } elseif (is_object($var))
-            {
-                $vars[$key] = get_object_vars($var);
-                $this->repIntoArray($vars[$key]);
+                $errorDocument = $errorClass::createFromString($response->getBody());
+                $errorException->setErrorDocument($errorDocument);
+                break;
             }
         }
+        return $errorException;
     }
 
+    /**
+     * Get all registered error document classes
+     * @return array $classes
+     * @todo: this needs to be cached, or have the classes loaded up on client bootstrap
+     */
+    protected function getErrorDocumentClasses()
+    {
+        $classes = array();
+        $path = realpath(__DIR__ . DIRECTORY_SEPARATOR . 'Error' . DIRECTORY_SEPARATOR . 'Response');
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($iterator as $file)
+        {
+            if (!$file->getExtension() === 'php')
+            {
+                continue;
+            }
+            $path = $file->getRealPath();
+            include $path;
+        }
+
+        foreach (get_declared_classes() as $className)
+        {
+            $reflClass = new \ReflectionClass($className);
+            if (array_key_exists('Drest\\Error\\Response\\ResponseInterface', $reflClass->getInterfaces()))
+            {
+                $classes[] = $className;
+            }
+        }
+
+        return $classes;
+    }
+
+    /**
+     * Get the variables from a path
+     * @param string $path
+     * @return array $vars
+     */
+    protected function getVarsFromPath($path)
+    {
+        $vars = array();
+        $urlParts = preg_split('/[?]/', $path);
+        if (isset($urlParts[1]))
+        {
+            parse_str($urlParts[1], $vars);
+        }
+        return $vars;
+    }
 }

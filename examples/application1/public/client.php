@@ -9,10 +9,10 @@ require '../Client/Entities/Profile.php';
 require '../Client/Entities/PhoneNumber.php';
 
 
-$client = new Drest\Client('http://drest-example1.localhost', 'Json');
+$client = new Drest\Client('http://drest-example1.localhost', 'Xml');
 
 
-
+/* Post an item
 $user = Client\Entities\User::create()
         ->setEmailAddress('hello@somewhere.com')
         ->setUsername('leedavis81')
@@ -27,14 +27,25 @@ $user = Client\Entities\User::create()
 
 try
 {
-    $representation = $client->post('/user', $user);
-    if ($representation->hasLocationPath())
+    $response = $client->post('/dzfsd', $user);
+    if (($location = $response->getHttpHeader('Location')) !== null)
     {
-        //$client->get($representation->getLocationPath());
+        echo 'The resource was created at: ' . $location;
     }
-} catch (\Drest\Response\ErrorException $e)
+} catch (\Drest\Error\ErrorException $e)
 {
-    var_dump($e->getErrorDocument());
+    echo $e->getErrorDocument()->render();
 }
 
+*/
 
+/* get an item */
+
+try {
+    $response = $client->get('user/85');
+
+    echo $response->getRepresentation();
+} catch (\Drest\Error\ErrorException $e)
+{
+    echo $e->getErrorDocument()->render();
+}

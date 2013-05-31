@@ -1,8 +1,8 @@
 <?php
-namespace Drest\Response;
+namespace Drest\Error;
 
 use Drest\Error\Response\ResponseInterface,
-    Guzzle\Http\Message\Response;
+    Drest\Response;
 
 /**
  *
@@ -45,16 +45,16 @@ class ErrorException extends \Exception
 
     /**
      * Set the response of the error request
-     * @param Guzzle\Http\Message\Response $response
+     * @param Drest\Response $response
      */
     public function setResponse(Response $response)
     {
-        return $this->response;
+        $this->response = $response;
     }
 
     /**
      * Get the errored request's response
-     * @return Guzzle\Http\Message\Response $response
+     * @return Drest\Response $response
      */
     public function getResponse()
     {

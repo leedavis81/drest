@@ -266,7 +266,7 @@ class Manager
             );
         } elseif ($this->getRequest()->getHttpMethod() == Request::METHOD_POST)
         {
-            $representation = $representation->createFromString($this->request->getBody());
+            $representation = $representation::createFromString($this->request->getBody());
             // Write the filtered expose data
             $representation->write(
                 Query\ExposeFields::create($route)
@@ -291,6 +291,7 @@ class Manager
         {
             $this->service->runCallMethod();
         }
+
         return $this->getResponse();
 	}
 

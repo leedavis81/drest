@@ -18,7 +18,7 @@ class Guzzle extends AdapterAbstract
      */
     public function getHttpHeader($name = null)
     {
-		if ($name !== null && $this->getResponse()->hasHeader($name))
+		if ($name !== null)
 		{
             return $this->getResponse()->getHeader($name, true);
 		}

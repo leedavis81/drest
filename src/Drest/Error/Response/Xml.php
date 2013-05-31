@@ -65,16 +65,16 @@ class Xml implements ResponseInterface
      */
     public static function createFromString($string)
     {
-        $xml = simplexml_load_string($string);
         $instance = new self();
-        foreach ($xml->getChildren() as $child)
+	    $xml = new \DomDocument('1.0', 'UTF-8');
+	    $xml->formatOutput = true;
+
+        if (!$xml->loadXML($string))
         {
-            if ($child->getName() == 'message');
-            {
-                 $instance->setMessage(sprintf("%s", $child));
-            }
+            throw new \Exception('Unable to load XML document from string');
         }
 
+        $instance->setMessage($xml->documentElement->textContent);
         return $instance;
     }
 }
