@@ -9,7 +9,7 @@ require '../Client/Entities/Profile.php';
 require '../Client/Entities/PhoneNumber.php';
 
 
-$client = new Drest\Client('http://drest-example1.localhost', 'Xml');
+$client = new Drest\Client('http://drest-example1.localhost', 'Json');
 
 
 /* Post an item
@@ -27,7 +27,7 @@ $user = Client\Entities\User::create()
 
 try
 {
-    $response = $client->post('/dzfsd', $user);
+    $response = $client->post('/users', $user);
     if (($location = $response->getHttpHeader('Location')) !== null)
     {
         echo 'The resource was created at: ' . $location;
@@ -36,10 +36,10 @@ try
 {
     echo $e->getErrorDocument()->render();
 }
+ */
 
-*/
 
-/* get an item */
+/* get an item
 
 try {
     $response = $client->get('user/85');
@@ -49,3 +49,42 @@ try {
 {
     echo $e->getErrorDocument()->render();
 }
+
+*/
+
+/* put (update) an item
+
+$user = Client\Entities\User::create()
+        ->setEmailAddress('newemail@somewhere2.com');
+try
+{
+    $response = $client->put('/user/105', $user);
+    if ($response->getStatusCode() == 200)
+    {
+        echo 'Entity was successfully updated';
+    }
+} catch (\Drest\Error\ErrorException $e)
+{
+    echo $e->getErrorDocument()->render();
+}
+
+*/
+
+/* patch (update - partial) an item
+
+$user = Client\Entities\User::create()
+        ->setEmailAddress('newemail@somewhere2.com');
+try
+{
+    $response = $client->patch('/user/106', $user);
+    if ($response->getStatusCode() == 200)
+    {
+        echo 'Entity was successfully updated';
+    }
+} catch (\Drest\Error\ErrorException $e)
+{
+    echo $e->getErrorDocument()->render();
+}
+
+*/
+

@@ -7,6 +7,8 @@ namespace Drest\Mapping;
  * @author Lee
  *
  */
+use Drest\Request;
+
 use Drest\DrestException;
 
 class RouteMetaData
@@ -202,7 +204,7 @@ class RouteMetaData
 
 	/**
 	 * Add verbs that are to be allowed on this route.
-	 * @param mixed $verbs = a sinlge or array of verbs valid for this route. eg array('GET', 'PUT')
+	 * @param mixed $verbs = a single or array of verbs valid for this route. eg array('GET', 'PUT')
 	 * @throws DrestException if verb is invalid
 	 */
 	public function setVerbs($verbs)
@@ -339,6 +341,26 @@ class RouteMetaData
 	public function hasHandleCall()
 	{
 	    return isset($this->handle_call);
+	}
+
+	/**
+	 * Does this route need a handle call? Required for POST/PUT/PATCH verbs
+	 * @return boolean $response
+	 */
+	public function needsHandleCall()
+	{
+	    foreach ($this->verbs as $verb)
+	    {
+	        switch ($verb)
+	        {
+    	        case Request::METHOD_POST:
+    	        case Request::METHOD_PUT:
+    	        case Request::METHOD_PATCH:
+    	            return true;
+    	        break;
+	        }
+	    }
+	    return false;
 	}
 
 	/**

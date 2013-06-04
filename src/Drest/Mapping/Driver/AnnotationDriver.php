@@ -309,6 +309,15 @@ class AnnotationDriver implements DriverInterface
                     }
                 }
 
+                // Error for any push metadata routes that dont have a handle
+                foreach ($metadata->getRoutesMetaData() as $routeMetaData)
+                {
+                    if ($routeMetaData->needsHandleCall() && !$routeMetaData->hasHandleCall())
+                    {
+                        throw DrestException::routeRequiresHandle($routeMetaData->getName());
+                    }
+                }
+
         	}
         }
 

@@ -122,6 +122,11 @@ class DrestException extends Exception
         return new self('The configured handle "' . $name . '" doesn\'t match any route of that name. Ensure @Drest\Handle(for="my_route") matches @Drest\Route(name="my_route")');
     }
 
+    public static function routeRequiresHandle($name)
+    {
+        return new self('Route requires a handle. Ensure a @Drest\Handle(for="' . $name . '") function is set. These are required for all push type routes (POST/PUT/PATCH)');
+    }
+
     public static function handleForCannotBeEmpty()
     {
         return new self('The @Drest\Handle configuration MUST contain a valid / matching "for" value');
@@ -141,6 +146,7 @@ class DrestException extends Exception
     {
         return new self('A resource can only have one route set as "origin"');
     }
+
 
     /**
      * @deprecated

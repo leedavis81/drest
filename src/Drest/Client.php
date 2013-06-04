@@ -141,26 +141,74 @@ class Client
 
     /**
      * Put an object at a set location ($path)
-     * @param string $path
-     * @param Drest\Client\Representation\AbstractRepresentation $object
+     * @param string 					$path					- the path to post this object to.
+     * @param object 					$object					- the object to be posted to given path
+     * @param array  					$headers				- an array of headers to send with the request
+     * @return Drest\Client\Response 	$response				- Response object with a populated representation instance
+     * @throws Drest\Error\ErrorException						- upon the return of any error document from the server
      */
-    public function put($path, $object)
+    public function put($path, &$object, array $headers = array())
     {
-        $this->transport->put($path, $headers, $body);
+        $representation = $this->getRepresentationInstance();
+        $representation->update($object);
 
-        $this->transport->send();
+        $request = $this->transport->put(
+            $path,
+            $headers,
+            $representation->__toString()
+        );
+
+        foreach ($this->getVarsFromPath($path) as $key => $value)
+        {
+            $request->setPostField($key, $value);
+        }
+
+        $request->setHeader('Content-Type', $representation->getContentType());
+
+        try {
+            $response = $this->transport->send($request);
+        } catch (\Guzzle\Http\Exception\BadResponseException $exception)
+        {
+            throw $this->handleErrorResponse($exception);
+        }
+
+        return new Response($representation, $response);
     }
 
     /**
-     * Patch (partially update) an object
-     * @param string $path
-     * @param Drest\Client\Representation\AbstractRepresentation $object
+     * Patch (partial update) an object at a set location ($path)
+     * @param string 					$path					- the path to post this object to.
+     * @param object 					$object					- the object to be posted to given path
+     * @param array  					$headers				- an array of headers to send with the request
+     * @return Drest\Client\Response 	$response				- Response object with a populated representation instance
+     * @throws Drest\Error\ErrorException						- upon the return of any error document from the server
      */
-    public function patch($path, $object)
+    public function patch($path, &$object, array $headers = array())
     {
-        $this->transport->patch($path, $headers, $body);
+        $representation = $this->getRepresentationInstance();
+        $representation->update($object);
 
-        $this->transport->send();
+        $request = $this->transport->patch(
+            $path,
+            $headers,
+            $representation->__toString()
+        );
+
+        foreach ($this->getVarsFromPath($path) as $key => $value)
+        {
+            $request->setPostField($key, $value);
+        }
+
+        $request->setHeader('Content-Type', $representation->getContentType());
+
+        try {
+            $response = $this->transport->send($request);
+        } catch (\Guzzle\Http\Exception\BadResponseException $exception)
+        {
+            throw $this->handleErrorResponse($exception);
+        }
+
+        return new Response($representation, $response);
     }
 
     /**
@@ -168,7 +216,7 @@ class Client
      * @param string $path
      * @param Drest\Client\Representation\AbstractRepresentation $object
      */
-    public function delete($path, $object)
+    public function delete($path, array $headers = array())
     {
         $this->transport->delete($path, $headers, $body);
     }

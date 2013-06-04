@@ -96,19 +96,20 @@ class AbstractService
 
         // If its a GET request and no expose fields are present, fail early
 	    $expose = $this->matched_route->getExpose();
-        if ($this->request->getHttpMethod() == Request::METHOD_GET && (empty($expose) || (sizeof($expose) == 1 && empty($expose[0]))))
+        if ($this->request->getHttpMethod() == Request::METHOD_GET &&
+            (empty($expose) || (sizeof($expose) == 1 && empty($expose[0])))
+           )
         {
             $this->renderDeterminedRepresentation($this->createResultSet(array()));
             return false;
         }
 
-
 	    // @todo: Run verb type setup operations (do we want to break down by verb? or entity name? - evm)
-	    switch ($this->request->getHttpMethod())
-	    {
-	        case Request::METHOD_GET:
-	            break;
-	    }
+//	    switch ($this->request->getHttpMethod())
+//	    {
+//	        case Request::METHOD_GET:
+//	            break;
+//	    }
 
 	    return true;
     }
@@ -145,10 +146,9 @@ class AbstractService
                 $functionName = strtolower($httpMethod) . 'Request';
 	            break;
             case Request::METHOD_CONNECT:
-            case Request::METHOD_PATCH:
             case Request::METHOD_PROPFIND:
             case Request::METHOD_HEAD:
-                //@todo: support implementation for these
+                //@todo: support implementation for these?
                 break;
             default:
                 $functionName = strtolower($httpMethod);

@@ -254,26 +254,17 @@ class Manager
 
 		// Get the reperesentation to be used
 		$representation = $this->getDeterminedRepresentation($route);
-
-        // Setup exposure fields on GET requests
-        if ($this->getRequest()->getHttpMethod() == Request::METHOD_GET)
-        {
-            $route->setExpose(
-                Query\ExposeFields::create($route)
-                ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
-                ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
-                ->toArray()
-            );
-        } elseif ($this->getRequest()->getHttpMethod() == Request::METHOD_POST)
-        {
-            $representation = $representation::createFromString($this->request->getBody());
-            // Write the filtered expose data
-            $representation->write(
-                Query\ExposeFields::create($route)
-                    ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
-                    ->configurePushRequest($representation->toArray())
-            );
-        }
+		switch ($this->getRequest()->getHttpMethod())
+		{
+		    case Request::METHOD_GET:
+		        $route = $this->handlePullExposureConfiguration($route);
+		        break;
+		    case Request::METHOD_POST:
+            case Request::METHOD_PUT:
+            case Request::METHOD_PATCH:
+                $representation = $this->handlePushExposureConfiguration($route, $representation);
+                break;
+		}
 
         // Set parameters matched on the route to the request object
         $this->request->setRouteParam($route->getRouteParams());
@@ -293,6 +284,40 @@ class Manager
         }
 
         return $this->getResponse();
+	}
+
+    /**
+     * Handle a pull requests' exposure configuration (GET)
+     * @param Drest\Mapping\RouteMetaData $route
+     * @return Drest\Mapping\RouteMetaData $route
+     */
+	protected function handlePullExposureConfiguration(RouteMetaData $route)
+	{
+        $route->setExpose(
+            Query\ExposeFields::create($route)
+            ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+            ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
+            ->toArray()
+        );
+        return $route;
+	}
+
+	/**
+	 * Handle a push requests' exposure configuration (POST/PUT/PATCH)
+	 * @param Drest\Mapping\RouteMetaData $route - the matched route
+	 * @param Drest\Representation\AbstractRepresentation $representation - the representation class to be used
+	 * @return Drest\Representation\AbstractRepresentation $representation
+	 */
+	protected function handlePushExposureConfiguration(RouteMetaData $route, AbstractRepresentation $representation)
+	{
+        $representation = $representation::createFromString($this->request->getBody());
+        // Write the filtered expose data
+        $representation->write(
+            Query\ExposeFields::create($route)
+                ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+                ->configurePushRequest($representation->toArray())
+        );
+        return $representation;
 	}
 
 
