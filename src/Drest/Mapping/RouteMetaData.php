@@ -78,15 +78,10 @@ class RouteMetaData
 	protected $collection = false;
 
 	/**
-	 * The service call to be executed upon successful routing
-	 * @var array $service_call_class
+	 * The action class to be executed upon successful routing
+	 * @var string $action_class
 	 */
-	protected $service_call_class;
-
-	/**
-	 * @var array $service_call_method
-	 */
-	protected $service_call_method;
+	protected $action_class;
 
 	/**
 	 * A handle function call for this route (if one is configured)
@@ -222,35 +217,21 @@ class RouteMetaData
 	}
 
 	/**
-	 * Set the service call information (on the route class) to be used upon routing a match
-	 * @param array $service_call - should be format array("CLASSNAME", "METHODNAME")
+	 * Set the action class to be executing upon routing a match
+	 * @param string $action_class - classname (can include namespace)
 	 */
-	public function setServiceCall(array $service_call)
+	public function setActionClass($action_class)
 	{
-	    if (sizeof($service_call) !== 2)
-	    {
-	        throw DrestException::invalidServiceCallFormat();
-	    }
-	    $this->service_call_class = (!empty($service_call[0])) ? $service_call[0] : null;
-	    $this->service_call_method = (!empty($service_call[1])) ? $service_call[1] : null;
+	    $this->action_class = $action_class;
 	}
 
 	/**
-	 * Get the service call class name
-	 * @return string $service_class
+	 * Get the action class name
+	 * @return string $action_class
 	 */
-	public function getServiceCallClass()
+	public function getActionClass()
 	{
-        return $this->service_call_class;
-	}
-
-	/**
-	 * Get the service call method to be used
-	 * @return string $service_call_method
-	 */
-	public function getServiceCallMethod()
-	{
-	    return $this->service_call_method;
+        return $this->action_class;
 	}
 
 

@@ -246,10 +246,10 @@ class AnnotationDriver implements DriverInterface
         	            $routeMetaData->setAllowedOptionRequest($route->allowOptions);
         	        }
 
-        	        // Add service call method
-        	        if (is_array($route->serviceCall))
+        	        // Add action class
+        	        if (isset($route->action))
         	        {
-        	            $routeMetaData->setServiceCall($route->serviceCall);
+        	            $routeMetaData->setActionClass($route->action);
         	        }
 
         	        // If the origin flag is set, set the name on the classmetadata

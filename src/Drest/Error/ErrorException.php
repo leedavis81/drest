@@ -20,7 +20,7 @@ class ErrorException extends \Exception
 
     /**
      * The response document
-     * @var Guzzle\Http\Message\Response $response
+     * @var Drest\Response $response
      */
     public $response;
 

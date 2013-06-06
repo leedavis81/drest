@@ -22,7 +22,7 @@ final class Route
     public $routeConditions;
 
     /** @var array */
-    public $serviceCall;
+    public $action;
 
     /** @var array */
     public $verbs;

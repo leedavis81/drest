@@ -27,7 +27,7 @@ $user = Client\Entities\User::create()
 
 try
 {
-    $response = $client->post('/users', $user);
+    $response = $client->post('/user', $user);
     if (($location = $response->getHttpHeader('Location')) !== null)
     {
         echo 'The resource was created at: ' . $location;
@@ -36,8 +36,7 @@ try
 {
     echo $e->getErrorDocument()->render();
 }
- */
-
+*/
 
 /* get an item
 
@@ -49,8 +48,8 @@ try {
 {
     echo $e->getErrorDocument()->render();
 }
-
 */
+
 
 /* put (update) an item
 
@@ -67,8 +66,9 @@ try
 {
     echo $e->getErrorDocument()->render();
 }
-
 */
+
+
 
 /* patch (update - partial) an item
 

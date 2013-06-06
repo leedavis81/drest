@@ -48,11 +48,6 @@ class DrestException extends Exception
         return new self('Route name used cannot be blank, and must only contain alphanumerics or underscore');
     }
 
-    public static function invalidServiceCallFormat()
-    {
-        return new self('Service call infromation is invalid. Must be in the format service_call={"CLASSNAME", "METHODNAME"}');
-    }
-
     public static function invalidHttpVerbUsed($verb)
     {
         return new self('Used an unknown HTTP verb of "' . $verb . '"');
@@ -158,14 +153,14 @@ class DrestException extends Exception
 
 
     // Service Exceptions
-    public static function serviceClassNotAnInstanceOfDrestService($class)
+    public static function actionClassNotAnInstanceOfActionAbstract($class)
     {
-    	return new self('Service class  "' . $class . '" is not an instance of Drest\Service.');
+    	return new self('Action class  "' . $class . '" is not an instance of Drest\Service\Action\ActionAbstract.');
     }
 
-    public static function unknownServiceMethod($class, $method)
+    public static function unknownActionClass($class)
     {
-        return new self('Unknown method "' . $method . '" on service class "' . $class);
+        return new self('Unknown action class "' . $class . '"');
     }
 
     public static function noMatchedRouteSet()

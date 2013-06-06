@@ -17,15 +17,10 @@ use Doctrine\Common\EventManager,
 
 	Drest\Error\Handler\AbstractHandler,
 
-	Drest\Request,
-	Drest\Query,
-	Drest\Service\AbstractService,
-
 	Drest\Representation\AbstractRepresentation,
 	Drest\Representation\RepresentationException,
 	Drest\Representation\UnableToMatchRepresentationException,
 
-	Drest\DrestException,
 	Drest\Route\MultipleRoutesException,
 	Drest\Route\NoMatchException;
 
@@ -70,14 +65,8 @@ class Manager
 	protected $response;
 
 	/**
-	 * A cache for initialised service classes
-	 * @var array contains array of service classes of instance Drest\Service\AbstractService
-	 */
-	protected $services;
-
-	/**
-	 * The matched service object from a dispatch() request
-	 * @var Drest\Service\AbstractService $service
+	 * A service object used to handle service actions
+	 * @var Drest\Service $service
 	 */
 	protected $service;
 
@@ -100,6 +89,7 @@ class Manager
     	$this->em 			= $em;
         $this->config       = $config;
         $this->eventManager = $eventManager;
+        $this->service      = new Service($this->em, $this);
 
         // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
@@ -184,6 +174,7 @@ class Manager
 	 */
 	private function handleError(\Exception $e)
 	{
+	    echo $e->getMessage();
 	    $eh = $this->getErrorHandler();
 
         try {
@@ -269,8 +260,6 @@ class Manager
         // Set parameters matched on the route to the request object
         $this->request->setRouteParam($route->getRouteParams());
 
-        // Get the service class
-        $this->service = $this->getServiceByRoute($route);
 
         // Set the matched service object and the error handler into the service class
         $this->service->setMatchedRoute($route);
@@ -567,34 +556,6 @@ class Manager
 	public function setErrorHandler(AbstractHandler $error_handler)
 	{
         $this->error_handler = $error_handler;
-	}
-
-    /**
-     * Get the service class for a matched route - provides default service class if none present
-     * @param Drest\Mapping\RouteMetaData $route - the matched route
-     * @return Drest\Service\AbstractService $service - the service class
-     * @throws DrestException if defined service class is not an instance of Drest\Service\AbstractService
-     */
-	public function getServiceByRoute(RouteMetaData $route)
-	{
-	    $serviceClassName = ltrim($route->getServiceCallClass(), '\\');
-	    $serviceClassName = (!empty($serviceClassName)) ? (strpos($serviceClassName, '\\') === 0) ? $serviceClassName : '\\' . $serviceClassName
-	                                                     : $this->config->getDefaultServiceClass();
-
-        // Return the already cached instance of the service class
-		if (!empty($serviceClassName) && isset($this->services[$serviceClassName]))
-	    {
-	        return $this->services[$serviceClassName];
-	    }
-
-	    $service = new $serviceClassName($this->em, $this);
-	    if (!$service instanceof Service\AbstractService)
-	    {
-	        throw DrestException::serviceClassNotAnInstanceOfDrestService(get_class($service));
-	    }
-
-	    $this->services[$serviceClassName] = $service;
-	    return $service;
 	}
 
     /**

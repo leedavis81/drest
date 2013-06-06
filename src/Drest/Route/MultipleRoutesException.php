@@ -10,6 +10,6 @@ class MultipleRoutesException extends \Exception
         {
             $helperText .= '"' . $route->getName() . '"';
         }
-        return new self('Multiple routes have matched to this request. See service definitions for: ' . $helperText);
+        return new self('Multiple routes have matched to this request. See route definitions for: ' . $helperText);
     }
 }
