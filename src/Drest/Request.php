@@ -28,32 +28,35 @@ class Request
 	/**
 	 * Construct an instance of Drest Request object
 	 * @param mixed $request prefered router type
+	 * @param array $adapterClasses - an array of adapter classes available
 	 */
-	public function __construct($request_object = null)
+	public function __construct($request_object = null, array $adapterClasses = array())
 	{
-	    //@todo: remove this, the request object should have no knowlegde of the adapted classes
-		$zf2class = 'Zend\Http\Request';
-		$sy2class = 'Symfony\Component\HttpFoundation\Request';
+		$defaultClass = 'Symfony\Component\HttpFoundation\Request';
 		if (is_null($request_object))
 		{
-			if (!class_exists($sy2class))
+			if (!class_exists($defaultClass))
 			{
-				throw DrestException::noRequestObjectDefinedAndCantInstantiateDefaultType($sy2class);
+				throw DrestException::noRequestObjectDefinedAndCantInstantiateDefaultType($defaultClass);
 			}
 			// Default to using symfony's request object
-			$this->adapter = new Adapter\Symfony2(\Symfony\Component\HttpFoundation\Request::createFromGlobals());
+			$this->adapter = new Adapter\Symfony2($defaultClass::createFromGlobals());
 		} else if (is_object($request_object))
 		{
-			if ($request_object instanceof $zf2class)
-			{
-				$this->adapter = new Adapter\ZendFramework2($request_object);
-			} elseif ($request_object instanceof $sy2class)
-			{
-				$this->adapter = new Adapter\Symfony2($request_object);
-			} else
-			{
-				throw DrestException::unknownAdapterForRequestObject($request_object);
-			}
+		    foreach ($adapterClasses as $adapterClass)
+            {
+		        $adaptedClassName = $adapterClass::getAdaptedClassName();
+		        if ($request_object instanceof $adaptedClassName)
+		        {
+		            $adaptedObj = new $adapterClass($request_object);
+		            if ($adaptedObj instanceof \Drest\Request\Adapter\AdapterAbstract)
+		            {
+    		            $this->adapter = $adaptedObj;
+    		            return;
+		            }
+		        }
+		    }
+            throw DrestException::unknownAdapterForRequestObject($request_object);
 		} else
 		{
 			throw DrestException::invalidRequestObjectPassed();
@@ -213,10 +216,11 @@ class Request
 	/**
 	 * Factory call to create a Drest request object
 	 * @param mixed $request_object prefered response object
+	 * @param array $adapterClasses - an array of adapter classes available
 	 */
-	public static function create($request_object = null)
+	public static function create($request_object = null, array $adapterClasses = array())
 	{
-		return new self($request_object);
+		return new self($request_object, $adapterClasses);
 	}
 
 }

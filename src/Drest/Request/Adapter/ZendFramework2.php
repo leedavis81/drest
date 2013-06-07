@@ -9,7 +9,16 @@ use \Zend\Http,
 class ZendFramework2 extends AdapterAbstract
 {
 
-		/**
+	/**
+	 * (non-PHPdoc)
+     * @see Drest\Request\Adapter.AdapterInterface::getAdpatedClassName()
+     */
+    public static function getAdaptedClassName()
+    {
+        return 'Zend\Http\Request';
+    }
+
+	/**
 	 * (non-PHPdoc)
 	 * @see Drest\Request\Adapter.AdapterInterface::getHttpMethod()
 	 */

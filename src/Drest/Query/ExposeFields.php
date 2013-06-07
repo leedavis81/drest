@@ -4,6 +4,7 @@ namespace Drest\Query;
 
 use Drest\Request,
     Drest\Query\InvalidExposeFieldsException,
+    Drest\DrestException,
     Drest\Mapping\RouteMetaData,
     Drest\Configuration,
     Drest\Query\ResultSet,
@@ -42,9 +43,9 @@ class ExposeFields implements \Iterator
     protected $route_expose;
 
 	/**
-	 * An array of classes that are registered on default expose depth. Prevents you traversing up and down bi-directional relations
+	 * An array of classes that are registered on default expose depth.
+	 * Temporary used during processExposeDepth to prevent you traversing up and down bi-directional relations
 	 * @var array $registered_expose_classes;
-	 * @todo: Move this, and the whole processing of it somewhere else
 	 */
 	protected $registered_expose_classes = array();
 
@@ -112,8 +113,7 @@ class ExposeFields implements \Iterator
             return ResultSet::create($pushed, $rootKey);
 	    } else
 	    {
-	        // currently unable to handle the pushing of collection data
-	        // @todo: throw an exception
+	        throw DrestException::unableToHandleACollectionPush();
 	    }
 	}
 

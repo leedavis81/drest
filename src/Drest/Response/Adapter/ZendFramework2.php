@@ -17,6 +17,14 @@ class ZendFramework2 extends AdapterAbstract
     }
 
 	/** (non-PHPdoc)
+     * @see Drest\Response\Adapter.AdapterInterface::getAdpatedClassName()
+     */
+    public static function getAdaptedClassName()
+    {
+        return 'Zend\Http\Response';
+    }
+
+	/** (non-PHPdoc)
      * @see Drest\Response\Adapter.AdapterInterface::getHttpHeader()
      */
     public function getHttpHeader($name = null)

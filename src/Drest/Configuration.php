@@ -55,8 +55,17 @@ class Configuration
         ));
         // Use Json and XML as the default representations
         $this->setDefaultRepresentations(array('Json', 'Xml'));
-        // Default service class to be used
-        $this->setDefaultServiceClass('Drest\Service\DefaultService');
+        // register the default request adapter classes
+        $this->registerRequestAdapterClasses(array(
+            'Drest\\Request\\Adapter\\ZendFramework2',
+            'Drest\\Request\\Adapter\\Symfony2'
+        ));
+        // register the default response adapter classes
+        $this->registerResponseAdapterClasses(array(
+            'Drest\\Response\\Adapter\\ZendFramework2',
+            'Drest\\Response\\Adapter\\Symfony2',
+            'Drest\\Response\\Adapter\\Guzzle',
+        ));
         // Depth of exposure on entity fields => relations
         $this->setExposureDepth(2);
         // Dont follow any relation type
@@ -224,24 +233,6 @@ class Configuration
     }
 
     /**
-     * Set the default service class to be used
-     * @param string $className
-     */
-    public function setDefaultServiceClass($className)
-    {
-        $this->_attributes['defaultServiceClass'] = $className;
-    }
-
-    /**
-     * Get the default service class
-     * @return string $className
-     */
-    public function getDefaultServiceClass()
-    {
-        return $this->_attributes['defaultServiceClass'];
-    }
-
-    /**
      * Set the default depth of columns to expose to client
      * @param integer $depth
      */
@@ -292,6 +283,91 @@ class Configuration
             return $this->_attributes['defaultExposureRelationsFetchType'];
         }
     }
+
+    /**
+     * Register an array of response adapter classes
+     * @param array $classes
+     */
+    public function registerResponseAdapterClasses(array $classes)
+    {
+        foreach ($classes as $class)
+        {
+            $this->registerResponseAdapterClass($class);
+        }
+    }
+
+    /**
+     * Register a class name to be used as a response adapter
+     * @param string $class
+     */
+    public function registerResponseAdapterClass($class)
+    {
+        $this->_attributes['responseAdpaterClasses'][] = $class;
+    }
+
+    /**
+     * Unregister an adapter class name entry
+     * @param string $class
+     */
+    public function unregisterResponseAdapterClass($class)
+    {
+        if (($offset = array_search($class, $this->_attributes['responseAdpaterClasses'])) !== false)
+        {
+            unset($this->_attributes['responseAdpaterClasses'][$offset]);
+        }
+    }
+
+    /**
+     * get the registered response adpated classes
+     * @return array $class_name - a string array of class names
+     */
+    public function getRegisteredResponseAdapterClasses()
+    {
+        return $this->_attributes['responseAdpaterClasses'];
+    }
+
+    /**
+     * Register an array of request adapter classes
+     * @param array $classes
+     */
+    public function registerRequestAdapterClasses(array $classes)
+    {
+        foreach ($classes as $class)
+        {
+            $this->registerRequestAdapterClass($class);
+        }
+    }
+
+    /**
+     * Register a class name to be used as a request adapter
+     * @param string $class
+     */
+    public function registerRequestAdapterClass($class)
+    {
+        $this->_attributes['requestAdpaterClasses'][] = $class;
+    }
+
+    /**
+     * Unregister an adapter class name entry
+     * @param string $class
+     */
+    public function unregisterRequestAdapterClass($class)
+    {
+        if (($offset = array_search($class, $this->_attributes['requestAdpaterClasses'])) !== false)
+        {
+            unset($this->_attributes['requestAdpaterClasses'][$offset]);
+        }
+    }
+
+    /**
+     * get the registered request adpated classes
+     * @return array $class_name - a string array of class names
+     */
+    public function getRegisteredRequestAdapterClasses()
+    {
+        return $this->_attributes['requestAdpaterClasses'];
+    }
+
 
     /**
      * A setting to generically allow OPTIONS requests across the entire API.

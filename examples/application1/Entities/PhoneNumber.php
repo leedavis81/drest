@@ -25,13 +25,24 @@ class PhoneNumber
     /**
      * @var Entities\User $user
      * @ORM\ManyToOne(targetEntity="User", inversedBy="phone_numbers", fetch="EAGER")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
     /**
      * @var string $number
-     * @ORM\Column(name="number", type="integer", length=255)
+     * @ORM\Column(name="number", type="bigint")
      */
     private $number;
 
+
+    public function setUser(User $user)
+    {
+        $this->user = $user;
+    }
+
+    public function setNumber($number)
+    {
+        $this->number = $number;
+    }
 }

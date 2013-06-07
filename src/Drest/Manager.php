@@ -152,8 +152,8 @@ class Manager
      */
 	public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = array())
 	{
-	    $this->setRequest(Request::create($request));
-	    $this->setResponse(Response::create($response));
+	    $this->setRequest(Request::create($request, $this->config->getRegisteredRequestAdapterClasses()));
+	    $this->setResponse(Response::create($response, $this->config->getRegisteredResponseAdapterClasses()));
 	    try {
 	        return $this->execute($namedRoute, $routeParams);
 	    } catch (\Exception $e)
@@ -174,7 +174,6 @@ class Manager
 	 */
 	private function handleError(\Exception $e)
 	{
-	    echo $e->getMessage();
 	    $eh = $this->getErrorHandler();
 
         try {
@@ -243,7 +242,7 @@ class Manager
             throw $e;
 		}
 
-		// Get the reperesentation to be used
+		// Get the reperesentation to be used - always successful or it throws an exception
 		$representation = $this->getDeterminedRepresentation($route);
 		switch ($this->getRequest()->getHttpMethod())
 		{
@@ -259,7 +258,6 @@ class Manager
 
         // Set parameters matched on the route to the request object
         $this->request->setRouteParam($route->getRouteParams());
-
 
         // Set the matched service object and the error handler into the service class
         $this->service->setMatchedRoute($route);
@@ -435,14 +433,16 @@ class Manager
 	        }
 	    }
 
-	    // If we don't match the requested media type, throw a not supported error
-	    if (!$this->config->get415ForNoMediaMatchSetting())
+	    // For get requests with "415 for no media match" set on, throw an exception
+	    if ($this->request->getHttpMethod() == Request::METHOD_GET && $this->config->get415ForNoMediaMatchSetting())
 	    {
-    	    // Return the first instantiated representation instance
-    	    if (isset($representationObjects[0]))
-    	    {
-    	        return $representationObjects[0];
-    	    }
+            throw \Drest\Representation\UnableToMatchRepresentationException::noMatch();
+	    }
+
+        // Return the first instantiated representation instance
+	    if (isset($representationObjects[0]))
+	    {
+	        return $representationObjects[0];
 	    }
 
 		// We have no representation instances from either annotations or config object

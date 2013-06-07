@@ -1,6 +1,8 @@
 <?php
 namespace Drest;
 
+use Drest\Representation\RepresentationException;
+
 use Doctrine\ORM\EntityManager,
     Drest\Service\Action\AbstractAction,
 	Drest\Query\ResultSet,
@@ -237,18 +239,12 @@ class Service
 	}
 
 
-
 	/**
 	 * Write out as result set on the representation object that was determined - if no representation has been determined - defaults to text
 	 * @param Drest\Query\ResultSet $resultSet
 	 */
 	public function renderDeterminedRepresentation(ResultSet $resultSet)
 	{
-        if (is_null($this->representation))
-        {
-            $this->representation = new \Drest\Representation\Text();
-        }
-
         $this->getResponse()->setBody($this->representation->output($resultSet));
         $this->getResponse()->setHttpHeader('Content-Type', $this->representation->getContentType());
 	}

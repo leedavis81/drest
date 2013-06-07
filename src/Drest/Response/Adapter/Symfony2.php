@@ -14,6 +14,15 @@ class Symfony2 extends AdapterAbstract
         return '';
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see Drest\Response\Adapter.AdapterInterface::getAdaptedClassName()
+     */
+    public static function getAdaptedClassName()
+    {
+        return 'Symfony\Component\HttpFoundation\Response';
+    }
+
 	/** (non-PHPdoc)
      * @see Drest\Response\Adapter.AdapterInterface::getHttpHeader()
      */

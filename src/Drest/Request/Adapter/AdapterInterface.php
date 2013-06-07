@@ -11,6 +11,12 @@ interface AdapterInterface
 	public function __construct($request);
 
 	/**
+	 * Get the adapted class name (ie the fw class name)
+	 * @return string $className
+	 */
+	public static function getAdaptedClassName();
+
+	/**
 	 * Get all set headers as a key => value array, or a specifc entry when passing $name variable
 	 * @return array|string $header
 	 */

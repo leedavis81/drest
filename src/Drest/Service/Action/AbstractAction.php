@@ -168,7 +168,7 @@ abstract class AbstractAction
 	        if (is_array($value) && isset($ormAssociationMappings[$key]))
 	        {
 	            $qb->leftJoin($classAlias . '.' . $key, $this->getAlias($ormAssociationMappings[$key]['targetEntity']));
-                $qb = $this->registerExpose($value, $qb, $this->em->getClassMetadata($ormAssociationMappings[$key]['targetEntity']), $addedKeyFields[$key], $key);
+                $qb = $this->registerExpose($value, $qb, $this->getEntityManager()->getClassMetadata($ormAssociationMappings[$key]['targetEntity']), $addedKeyFields[$key], $key);
 	        }
 	    }
 

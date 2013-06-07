@@ -16,6 +16,12 @@ interface AdapterInterface
 	public function toString();
 
 	/**
+	 * Get the adapted class name (ie the fw class name)
+	 * @return string $className
+	 */
+	public static function getAdaptedClassName();
+
+	/**
 	 * Get the body of the response document
 	 * @return string body
 	 */

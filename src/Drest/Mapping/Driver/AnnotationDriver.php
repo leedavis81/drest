@@ -225,8 +225,7 @@ class AnnotationDriver implements DriverInterface
         	            $routeMetaData->setCollection($route->collection);
         	        }
 
-        	        // Add the route
-        	        /** @todo: run validation checks on route syntax? */
+        	        // Add the route pattern
         	        $routeMetaData->setRoutePattern($route->routePattern);
 
         	        if (is_array($route->routeConditions))

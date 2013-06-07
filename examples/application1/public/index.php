@@ -61,12 +61,12 @@ try
 }
 
 
-echo $drestManager->dispatch();
+//echo $drestManager->dispatch();
 
 //@todo: add in the ability to dispatch a named route (bypasses routing and fetches based on name)
 //echo $drestManager->dispatch(null, null, 'Entities\User::get_user', array('id' => 1));
 
-//echo $drestManager->dispatch(new \Zend\Http\PhpEnvironment\Request(), new Zend\Http\PhpEnvironment\Response());
+echo $drestManager->dispatch(new \Zend\Http\PhpEnvironment\Request(), new Zend\Http\PhpEnvironment\Response());
 
 
 

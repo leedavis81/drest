@@ -144,37 +144,35 @@ class Response
 	/**
 	 * Construct an instance of Drest Response object
 	 * @param mixed $response prefered adapted response type
+	 * @param array $adapterClasses - an array of adapter classes available
 	 */
-	public function __construct($response_object = null)
+	public function __construct($response_object = null, array $adapterClasses = array())
 	{
-	    //@todo: this really shouldn't have any knowledge of the adapters class name.
-	    // A better implementation would be to load all registered adapter classes and check for type
-		$zf2class = 'Zend\Http\Response';
-		$sy2class = 'Symfony\Component\HttpFoundation\Response';
-		$guzclass = 'Guzzle\Http\Message\Response';
+		$defaultClass = 'Symfony\Component\HttpFoundation\Response';
 		if (is_null($response_object))
 		{
-			if (!class_exists($sy2class))
+			if (!class_exists($defaultClass))
 			{
-				throw DrestException::noResponseObjectDefinedAndCantInstantiateDefaultType($sy2class);
+				throw DrestException::noResponseObjectDefinedAndCantInstantiateDefaultType($defaultClass);
 			}
 			// Default to using symfony's request object
-			$this->adapter = new Adapter\Symfony2(\Symfony\Component\HttpFoundation\Response::create());
+			$this->adapter = new Adapter\Symfony2($defaultClass::create());
 		} else if (is_object($response_object))
 		{
-			if ($response_object instanceof $zf2class)
-			{
-				$this->adapter = new Adapter\ZendFramework2($response_object);
-			} elseif ($response_object instanceof $sy2class)
-			{
-				$this->adapter = new Adapter\Symfony2($response_object);
-			} elseif ($response_object instanceof $guzclass)
-			{
-			    $this->adapter = new Adapter\Guzzle($response_object);
-			} else
-			{
-				throw DrestException::unknownAdapterForResponseObject($response_object);
-			}
+			foreach ($adapterClasses as $adapterClass)
+            {
+		        $adaptedClassName = $adapterClass::getAdaptedClassName();
+		        if ($response_object instanceof $adaptedClassName)
+		        {
+		            $adaptedObj = new $adapterClass($response_object);
+		            if ($adaptedObj instanceof \Drest\Response\Adapter\AdapterAbstract)
+		            {
+    		            $this->adapter = $adaptedObj;
+    		            return;
+		            }
+		        }
+		    }
+            throw DrestException::unknownAdapterForResponseObject($response_object);
 		} else
 		{
 			throw DrestException::invalidResponseObjectPassed();
@@ -261,10 +259,11 @@ class Response
 	/**
 	 * Factory call to create a Drest response object
 	 * @param mixed $response_object prefered response object
+	 * @param array $adapterClasses - an array of adapter classes available
 	 */
-	public static function create($response_object = null)
+	public static function create($response_object = null, array $adapterClasses = array())
 	{
-		return new self($response_object);
+		return new self($response_object, $adapterClasses);
 	}
 
 }

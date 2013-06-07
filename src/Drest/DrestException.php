@@ -142,6 +142,10 @@ class DrestException extends Exception
         return new self('A resource can only have one route set as "origin"');
     }
 
+    public static function unableToHandleACollectionPush()
+    {
+        return new self('Requests to push data (PUT/POST/PATCH) can only be used on individual elements. Data collections cannot be pushed');
+    }
 
     /**
      * @deprecated

@@ -24,6 +24,7 @@ class Address
     /**
      * @var Entities\Profile $profile
      * @ORM\ManyToOne(targetEntity="Profile", inversedBy="addresses", fetch="EAGER")
+     * @ORM\JoinColumn(name="profile_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $profile;
 
