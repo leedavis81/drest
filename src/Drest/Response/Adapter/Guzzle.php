@@ -37,7 +37,7 @@ class Guzzle extends AdapterAbstract
 		} else
 		{
 		    return array_map(function($item){
-		        return implode(', ', $item);
+		        return implode(', ', $item->toArray());
 		    }, $this->getResponse()->getHeaders()->getAll());
 		}
     }

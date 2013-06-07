@@ -14,6 +14,8 @@ namespace Drest;
  * multilingual Ruby on Rails like framework for PHP that will
  * be launched soon.
  *
+ * @todo: This appears to be going into Doctrine\Common as of 2.4 so we could possibly remove this!!
+ *
  * @author Bermi Ferrer Martinez
  * @copyright Copyright (c) 2002-2006, Akelos Media, S.L. http://www.akelos.org
  * @license GNU Lesser General Public License
