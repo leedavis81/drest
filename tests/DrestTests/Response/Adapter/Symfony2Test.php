@@ -76,17 +76,7 @@ class Symfony2Test extends DrestTestCase
 
 	public function testResponseDocumentToString()
 	{
-	    $httpString = <<<EOT
-HTTP/1.0 200 OK
-Content-Type: text/html
-Accept: application/json
-
-<html>
-<body>
-    This is a test document
-</body>
-</html>
-EOT;
+	    $httpString = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\nAccept: application/json\r\n\r\n\r\n<html>\r\n<body>\r\n    This is a test document\r\n</body>\r\n</html>";
 		$symResponse = new HttpFoundation\Response($httpString);
 		$response = Response::create($symResponse, array('Drest\\Response\\Adapter\\Symfony2'));
 

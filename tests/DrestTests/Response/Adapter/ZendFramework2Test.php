@@ -82,23 +82,13 @@ class ZendFramework2Test extends DrestTestCase
 
 	public function testResponseDocumentToString()
 	{
-	    $httpString = <<<EOT
-HTTP/1.0 200 OK
-Content-Type: text/html
-Accept: application/json
-
-<html>
-<body>
-    This is a test document
-</body>
-</html>
-EOT;
+	    $httpString = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\nAccept: application/json\r\n\r\n\r\n<html>\r\n<body>\r\n    This is a test document\r\n</body>\r\n</html>";
 		$zf2Response = Http\Response::fromString($httpString);
 		$response = Response::create($zf2Response, array('Drest\\Response\\Adapter\\ZendFramework2'));
 
 		ob_start();
 		ob_get_contents();
-		echo $response->__toString();
+		echo $response;
 		$actual = ob_get_contents();
 		ob_end_clean();
 		$this->assertEquals($httpString, $actual);
