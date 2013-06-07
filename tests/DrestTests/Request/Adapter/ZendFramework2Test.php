@@ -36,11 +36,7 @@ class ZendFramework2Test extends DrestTestCase
 	{
 		$cookieName = 'frodo';
 		$cookieValue = 'baggins';
-	    $httpString = <<<EOT
-GET /foo HTTP/1.1
-Cookie: $cookieName=$cookieValue
-Accept: */*
-EOT;
+	    $httpString = "GET /foo HTTP/1.1\r\nCookie: $cookieName=$cookieValue\r\nAccept: */*\r\n";
 
 		$zfRequest = Http\Request::fromString($httpString);
 		$request = Request::create($zfRequest, array('Drest\\Request\\Adapter\\ZendFramework2'));
@@ -117,11 +113,7 @@ EOT;
 	{
 		$varName1 = 'frodo';
 		$varValue1 = 'baggins';
-	    $httpString = <<<EOT
-GET /foo HTTP/1.1
-Cookie: $varName1=$varValue1
-Accept: */*
-EOT;
+		$httpString = "GET /foo HTTP/1.1\r\nCookie: $varName1=$varValue1\r\nAccept: */*\r\n";
 
 		$zfRequest = Http\Request::fromString($httpString);
 		$request = Request::create($zfRequest, array('Drest\\Request\\Adapter\\ZendFramework2'));
