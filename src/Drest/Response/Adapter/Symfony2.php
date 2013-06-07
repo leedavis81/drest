@@ -11,7 +11,7 @@ class Symfony2 extends AdapterAbstract
     public function toString()
     {
         $this->getResponse()->send();
-        return '';
+        return;
     }
 
     /**

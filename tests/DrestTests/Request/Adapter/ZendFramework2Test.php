@@ -17,7 +17,7 @@ class ZendFramework2Test extends DrestTestCase
 	public static function getZF2AdapterRequest()
 	{
 		$zfRequest = new Http\Request();
-		$request = Request::create($zfRequest);
+		$request = Request::create($zfRequest, array('Drest\\Request\\Adapter\\ZendFramework2'));
 		return $request;
 	}
 
@@ -34,29 +34,22 @@ class ZendFramework2Test extends DrestTestCase
 
 	public function testCanSaveAndRetrieveCookie()
 	{
-		$request = self::getZF2AdapterRequest();
-
-		$zf2RequestObject = $request->getRequest();
-
 		$cookieName = 'frodo';
 		$cookieValue = 'baggins';
+	    $httpString = <<<EOT
+GET /foo HTTP/1.1
+Cookie: $cookieName=$cookieValue
+Accept: */*
+EOT;
 
-		$this->markTestIncomplete('Need to create a custom request from header string using \Zend\Http\Request::fromString(....)');
-
-		$zf2RequestObject->getCookie()->$cookieName = $cookieValue;
+		$zfRequest = Http\Request::fromString($httpString);
+		$request = Request::create($zfRequest, array('Drest\\Request\\Adapter\\ZendFramework2'));
 
 		$this->assertNotEmpty($request->getCookie());
 		$this->assertCount(1, $request->getCookie());
 		$this->assertEquals($cookieValue, $request->getCookie($cookieName));
-
-		$newCookies = array('samwise' => 'gamgee', 'peregrin' => 'took');
-
-		$zf2RequestObject->getCookie()->reset();
-		$zf2RequestObject->getHeaders()->addHeader(new Cookie($newCookies));
-
-		$this->assertCount(2, $request->getCookie());
-		$this->assertEquals($newCookies, $request->getCookie());
 	}
+
 
 	public function testCanSaveAndRetrievePostVars()
 	{
@@ -122,14 +115,17 @@ class ZendFramework2Test extends DrestTestCase
 
 	public function testCanSaveCombinedParamTypes()
 	{
-		$request = self::getZF2AdapterRequest();
-
-		$zf2RequestObject = $request->getRequest();
-
-		$this->markTestIncomplete('Need to include cookie value by creating a custom request with header string using \Zend\Http\Request::fromString(....)');
 		$varName1 = 'frodo';
 		$varValue1 = 'baggins';
-		$zf2RequestObject->getCookie()->$varName1 = $varValue1;
+	    $httpString = <<<EOT
+GET /foo HTTP/1.1
+Cookie: $varName1=$varValue1
+Accept: */*
+EOT;
+
+		$zfRequest = Http\Request::fromString($httpString);
+		$request = Request::create($zfRequest, array('Drest\\Request\\Adapter\\ZendFramework2'));
+
 		$varName2 = 'samwise';
 		$varValue2 = 'gamgee';
 		$request->setPost($varName2, $varValue2);

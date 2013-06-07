@@ -11,9 +11,7 @@ class ZendFramework2 extends AdapterAbstract
      */
     public function toString()
     {
-        //@todo: test / check this
-        $this->getResponse()->send();
-        return '';
+        return $this->getResponse()->__toString();
     }
 
 	/** (non-PHPdoc)

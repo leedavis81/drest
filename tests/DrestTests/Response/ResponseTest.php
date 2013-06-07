@@ -26,7 +26,7 @@ class ResponseTest extends DrestTestCase
 	public function testCreateResponseWithZendFramework2ResponseObject()
 	{
 		$zfResponse = new Http\Response();
-		$response = Response::create($zfResponse);
+		$response = Response::create($zfResponse, array('Drest\\Response\\Adapter\\ZendFramework2'));
 
 		// Ensure response object creates a zf2 response
 		$this->assertInstanceOf('Zend\Http\Response', $response->getResponse());
@@ -35,7 +35,7 @@ class ResponseTest extends DrestTestCase
 	public function testCreateResponseWithSymfony2ResponseObject()
 	{
 		$symResponse = new HttpFoundation\Response();
-		$response = Response::create($symResponse);
+		$response = Response::create($symResponse, array('Drest\\Response\\Adapter\\Symfony2'));
 
 		// Ensure response object creates a symfony2 response
 		$this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response->getResponse());

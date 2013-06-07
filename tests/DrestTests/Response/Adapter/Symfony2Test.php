@@ -16,7 +16,7 @@ class Symfony2Test extends DrestTestCase
 	public static function getSymfonyAdapterResponse()
 	{
 		$symResponse = new HttpFoundation\Response();
-		$response = Response::create($symResponse);
+		$response = Response::create($symResponse, array('Drest\\Response\\Adapter\\Symfony2'));
 		return $response;
 	}
 
@@ -72,6 +72,30 @@ class Symfony2Test extends DrestTestCase
 		$response->setStatusCode(Response::STATUS_CODE_200);
 
 		$this->assertEquals(Response::STATUS_CODE_200, $response->getStatusCode());
+	}
+
+	public function testResponseDocumentToString()
+	{
+	    $httpString = <<<EOT
+HTTP/1.0 200 OK
+Content-Type: text/html
+Accept: application/json
+
+<html>
+<body>
+    This is a test document
+</body>
+</html>
+EOT;
+		$symResponse = new HttpFoundation\Response($httpString);
+		$response = Response::create($symResponse, array('Drest\\Response\\Adapter\\Symfony2'));
+
+		ob_start();
+		ob_get_contents();
+		echo $response->__toString();
+		$actual = ob_get_contents();
+		ob_end_clean();
+		$this->assertEquals($httpString, $actual);
 	}
 
 }

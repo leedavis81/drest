@@ -15,7 +15,7 @@ class GuzzleTest extends DrestTestCase
 	public static function getGuzzleAdapterResponse()
 	{
 		$guzResponse = new GuzzleResponse(200);
-		$response = Response::create($guzResponse);
+		$response = Response::create($guzResponse, array('Drest\\Response\\Adapter\\Guzzle'));
 		return $response;
 	}
 
@@ -70,5 +70,56 @@ class GuzzleTest extends DrestTestCase
 		$response->setStatusCode(Response::STATUS_CODE_200);
 
 		$this->assertEquals(Response::STATUS_CODE_200, $response->getStatusCode());
+	}
+
+	public function testResponseDocumentToString()
+	{
+	    $this->markTestSkipped('Guzzle will automatically use HTTP 1.1 and add additional header params (Content-Length). Use a custom test until this changes');
+
+	    $httpString = <<<EOT
+HTTP/1.0 200 OK
+Content-Type: text/html
+Accept: application/json
+
+<html>
+<body>
+    This is a test document
+</body>
+</html>
+EOT;
+		$guzzResponse = GuzzleResponse::fromMessage($httpString);
+		$response = Response::create($guzzResponse, array('Drest\\Response\\Adapter\\Guzzle'));
+
+		ob_start();
+		ob_get_contents();
+		echo $response->__toString();
+		$actual = ob_get_contents();
+		ob_end_clean();
+		$this->assertEquals($httpString, $actual);
+	}
+
+	public function testCustomResponseDocumentToString()
+	{
+	    $httpString = <<<EOT
+HTTP/1.1 200 OK
+Content-Type: text/html
+Accept: application/json
+Content-Length: 61
+
+<html>
+<body>
+    This is a test document
+</body>
+</html>
+EOT;
+		$guzzResponse = GuzzleResponse::fromMessage($httpString);
+		$response = Response::create($guzzResponse, array('Drest\\Response\\Adapter\\Guzzle'));
+
+		ob_start();
+		ob_get_contents();
+		echo $response->__toString();
+		$actual = ob_get_contents();
+		ob_end_clean();
+		$this->assertEquals($httpString, $actual);
 	}
 }

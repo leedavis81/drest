@@ -16,7 +16,7 @@ class ZendFramework2Test extends DrestTestCase
 	public static function getZF2AdapterResponse()
 	{
 		$zf2Response = new Http\Response();
-		$response = Response::create($zf2Response);
+		$response = Response::create($zf2Response, array('Drest\\Response\\Adapter\\ZendFramework2'));
 		return $response;
 	}
 
@@ -78,6 +78,30 @@ class ZendFramework2Test extends DrestTestCase
 		$response->setStatusCode(Response::STATUS_CODE_200);
 
 		$this->assertEquals(Response::STATUS_CODE_200, $response->getStatusCode());
+	}
+
+	public function testResponseDocumentToString()
+	{
+	    $httpString = <<<EOT
+HTTP/1.0 200 OK
+Content-Type: text/html
+Accept: application/json
+
+<html>
+<body>
+    This is a test document
+</body>
+</html>
+EOT;
+		$zf2Response = Http\Response::fromString($httpString);
+		$response = Response::create($zf2Response, array('Drest\\Response\\Adapter\\ZendFramework2'));
+
+		ob_start();
+		ob_get_contents();
+		echo $response->__toString();
+		$actual = ob_get_contents();
+		ob_end_clean();
+		$this->assertEquals($httpString, $actual);
 	}
 
 }

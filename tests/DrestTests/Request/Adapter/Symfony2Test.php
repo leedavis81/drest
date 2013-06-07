@@ -16,7 +16,8 @@ class Symfony2Test extends DrestTestCase
 	public static function getSymfonyAdapterRequest()
 	{
 		$symRequest = new HttpFoundation\Request();
-		$request = Request::create($symRequest);
+		$request = Request::create($symRequest, array('Drest\\Request\\Adapter\\Symfony2'));
+
 		return $request;
 	}
 
