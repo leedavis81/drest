@@ -48,7 +48,12 @@ class ZendFramework2 extends AdapterAbstract
 	{
 	    if ($name === null)
 	    {
-	        return $this->getRequest()->getCookie()->getArrayCopy();
+	        $cookieHeader = $this->getRequest()->getCookie();
+	        if (!empty($cookieHeader))
+	        {
+	            return $cookieHeader->getArrayCopy();
+	        }
+	        return array();
 	    }
 		if ($this->getRequest()->getCookie()->offsetExists($name))
 		{
