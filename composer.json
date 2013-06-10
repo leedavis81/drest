@@ -28,7 +28,6 @@
         "satooshi/php-coveralls": "~0.6"
     },
     "suggest": {
-        "symfony/yaml": "If you want to use YAML Metadata Mapping Driver",
         "symfony/http-foundation": "If you're not using Drest with an existing framework adapters (see documentation) then you MUST include this" 
     },    
     "bin": ["bin", "bin/drest.php"],
