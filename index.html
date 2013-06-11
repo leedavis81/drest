@@ -38,6 +38,11 @@ $config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose
 
 // Also you can set a specific maximum depth you want to expose - (uses doctrines relations)
 $config->setExposureDepth(3);</pre>
+<h5>- Generate data objects from expose data for your API users to consume via the drest client tool</h5>
+<pre>
+
+$client = new Drest\Client('http://drest-example1.localhost', 'Json');
+</pre>
 <h5>- Comes shipped with both JSON and XML representations, or you can create your own.</h5>
 <pre>
 // Set the default representations to be used

@@ -4,7 +4,6 @@ title:  "Installation"
 date:   2013-06-08 20:24:55
 categories: docs
 ---
-
 The recommended way to install drest is by using composer.
 
 {% highlight php %}
