@@ -10,8 +10,8 @@ class Symfony2 extends AdapterAbstract
      */
     public function toString()
     {
-        $this->getResponse()->send();
-        return;
+        $this->getResponse()->sendHeaders();
+        return $this->getResponse()->getContent();
     }
 
     /**

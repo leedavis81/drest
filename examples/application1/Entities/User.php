@@ -19,7 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
  *      		name="get_user",
  *      		routePattern="/user/:id",
  *      		routeConditions={"id": "\d+"},
- *      		verbs={"GET"}
+ *      		verbs={"GET"},
+ *      		action="Action\Custom"
  *      	),
  *      	@Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
  *      	@Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),

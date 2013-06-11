@@ -11,7 +11,8 @@ class ZendFramework2 extends AdapterAbstract
      */
     public function toString()
     {
-        return $this->getResponse()->__toString();
+        $this->getResponse()->sendHeaders();
+        return $this->getResponse()->getBody();
     }
 
 	/** (non-PHPdoc)
@@ -19,7 +20,7 @@ class ZendFramework2 extends AdapterAbstract
      */
     public static function getAdaptedClassName()
     {
-        return 'Zend\Http\Response';
+        return 'Zend\Http\PhpEnvironment\Response';
     }
 
 	/** (non-PHPdoc)
@@ -85,7 +86,7 @@ class ZendFramework2 extends AdapterAbstract
 
 	/**
 	 * ZendFramework 2 Response object
-	 * @return \Zend\Http\Response $response
+	 * @return \Zend\Http\PhpEnvironment\Response $response
 	 */
 	public function getResponse()
 	{

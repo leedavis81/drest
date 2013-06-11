@@ -3,27 +3,28 @@ layout: default
 title: Drest Documentation
 ---
 
-<div class="page-header">
+<div class="page-header" style="margin: 0px">
   <h1>Dress up your doctrine entities</h1>
-  <h3>And expose them as RESful resource endpoints</h3>  
+  <h3>- and expose them as RESful resources</h3>  
+  <p style="margin: 0px">This library allows you to quickly annotate your doctrine entities into restful resources. 
+    It comes shipped with it's own internal router, and can be used standalone or alongside your existing framework stack.
+    Routes are mapped to either a default or customised service actions that takes care of handling your API requests.<br><br>      
+    </p>
 </div>
-<br>
-<h4>* Quickly annotate existing Doctrine entities to become a fully functional REST resource.</h4>
+<h4>Features:</h4>
+<h5>- Quickly annotate existing Doctrine entities to become a fully functional REST resource.</h5>
 <pre>@Drest\Resource(
     routes={
         @Drest\Route(
             name="get_user",
             route_pattern="/user/:id",
-            verbs={"GET"},
-            content="element"
+            verbs={"GET"}
 )})</pre>
-<br>
-<h4>* Utilises the internal router for matching resource route patterns to client requests.</h4>
+<h5>- Utilises the internal router for matching resource route patterns.</h5>
 <pre>
 [GET] http://myapplication.com/api/user/123
 </pre>
-<br>
-<h4>* Specify what data you want to expose from your entities (including relations), or let the client choose!</h4>
+<h5>- Specify what data you want to expose from your entities (including relations), or let the client choose!</h5>
 <pre>
 // Set exactly what fields you want to expose
 @Drest\Route(
@@ -32,12 +33,12 @@ title: Drest Documentation
  
  // or let the client choose
 $config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
+
 [GET] http://myapplication.com/api/user/123?expose=username|profile[id, lastname]
 
 // Also you can set a specific maximum depth you want to expose - (uses doctrines relations)
 $config->setExposureDepth(3);</pre>
-<br>
-<h4>Comes with JSON and XML representations with the ability easily create and use your own.</h4>
+<h5>- Comes shipped with both JSON and XML representations, or you can create your own.</h5>
 <pre>
 // Set the default representations to be used
 $config->setDefaultRepresentations(array('Json', 'Xml'));
@@ -47,8 +48,7 @@ $config->setDefaultRepresentations(array('Json', 'Xml'));
     representations={"Json"}
     .....
 )</pre>
-<br>
-<h4>Allows media type detection from client request or header information, getting you one step close to RMM level 3.</h4>
+<h5>- Allows media type detection from your client requests, getting you one step close to RMM level 3.</h5>
 <pre>
 // Determine the requested media type by reading:
 $drestConfig->setDetectContentOptions(array(
@@ -56,8 +56,7 @@ $drestConfig->setDetectContentOptions(array(
     Configuration::DETECT_CONTENT_EXTENSION => true,    // A dot extension on the URL (eg .json)
     Configuration::DETECT_CONTENT_PARAM => 'format'     // A parameter parsed called "format" (eg format=xml)
 ));</pre>
-<br>
-<h4>Use it independently from your existing framework stack, or alongside it*.</h4>
+<h5>- Use it independently from your existing framework stack, or alongside it*.</h5>
 <pre>
 // Dispatch from an application endpoint (index.phtml)
 echo $dm->dispatch();
@@ -65,25 +64,25 @@ echo $dm->dispatch();
 // Or from within a controller in your framework
 $updatedResponseObject =  $dm->dispatch($myZf2RequestObject, $mySym2ResponseObject);
 </pre>
-<p>* On the condition that both request / response adapters have been created for that particular framework </p>
-<br>
-<h4>Allows extension points so you can configure requests to your specific needs.</h4>        
+<p>* On the condition that both request / response adapters have been created for that particular framework.</p>
+<h5>- Allows extension points so you can configure requests to your specific needs.</h5>        
 <pre>
  @Drest\Resource(
-    service_class="MyService",
     routes={
         @Drest\Route(
             name="get_user",
             route_pattern="/user/:id+",
             verbs={"GET"},
-            content="element",
-            call_method="myMethod"
+            action="Action\Custom"
  )})
  
-class MyService extends Drest\Service\AbstractService
+namespace Action;
+
+class Custom extends \Drest\Service\Action\AbstractAction
 {
-    /**
-     * From here you'll have access to the following objects:
+    /*
+     * From here you'll have access to the following objects via the service property. ie $this->service->get*
+     * 
      * @var \Doctrine\ORM\EntityManager                     $em                 - Doctrine Entity Manager
      * @var \Drest\Manager                                  $dm                 - Drest Manager
      * @var \Drest\Request                                  $request            - Drest Request Object
@@ -91,12 +90,11 @@ class MyService extends Drest\Service\AbstractService
      * @var \Drest\Mapping\RouteMetaData                    $route              - The mathced route
      * @var \Drest\Representation\AbstractRepresentation    $representation     - The pre-determined media representation
      */
-    public function myMethod()
+    public function execute()
     {
-        // You can do what you like here
-        $query = $this->em->createQuery(...
-        $results = $this->createResultSet($query->execute..)..
-        $this->renderDeterminedWriter($results); // or not
+        // .. execute my own logic, return a custom result set ..
+         return ResultSet::create(array('name' => 'lee', 'email' => 'lee@somedomain.com'), 'user');
     }
 }
 </pre>
+<p>Note that the full namespace to the cusom plugin class must be provided in the annotations. You may need to include your custom class files, or setup an autoloader for them.</p>

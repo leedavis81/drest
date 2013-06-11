@@ -132,6 +132,7 @@ pre.prettyprint, code.prettyprint {
     -ms-border-radius: 8px;
     -khtml-border-radius: 8px;
     border-radius: 8px;
+	font-size: 11px;
 }
 
 pre.prettyprint {

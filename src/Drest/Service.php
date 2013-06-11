@@ -105,7 +105,7 @@ class Service
             {
                 throw DrestException::unknownActionClass($actionClass);
             }
-            $actionInstance = new $actionClass();
+            $actionInstance = new $actionClass($this);
         }
 
         if (!$actionInstance instanceof AbstractAction)
@@ -197,6 +197,15 @@ class Service
 	public function getEntityManager()
 	{
 	    return $this->em;
+	}
+
+	/**
+	 * Get the Drest Manager
+	 * @return Drest\Manager $dm
+	 */
+	public function getDrestManager()
+	{
+	    return $this->dm;
 	}
 
 	/**

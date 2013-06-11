@@ -8,7 +8,7 @@ $loader = require '../../../vendor/autoload.php';
 
 // Add the entities namespace to the loader
 $loader->add('Entities', __DIR__.'/../');
-$loader->add('Service', __DIR__.'/../');
+$loader->add('Action', __DIR__.'/../');
 
 // Create an example doctrine application
 $ormConfig = new \Doctrine\ORM\Configuration();
@@ -50,11 +50,11 @@ $drestConfig->addPathsToConfigFiles($pathToEntities);
 $drestManager = \Drest\Manager::create($em, $drestConfig);
 
 
-//echo $drestManager->dispatch();
+echo $drestManager->dispatch();
 
 //echo $drestManager->dispatch(null, null, 'Entities\User::get_user', array('id' => 1));
 
-echo $drestManager->dispatch(new \Zend\Http\PhpEnvironment\Request(), new Zend\Http\PhpEnvironment\Response());
+//echo $drestManager->dispatch(new \Zend\Http\PhpEnvironment\Request(), new Zend\Http\PhpEnvironment\Response());
 
 
 

@@ -21,7 +21,7 @@ final class Route
     /** @var array */
     public $routeConditions;
 
-    /** @var array */
+    /** @var string */
     public $action;
 
     /** @var array */

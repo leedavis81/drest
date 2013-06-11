@@ -3,8 +3,7 @@ namespace DrestTests\Response\Adapter;
 
 
 use DrestTests\DrestTestCase,
- 	Drest\Response,
- 	Zend\Http;
+ 	Drest\Response;
 
 class ZendFramework2Test extends DrestTestCase
 {
@@ -15,7 +14,8 @@ class ZendFramework2Test extends DrestTestCase
 	 */
 	public static function getZF2AdapterResponse()
 	{
-		$zf2Response = new Http\Response();
+
+		$zf2Response = new \Zend\Http\PhpEnvironment\Response();
 		$response = Response::create($zf2Response, array('Drest\\Response\\Adapter\\ZendFramework2'));
 		return $response;
 	}
@@ -82,8 +82,9 @@ class ZendFramework2Test extends DrestTestCase
 
 	public function testResponseDocumentToString()
 	{
-	    $httpString = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\nAccept: application/json\r\n\r\n\r\n<html>\r\n<body>\r\n    This is a test document\r\n</body>\r\n</html>";
-		$zf2Response = Http\Response::fromString($httpString);
+	    $httpHeaders = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\nAccept: application/json\r\n\r\n";
+	    $httpString = "<html>\r\n<body>\r\n    This is a test document\r\n</body>\r\n</html>";
+		$zf2Response = \Zend\Http\PhpEnvironment\Response::fromString($httpHeaders . $httpString);
 		$response = Response::create($zf2Response, array('Drest\\Response\\Adapter\\ZendFramework2'));
 
 		ob_start();
