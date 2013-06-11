@@ -1,4 +1,4 @@
 name: Drest Documentation Site
 pygments: true
 permalink: /:categories/:title
-url: http://leedavis81.github.io/drest
+url: http://leedavis81.github.io/drest/
