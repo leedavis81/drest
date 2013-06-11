@@ -8,25 +8,25 @@
  * You may obtain a valid license at the URLs below.
  *
  * Webfont: Proxima Nova Regular by Mark Simonson
- * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/regular/
+ * URL: http://www.myfonts.com/drest/fonts/marksimonson/proxima-nova/regular/
  * 
  * Webfont: Proxima Nova Bold by Mark Simonson
- * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/bold/
+ * URL: http://www.myfonts.com/drest/fonts/marksimonson/proxima-nova/bold/
  * 
  * Webfont: Proxima Nova Thin by Mark Simonson
- * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/thin/
+ * URL: http://www.myfonts.com/drest/fonts/marksimonson/proxima-nova/thin/
  * 
  * Webfont: Proxima Nova Light by Mark Simonson
- * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/light/
+ * URL: http://www.myfonts.com/drest/fonts/marksimonson/proxima-nova/light/
  * 
  * Â© 2012 Bitstream Inc
 */
 
 /* TODO: Switch the names of these files over to ProximaNova_Bold */
- @font-face {font-family: 'ProximaNova-Bold';src: url('fonts/ProximaNova_Bold.eot');src: url('fonts/ProximaNova_Bold.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Bold.woff') format('woff'),url('fonts/ProximaNova_Bold.ttf') format('truetype');}
- @font-face {font-family: 'ProximaNova-Light';src: url('fonts/ProximaNova_Light.eot');src: url('fonts/ProximaNova_Light.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Light.woff') format('woff'),url('fonts/ProximaNova_Light.ttf') format('truetype');}
- @font-face {font-family: 'ProximaNova-Regular';src: url('fonts/ProximaNova_Regular.eot');src: url('fonts/ProximaNova_Regular.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Regular.woff') format('woff'),url('fonts/ProximaNova_Regular.ttf') format('truetype');}
- @font-face {font-family: 'ProximaNova-Thin';src: url('fonts/ProximaNova_Thin.eot');src: url('fonts/ProximaNova_Thin.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Thin.woff') format('woff'),url('fonts/ProximaNova_Thin.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Bold';src: url('/drest/fonts/ProximaNova_Bold.eot');src: url('/drest/fonts/ProximaNova_Bold.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Bold.woff') format('woff'),url('/drest/fonts/ProximaNova_Bold.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Light';src: url('/drest/fonts/ProximaNova_Light.eot');src: url('/drest/fonts/ProximaNova_Light.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Light.woff') format('woff'),url('/drest/fonts/ProximaNova_Light.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Regular';src: url('/drest/fonts/ProximaNova_Regular.eot');src: url('/drest/fonts/ProximaNova_Regular.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Regular.woff') format('woff'),url('/drest/fonts/ProximaNova_Regular.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Thin';src: url('/drest/fonts/ProximaNova_Thin.eot');src: url('/drest/fonts/ProximaNova_Thin.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Thin.woff') format('woff'),url('/drest/fonts/ProximaNova_Thin.ttf') format('truetype');}
 
 body {
   padding-top: 100px;
