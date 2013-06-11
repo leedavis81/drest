@@ -4,9 +4,8 @@ title:  "Introduction"
 date:   2013-05-09 13:32:55
 categories: docs
 ---
-
 ### What it does
-
+....
 
 ### Why do I want to use it?
 
@@ -25,4 +24,5 @@ It can be as simple as adding the following annotation to an Entity class to exp
  * )});
 {% endhighlight %}
 
-Although you could argue that a REST endpoints should not be intertwined with entities, it's very commonplace that this is the case. a User or Status entity very often become exposed via a /user or /status route.
+Although you could argue that a REST endpoints should not be intertwined with entities, it's very commonplace that this is the case. 
+A User or Status entity may very often become exposed via a /user or /status route.
