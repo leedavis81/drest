@@ -36,16 +36,6 @@ $dm = Drest\Manager::create($ORMEntityManager, $config);
 $dm->dispatch();
 {% endhighlight %}
 
-When setting up doctrine ORM entity manager ensure that your **not using the SimpleAnnotationReader class**. 
-This is used to allow the ORM to read annotations without requiring a namespace declaration on the docblock. 
-So for example this would allow **@Column** instead of the more explicit **@ORM\Column**. The former example would obviously cause a clash when using multiple drivers to read annotations, so make sure you use the fully namespaced example.
-
-If you use the ORM's convenience method newDefaultAnnotationDriver(), ensure you pass the second parameter as *false*. Like so:
-
-{% highlight php %}
-$driver = $ORMConfig->newDefaultAnnotationDriver($pathToEntities, false);
-{% endhighlight %}
-
 ### Usage
 
 Once you have your drest manager all set up, you're ready to start annotating your entities. 

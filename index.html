@@ -24,7 +24,7 @@ title: Drest Documentation
 <pre>
 [GET] http://myapplication.com/api/user/123
 </pre>
-<h5>- Specify what data you want to expose from your entities (including relations), or let the client choose!</h5>
+<h5>- Specify what data you want to expose from your entities (including relations), or let the client choose! <a href="#" class="show_hide">(see code)</a></h5>
 <pre>
 // Set exactly what fields you want to expose
 @Drest\Route(
@@ -38,12 +38,49 @@ $config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose
 
 // Also you can set a specific maximum depth you want to expose - (uses doctrines relations)
 $config->setExposureDepth(3);</pre>
-<h5>- Generate data objects from expose data for your API users to consume via the drest client tool</h5>
+<h5>- Generate data objects using exposable data for your API users to consume. <a href="#" class="show_hide">(see code)</a></h5>
 <pre>
+// Generate data classes to interact with
+php drest-client.php classes:generate --dest-path="/path/for/SomeApi" --namespace="SomeApi" http://yourapi.endpoint
 
-$client = new Drest\Client('http://drest-example1.localhost', 'Json');
+Generating client classes....
+Successfully wrote client class "/path/for/SomeApi/Entities/Address.php"
+Successfully wrote client class "/path/for/SomeApi/Entities/Profile.php"
+Successfully wrote client class "/path/for/SomeApi/Entities/PhoneNumber.php"
+Successfully wrote client class "/path/for/SomeApi/Entities/User.php"
+
+Client classes have been sucessfully generated at "/path/for/SomeApi"
+--------------------------------------------------------------------------
+
+// Your users can then start operating on them using the client tool
+$client = new Drest\Client('http://yourapi.endpoint', 'Json');
+
+$user = SomeApi\Entities\User::create()
+        ->setEmailAddress('hello@somewhere.com')
+        ->setUsername('leedavis81')
+        ->setProfile(Client\Entities\Profile::create()
+            ->setTitle('mr')
+            ->setFirstname('lee')
+            ->setLastname('davis'))
+        ->addPhoneNumbers(array(
+            Client\Entities\PhoneNumber::create()->setNumber('02087888888'),
+            Client\Entities\PhoneNumber::create()->setNumber('07515788888')))
+        ->addPhoneNumber(Client\Entities\PhoneNumber::create()->setNumber('07953788888'));
+
+try
+{
+    $response = $client->post('/user', $user);
+    if (($location = $response->getHttpHeader('Location')) !== null)
+    {
+        echo 'The resource was created at: ' . $location;
+    }
+} catch (\Drest\Error\ErrorException $e)
+{
+    echo $e->getErrorDocument()->render();
+}
+
 </pre>
-<h5>- Comes shipped with both JSON and XML representations, or you can create your own.</h5>
+<h5>- Comes shipped with both JSON and XML representations, or you can create your own. <a href="#" class="show_hide">(see code)</a></h5>
 <pre>
 // Set the default representations to be used
 $config->setDefaultRepresentations(array('Json', 'Xml'));
@@ -53,7 +90,7 @@ $config->setDefaultRepresentations(array('Json', 'Xml'));
     representations={"Json"}
     .....
 )</pre>
-<h5>- Allows media type detection from your client requests, getting you one step close to RMM level 3.</h5>
+<h5>- Allows media type detection from your client requests, getting you one step close to RMM level 3. <a href="#" class="show_hide">(see code)</a></h5>
 <pre>
 // Determine the requested media type by reading:
 $drestConfig->setDetectContentOptions(array(
@@ -61,7 +98,7 @@ $drestConfig->setDetectContentOptions(array(
     Configuration::DETECT_CONTENT_EXTENSION => true,    // A dot extension on the URL (eg .json)
     Configuration::DETECT_CONTENT_PARAM => 'format'     // A parameter parsed called "format" (eg format=xml)
 ));</pre>
-<h5>- Use it independently from your existing framework stack, or alongside it*.</h5>
+<h5>- Use it independently from your existing framework stack, or alongside it*. <a href="#" class="show_hide">(see code)</a></h5>
 <pre>
 // Dispatch from an application endpoint (index.phtml)
 echo $dm->dispatch();
@@ -73,7 +110,7 @@ $updatedResponseObject =  $dm->dispatch($myZf2RequestObject, $mySym2ResponseObje
 $updatedResponseObject =  $dm->dispatch(null, $myResponseObject, 'Entities\User::get_users');
 </pre>
 <p>* On the condition that both request / response adapters have been created for that particular framework.</p>
-<h5>- Allows extension points so you can configure requests to your specific needs.</h5>        
+<h5>- Allows extension points so you can configure requests to your specific needs. <a href="#" class="show_hide">(see code)</a></h5>        
 <pre>
  @Drest\Resource(
     routes={
