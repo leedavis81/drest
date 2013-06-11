@@ -1,7 +1,6 @@
+_site
 .buildpath
 .project
 .settings
-composer.lock
 vendor
-tests/log
-_site
+composer.lock

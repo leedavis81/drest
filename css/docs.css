@@ -8,25 +8,25 @@
  * You may obtain a valid license at the URLs below.
  *
  * Webfont: Proxima Nova Regular by Mark Simonson
- * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/regular/
+ * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/regular/
  * 
  * Webfont: Proxima Nova Bold by Mark Simonson
- * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/bold/
+ * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/bold/
  * 
  * Webfont: Proxima Nova Thin by Mark Simonson
- * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/thin/
+ * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/thin/
  * 
  * Webfont: Proxima Nova Light by Mark Simonson
- * URL: http://www.myfonts.com/fonts/marksimonson/proxima-nova/light/
+ * URL: http://www.myfonts.comfonts/marksimonson/proxima-nova/light/
  * 
  * Â© 2012 Bitstream Inc
 */
 
 /* TODO: Switch the names of these files over to ProximaNova_Bold */
- @font-face {font-family: 'ProximaNova-Bold';src: url('/fonts/ProximaNova_Bold.eot');src: url('/fonts/ProximaNova_Bold.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Bold.woff') format('woff'),url('/fonts/ProximaNova_Bold.ttf') format('truetype');}
- @font-face {font-family: 'ProximaNova-Light';src: url('/fonts/ProximaNova_Light.eot');src: url('/fonts/ProximaNova_Light.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Light.woff') format('woff'),url('/fonts/ProximaNova_Light.ttf') format('truetype');}
- @font-face {font-family: 'ProximaNova-Regular';src: url('/fonts/ProximaNova_Regular.eot');src: url('/fonts/ProximaNova_Regular.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Regular.woff') format('woff'),url('/fonts/ProximaNova_Regular.ttf') format('truetype');}
- @font-face {font-family: 'ProximaNova-Thin';src: url('/fonts/ProximaNova_Thin.eot');src: url('/fonts/ProximaNova_Thin.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Thin.woff') format('woff'),url('/fonts/ProximaNova_Thin.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Bold';src: url('fonts/ProximaNova_Bold.eot');src: url('fonts/ProximaNova_Bold.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Bold.woff') format('woff'),url('fonts/ProximaNova_Bold.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Light';src: url('fonts/ProximaNova_Light.eot');src: url('fonts/ProximaNova_Light.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Light.woff') format('woff'),url('fonts/ProximaNova_Light.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Regular';src: url('fonts/ProximaNova_Regular.eot');src: url('fonts/ProximaNova_Regular.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Regular.woff') format('woff'),url('fonts/ProximaNova_Regular.ttf') format('truetype');}
+ @font-face {font-family: 'ProximaNova-Thin';src: url('fonts/ProximaNova_Thin.eot');src: url('fonts/ProximaNova_Thin.eot?#iefix') format('embedded-opentype'),url('fonts/ProximaNova_Thin.woff') format('woff'),url('fonts/ProximaNova_Thin.ttf') format('truetype');}
 
 body {
   padding-top: 100px;
@@ -86,7 +86,7 @@ body {
   }
 }
 
-#menu li.nav-header {
+#menu li.nav-header, #menu li.nav-header a {
   color: #000;
   font-family: 'ProximaNova-Bold';
   font-weight: normal;
@@ -124,13 +124,15 @@ pre .atv, code .atv { color: #65B042; } /* html/xml attribute value - green */
 pre .dec, code .dec { color: #3387CC; } /* decimal - blue */
 
 pre.prettyprint, code.prettyprint {
-        background-color: #000;
-        -moz-border-radius: 8px;
-        -webkit-border-radius: 8px;
-        -o-border-radius: 8px;
-        -ms-border-radius: 8px;
-        -khtml-border-radius: 8px;
-        border-radius: 8px;
+	line-height: 1.1em;
+    background-color: #000;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    -o-border-radius: 8px;
+    -ms-border-radius: 8px;
+    -khtml-border-radius: 8px;
+    border-radius: 8px;
+	font-size: 11px;
 }
 
 pre.prettyprint {
@@ -139,3 +141,10 @@ pre.prettyprint {
         padding: 1em !important;
         white-space: pre-wrap;
 }
+
+#github-buttons {
+	top: 10px;
+	margin-right: 20px;
+	
+}
+
