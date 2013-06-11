@@ -4,6 +4,7 @@ title:  "Getting Started"
 date:   2013-06-08 20:24:55
 categories: docs
 ---
+
 ### Autoloading your entities
 Drest doesn't handle the loading of your Entity classes so it's important this is set up before hand.
 It's very likely that if you're already running Doctrine ORM then you've taken care of registering your Entity classes on an autoloader (along with your Proxy or Repository classes).
