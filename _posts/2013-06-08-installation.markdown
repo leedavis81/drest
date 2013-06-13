@@ -23,6 +23,8 @@ require: {
 
 ### Configuration
 
+For convenience an [example application configuration](https://github.com/leedavis81/drest/blob/master/examples/application1/public/index.php) is available in the project's source.
+
 To configure drest you simply have to create a manager object instance. For this to be constucted you're required to pass in a doctrine ORM entity manager object, along with your drest configuration.
 
 The paths to your entity classes must be provided to configuration object so drest knows where to read annotations from. It's likely you've already configured this for your ORM entity manager.
