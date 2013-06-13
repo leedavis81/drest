@@ -67,6 +67,9 @@ body {
   font-weight: normal;
   letter-spacing: 2px;
 }
+#menu li {
+	line-height: 10px;
+}
 #menu li a {
   padding-top: 8px;
   padding-bottom: 8px;

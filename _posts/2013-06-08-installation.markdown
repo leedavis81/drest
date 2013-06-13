@@ -17,7 +17,7 @@ require: {
 {% endhighlight %}
 
 
- Alternatively you can download / clone or fork it directly from github.
+ Alternatively you can download or clone it directly from github.
  
  <a class="btn btn-medium btn-primary" href="https://github.com/leedavis81/drest/archive/master.zip">Github Download</a> 
 

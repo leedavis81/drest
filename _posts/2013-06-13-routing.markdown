@@ -1,0 +1,49 @@
+---
+layout: post
+title:  "Routing"
+date:   2013-06-13 09:24:55
+categories: docs
+---
+
+
+
+Usage
+
+- if multiple routes are matched an exception is thrown
+
+- If using the default service actions, any parameter defined in the route will be used as a filter
+
+- Naming a route - must be unique
+
+Route patterns
+
+- wildcard routes (+)
+
+paramters
+
+additional conditionals
+along with matching the route path you can also specify a conditional for each route parameter. 
+If the condition is not met then the the route is not deemed a match
+
+$app = new \Slim\Slim();
+$app->get('/archive/:year', function ($year) {
+    echo "You are viewing archives from $year";
+})->conditions(array('year' => '(19|20)\d\d'));
+
+{% highlight php %}
+ @Drest\Route(
+    name="get_user",
+    routePattern="/user/:id",
+    routeConditions={"id": "\d+"},
+    verbs={"GET"}
+ )
+{% endhighlight %}
+ 
+{% highlight php %}
+ @Drest\Route(
+    name="get_applicants",
+    routePattern="/applicant/:year",
+    routeConditions={"year": "(19|20)\d\d"},
+    verbs={"GET"}
+ )
+{% endhighlight %}
