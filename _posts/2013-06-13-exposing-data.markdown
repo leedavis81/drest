@@ -176,18 +176,7 @@ Not at all ideal, so ensure you always set a reasonable depth limit.
 
 Check out this video for further examples of a tailored response:
 
-{% youtube Ub4skw-xA2Q %}
+
+<iframe width="640" height="360" src="http://www.youtube.com/embed/Ub4skw-xA2Q?vq=hd720"> </iframe>
 
 (hint: you may want to full screen it, the text is quite small - sorry little mobiles)
-
-
-
-
-
-
-
-
-
-
-
-
