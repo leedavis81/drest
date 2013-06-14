@@ -18,7 +18,7 @@ It can be as simple as adding the following annotation to an Entity class to exp
  *      routes={
  *          @Drest\Route(
  *              name="get_user",
- *              route_pattern="/user/:id",
+ *              routePattern="/user/:id",
  *              verbs={"GET"}
  * )});
 {% endhighlight %}

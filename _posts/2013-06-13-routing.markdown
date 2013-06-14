@@ -28,7 +28,7 @@ You can add parameters to your routePattern definition by using a colon ( : ) fo
 routePattern="/user/:id" 
 routePattern="/users/:status"
 {% endhighlight %}
-If a match is made on these routes then the parameters interpreted from the URN are available via a Drest\Request::getRouteParam($name) call. 
+If a match is made on these routes then the parameters interpreted from the URN are available via a **Drest\Request::getRouteParam($name)** call. 
 You can access these from a custom [service action]({{site.url}}/docs/service-actions/) like so:
 {% highlight php %}
 // get an array of all
@@ -38,7 +38,7 @@ $this->service->getRequest()->getRouteParam('status');
 
 {% endhighlight %}
 
-Note on the default [GET] service actions, any parameter defined in the route will be used as a filter.
+Note on the default \[GET\] service actions, any parameter defined in the route will be used as a filter.
 
 ####Wildcarding
 Parameters can optionally be used with a wildcard to allow you to match a route that has a number of URN parts. 

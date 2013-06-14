@@ -116,7 +116,7 @@ $updatedResponseObject =  $dm->dispatch(null, $myResponseObject, 'Entities\User:
     routes={
         @Drest\Route(
             name="get_user",
-            route_pattern="/user/:id+",
+            routePattern="/user/:id+",
             verbs={"GET"},
             action="Action\Custom"
  )})

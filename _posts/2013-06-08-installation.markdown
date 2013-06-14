@@ -25,7 +25,7 @@ require: {
 
 For convenience an [example application configuration](https://github.com/leedavis81/drest/blob/master/examples/application1/public/index.php) is available in the project's source.
 
-To configure drest you simply have to create a manager object instance. For this to be constucted you're required to pass in a doctrine ORM entity manager object, along with your drest configuration.
+To configure drest you simply have to create a manager object instance. For this to be constructed you're required to pass in a doctrine ORM entity manager object, along with your drest configuration.
 
 The paths to your entity classes must be provided to configuration object so drest knows where to read annotations from. It's likely you've already configured this for your ORM entity manager.
 
@@ -58,7 +58,7 @@ Any parameter used on the route pattern will automatically be used as a filter.
     }
 )
 {% endhighlight %}
-The behaviours used to fetch this data are encapsualted in a "Service\Action" class. 
+The behaviours used to fetch this data are encapsulated in a "Service\Action" class. 
 There are a number of default actions in place that will be executed based on the verbs used in the request, and whether it's dealing with a single entity or a collection. 
 You can easily create your own actions, register them into the Configuration object and reference them in your annotations.
 
