@@ -84,7 +84,6 @@ $drestConfig->setExposureRelationsFetchType(ORMClassMetaDataInfo::FETCH_EAGER);
 {% endhighlight %}
 Now any relation that was set as LAZY would be not be included when processing an exposure depth.
 
-
 ### Tailored for the client
 
 It's often the case that some of your API users may only want to consume a small portion of the data your exposing. 

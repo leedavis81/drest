@@ -5,7 +5,6 @@ date:   2013-06-13 09:24:55
 categories: docs
 ---
 
-
 REST is an architectural style that allows intereaction over HTTP of loosely coupled application resources. 
 Resources are described by using a uniform resource name (or URN) at your API endpoint (URL). 
 

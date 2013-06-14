@@ -1,7 +1,7 @@
-@font-face {font-family: 'ProximaNova-Bold';src: url('/drest/fonts/ProximaNova_Bold.eot');src: url('/drest/fonts/ProximaNova_Bold.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Bold.woff') format('woff'),url('/drest/fonts/ProximaNova_Bold.ttf') format('truetype');}
-@font-face {font-family: 'ProximaNova-Light';src: url('/drest/fonts/ProximaNova_Light.eot');src: url('/drest/fonts/ProximaNova_Light.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Light.woff') format('woff'),url('/drest/fonts/ProximaNova_Light.ttf') format('truetype');}
-@font-face {font-family: 'ProximaNova-Regular';src: url('/drest/fonts/ProximaNova_Regular.eot');src: url('/drest/fonts/ProximaNova_Regular.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Regular.woff') format('woff'),url('/drest/fonts/ProximaNova_Regular.ttf') format('truetype');}
-@font-face {font-family: 'ProximaNova-Thin';src: url('/drest/fonts/ProximaNova_Thin.eot');src: url('/drest/fonts/ProximaNova_Thin.eot?#iefix') format('embedded-opentype'),url('/drest/fonts/ProximaNova_Thin.woff') format('woff'),url('/drest/fonts/ProximaNova_Thin.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNova-Bold';src: url('/fonts/ProximaNova_Bold.eot');src: url('/fonts/ProximaNova_Bold.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Bold.woff') format('woff'),url('/fonts/ProximaNova_Bold.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNova-Light';src: url('/fonts/ProximaNova_Light.eot');src: url('/fonts/ProximaNova_Light.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Light.woff') format('woff'),url('/fonts/ProximaNova_Light.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNova-Regular';src: url('/fonts/ProximaNova_Regular.eot');src: url('/fonts/ProximaNova_Regular.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Regular.woff') format('woff'),url('/fonts/ProximaNova_Regular.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNova-Thin';src: url('/fonts/ProximaNova_Thin.eot');src: url('/fonts/ProximaNova_Thin.eot?#iefix') format('embedded-opentype'),url('/fonts/ProximaNova_Thin.woff') format('woff'),url('/fonts/ProximaNova_Thin.ttf') format('truetype');}
 
 body {
   padding-top: 100px;

@@ -217,7 +217,6 @@ $qb = $this->registerExpose(
 );  
  {% endhighlight %}
 
-                                
 
 ####Triggering a handle
 For PUT/PATCH/POST requests that have a handle function registered then you may want to trigger this from your service action. 

@@ -7,7 +7,6 @@ categories: docs
 
 **todo** 
 
-
     - Will allow hooks for:
     * - PreRouting  - Before we've routed the request       injection: Request / Response
     * - PostRouting - After we've routed the request        injection: Request / Response / Matched Route

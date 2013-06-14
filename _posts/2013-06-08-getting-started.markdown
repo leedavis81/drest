@@ -192,23 +192,23 @@ But there are a number of other configuration options available.
 
 #####@Drest\Route properties
 
-* (string) **name** *required* - This is used as a unique identifier for the route. When attempting to dispatch a named route, this is the name you'll used.
-* (array) **verbs** *required* - What verbs should be used to match this route. Can be any value thats available on **Drest\Request::METHOD_\*** constants
-* (string) **routePattern** *required* - The pattern to be used for matching a request. For more information see the [routing section]({{site.url}}/docs/configuring-resources/#routing).
-* (array) **expose** *optional*
-   * For a **PULL** \[GET\] request this'll be an array of information you want to expose to the client.
-   * For a **PUSH** \[POST/PUT/PATCH\] request any data not set for exposure will be stripped off when sent from the client.
+- (string) **name** *required* - This is used as a unique identifier for the route. When attempting to dispatch a named route, this is the name you'll used.
+- (array) **verbs** *required* - What verbs should be used to match this route. Can be any value thats available on **Drest\Request::METHOD_\*** constants
+- (string) **routePattern** *required* - The pattern to be used for matching a request. For more information see the [routing section]({{site.url}}/docs/configuring-resources/#routing).
+- (array) **expose** *optional*
+   - For a **PULL** \[GET\] request this'll be an array of information you want to expose to the client.
+   - For a **PUSH** \[POST/PUT/PATCH\] request any data not set for exposure will be stripped off when sent from the client.
    
-* (boolean) **collection** *optional* - By default there are two types ways to fetch data, as a single entity (as given in the example below) or as a collection of data.
+- (boolean) **collection** *optional* - By default there are two types ways to fetch data, as a single entity (as given in the example below) or as a collection of data.
 If you wanted to allow the user access to *all* entities of a certain type the add *collection=true* to the route configuration.
-* (array) **routeConditions** *optional* - You can provide an array of conditions to be provided on route variables. For example routeConditions={"id": "\d+"} 
+- (array) **routeConditions** *optional* - You can provide an array of conditions to be provided on route variables. For example routeConditions={"id": "\d+"} 
 would ensure that the *id* variable passed in the url was a decimal before this route was deemed a match.
 
-* (string) **action** *optional* - Drest comes shipped with a number of default behaviors that occur based on the HTTP verb used in the request. 
+- (string) **action** *optional* - Drest comes shipped with a number of default behaviors that occur based on the HTTP verb used in the request. 
 This however might not quite be the behaviour your after. You can instead use your own service action class. 
 These must extend **\Drest\Service\Action\AbstractAction**
 
-* (boolean) **allowOptions** *optional* - When a client performs an options request on route drest will collect all matching routes (excluding a verb check)
+- (boolean) **allowOptions** *optional* - When a client performs an options request on route drest will collect all matching routes (excluding a verb check)
 and return them on the *Allow* HTTP header. 
 <br><br>Any mathing route configured with verb={"OPTIONS"} will take precedence over this. 
 Instead of sepcifying this behaviour per route, it can instead be defined across all routes with **Drest\Configuration::setAllowOptionsRequest({boolean})**.
@@ -216,14 +216,13 @@ Instead of sepcifying this behaviour per route, it can instead be defined across
 made to **/user/:id**, then a response would be sent back to the client with an *Allow* header containing "PATCH, PUT, GET". 
 **This feature is on by default**. 
 
-* (boolean) **origin** *optional* - An origin route is the inital path that details the resource your exposing. 
+- (boolean) **origin** *optional* - An origin route is the inital path that details the resource your exposing. 
 Whenever you update, or create an entity via a PUT/POST/PATCH route then it's always useful (and informative) to let the 
 client know where they can view that created/updated entity. Now it maybe that it's not exposed at all, but if there is a means to view it, drest will attempt
 to pass that information back to the client. These will typically be exposed as {entity name}/{primary key} but can be in any form. 
 So by default drest will scan all route definitions within the resource group and try to find a GET route that contains
 the primary key variable (eg (.*)?\/:id). By using the origin variable you can override this default behavior and mark a route to be forced as the origin. 
-You can only mark one route within the a resource group. 
-
+You can only mark one route within the a resource group.*
  
  
  -@todo Push handles

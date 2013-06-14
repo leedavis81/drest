@@ -5,7 +5,6 @@ date:   2013-06-13 13:32:55
 categories: docs
 ---
 
-
         - What are they?
             * required media types (xml / json)
         - Detecting requested content options
