@@ -58,14 +58,14 @@ $client = new Drest\Client('http://yourapi.endpoint', 'Json');
 $user = SomeApi\Entities\User::create()
         ->setEmailAddress('hello@somewhere.com')
         ->setUsername('leedavis81')
-        ->setProfile(Client\Entities\Profile::create()
+        ->setProfile(SomeApi\Entities\Profile::create()
             ->setTitle('mr')
             ->setFirstname('lee')
             ->setLastname('davis'))
         ->addPhoneNumbers(array(
-            Client\Entities\PhoneNumber::create()->setNumber('02087888888'),
-            Client\Entities\PhoneNumber::create()->setNumber('07515788888')))
-        ->addPhoneNumber(Client\Entities\PhoneNumber::create()->setNumber('07953788888'));
+            SomeApi\Entities\PhoneNumber::create()->setNumber('02087888888'),
+            SomeApi\Entities\PhoneNumber::create()->setNumber('07515788888')))
+        ->addPhoneNumber(SomeApi\Entities\PhoneNumber::create()->setNumber('07953788888'));
 
 try
 {
