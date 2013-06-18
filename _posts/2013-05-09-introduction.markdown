@@ -14,13 +14,13 @@ When building an API you'd be surprised at just how much common ground you'll co
 It can be as simple as adding the following annotation to an Entity class to expose it as a GET'able REST endpoint.
 
 {% highlight php %}
-/* @Drest\Resource(
- *      routes={
- *          @Drest\Route(
- *              name="get_user",
- *              routePattern="/user/:id",
- *              verbs={"GET"}
- * )});
+@Drest\Resource(
+    routes={
+        @Drest\Route(
+            name="get_user",
+            routePattern="/user/:id",
+            verbs={"GET"}
+)});
 {% endhighlight %}
 
 Drest comes with a number of [default behaviours]({{site.url}}/docs/service-actions) to handle each request. . 

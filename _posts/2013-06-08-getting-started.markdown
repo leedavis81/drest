@@ -225,12 +225,45 @@ the primary key variable (eg (.*)?\/:id). By using the origin variable you can o
 You can only mark one route within the a resource group.*
  
  
- -@todo Push handles
- 
- 
- -@todo System Errors
-    Exception Handling
-        - Debug mode
- 
-    
+###Push handles
 
+Drest push requests \[POST/PUT/PATCH\] are handled very differently to pull \[GET\] as these need to be able to manipulate 
+the state of an entity (based on what information the client has sent through). For this purpose drest has the ability to register method handles
+to be triggered. These are optional, but very much advised. You can register a handle method like so:
+
+{% highlight php %}
+
+// If the following route definition was used
+ @Drest\Route(
+    name="update_users",
+    routePattern="/user/:id",
+    verbs={"PUT"}
+ )
+
+/**
+ * @Drest\Handle(for="update_users")
+ */
+public function myMethod(array $data)
+{
+    // inspect $data array and change entity state
+}
+{% endhighlight %} 
+
+For simplicity an array representation of the pushed data is passed as a parameter to the handle method. 
+In some instances you may need more information about the request to determine the state of your entity. 
+In this instance you can instruct drest to inject the **Drest\Request** object instance.   
+
+{% highlight php %}
+/**
+ * @Drest\Handle(for="update_users", injectRequest=true)
+ */
+public function myMethod(array $data, \Drest\Request $request)
+{
+}
+{% endhighlight %} 
+
+Any registered handle function will be called when using the [default service actions]({{site.url}}/docs/service-actions/#default_behaviours). 
+
+
+If you've [created your own service action class](http://localhost:4000/docs/service-actions/#creating_your_own) and you still want to call a registered handle then you'll need to fire it off manually.
+See [creating your own service actions]({{site.url}}/docs/service-actions/#creating_your_own) for information on how this can be done.

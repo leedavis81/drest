@@ -220,12 +220,12 @@ $qb = $this->registerExpose(
 
 ####Triggering a handle
 For PUT/PATCH/POST requests that have a handle function registered then you may want to trigger this from your service action. 
-to so this simply pass in your entity into the **runHandle($entity)** method. If a handle isn't registered, nothing will be called.
+To so this simply pass in your entity object instance into the **runHandle($entity)** method. If a handle isn't registered, nothing will be called.
 
 {% highlight php %}  
-// Either fetch $object from your entity manager [PUT/PATCH], or instantiate it [POST]  
+// this can be either an newly created instance of the entity object, 
+// or one fetched through the doctrine entity manager using "ORM\Query::HYDRATE_OBJECT"  
 $this->runHandle($object);   
  {% endhighlight %} 
                 
-                
-                           
+Note: The default "postElement" action will instantiate an instance of your entity, be sure not to mix behaviours in a handle method that should go into \__construct().                

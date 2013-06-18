@@ -5,10 +5,13 @@ date:   2013-06-13 13:32:55
 categories: docs
 ---
 
-**todo** 
+###Coming soon
 
+
+<!--
     - Will allow hooks for:
-    * - PreRouting  - Before we've routed the request       injection: Request / Response
-    * - PostRouting - After we've routed the request        injection: Request / Response / Matched Route
-    * - PreLoad     - Before we load data from the DB
-    * - PostLoad    - After a result set has been generated injection: ResultSet
+    *  PreRouting  - Before we've routed the request       injection: Request / Response
+    *  PostRouting - After we've routed the request        injection: Request / Response / Matched Route
+    *  PreLoad     - Before we load data from the DB
+    *  PostLoad    - After a result set has been generated injection: ResultSet
+-->
