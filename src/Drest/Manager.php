@@ -30,49 +30,49 @@ class Manager
 
 	/**
 	 * Doctrine Entity Manager
-	 * @var Doctrine\ORM\EntityManager $em
+	 * @var \Doctrine\ORM\EntityManager $em
 	 */
 	protected $em;
 
 	/**
 	 * Drest configuration object
-	 * @var Drest\Configuration $config
+	 * @var \Drest\Configuration $config
 	 */
 	protected $config;
 
 	/**
 	 * Metadata factory object
-	 * @var Drest\Mapping\MetadataFactory $metadataFactory
+	 * @var \Drest\Mapping\MetadataFactory $metadataFactory
 	 */
 	protected $metadataFactory;
 
 	/**
 	 * Drest router
-	 * @var Drest\Router $router
+	 * @var \Drest\Router $router
 	 */
 	protected $router;
 
 	/**
 	 * Drest request object
-	 * @var \Drest\Request\Adapter\AdapterInterface $request
+	 * @var \Drest\Request $request
 	 */
 	protected $request;
 
 	/**
 	 * Drest response object
-	 * @var \Drest\Response\Adapter\AdapterInterface $response
+	 * @var \Drest\Response $response
 	 */
 	protected $response;
 
 	/**
 	 * A service object used to handle service actions
-	 * @var Drest\Service $service
+	 * @var \Drest\Service $service
 	 */
 	protected $service;
 
 	/**
 	 * Error handler object
-	 * @var Drest\Error\Handler\AbstractHandler $error_handler
+	 * @var \Drest\Error\Handler\AbstractHandler $error_handler
 	 */
 	protected $error_handler;
 
@@ -81,6 +81,7 @@ class Manager
      * Creates an instance of the Drest Manager using the passed configuration object
      * Can also pass in a Doctrine EventManager instance
      *
+     * @param \Doctrine\ORM\EntityManager $em
      * @param \Drest\Configuration $config
      * @param \Doctrine\Common\EventManager $eventManager
      */
@@ -109,8 +110,10 @@ class Manager
     /**
      * Static call to create the Drest Manager instance
      *
-     * @param Drest\Configuration $config
-     * @param Drest\EventManager $eventManager
+     * @param \Doctrine\ORM\EntityManager $em
+     * @param \Drest\Configuration $config
+     * @param \Drest\EventManager $eventManager
+     * @return \Drest\Manager $manager
      */
 	public static function create(EntityManager $em, Configuration $config, EventManager $eventManager = null)
 	{
@@ -148,7 +151,8 @@ class Manager
      * @param object $response 		- Framework response object
      * @param string $namedRoute 	- Define the named Route to be dispatch - by passes the internal router
      * @param array $routeParams	- Route parameters to be used when dispatching a namedRoute request
-     * @return Drest\Reponse $response return's a Drest response object which can be sent calling toString()
+     * @return \Drest\Reponse $response return's a Drest response object which can be sent calling toString()
+     * @throws \Exception           - Upon failure
      */
 	public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = array())
 	{
@@ -170,7 +174,7 @@ class Manager
 	/**
 	 * Handle an error by passing the exception to the registered error handler
 	 * @param \Exception $e
-	 * @return Drest\Reponse $response
+	 * @return \Drest\Reponse $response
 	 */
 	private function handleError(\Exception $e)
 	{
@@ -200,7 +204,7 @@ class Manager
 	 * @param string $name
 	 * @param array $params
 	 * @throws DrestException on invalid syntax or unmatched named route
-	 * @return Drest\Mapping\RouteMetaData $route
+	 * @return \Drest\Mapping\RouteMetaData $route
 	 */
 	protected function getNamedRoute($name, array $params = array())
 	{
