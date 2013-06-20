@@ -1,9 +1,9 @@
 <?php
 namespace Drest;
 
-use Drest\DrestException,
-	Drest\Response\Adapter;
 
+use Drest\DrestException;
+use Drest\Response\Adapter;
 
 class Response
 {
@@ -135,135 +135,131 @@ class Response
         self::STATUS_CODE_511 => 'Network Authentication Required',
     );
 
-	/**
-	 * Adapter class used for response handling
-	 * @var Drest\Response\Adapter\AdapterAbstract $adapter
-	 */
-	protected $adapter;
+    /**
+     * Adapter class used for response handling
+     * @var Adapter\AdapterAbstract $adapter
+     */
+    protected $adapter;
 
-	/**
-	 * Construct an instance of Drest Response object
-	 * @param mixed $response prefered adapted response type
-	 * @param array $adapterClasses - an array of adapter classes available
-	 */
-	public function __construct($response_object = null, array $adapterClasses = array())
-	{
-		$defaultClass = 'Symfony\Component\HttpFoundation\Response';
-		if (is_null($response_object))
-		{
-			if (!class_exists($defaultClass))
-			{
-				throw DrestException::noResponseObjectDefinedAndCantInstantiateDefaultType($defaultClass);
-			}
-			// Default to using symfony's request object
-			$this->adapter = new Adapter\Symfony2($defaultClass::create());
-		} else if (is_object($response_object))
-		{
-			foreach ($adapterClasses as $adapterClass)
-            {
-		        $adaptedClassName = $adapterClass::getAdaptedClassName();
-		        if ($response_object instanceof $adaptedClassName)
-		        {
-		            $adaptedObj = new $adapterClass($response_object);
-		            if ($adaptedObj instanceof \Drest\Response\Adapter\AdapterAbstract)
-		            {
-    		            $this->adapter = $adaptedObj;
-    		            return;
-		            }
-		        }
-		    }
+    /**
+     * Construct an instance of Drest Response object
+     * @param mixed $response_object - preferred adapted response type
+     * @param array $adapterClasses - an array of adapter classes available
+     * @throws DrestException
+     */
+    public function __construct($response_object = null, array $adapterClasses = array())
+    {
+        $defaultClass = 'Symfony\Component\HttpFoundation\Response';
+        if (is_null($response_object)) {
+            if (!class_exists($defaultClass)) {
+                throw DrestException::noResponseObjectDefinedAndCantInstantiateDefaultType($defaultClass);
+            }
+            // Default to using symfony's request object
+            /* @var \Symfony\Component\HttpFoundation\Response $defaultClass */
+            $this->adapter = new Adapter\Symfony2($defaultClass::create());
+        } else if (is_object($response_object)) {
+            foreach ($adapterClasses as $adapterClass) {
+                /* @var Adapter\AdapterInterface $adapterClass */
+                $adaptedClassName = $adapterClass::getAdaptedClassName();
+                if ($response_object instanceof $adaptedClassName) {
+                    $adaptedObj = new $adapterClass($response_object);
+                    if ($adaptedObj instanceof Adapter\AdapterAbstract) {
+                        $this->adapter = $adaptedObj;
+                        return;
+                    }
+                }
+            }
             throw DrestException::unknownAdapterForResponseObject($response_object);
-		} else
-		{
-			throw DrestException::invalidResponseObjectPassed();
-		}
-	}
+        } else {
+            throw DrestException::invalidResponsetObjectPassed();
+        }
+    }
 
-	/**
-	 * Get either all HTTP header values or a specific entry
-	 * @param unknown_type $name
-	 * @return array $headers an array of all headers, or an array of a specific entry
-	 */
-	public function getHttpHeader($name = null)
-	{
-	   return $this->adapter->getHttpHeader($name);
-	}
+    /**
+     * Get either all HTTP header values or a specific entry
+     * @param string|null $name
+     * @return array $headers an array of all headers, or an array of a specific entry
+     */
+    public function getHttpHeader($name = null)
+    {
+        return $this->adapter->getHttpHeader($name);
+    }
 
-	/**
-	 * Set an HTTP header value - if an array is passed in the $name then all headers are overwritten with the new values
-	 * @param string|array $name
-	 * @param string $value
-	 */
-	public function setHttpHeader($name, $value = null)
-	{
+    /**
+     * Set an HTTP header value - if an array is passed in the $name then all headers are overwritten with the new values
+     * @param string|array $name
+     * @param string $value
+     */
+    public function setHttpHeader($name, $value = null)
+    {
         $this->adapter->setHttpHeader($name, $value);
-	}
+    }
 
-	/**
-	 * Get the body of the response document
-	 * @return string body
-	 */
-	public function getBody()
-	{
-	    return $this->adapter->getBody();
-	}
+    /**
+     * Get the body of the response document
+     * @return string body
+     */
+    public function getBody()
+    {
+        return $this->adapter->getBody();
+    }
 
-	/**
-	 * Set the body of the response document. This can be either a string or an object with __toString implemented
-	 * @param string|object $body
-	 */
-	public function setBody($body)
-	{
-	    $this->adapter->setBody($body);
-	}
+    /**
+     * Set the body of the response document. This can be either a string or an object with __toString implemented
+     * @param string|object $body
+     */
+    public function setBody($body)
+    {
+        $this->adapter->setBody($body);
+    }
 
-	/**
-	 * Get the HTTP status code
-	 * @return integer $code
-	 */
-	public function getStatusCode()
-	{
+    /**
+     * Get the HTTP status code
+     * @return integer $code
+     */
+    public function getStatusCode()
+    {
         return $this->adapter->getStatusCode();
-	}
+    }
 
-	/**
-	 * Set the status code
-	 * @param integer $code - must reflect one of the STATUS_CODE_* constants on this class
-	 */
-	public function setStatusCode($code)
-	{
-	    if (!array_key_exists($code, self::$statusPhrases))
-	    {
-	        throw DrestException::invalidHttpStatusCode($code);
-	    }
+    /**
+     * Set the status code
+     * @param integer $code - must reflect one of the STATUS_CODE_* constants on this class
+     * @throws DrestException
+     */
+    public function setStatusCode($code)
+    {
+        if (!array_key_exists($code, self::$statusPhrases)) {
+            throw DrestException::invalidHttpStatusCode($code);
+        }
         $this->adapter->setStatusCode($code, self::$statusPhrases[$code]);
-	}
+    }
 
-	/**
-	 * Get the adapted response object (would be fw specific type)
-	 * @return object $response
-	 */
-	public function getResponse()
-	{
-	    return $this->adapter->getResponse();
-	}
+    /**
+     * Get the adapted response object (would be fw specific type)
+     * @return object $response
+     */
+    public function getResponse()
+    {
+        return $this->adapter->getResponse();
+    }
 
-	/**
-	 * Echo the adapted response object
-	 */
-	public function __toString()
-	{
-	    return $this->adapter->toString();
-	}
+    /**
+     * Echo the adapted response object
+     */
+    public function __toString()
+    {
+        return $this->adapter->toString();
+    }
 
-	/**
-	 * Factory call to create a Drest response object
-	 * @param mixed $response_object prefered response object
-	 * @param array $adapterClasses - an array of adapter classes available
-	 */
-	public static function create($response_object = null, array $adapterClasses = array())
-	{
-		return new self($response_object, $adapterClasses);
-	}
-
+    /**
+     * Factory call to create a Drest response object
+     * @param mixed $response_object preferred response object
+     * @param array $adapterClasses - an array of adapter classes available
+     * @return Response
+     */
+    public static function create($response_object = null, array $adapterClasses = array())
+    {
+        return new self($response_object, $adapterClasses);
+    }
 }

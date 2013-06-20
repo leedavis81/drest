@@ -1,10 +1,8 @@
 <?php
-
 namespace Drest\Tools\Console\Helper;
 
-use Symfony\Component\Console\Helper\Helper,
-    Doctrine\ORM\EntityManager;
-
+use Doctrine\ORM\EntityManager;
+use Symfony\Component\Console\Helper\Helper;
 
 /**
  * Doctrine EntityManager Helper
@@ -21,7 +19,7 @@ class EntityManagerHelper extends Helper
     /**
      * Constructor
      *
-     * @param Doctrine\ORM\EntityManager $em
+     * @param EntityManager $em
      */
     public function __construct(EntityManager $em)
     {
@@ -31,7 +29,7 @@ class EntityManagerHelper extends Helper
     /**
      * Retrieves Doctrine ORM EntityManager
      *
-     * @return Doctrine\ORM\EntityManager
+     * @return EntityManager
      */
     public function getEntityManager()
     {
@@ -39,11 +37,10 @@ class EntityManagerHelper extends Helper
     }
 
     /**
-     * @see Symfony\Component\Console\Helper.HelperInterface::getName()
+     * @see \Symfony\Component\Console\Helper\HelperInterface::getName()
      */
     public function getName()
     {
         return 'entityManager';
     }
-
 }

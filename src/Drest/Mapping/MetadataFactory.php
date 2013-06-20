@@ -2,23 +2,22 @@
 
 namespace Drest\Mapping;
 
+use Doctrine\Common\Cache\Cache;
 use Drest\DrestException;
-
-use Drest\Mapping\Driver\DriverInterface,
-    Doctrine\Common\Cache\Cache;
+use Drest\Mapping\Driver\DriverInterface;
 
 class MetadataFactory
 {
 
     /**
      * Driver attached to this meta data factory
-     * @var Drest\Mapping\Driver\DriverInterface $driver
+     * @var \Drest\Mapping\Driver\DriverInterface $driver
      */
     private $driver;
 
     /**
      * Cache used to prevent metadata reloading
-     * @var Doctrine\Common\Cache\Cache $cache
+     * @var \Doctrine\Common\Cache\Cache $cache
      */
     private $cache;
 
@@ -34,12 +33,6 @@ class MetadataFactory
      */
     private $loadedMetadata = array();
 
-    /**
-     * All class metadata loaded, includes classes in the inheritence tree
-     * @var array
-     */
-    private $allClassMetadata = array();
-
 
     /**
      * @param DriverInterface $driver
@@ -51,7 +44,7 @@ class MetadataFactory
 
     /**
      * Set the doctrine cache drive to be user
-     * @param Doctrine\Common\Cache\Cache\Cache $cache
+     * @param Cache $cache
      */
     public function setCache(Cache $cache)
     {
@@ -60,7 +53,7 @@ class MetadataFactory
 
     /**
      * Get all class names
-     * @return array classnames registered to this driver
+     * @return array class names registered to this driver
      */
     public function getAllClassNames()
     {
@@ -70,26 +63,22 @@ class MetadataFactory
     /**
      * Get metadata for a certain class - loads once and caches
      * @param string $className
-     * @return Drest\Mapping\ClassMetaData $metaData
+     * @throws \Drest\DrestException
+     * @return ClassMetaData $metaData
      */
     public function getMetadataForClass($className)
     {
-        if (isset($this->loadedMetadata[$className]))
-        {
+        if (isset($this->loadedMetadata[$className])) {
             return $this->loadedMetadata[$className];
         }
 
         // check the cache
-        if ($this->cache !== null)
-        {
+        if ($this->cache !== null) {
             $classMetadata = $this->cache->fetch($this->cache_prefix . $className);
-            if ($classMetadata instanceof ClassMetaData)
-            {
-                if ($classMetadata->expired())
-                {
+            if ($classMetadata instanceof ClassMetaData) {
+                if ($classMetadata->expired()) {
                     $this->cache->delete($this->cache_prefix . $className);
-                } else
-                {
+                } else {
                     $this->loadedMetadata[$className] = $classMetadata;
                     return $classMetadata;
                 }
@@ -97,24 +86,19 @@ class MetadataFactory
         }
 
         $classMetadata = $this->driver->loadMetadataForClass($className);
-        if ($classMetadata !== null)
-        {
+        if ($classMetadata !== null) {
             $this->loadedMetadata[$className] = $classMetadata;
-            if ($this->cache !== null)
-            {
+            if ($this->cache !== null) {
                 $this->cache->save($this->cache_prefix . $className, $classMetadata);
             }
             return $classMetadata;
         }
 
-        if (is_null($this->loadedMetadata[$className]))
-        {
+        if (is_null($this->loadedMetadata[$className])) {
             throw DrestException::unableToLoadMetaDataFromDriver();
         }
 
 
         return $this->loadedMetadata[$className];
     }
-
-
 }

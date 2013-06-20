@@ -10,8 +10,7 @@ use Exception;
  */
 class UnableToMatchRepresentationException extends Exception
 {
-
-	// Set up and configuration
+    // Set up and configuration
     public static function noMatch()
     {
         return new self('Unable to determine a representation class using both global and service configurations');

@@ -1,35 +1,31 @@
 <?php
-
 namespace Drest\Tools\Console\Helper;
 
-use Symfony\Component\Console\Helper\Helper,
-    Drest\Manager;
-
+use Drest\Manager;
+use Symfony\Component\Console\Helper\Helper;
 
 /**
  * Drest Manager Helper
  */
 class DrestManagerHelper extends Helper
 {
-
     /**
      * Drest Manager
-     * @var DrestManager
+     * @var Manager $dm
      */
     protected $dm;
 
     /**
-     * @param Drest\Manager $dm
+     * @param Manager $dm
      */
-    public function __construct(DrestManager $dm)
+    public function __construct(Manager $dm)
     {
         $this->dm = $dm;
     }
 
     /**
      * Get Drest Manager
-     *
-     * @return Drest\Manager
+     * @return Manager
      */
     public function getDrestManager()
     {
@@ -37,11 +33,10 @@ class DrestManagerHelper extends Helper
     }
 
     /**
-     * @see Symfony\Component\Console\Helper.HelperInterface::getName()
+     * @see \Symfony\Component\Console\Helper\HelperInterface::getName()
      */
     public function getName()
     {
         return 'drestManager';
     }
-
 }

@@ -30,7 +30,7 @@ interface ResponseInterface
     /**
      * Every error document you should be able to recreate from the generated string
      * @param string $string
-     * @return Drest\Error\Response\ResponseInterface $errorResponse
+     * @return ResponseInterface $errorResponse
      */
     public static function createFromString($string);
 }

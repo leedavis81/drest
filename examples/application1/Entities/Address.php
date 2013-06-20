@@ -22,14 +22,14 @@ class Address
     private $id;
 
     /**
-     * @var Entities\Profile $profile
+     * @var Profile $profile
      * @ORM\ManyToOne(targetEntity="Profile", inversedBy="addresses", fetch="EAGER")
      * @ORM\JoinColumn(name="profile_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $profile;
 
     /**
-     * @var test $number
+     * @var string $address
      * @ORM\Column(name="address", type="string")
      */
     private $address;

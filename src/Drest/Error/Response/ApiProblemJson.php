@@ -3,6 +3,7 @@ namespace Drest\Error\Response;
 
 /**
  * ApiProblem Document (Json)
+ * @todo: incomplete
  * @author Lee
  */
 class ApiProblemJson implements ResponseInterface
@@ -24,7 +25,7 @@ class ApiProblemJson implements ResponseInterface
         $this->title = $message;
     }
 
-	/**
+    /**
      * @return string $describedBy
      */
     public function getDescribedBy()
@@ -32,7 +33,7 @@ class ApiProblemJson implements ResponseInterface
         return $this->describedBy;
     }
 
-	/**
+    /**
      * @return string $title
      */
     public function getTitle()
@@ -40,7 +41,7 @@ class ApiProblemJson implements ResponseInterface
         return $this->title;
     }
 
-	/**
+    /**
      * @return integer $httpStatus
      */
     public function getHttpStatus()
@@ -48,7 +49,7 @@ class ApiProblemJson implements ResponseInterface
         return $this->httpStatus;
     }
 
-	/**
+    /**
      * @return string $detail
      */
     public function getDetail()
@@ -56,7 +57,7 @@ class ApiProblemJson implements ResponseInterface
         return $this->detail;
     }
 
-	/**
+    /**
      * @return integer $supportId
      */
     public function getSupportId()
@@ -72,7 +73,7 @@ class ApiProblemJson implements ResponseInterface
         return $this->more;
     }
 
-	/**
+    /**
      * @param string $describedBy
      */
     public function setDescribedBy($describedBy)
@@ -80,7 +81,7 @@ class ApiProblemJson implements ResponseInterface
         $this->describedBy = $describedBy;
     }
 
-	/**
+    /**
      * @param string $title
      */
     public function setTitle($title)
@@ -88,7 +89,7 @@ class ApiProblemJson implements ResponseInterface
         $this->title = $title;
     }
 
-	/**
+    /**
      * @param integer $httpStatus
      */
     public function setHttpStatus($httpStatus)
@@ -96,7 +97,7 @@ class ApiProblemJson implements ResponseInterface
         $this->httpStatus = $httpStatus;
     }
 
-	/**
+    /**
      * @param string $detail
      */
     public function setDetail($detail)
@@ -104,7 +105,7 @@ class ApiProblemJson implements ResponseInterface
         $this->detail = $detail;
     }
 
-	/**
+    /**
      * @param integer $supportId
      */
     public function setSupportId($supportId)
@@ -118,7 +119,7 @@ class ApiProblemJson implements ResponseInterface
      */
     public function setMore(array $more)
     {
-        $this->more = (array) $more;
+        $this->more = (array)$more;
     }
 
     /**
@@ -133,12 +134,12 @@ class ApiProblemJson implements ResponseInterface
     /**
      * Every error document you should be able to recreate from the generated string
      * @param string $string
-     * @return Drest\Error\Response\Json $errorResponse
+     * @return Json $errorResponse
      */
     public static function createFromString($string)
     {
-        $result = json_decode($string, true);
-        $instance = new self();
+        //$result = json_decode($string, true);
+        //$instance = new self();
 
         // @todo: need to recurse $result to populate the instance (or at least the "more" variable)
 
@@ -152,7 +153,7 @@ class ApiProblemJson implements ResponseInterface
     public function render()
     {
         return json_encode(
-            array_filter(get_object_vars($this), function($item){
+            array_filter(get_object_vars($this), function ($item) {
                 return !empty($item);
             })
         );

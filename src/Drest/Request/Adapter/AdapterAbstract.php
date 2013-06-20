@@ -26,8 +26,8 @@ abstract class AdapterAbstract implements AdapterInterface
 		$this->request = $request;
 	}
 
-	/** (non-PHPdoc)
-	 * @see Drest\Request\Adapter.Request::getParams()
+	/**
+	 * @see \Drest\Request\Adapter\AdapterInterface::getParams()
 	 */
 	public function getParams($name = null)
 	{
@@ -39,8 +39,8 @@ abstract class AdapterAbstract implements AdapterInterface
 	    return (isset($params[$name])) ? $params[$name] : null;
 	}
 
-	/** (non-PHPdoc)
-	 * @see Drest\Request\Adapter.Request::setRouteParam()
+	/**
+	 * @see \Drest\Request\Adapter\AdapterInterface::setRouteParam()
 	 */
 	public function setRouteParam($name, $value = null)
 	{
@@ -53,8 +53,8 @@ abstract class AdapterAbstract implements AdapterInterface
 		}
 	}
 
-	/* (non-PHPdoc)
-	 * @see Drest\Request\Adapter.AdapterInterface::getRouteParam()
+	/**
+	 * @see \Drest\Request\Adapter\AdapterInterface::getRouteParam()
 	 */
 	public function getRouteParam($name = null)
 	{
@@ -66,8 +66,7 @@ abstract class AdapterAbstract implements AdapterInterface
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Drest\Request\Adapter.AdapterInterface::getPath()
+	 * @see \Drest\Request\Adapter\AdapterInterface::getPath()
 	 */
 	public function getPath()
 	{
@@ -77,8 +76,7 @@ abstract class AdapterAbstract implements AdapterInterface
 	}
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Request\Adapter.AdapterInterface::getUrl()
+     * @see \Drest\Request\Adapter\AdapterInterface::getUrl()
      */
 	public function getUrl()
 	{
@@ -86,8 +84,7 @@ abstract class AdapterAbstract implements AdapterInterface
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Drest\Request\Adapter.AdapterInterface::getExtension()
+	 * @see \Drest\Request\Adapter\AdapterInterface::getExtension()
 	 */
 	public function getExtension()
 	{

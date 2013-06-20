@@ -8,7 +8,6 @@ use Drest\Request,
     Drest\Mapping\RouteMetaData,
     Drest\Configuration,
     Drest\Query\ResultSet,
-
     Doctrine\ORM\EntityManager;
 
 /**
@@ -32,12 +31,12 @@ class ExposeFields implements \Iterator
 
     /**
      * The matched route
-     * @var Drest\Mapping\RouteMetaData $route
+     * @var RouteMetaData $route
      */
     protected $route;
 
     /**
-     * The route expose array - If explicity set it overrides any default config settings
+     * The route expose array - If explicitly set it overrides any default config settings
      * @var array $route_expose
      */
     protected $route_expose;
@@ -63,7 +62,8 @@ class ExposeFields implements \Iterator
 	/**
 	 * Create an instance of ExposeFields
 	 * @param RouteMetaData $route - requires a matched route
-	 */
+     * @return \Drest\Query\ExposeFields
+     */
 	public static function create(RouteMetaData $route)
 	{
         return new self($route);
@@ -74,7 +74,7 @@ class ExposeFields implements \Iterator
 	 * @param EntityManager $em
 	 * @param integer $exposureDepth
 	 * @param integer $exposureRelationsFetchType
-	 * @return Drest\Query\ExposeFields $this object instance
+	 * @return ExposeFields $this object instance
 	 */
 	public function configureExposeDepth(EntityManager $em, $exposureDepth = 0, $exposureRelationsFetchType = null)
 	{
@@ -94,14 +94,16 @@ class ExposeFields implements \Iterator
         return $this;
 	}
 
-	/**
-	 * Configure the expose object to filter out fields that are not allowed to be use by the client.
-	 * Unlike the configuring of the Pull request, this function will return the formatted array in a ResultSet object
-	 * This is only applicable for a HTTP push (POST/PUT/PATCH) call
-	 * @param array $pushed	- the data push on the request
-	 * @return array $requestedExposure
-	 * @return Drest\Query\ResultSet $response
-	 */
+    /**
+     * Configure the expose object to filter out fields that are not allowed to be use by the client.
+     * Unlike the configuring of the Pull request, this function will return the formatted array in a ResultSet object
+     * This is only applicable for a HTTP push (POST/PUT/PATCH) call
+     * @param array $pushed    - the data push on the request
+     * @throws \Drest\DrestException
+     * @return \Drest\Query\ResultSet
+     *
+     * @todo: this should follow the same pattern as configurePullRequest
+     */
 	public function configurePushRequest($pushed)
 	{
         // Offset the array by one of it has a string key and is size of 1
@@ -162,7 +164,7 @@ class ExposeFields implements \Iterator
 	 * This is only applicable for a HTTP pull (GET) call. For configuring
 	 * @param array $requestOptions
 	 * @param Request $request
-	 * @return Drest\Query\ExposeFields $this object instance
+	 * @return ExposeFields $this object instance
 	 */
 	public function configurePullRequest(array $requestOptions, Request $request)
 	{
@@ -374,10 +376,12 @@ class ExposeFields implements \Iterator
 
     /**
      * Recursive function to generate default expose columns
+     *
      * @param array $fields - array to be populated recursively (referenced)
      * @param string $class - name of the class to process
-     * @param Doctrine\ORM\EntityManager - entity manager used to fetch class information
-     * @param integer $depth - maximium depth you want to travel through the relations
+     * @param EntityManager $em - entity manager used to fetch class information
+     * @param integer $depth - maximum depth you want to travel through the relations
+     * @param integer $fetchType - The fetch type to be used
      * @param integer|null $fetchType - The required fetch type of the relation
      */
 	protected function processExposeDepth(&$fields, $class, EntityManager $em, $depth = 0, $fetchType = null)

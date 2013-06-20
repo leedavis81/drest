@@ -2,13 +2,10 @@
 
 namespace Drest;
 
-use Drest\DrestException,
-	Drest\Mapping\Driver\AnnotationsDriver,
-	Doctrine\Common\Cache\Cache,
-    Doctrine\Common\Annotations\AnnotationRegistry,
 
-    Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
-
+use Doctrine\Common\Cache\Cache;
+use Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
+use Drest\DrestException;
 
 class Configuration
 {
@@ -68,7 +65,7 @@ class Configuration
         ));
         // Depth of exposure on entity fields => relations
         $this->setExposureDepth(2);
-        // Dont follow any relation type
+        // Don't follow any relation type
         $this->setExposureRelationsFetchType(null);
         // Don't set any expose request options
         $this->setExposeRequestOptions(array());
@@ -76,7 +73,7 @@ class Configuration
         $this->setAllowOptionsRequest(true);
         // Set the route base paths to be an empty array
         $this->_attributes['routeBasePaths'] = array();
-        // Dont send a 415 if we dont match a representation class, default to first available one
+        // Don't send a 415 if we don't match a representation class, default to first available one
         $this->set415ForNoMediaMatch(false);
         // Set the default error handler class (immutable)
         $this->_attributes['defaultErrorHandlerClass'] = 'Drest\\Error\\Handler\\DefaultHandler';
@@ -89,7 +86,7 @@ class Configuration
      */
     public function setDebugMode($setting)
     {
-        $this->_attributes['debugMode'] = (bool) $setting;
+        $this->_attributes['debugMode'] = (bool)$setting;
     }
 
     /**
@@ -117,13 +114,12 @@ class Configuration
      * Sets the cache driver implementation that is used for metadata caching.
      *
      * @param \Doctrine\Common\Cache\Cache $cacheImpl
+     * @throws DrestException
      */
     public function setMetadataCacheImpl(Cache $cacheImpl)
     {
-        if (!$cacheImpl instanceof \Doctrine\Common\Cache\Cache)
-        {
+        if (!$cacheImpl instanceof Cache) {
             throw DrestException::invalidCacheInstance();
-            $this->_attributes['metadataCacheImpl'] = $cacheImpl;
         }
 
         $this->_attributes['metadataCacheImpl'] = $cacheImpl;
@@ -133,16 +129,15 @@ class Configuration
     /**
      * Set the methods to be used for detecting content type to be used, overwrites previous settings
      * Eg ->setDetectContentOptions(array(self::DETECT_CONTENT_HEADER => $headerName))
-     * self::DETECT_CONTENT_HEADER 			= Uses the a header to detect the required content (typically use Accept)
-     * self::DETECT_CONTENT_EXTENSION 		= Uses an extension on the url eg .xml
-     * self::DETECT_CONTENT_PARAM 			= Uses a the "format" parameter
-     * @param array $values pass in either a single array value using the constant value as a key, or a multi-dimensional array.
+     * self::DETECT_CONTENT_HEADER            = Uses the a header to detect the required content (typically use Accept)
+     * self::DETECT_CONTENT_EXTENSION        = Uses an extension on the url eg .xml
+     * self::DETECT_CONTENT_PARAM            = Uses a the "format" parameter
+     * @param array - pass in either a single array value using the constant value as a key, or a multi-dimensional array.
      */
     public function setDetectContentOptions(array $options)
     {
         $this->_attributes['detectContentOptions'] = array();
-        foreach ($options as $key => $value)
-        {
+        foreach ($options as $key => $value) {
             $this->setDetectContentOption($key, $value);
         }
     }
@@ -152,14 +147,13 @@ class Configuration
      * For any options that don't required a value, set them to true to activate them
      * @param integer $option
      * @param string $value
+     * @throws DrestException
      */
     public function setDetectContentOption($option, $value)
     {
-        if (array_key_exists($option, self::$detectContentOptions))
-        {
+        if (array_key_exists($option, self::$detectContentOptions)) {
             $this->_attributes['detectContentOptions'][$option] = $value;
-        } else
-        {
+        } else {
             throw DrestException::unknownDetectContentOption();
         }
     }
@@ -186,7 +180,7 @@ class Configuration
 
     /**
      * Get the 415 for no representation match setting
-     * @return boolean $value
+     * @return boolean
      */
     public function get415ForNoMediaMatchSetting()
     {
@@ -201,24 +195,22 @@ class Configuration
     public function setExposeRequestOptions(array $options)
     {
         $this->_attributes['exposeRequestOptions'] = array();
-        foreach ($options as $key => $value)
-        {
+        foreach ($options as $key => $value) {
             $this->setExposeRequestOption($key, $value);
         }
     }
 
     /**
-     * Method used to retreive the required expose contents from the client. To unset pass null as value
+     * Method used to retrieve the required expose contents from the client. To unset pass null as value
      * @param integer $option
      * @param string $value
+     * @throws DrestException
      */
     public function setExposeRequestOption($option, $value)
     {
-        if (array_key_exists($option, self::$exposeRequestOptions))
-        {
+        if (array_key_exists($option, self::$exposeRequestOptions)) {
             $this->_attributes['exposeRequestOptions'][$option] = $value;
-        } else
-        {
+        } else {
             throw DrestException::unknownExposeRequestOption();
         }
     }
@@ -238,7 +230,7 @@ class Configuration
      */
     public function setExposureDepth($depth)
     {
-        $this->_attributes['defaultExposureDepth'] = (int) $depth;
+        $this->_attributes['defaultExposureDepth'] = (int)$depth;
     }
 
     /**
@@ -247,7 +239,7 @@ class Configuration
      */
     public function getExposureDepth()
     {
-        return (int) $this->_attributes['defaultExposureDepth'];
+        return (int)$this->_attributes['defaultExposureDepth'];
     }
 
     /**
@@ -255,11 +247,11 @@ class Configuration
      * This is useful if you only want to display fields that are loaded eagerly.
      * eg ->setExposureRelationsFetchType(ORMClassMetaDataInfo::FETCH_EAGER)
      * @param integer $fetch
+     * @throws DrestException
      */
     public function setExposureRelationsFetchType($fetch)
     {
-        switch ($fetch)
-        {
+        switch ($fetch) {
             case ORMClassMetaDataInfo::FETCH_EAGER:
             case ORMClassMetaDataInfo::FETCH_LAZY:
             case ORMClassMetaDataInfo::FETCH_EXTRA_LAZY:
@@ -278,10 +270,10 @@ class Configuration
      */
     public function getExposureRelationsFetchType()
     {
-        if (isset($this->_attributes['defaultExposureRelationsFetchType']))
-        {
+        if (isset($this->_attributes['defaultExposureRelationsFetchType'])) {
             return $this->_attributes['defaultExposureRelationsFetchType'];
         }
+        return null;
     }
 
     /**
@@ -290,8 +282,7 @@ class Configuration
      */
     public function registerResponseAdapterClasses(array $classes)
     {
-        foreach ($classes as $class)
-        {
+        foreach ($classes as $class) {
             $this->registerResponseAdapterClass($class);
         }
     }
@@ -302,28 +293,27 @@ class Configuration
      */
     public function registerResponseAdapterClass($class)
     {
-        $this->_attributes['responseAdpaterClasses'][] = $class;
+        $this->_attributes['responseAdapterClasses'][] = $class;
     }
 
     /**
-     * Unregister an adapter class name entry
+     * Un-register an adapter class name entry
      * @param string $class
      */
     public function unregisterResponseAdapterClass($class)
     {
-        if (($offset = array_search($class, $this->_attributes['responseAdpaterClasses'])) !== false)
-        {
-            unset($this->_attributes['responseAdpaterClasses'][$offset]);
+        if (($offset = array_search($class, $this->_attributes['responseAdapterClasses'])) !== false) {
+            unset($this->_attributes['responseAdapterClasses'][$offset]);
         }
     }
 
     /**
-     * get the registered response adpated classes
+     * get the registered response adapted classes
      * @return array $class_name - a string array of class names
      */
     public function getRegisteredResponseAdapterClasses()
     {
-        return $this->_attributes['responseAdpaterClasses'];
+        return $this->_attributes['responseAdapterClasses'];
     }
 
     /**
@@ -332,8 +322,7 @@ class Configuration
      */
     public function registerRequestAdapterClasses(array $classes)
     {
-        foreach ($classes as $class)
-        {
+        foreach ($classes as $class) {
             $this->registerRequestAdapterClass($class);
         }
     }
@@ -344,39 +333,38 @@ class Configuration
      */
     public function registerRequestAdapterClass($class)
     {
-        $this->_attributes['requestAdpaterClasses'][] = $class;
+        $this->_attributes['requestAdapterClasses'][] = $class;
     }
 
     /**
-     * Unregister an adapter class name entry
+     * Un-register an adapter class name entry
      * @param string $class
      */
     public function unregisterRequestAdapterClass($class)
     {
-        if (($offset = array_search($class, $this->_attributes['requestAdpaterClasses'])) !== false)
-        {
-            unset($this->_attributes['requestAdpaterClasses'][$offset]);
+        if (($offset = array_search($class, $this->_attributes['requestAdapterClasses'])) !== false) {
+            unset($this->_attributes['requestAdapterClasses'][$offset]);
         }
     }
 
     /**
-     * get the registered request adpated classes
+     * get the registered request adapted classes
      * @return array $class_name - a string array of class names
      */
     public function getRegisteredRequestAdapterClasses()
     {
-        return $this->_attributes['requestAdpaterClasses'];
+        return $this->_attributes['requestAdapterClasses'];
     }
 
 
     /**
      * A setting to generically allow OPTIONS requests across the entire API.
-     * This can be overriden by using the @Route\Metadata $allowOptions parameter
+     * This can be overridden by using the @Route\Metadata $allowOptions parameter
      * @param boolean $value
      */
     public function setAllowOptionsRequest($value)
     {
-        $this->_attributes['allowOptionsRequest'] = (bool) $value;
+        $this->_attributes['allowOptionsRequest'] = (bool)$value;
     }
 
     /**
@@ -394,11 +382,10 @@ class Configuration
      */
     public function addPathsToConfigFiles($paths = array())
     {
-        if (!isset($this->_attributes['pathsToConfigFiles']))
-        {
+        if (!isset($this->_attributes['pathsToConfigFiles'])) {
             $this->_attributes['pathsToConfigFiles'] = array();
         }
-        $this->_attributes['pathsToConfigFiles'] = array_merge($this->_attributes['pathsToConfigFiles'], (array) $paths);
+        $this->_attributes['pathsToConfigFiles'] = array_merge($this->_attributes['pathsToConfigFiles'], (array)$paths);
     }
 
     /**
@@ -407,22 +394,19 @@ class Configuration
      */
     public function removePathsToConfigFiles($path = null)
     {
-        if (is_null($path))
-        {
+        if (is_null($path)) {
             $this->_attributes['pathsToConfigFiles'] = array();
-        } else
-        {
+        } else {
             $offset = array_search($path, $this->_attributes['pathsToConfigFiles']);
 
-            if ($offset !== false)
-            {
+            if ($offset !== false) {
                 unset($this->_attributes['pathsToConfigFiles'][$offset]);
             }
         }
     }
 
     /**
-     * Get the paths to the drest configutation files
+     * Get the paths to the drest configuration files
      * @return array $paths
      */
     public function getPathsToConfigFiles()
@@ -433,11 +417,11 @@ class Configuration
     /**
      * Add a base path to be used when matching routes. Eg /v1 would be useful IF you want versioning in the URL
      * @param string $basePath
+     * @throws DrestException
      */
     public function addRouteBasePath($basePath)
     {
-        if (!is_string($basePath))
-        {
+        if (!is_string($basePath)) {
             throw DrestException::basePathMustBeAString();
         }
         $this->_attributes['routeBasePaths'][] = trim($basePath, '/');
@@ -451,12 +435,10 @@ class Configuration
     public function removeRouteBasePath($basePath)
     {
         $basePath = trim($basePath, '/');
-        if (!is_string($basePath))
-        {
+        if (!is_string($basePath)) {
             return false;
         }
-        if (($offset = array_search($basePath, $this->_attributes['routeBasePaths'])) !== false)
-        {
+        if (($offset = array_search($basePath, $this->_attributes['routeBasePaths'])) !== false) {
             unset($this->_attributes['routeBasePaths'][$offset]);
             return true;
         }
@@ -470,8 +452,7 @@ class Configuration
      */
     public function hasRouteBasePaths($basePath = null)
     {
-        if (!is_null($basePath))
-        {
+        if (!is_null($basePath)) {
             $basePath = trim($basePath, '/');
             return in_array($basePath, $this->_attributes['routeBasePaths']);
         }
@@ -482,7 +463,7 @@ class Configuration
      * Get all registered base path or a specific entry
      * @return array $basePaths
      */
-    public function getRouteBasePaths($basePath = null)
+    public function getRouteBasePaths()
     {
         return $this->_attributes['routeBasePaths'];
     }
@@ -523,15 +504,12 @@ class Configuration
      */
     public function ensureProductionSettings()
     {
-        if ($this->inDebugMode())
-        {
+        if ($this->inDebugMode()) {
             throw DrestException::currentlyRunningDebugMode();
         }
 
-        if ( ! $this->getMetadataCacheImpl()) {
+        if (!$this->getMetadataCacheImpl()) {
             throw DrestException::metadataCacheNotConfigured();
         }
     }
-
-
 }

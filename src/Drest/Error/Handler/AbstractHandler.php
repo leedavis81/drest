@@ -15,8 +15,8 @@ abstract class AbstractHandler implements HandlerInterface
      * Get the response code
      * @return integer $response_code
      */
-    final public function getReponseCode()
+    final public function getResponseCode()
     {
-        return (int) $this->response_code;
+        return (int)$this->response_code;
     }
 }

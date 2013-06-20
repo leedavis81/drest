@@ -1,8 +1,8 @@
 <?php
 namespace Drest\Error\Handler;
 
-use Drest\Error\Response\ResponseInterface,
-    Drest\Response;
+use Drest\Error\Response\ResponseInterface;
+use Drest\Response;
 
 /**
  * Default error handler class
@@ -16,8 +16,7 @@ class DefaultHandler extends AbstractHandler
 
     public function error(\Exception $e, $defaultResponseCode = 500, ResponseInterface &$errorDocument)
     {
-        switch (get_class($e))
-        {
+        switch (get_class($e)) {
             /**
              * results exceptions
              * ORM\NonUniqueResultException
@@ -35,13 +34,12 @@ class DefaultHandler extends AbstractHandler
                 $this->response_code = Response::STATUS_CODE_404;
                 $error_message = 'No resource available';
                 break;
-
             /**
              * configuration / request exception
              * Drest\Route\MultipleRoutesException
              */
             case 'Drest\Query\InvalidExposeFieldsException':
-                $this->response_code = Response::STATUS_CODE_400 ;
+                $this->response_code = Response::STATUS_CODE_400;
                 $error_message = $e->getMessage();
                 break;
             case 'Drest\Route\NoMatchException':

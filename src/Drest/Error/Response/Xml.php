@@ -15,7 +15,6 @@ class Xml implements ResponseInterface
     public $message;
 
     /**
-     * (non-PHPdoc)
      * @see Drest\Error\Response.ResponseInterface::setMessage()
      */
     public function setMessage($message)
@@ -24,7 +23,7 @@ class Xml implements ResponseInterface
     }
 
     /**
-     * @return the $message
+     * @return string $message
      */
     public function getMessage()
     {
@@ -32,26 +31,24 @@ class Xml implements ResponseInterface
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Error\Response.ResponseInterface::render()
+     * @see \Drest\Error\Response\ResponseInterface::render()
      */
-	public function render()
+    public function render()
     {
-	    $xml =  new \DomDocument('1.0', 'UTF-8');
-	    $xml->formatOutput = true;
+        $xml = new \DomDocument('1.0', 'UTF-8');
+        $xml->formatOutput = true;
 
-	    $root = $xml->createElement('error');
-	    $xml->appendChild($root);
+        $root = $xml->createElement('error');
+        $xml->appendChild($root);
 
-	    $node = $xml->createElement('message', $this->getMessage());
-	    $root->appendChild($node);
+        $node = $xml->createElement('message', $this->getMessage());
+        $root->appendChild($node);
 
-	    return $xml->saveXML();
+        return $xml->saveXML();
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Error\Response.ResponseInterface::getContentType()
+     * @see \Drest\Error\Response\ResponseInterface::getContentType()
      */
     public static function getContentType()
     {
@@ -61,16 +58,16 @@ class Xml implements ResponseInterface
     /**
      * recreate this error document from a generated string
      * @param string $string
-     * @return Drest\Error\Response\Xml $errorResponse
+     * @throws \Exception
+     * @return Xml $errorResponse
      */
     public static function createFromString($string)
     {
         $instance = new self();
-	    $xml = new \DomDocument('1.0', 'UTF-8');
-	    $xml->formatOutput = true;
+        $xml = new \DomDocument('1.0', 'UTF-8');
+        $xml->formatOutput = true;
 
-        if (!$xml->loadXML($string))
-        {
+        if (!$xml->loadXML($string)) {
             throw new \Exception('Unable to load XML document from string');
         }
 

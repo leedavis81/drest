@@ -1,36 +1,33 @@
 <?php
 namespace Drest\Service\Action;
 
-use Drest\Response,
-    Doctrine\ORM;
+use Doctrine\ORM;
+use Drest\Response;
 
 class GetElement extends AbstractAction
 {
 
     public function execute()
     {
-	    $classMetaData = $this->getMatchedRoute()->getClassMetaData();
-	    $elementName = $classMetaData->getEntityAlias();
+        $classMetaData = $this->getMatchedRoute()->getClassMetaData();
+        $elementName = $classMetaData->getEntityAlias();
 
-	    $em = $this->getEntityManager();
+        $em = $this->getEntityManager();
 
         $qb = $this->registerExpose(
-	        $this->getMatchedRoute()->getExpose(),
-	        $em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName),
-	        $em->getClassMetadata($classMetaData->getClassName())
+            $this->getMatchedRoute()->getExpose(),
+            $em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName),
+            $em->getClassMetadata($classMetaData->getClassName())
         );
 
-        foreach ($this->getMatchedRoute()->getRouteParams() as $key => $value)
-        {
-            $qb->andWhere($elementName . '.' . $key  . ' = :' . $key);
+        foreach ($this->getMatchedRoute()->getRouteParams() as $key => $value) {
+            $qb->andWhere($elementName . '.' . $key . ' = :' . $key);
             $qb->setParameter($key, $value);
         }
 
-        try
-        {
+        try {
             $resultSet = $this->createResultSet($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
-        } catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return $this->handleError($e, Response::STATUS_CODE_404);
         }
 

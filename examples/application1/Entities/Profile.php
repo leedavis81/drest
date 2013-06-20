@@ -1,8 +1,6 @@
 <?php
 namespace Entities;
 
-use Doctrine\ORM\Mapping as ORM;
-use Drest\Mapping\Annotation as Drest;
 // * @Drest\Resource(
 // * 		representations={"Xml", "Json"},
 // *      routes={
@@ -11,14 +9,13 @@ use Drest\Mapping\Annotation as Drest;
 // *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, content="collection"),
 // *      }
 // * )
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use Drest\Mapping\Annotation as Drest;
 
 
 /**
  * Profile
- *
- *
- *
  *
  * @ORM\Table(name="profile")
  * @ORM\Entity
@@ -35,14 +32,14 @@ class Profile
     private $id;
 
     /**
-     * @var Entities\User $user
+     * @var \Entities\User $user
      * @ORM\OneToOne(targetEntity="User", inversedBy="profile", fetch="LAZY")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
     /**
-     * @var Doctrine\Common\Collections\ArrayCollection $addresses
+     * @var ArrayCollection $addresses
      * @ORM\OneToMany(targetEntity="Address", mappedBy="profile", fetch="LAZY")
      */
     private $addresses;
@@ -68,6 +65,6 @@ class Profile
 
     public function __construct()
     {
-        $this->addresses = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->addresses = new ArrayCollection();
     }
 }

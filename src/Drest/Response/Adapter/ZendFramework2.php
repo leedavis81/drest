@@ -6,8 +6,8 @@ use Drest\DrestException;
 class ZendFramework2 extends AdapterAbstract
 {
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::__toString()
+	/**
+     * @see \Drest\Response\Adapter\AdapterInterface::__toString()
      */
     public function toString()
     {
@@ -15,16 +15,16 @@ class ZendFramework2 extends AdapterAbstract
         return $this->getResponse()->getBody();
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getAdpatedClassName()
+	/**
+     * @see \Drest\Response\Adapter\AdapterInterface::getAdpatedClassName()
      */
     public static function getAdaptedClassName()
     {
         return 'Zend\Http\PhpEnvironment\Response';
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getHttpHeader()
+	/**
+     * @see \Drest\Response\Adapter\AdapterInterface::getHttpHeader()
      */
     public function getHttpHeader($name = null)
     {
@@ -35,8 +35,8 @@ class ZendFramework2 extends AdapterAbstract
 		return $this->getResponse()->getHeaders()->toArray();
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::setHttpHeader()
+	/**
+     * @see \Drest\Response\Adapter\AdapterInterface::setHttpHeader()
      */
     public function setHttpHeader($name, $value = null)
     {
@@ -51,32 +51,31 @@ class ZendFramework2 extends AdapterAbstract
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getBody()
+     * @see \Drest\Response\Adapter\AdapterInterface::getBody()
      */
     public function getBody()
     {
         return $this->getResponse()->getBody();
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::setBody()
+	/**
+     * @see \Drest\Response\Adapter.AdapterInterface::setBody()
      */
     public function setBody($body)
     {
         $this->getResponse()->setContent($body);
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getStatusCode()
+	/**
+     * @see Drest\Response\Adapter\AdapterInterface::getStatusCode()
      */
     public function getStatusCode()
     {
         return $this->getResponse()->getStatusCode();
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::setStatusCode()
+	/**
+     * @see Drest\Response\Adapter\AdapterInterface::setStatusCode()
      */
     public function setStatusCode($code, $text)
     {
@@ -92,5 +91,4 @@ class ZendFramework2 extends AdapterAbstract
 	{
 		return $this->response;
 	}
-
 }

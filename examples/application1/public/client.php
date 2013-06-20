@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL|E_STRICT);
+error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 'On');
 
 $loader = require '../../../vendor/autoload.php';
@@ -67,7 +67,6 @@ try
     echo $e->getErrorDocument()->render();
 }
 */
-
 
 
 /* patch (update - partial) an item

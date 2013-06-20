@@ -1,8 +1,8 @@
 <?php
 namespace Drest;
 
-use Exception,
-    Drest\Mapping;
+use Drest\Mapping;
+use Exception;
 
 /**
  * Base exception class for all Drest exceptions.
@@ -12,7 +12,7 @@ use Exception,
 class DrestException extends Exception
 {
 
-	// Set up and configuration
+    // Set up and configuration
     public static function metadataCacheNotConfigured()
     {
         return new self('Class Metadata Cache is not configured, ensure an instance of Doctrine\Common\Cache\Cache is passed to the Drest\Configuration::setMetadataCacheImpl()');
@@ -58,7 +58,7 @@ class DrestException extends Exception
         return new self('Used an unknown content type of "' . $type . '". values ELEMENT or COLLECTION should be used.');
     }
 
-    public static  function unknownDetectContentOption()
+    public static function unknownDetectContentOption()
     {
         return new self('Content option used is invalid. Please see DETECT_CONTENT_* options in Drest\Configuration');
     }
@@ -92,6 +92,7 @@ class DrestException extends Exception
     {
         return new self('Unable to parse expose fields string. Must contain required field names to be pipe delimited with each nesting within square brackets. For example:  "username|email_address|profile[id|lastname|addresses[id]]|phone_numbers"');
     }
+
     public static function invalidAllowedOptionsValue()
     {
         return new self('Invalid Allow Options value, must be -1 to unset, 0 for no or 1 for yes. Or you can use boolean values');
@@ -107,7 +108,7 @@ class DrestException extends Exception
         return new self('The requested base path has not been registered');
     }
 
-    public static function alreadyHandleDefinedForRoute(\Drest\Mapping\RouteMetaData $route)
+    public static function alreadyHandleDefinedForRoute(Mapping\RouteMetaData $route)
     {
         return new self('There is a handle already defined for the route ' . $route->getName() . ' on class ' . $route->getClassMetaData()->getClassName());
     }
@@ -159,7 +160,7 @@ class DrestException extends Exception
     // Service Exceptions
     public static function actionClassNotAnInstanceOfActionAbstract($class)
     {
-    	return new self('Action class  "' . $class . '" is not an instance of Drest\Service\Action\ActionAbstract.');
+        return new self('Action class  "' . $class . '" is not an instance of Drest\Service\Action\ActionAbstract.');
     }
 
     public static function unknownActionClass($class)
@@ -183,44 +184,42 @@ class DrestException extends Exception
     }
 
 
-
-
     // Request Exceptions
     public static function unknownAdapterForRequestObject($object)
     {
-    	return new self('Unknown / Not yet created adapter for request object ' . get_class($object));
+        return new self('Unknown / Not yet created adapter for request object ' . get_class($object));
     }
 
     public static function invalidRequestObjectPassed()
     {
-    	return new self('Request object passed in is invalid (not type of object)');
+        return new self('Request object passed in is invalid (not type of object)');
     }
 
     public static function noRequestObjectDefinedAndCantInstantiateDefaultType($className)
     {
-    	return new self('No request object has been passed, and cannot instantiate the default request object: ' . $className . ' ensure this class is setup on your autoloader');
+        return new self('No request object has been passed, and cannot instantiate the default request object: ' . $className . ' ensure this class is setup on your autoloader');
     }
 
     public static function unknownHttpVerb($className)
     {
-    	return new self('Unable to determine a valid HTTP verb from request adapter ' . $className);
+        return new self('Unable to determine a valid HTTP verb from request adapter ' . $className);
     }
 
 
     // Response Exceptions
     public static function unknownAdapterForResponseObject($object)
     {
-    	return new self('Unknown / Not yet created adapter for response object ' . get_class($object));
+        return new self('Unknown / Not yet created adapter for response object ' . get_class($object));
     }
 
     public static function invalidResponsetObjectPassed()
     {
-    	return new self('Response object passed in is invalid (not type of object)');
+        return new self('Response object passed in is invalid (not type of object)');
     }
 
     public static function noResponseObjectDefinedAndCantInstantiateDefaultType($className)
     {
-    	return new self('No response object has been passed, and cannot instantiate the default response object: ' . $className . ' ensure this class is setup on your autoloader');
+        return new self('No response object has been passed, and cannot instantiate the default response object: ' . $className . ' ensure this class is setup on your autoloader');
     }
 
     public static function invalidHttpStatusCode($code)

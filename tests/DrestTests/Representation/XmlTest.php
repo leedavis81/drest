@@ -2,9 +2,9 @@
 namespace DrestTests\Representation;
 
 
-use DrestTests\DrestTestCase,
-    Drest\Query\ResultSet,
-    Drest\Representation\Xml;
+use Drest\Query\ResultSet;
+use Drest\Representation\Xml;
+use DrestTests\DrestTestCase;
 
 class XmlTest extends DrestTestCase
 {
@@ -47,7 +47,7 @@ class XmlTest extends DrestTestCase
     protected function getXmlArray()
     {
         return array('user' => array(
-        	'username' => 'leedavis81',
+            'username' => 'leedavis81',
             'email_address' => 'lee.davis@somewhere.com',
             'profile' => array(
                 'id' => '1',
@@ -57,38 +57,38 @@ class XmlTest extends DrestTestCase
             ),
             'phone_numbers' => array(
                 array(
-                	'id' => '1',
+                    'id' => '1',
                     'number' => '2087856458'
                 ),
                 array(
-                	'id' => '2',
+                    'id' => '2',
                     'number' => '2087865978'
                 ),
                 array(
-                	'id' => '3',
+                    'id' => '3',
                     'number' => '2074855978'
                 )
             )
         ));
     }
 
-	public function testArrayToXmlMatches()
-	{
+    public function testArrayToXmlMatches()
+    {
         $representation = new Xml();
         $array = $this->getXmlArray();
         $resultSet = ResultSet::create($array['user'], 'user');
 
         $this->assertInstanceOf('Drest\Representation\Xml', $representation);
         $this->assertEquals($this->getXmlString(false), $this->removeXmlFormatting($representation->output($resultSet)));
-	}
+    }
 
-	public function testXmlToArrayMatches()
-	{
-	    $representation = Xml::createFromString($this->getXmlString());
+    public function testXmlToArrayMatches()
+    {
+        $representation = Xml::createFromString($this->getXmlString());
 
-	    $this->assertInstanceOf('Drest\Representation\Xml', $representation);
+        $this->assertInstanceOf('Drest\Representation\Xml', $representation);
 
-	    $this->assertEquals($this->getXmlArray(), $representation->toArray());
-	}
+        $this->assertEquals($this->getXmlArray(), $representation->toArray());
+    }
 
 }

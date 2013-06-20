@@ -3,15 +3,17 @@ namespace Entities;
 
 // uniqueConstraints={@UniqueConstraint(name="api_key_idx", columns={"api_key"})})
 
-use Drest\Mapping\Annotation as Drest;
-use Doctrine\ORM\Mapping as ORM;
-
 // Alternative
 //  *      		expose={"username", "email_address", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers" : {"number"}}
 // Use short expose syntax in http headers / request params:  username|email_address|profile[id|lastname|addresses[id]]|phone_numbers
 // service_call={"Service\User", "getMyCustomElement"}
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use Drest\Mapping\Annotation as Drest;
+
 /**
  * User
+ *
  * @Drest\Resource(
  * 		representations={"Json", "Xml"},
  *      routes={
@@ -48,13 +50,13 @@ class User
     private $id;
 
     /**
-     * @var Entities\Profile $profile
+     * @var \Entities\Profile $profile
      * @ORM\OneToOne(targetEntity="Profile", mappedBy="user", cascade={"persist", "remove"}, fetch="EAGER")
      */
     private $profile;
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection $phone_numbers
+     * @var ArrayCollection $phone_numbers
      * @ORM\OneToMany(targetEntity="PhoneNumber", mappedBy="user", cascade={"persist", "remove"}, fetch="EAGER")
      */
     private $phone_numbers;
@@ -74,7 +76,7 @@ class User
 
     public function __construct()
     {
-        $this->phone_numbers = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->phone_numbers = new ArrayCollection();
     }
 
     /**
@@ -91,18 +93,14 @@ class User
      */
     public function populatePost(array $data)
     {
-        if (isset($data['email_address']))
-        {
+        if (isset($data['email_address'])) {
             $this->email_address = $data['email_address'];
         }
-        if (isset($data['username']))
-        {
+        if (isset($data['username'])) {
             $this->username = $data['username'];
         }
-        if (isset($data['phone_numbers']) && is_array($data['phone_numbers']))
-        {
-            foreach ($data['phone_numbers'] as $phone_number)
-            {
+        if (isset($data['phone_numbers']) && is_array($data['phone_numbers'])) {
+            foreach ($data['phone_numbers'] as $phone_number) {
                 $pn = new PhoneNumber();
                 $pn->setNumber($phone_number['number']);
                 $this->addPhoneNumber($pn);

@@ -1,8 +1,14 @@
 <?php
 namespace Drest\Service\Action;
 
-use Drest\Service,
-    Drest\Query\ResultSet;
+use Doctrine\ORM;
+use Drest\Error\Response\ResponseInterface;
+use Drest\Mapping\RouteMetaData;
+use Drest\Query\ResultSet;
+use Drest\Representation\AbstractRepresentation;
+use Drest\Request;
+use Drest\Response;
+use Drest\Service;
 
 /**
  * abstract action class.
@@ -14,12 +20,12 @@ abstract class AbstractAction
 {
     /**
      * The service class this action is registered to
-     * @var Drest\Service $service
+     * @var Service $service
      */
     protected $service;
 
     /**
-     * addional key fields that are included in partial queries to make the DQL valid
+     * additional key fields that are included in partial queries to make the DQL valid
      * These columns should be purged from the result set
      * @var array $addedKeyFields
      */
@@ -27,7 +33,7 @@ abstract class AbstractAction
 
     /**
      * Create an instance of this action - requires the owning service object
-     * @param Drest\Service $service
+     * @param Service $service
      */
     public function __construct(Service $service)
     {
@@ -43,7 +49,7 @@ abstract class AbstractAction
 
     /**
      * Get the service class this action is registered against
-     * @return Drest\Service
+     * @return Service
      */
     protected function getService()
     {
@@ -52,7 +58,7 @@ abstract class AbstractAction
 
     /**
      * get the matched route object
-     * @return Drest\Mapping\RouteMetaData $route
+     * @return RouteMetaData $route
      */
     protected function getMatchedRoute()
     {
@@ -70,215 +76,194 @@ abstract class AbstractAction
 
     /**
      * Get the response object
-     * @return Drest\Response $response
+     * @return Response $response
      */
     protected function getResponse()
     {
         return $this->service->getResponse();
     }
 
-	/**
-	 * Get the request object
-	 * @return Drest\Request $request
-	 */
+    /**
+     * Get the request object
+     * @return Request $request
+     */
     protected function getRequest()
     {
         return $this->service->getRequest();
     }
 
-	/**
-	 * Get the predetermined representation
-	 * @param Representation\AbstractRepresentation $representation
-	 */
-	public function getRepresentation()
-	{
-	    return $this->service->getRepresentation();
-	}
+    /**
+     * Get the predetermined representation
+     * @return AbstractRepresentation
+     */
+    public function getRepresentation()
+    {
+        return $this->service->getRepresentation();
+    }
 
-	/**
-	 * Handle an error - set the resulting error document to the response object
-	 * @param \Exception $e
-  	 * @param $defaultResponseCode the default response code to use if no match on exception type occurs
-  	 * @param Drest\Error\Response\ResponseInterface $errorDocument
-  	 * @return ResultSet the error result set
-	 */
-	public function handleError(\Exception $e, $defaultResponseCode = 500, Drest\Error\Response\ResponseInterface $errorDocument = null)
-	{
-	    return $this->service->handleError($e, $defaultResponseCode, $errorDocument);
-	}
+    /**
+     * Handle an error - set the resulting error document to the response object
+     * @param \Exception $e
+     * @param integer $defaultResponseCode the default response code to use if no match on exception type occurs
+     * @param ResponseInterface $errorDocument
+     * @return ResultSet the error result set
+     */
+    public function handleError(\Exception $e, $defaultResponseCode = 500, ResponseInterface $errorDocument = null)
+    {
+        return $this->service->handleError($e, $defaultResponseCode, $errorDocument);
+    }
 
     /**
      * A recursive function to process the specified expose fields for a fetch request (GET)
      * @param array $fields - expose fields to process
-     * @param \Doctrine\ORM\QueryBuilder $qb
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $classMetaData
-	 * @param string $key - The key of the expose entry being processed
+     * @param ORM\QueryBuilder $qb
+     * @param ORM\Mapping\ClassMetadata $classMetaData
      * @param array $addedKeyFields
+     * @return ORM\QueryBuilder
      */
-	protected function registerExpose($fields, \Doctrine\ORM\QueryBuilder $qb, \Doctrine\ORM\Mapping\ClassMetadata $classMetaData, &$addedKeyFields = array(), $key = null)
-	{
-	    if (empty($fields))
-	    {
-	        return $qb;
-	    }
+    protected function registerExpose($fields, ORM\QueryBuilder $qb, ORM\Mapping\ClassMetadata $classMetaData, &$addedKeyFields = array())
+    {
+        if (empty($fields)) {
+            return $qb;
+        }
 
-	    $addedKeyFields = (array) $addedKeyFields;
-	    $classAlias = $this->getAlias($classMetaData->getName());
-	    $ormAssociationMappings = $classMetaData->getAssociationMappings();
+        $addedKeyFields = (array)$addedKeyFields;
+        $classAlias = $this->getAlias($classMetaData->getName());
+        $ormAssociationMappings = $classMetaData->getAssociationMappings();
 
-	    // Process single fields into a partial set - Filter fields not avialble on class meta data
-	    $selectFields = array_filter($fields, function($offset) use ($classMetaData){
-	        if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames()))
-	        {
-	            return true;
-	        }
-	        return false;
-	    });
+        // Process single fields into a partial set - Filter fields not available on class meta data
+        $selectFields = array_filter($fields, function ($offset) use ($classMetaData) {
+            if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames())) {
+                return true;
+            }
+            return false;
+        });
 
-	    // merge required identifier fields with select fields
-	    $keyFieldDiff = array_diff($classMetaData->getIdentifierFieldNames(), $selectFields);
-	    if (!empty($keyFieldDiff))
-	    {
+        // merge required identifier fields with select fields
+        $keyFieldDiff = array_diff($classMetaData->getIdentifierFieldNames(), $selectFields);
+        if (!empty($keyFieldDiff)) {
             $addedKeyFields = $keyFieldDiff;
-	        $selectFields = array_merge($selectFields, $keyFieldDiff);
-	    }
+            $selectFields = array_merge($selectFields, $keyFieldDiff);
+        }
 
-	    if (!empty($selectFields))
-	    {
-            $qb->addSelect('partial ' . $classAlias . '.{'  . implode(', ', $selectFields) . '}');
-	    }
+        if (!empty($selectFields)) {
+            $qb->addSelect('partial ' . $classAlias . '.{' . implode(', ', $selectFields) . '}');
+        }
 
-	    // Process relational field with no deeper expose restrictions
-	    $relationalFields = array_filter($fields, function($offset) use ($classMetaData) {
-            if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames()))
-	        {
-	            return true;
-	        }
-	        return false;
-	    });
+        // Process relational field with no deeper expose restrictions
+        $relationalFields = array_filter($fields, function ($offset) use ($classMetaData) {
+            if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames())) {
+                return true;
+            }
+            return false;
+        });
 
-	    foreach ($relationalFields as $relationalField)
-	    {
+        foreach ($relationalFields as $relationalField) {
             $qb->leftJoin($classAlias . '.' . $relationalField, $this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
-	        $qb->addSelect($this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
-	    }
+            $qb->addSelect($this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
+        }
 
-	    foreach ($fields as $key => $value)
-	    {
-	        if (is_array($value) && isset($ormAssociationMappings[$key]))
-	        {
-	            $qb->leftJoin($classAlias . '.' . $key, $this->getAlias($ormAssociationMappings[$key]['targetEntity']));
+        foreach ($fields as $key => $value) {
+            if (is_array($value) && isset($ormAssociationMappings[$key])) {
+                $qb->leftJoin($classAlias . '.' . $key, $this->getAlias($ormAssociationMappings[$key]['targetEntity']));
                 $qb = $this->registerExpose($value, $qb, $this->getEntityManager()->getClassMetadata($ormAssociationMappings[$key]['targetEntity']), $addedKeyFields[$key], $key);
-	        }
-	    }
+            }
+        }
 
-	    $this->addedKeyFields = $addedKeyFields;
+        $this->addedKeyFields = $addedKeyFields;
         return $qb;
-	}
+    }
 
-	/**
-	 * Method used to write to the $data aray.
-	 * - 	wraps results in a single entry array keyed by entity name.
-	 * 		Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
-	 * - 	Removes any addition expose fields required for a partial DQL query
-	 * @param array $data - the data fetched from the database
-	 * @param string $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singulise on single element request
-	 * @return Drest\Query\ResultSet $data
-	 */
-	protected function createResultSet(array $data, $keyName = null)
-	{
-	    $matchedRoute = $this->getMatchedRoute();
-	    $classMetaData = $matchedRoute->getClassMetaData();
+    /**
+     * Method used to write to the $data aray.
+     * -    wraps results in a single entry array keyed by entity name.
+     *        Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
+     * -    Removes any addition expose fields required for a partial DQL query
+     * @param array $data - the data fetched from the database
+     * @param string $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singulise on single element request
+     * @return ResultSet $data
+     */
+    public function createResultSet(array $data, $keyName = null)
+    {
+        $matchedRoute = $this->getMatchedRoute();
+        $classMetaData = $matchedRoute->getClassMetaData();
 
-	    // Recursively remove any additionally added pk fields ($data must be a single record hierarchy. Iterate if we're getting a collection)
-	    if ($matchedRoute->isCollection())
-	    {
-            for ($x = 0; $x < sizeof($data); $x++)
-            {
+        // Recursively remove any additionally added pk fields ($data must be a single record hierarchy. Iterate if we're getting a collection)
+        if ($matchedRoute->isCollection()) {
+            for ($x = 0; $x < sizeof($data); $x++) {
                 $this->removeAddedKeyFields($this->addedKeyFields, $data[$x]);
             }
-	    } else
-	    {
-	        $this->removeAddedKeyFields($this->addedKeyFields, $data);
-	    }
+        } else {
+            $this->removeAddedKeyFields($this->addedKeyFields, $data);
+        }
 
-        if (is_null($keyName))
-        {
-	        reset($data);
-            if (sizeof($data) === 1 && is_string(key($data)))
-            {
+        if (is_null($keyName)) {
+            reset($data);
+            if (sizeof($data) === 1 && is_string(key($data))) {
                 // Use the single keyed array as the result set key
-                 $keyName = key($data);
-                 $data = $data[key($data)];
-            } else
-            {
+                $keyName = key($data);
+                $data = $data[key($data)];
+            } else {
                 $keyName = ($matchedRoute->isCollection()) ? $classMetaData->getCollectionName() : $classMetaData->getElementName();
             }
         }
 
-	    return ResultSet::create($data, $keyName);
-	}
+        return ResultSet::create($data, $keyName);
+    }
 
 
-	/**
-	 * Functional recursive method to remove any fields added to make the partial DQL work and remove the data
-	 * @param array $addedKeyFields
-	 * @param array $data - pass by reference
-	 */
-	protected function removeAddedKeyFields($addedKeyFields, &$data)
-	{
-	    $addedKeyFields = (array) $addedKeyFields;
-	    foreach ($data as $key => $value)
-	    {
-            if (is_array($value) && isset($addedKeyFields[$key]))
-            {
-                if (is_int($key))
-                {
-                    for ($x = 0; $x <= sizeof($value); $x++)
-                    {
-                        if (isset($data[$x]) && is_array($data[$x]))
-                        {
+    /**
+     * Functional recursive method to remove any fields added to make the partial DQL work and remove the data
+     * @param array $addedKeyFields
+     * @param array $data - pass by reference
+     * @return array
+     */
+    protected function removeAddedKeyFields($addedKeyFields, &$data)
+    {
+        $addedKeyFields = (array)$addedKeyFields;
+        foreach ($data as $key => $value) {
+            if (is_array($value) && isset($addedKeyFields[$key])) {
+                if (is_int($key)) {
+                    for ($x = 0; $x <= sizeof($value); $x++) {
+                        if (isset($data[$x]) && is_array($data[$x])) {
                             $this->removeAddedKeyFields($addedKeyFields[$key], $data[$x]);
                         }
                     }
-                } else
-                {
+                } else {
                     $this->removeAddedKeyFields($addedKeyFields[$key], $data[$key]);
                 }
 
-            } else
-            {
-                if (is_array($addedKeyFields) && in_array($key, $addedKeyFields))
-                {
+            } else {
+                if (is_array($addedKeyFields) && in_array($key, $addedKeyFields)) {
                     unset($data[$key]);
                 }
             }
-	    }
-	    return $data;
-	}
+        }
+        return $data;
+    }
 
 
-	/**
-	 * Run the handle call on an entity object
-	 * @param object $object
-	 */
-	protected function runHandle($object)
-	{
-	    $matchedRoute = $this->getMatchedRoute();
+    /**
+     * Run the handle call on an entity object
+     * @param object $object
+     */
+    protected function runHandle($object)
+    {
+        $matchedRoute = $this->getMatchedRoute();
         // Run any attached handle function
-        if ($matchedRoute->hasHandleCall())
-        {
+        if ($matchedRoute->hasHandleCall()) {
             $handleMethod = $matchedRoute->getHandleCall();
             $object->$handleMethod($this->getRepresentation()->toArray(false));
         }
-	}
+    }
 
-	/**
-	 * Get a unique alias name from an entity class name
-	 * @param string $className
-	 */
-	protected function getAlias($className)
-	{
+    /**
+     * Get a unique alias name from an entity class name
+     * @param string $className
+     * @return string
+     */
+    protected function getAlias($className)
+    {
         return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $className));
-	}
+    }
 }

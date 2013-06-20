@@ -5,24 +5,24 @@ namespace Drest\Response\Adapter;
 use Drest\DrestException;
 class Guzzle extends AdapterAbstract
 {
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::__toString()
+	/**
+     * @see \Drest\Response\Adapter\AdapterInterface::__toString()
      */
     public function toString()
     {
         return $this->getResponse()->__toString();
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getAdpatedClassName()
+	/**
+     * @see \Drest\Response\Adapter\AdapterInterface::getAdpatedClassName()
      */
     public static function getAdaptedClassName()
     {
         return 'Guzzle\Http\Message\Response';
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getHttpHeader()
+	/**
+     * @see Drest\Response\Adapter\AdapterInterface::getHttpHeader()
      */
     public function getHttpHeader($name = null)
     {
@@ -37,6 +37,7 @@ class Guzzle extends AdapterAbstract
 		} else
 		{
 		    return array_map(function($item){
+                /* @var \Guzzle\Http\Message\Header\HeaderInterface $item */
 		        return implode(', ', $item->toArray());
 		    }, $this->getResponse()->getHeaders()->getAll());
 		}

@@ -3,10 +3,11 @@
 namespace Drest\Response\Adapter;
 
 use Drest\DrestException;
+
 class Symfony2 extends AdapterAbstract
 {
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::__toString()
+    /**
+     * @see \Drest\Response\Adapter\AdapterInterface::__toString()
      */
     public function toString()
     {
@@ -15,93 +16,85 @@ class Symfony2 extends AdapterAbstract
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getAdaptedClassName()
+     * @see \Drest\Response\Adapter\AdapterInterface::getAdaptedClassName()
      */
     public static function getAdaptedClassName()
     {
         return 'Symfony\Component\HttpFoundation\Response';
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getHttpHeader()
+    /**
+     * @see \Drest\Response\Adapter\AdapterInterface::getHttpHeader()
      */
     public function getHttpHeader($name = null)
     {
-		if ($name !== null)
-		{
+        if ($name !== null) {
             return $this->getResponse()->headers->get($name);
-		}
+        }
 
-		if (($this->getResponse()->headers->count() === 0))
-		{
-		    return array();
-		} else
-		{
-		    return array_map(function($item){
-		        return implode(', ', $item);
-		    }, $this->getResponse()->headers->all());
-		}
-    }
-
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::setHttpHeader()
-     */
-    public function setHttpHeader($name, $value = null)
-    {
-        $value = (array) $value;
-    	if (is_array($name))
-		{
-		    foreach ($this->getResponse()->headers->all() as $key => $value)
-		    {
-		        $this->getResponse()->headers->remove($key);
-		    }
-		    $this->getResponse()->headers->add($name);
-		} else
-		{
-			$this->getResponse()->headers->set($name, $value);
-		}
+        if (($this->getResponse()->headers->count() === 0)) {
+            return array();
+        } else {
+            return array_map(function ($item) {
+                return implode(', ', $item);
+            }, $this->getResponse()->headers->all());
+        }
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getBody()
+     * @see \Drest\Response\Adapter\AdapterInterface::setHttpHeader()
+     */
+    public function setHttpHeader($name, $value = null)
+    {
+        $value = (array)$value;
+        if (is_array($name)) {
+            foreach ($this->getResponse()->headers->all() as $key => $value) {
+                $this->getResponse()->headers->remove($key);
+            }
+            $this->getResponse()->headers->add($name);
+        } else {
+            $this->getResponse()->headers->set($name, $value);
+        }
+    }
+
+    /**
+     * @see \Drest\Response\Adapter\AdapterInterface::getBody()
      */
     public function getBody()
     {
         return $this->getResponse()->getContent();
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::setBody()
+    /**
+     * @see \Drest\Response\Adapter\AdapterInterface::setBody()
      */
     public function setBody($body)
     {
         $this->getResponse()->setContent($body);
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::getStatusCode()
+    /**
+     * @see \Drest\Response\Adapter\AdapterInterface::getStatusCode()
      */
     public function getStatusCode()
     {
         return $this->getResponse()->getStatusCode();
     }
 
-	/** (non-PHPdoc)
-     * @see Drest\Response\Adapter.AdapterInterface::setStatusCode()
+    /**
+     * @see \Drest\Response\Adapter\AdapterInterface::setStatusCode()
      */
     public function setStatusCode($code, $text)
     {
         $this->getResponse()->setStatusCode($code, $text);
     }
 
-	/**
-	 * Symfony 2 Response object
-	 * @return \Symfony\Component\HttpFoundation\Response $response
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * Symfony 2 Response object
+     * @return \Symfony\Component\HttpFoundation\Response $response
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 }

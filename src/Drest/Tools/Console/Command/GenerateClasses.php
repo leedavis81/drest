@@ -1,15 +1,15 @@
 <?php
-
 namespace Drest\Tools\Console\Command;
 
-use Drest\ClassGenerator,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console,
-    Symfony\Component\Console\Command\Command;
-
+use Drest\ClassGenerator;
+use Guzzle\Http\Client;
+use Guzzle\Http\Message\RequestInterface;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console;
 
 /**
  * Check Drest definitions
@@ -22,28 +22,28 @@ class GenerateClasses extends Command
     protected function configure()
     {
         $this
-        ->setName('classes:generate')
-        ->setDescription('Generate client classes to interact with a Drest endpoint.')
-        ->setDefinition(array(
-            new InputArgument(
-                'endpoint', InputArgument::REQUIRED, 'The location of the drest API endpoint.'
-            ),
-            new InputOption(
-                'dest-path', null, InputOption::VALUE_OPTIONAL,
-                'The path to generate your client classes too. If not provided classes are put in the execution path.'
-            ),
-            new InputOption(
-                'namespace', null, InputOption::VALUE_OPTIONAL,
-                'The namespace you would like applied to the classes. This would be prepended to any existing namespaces the classes have'
-            )
-        ))
-        ->setHelp(<<<EOT
+            ->setName('classes:generate')
+            ->setDescription('Generate client classes to interact with a Drest endpoint.')
+            ->setDefinition(array(
+                new InputArgument(
+                    'endpoint', InputArgument::REQUIRED, 'The location of the drest API endpoint.'
+                ),
+                new InputOption(
+                    'dest-path', null, InputOption::VALUE_OPTIONAL,
+                    'The path to generate your client classes too. If not provided classes are put in the execution path.'
+                ),
+                new InputOption(
+                    'namespace', null, InputOption::VALUE_OPTIONAL,
+                    'The namespace you would like applied to the classes. This would be prepended to any existing namespaces the classes have'
+                )
+            ))
+            ->setHelp(<<<EOT
 Generate the classes required to interact with a Drest API endpoint.
 Example usage:
 
 		classes:generate http://api.endpoint.com --dest-path "{/home/me/classes}"
 EOT
-        );
+            );
     }
 
     /**
@@ -52,57 +52,49 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // $drm = $this->getHelper('drm')->getDrestManager()
-		// $input->getArgument('xx');
+        // $input->getArgument('xx');
 
         $endpoint = $input->getArgument('endpoint');
 
-        if (($endpoint = filter_var($endpoint, FILTER_VALIDATE_URL)) === false)
-        {
+        if (($endpoint = filter_var($endpoint, FILTER_VALIDATE_URL)) === false) {
             throw new \Exception('Invalid endpoint URI provided');
         }
 
-        $client = new \Guzzle\Http\Client($endpoint);
+        $client = new Client($endpoint);
         $request = $client->createRequest(
-            \Guzzle\Http\Message\RequestInterface::OPTIONS,
+            RequestInterface::OPTIONS,
             null,
             array(ClassGenerator::HEADER_PARAM => 'true')
         );
 
         $response = $client->send($request);
-        if (!$response->isSuccessful())
-        {
+        if (!$response->isSuccessful()) {
             throw new \Exception('Invalid response from provided endpoint.');
         }
 
         // Process destination directory
-        if (($path = $input->getOption('dest-path')) === null)
-        {
+        if (($path = $input->getOption('dest-path')) === null) {
             $path = getcwd();
         }
-        if (!is_dir($path))
-        {
+        if (!is_dir($path)) {
             mkdir($path, 0755, true);
         }
 
         $path = realpath($path);
-        if (!file_exists($path))
-        {
+        if (!file_exists($path)) {
             throw new \Exception('Destination path doesn\'t exist and couldn\'t be created');
-        } else if (!is_writable($path))
-        {
+        } else if (!is_writable($path)) {
             throw new \Exception('Cannot write to destination path');
         }
 
         $classes = unserialize($response->getBody(true));
-        if (!is_array($classes))
-        {
+        if (!is_array($classes)) {
             throw new \Exception('Unexpected response from HTTP endpoint. Array of class objects was expected');
         }
-        $classes = array_filter($classes, function($item){
+        $classes = array_filter($classes, function ($item) {
             return (get_class($item) == 'Zend\Code\Generator\ClassGenerator');
         });
-        if (sizeof($classes) === 0)
-        {
+        if (sizeof($classes) === 0) {
             throw new \Exception('No classes to be generated');
         }
 
@@ -111,30 +103,26 @@ EOT
         );
 
         $clientNamespace = trim($input->getOption('namespace'), '\\');
-        foreach ($classes as $class)
-        {
+        foreach ($classes as $class) {
+            /* @var \Zend\Code\Generator\ClassGenerator $class */
             $dir = $path;
             $namespace = $class->getNamespaceName();
 
-            if (!empty($namespace))
-            {
+            if (!empty($namespace)) {
                 $dir .= DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, '\\'));
             }
-            if (!is_dir($dir))
-            {
+            if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
             $classPath = $dir . DIRECTORY_SEPARATOR . $class->getName() . '.php';
 
             // Prepend any client supplied namespace
-            if (!is_null($clientNamespace))
-            {
-                $class->setNamespaceName($clientNamespace  . '\\' . $class->getNamespaceName());
+            if (!is_null($clientNamespace)) {
+                $class->setNamespaceName($clientNamespace . '\\' . $class->getNamespaceName());
             }
 
             $handle = @fopen($classPath, 'w');
-            if (!is_resource($handle))
-            {
+            if (!is_resource($handle)) {
                 throw new \Exception('Unable to create a file handle for client class ' . $classPath);
             }
             fwrite($handle, "<?php\n" . $class->generate());

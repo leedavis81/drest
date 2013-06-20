@@ -1,8 +1,7 @@
 <?php
 namespace Drest\Representation;
 
-use Drest\Mapping\RouteMetaData,
-    Drest\Query\ResultSet,
+use Drest\Query\ResultSet,
     Drest\Request,
     Drest\Response;
 
@@ -10,7 +9,7 @@ interface InterfaceRepresentation
 {
 	/**
 	 * Write the results to the $data variable
-	 * @param Drest\Query\ResultSet $data - The data to be passed into the writer
+	 * @param ResultSet $data - The data to be passed into the writer
 	 */
 	public function write(ResultSet $data);
 
@@ -29,7 +28,7 @@ interface InterfaceRepresentation
     /**
      * Uses configuration options to determine whether this writer instance is the media type expected by the client
      * @param array $configOptions - configuration options for content detection
-     * @param Drest\Request $request - request object
+     * @param Request $request - request object
      * @return boolean $result
      */
     public function isExpectedContent(array $configOptions, Request $request);
@@ -56,7 +55,7 @@ interface InterfaceRepresentation
     /**
      * Create an instance of this representation from a given string - $data is loaded up in it's representational form
      * @param string $string
-     * @return Drest\Representation\AbstractRepresentation $representation
+     * @return AbstractRepresentation $representation
      */
     public static function createFromString($string);
 

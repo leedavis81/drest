@@ -23,7 +23,7 @@ class Text implements ResponseInterface
     }
 
     /**
-     * @return the $message
+     * @return string $message
      */
     public function getMessage()
     {
@@ -31,28 +31,25 @@ class Text implements ResponseInterface
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Error\Response.ResponseInterface::render()
+     * @see \Drest\Error\Response\ResponseInterface::render()
      */
-	public function render()
+    public function render()
     {
         return 'error: ' . $this->message;
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Error\Response.ResponseInterface::getContentType()
+     * @see \Drest\Error\Response\ResponseInterface::getContentType()
      */
     public static function getContentType()
     {
         return 'text/plain';
     }
 
-
     /**
      * recreate this error document from a generated string
      * @param string $string
-     * @return Drest\Error\Response\Xml $errorResponse
+     * @return Xml $errorResponse
      */
     public static function createFromString($string)
     {

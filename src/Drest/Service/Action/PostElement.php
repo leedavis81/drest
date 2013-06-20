@@ -1,9 +1,9 @@
 <?php
 namespace Drest\Service\Action;
 
-use Drest\Response,
-    Doctrine\ORM,
-    Drest\Query\ResultSet;
+use Doctrine\ORM;
+use Drest\Query\ResultSet;
+use Drest\Response;
 
 class PostElement extends AbstractAction
 {
@@ -17,20 +17,17 @@ class PostElement extends AbstractAction
         $object = new $entityClass;
 
         $this->runHandle($object);
-        try
-        {
+        try {
             $em->persist($object);
             $em->flush($object);
 
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_201);
-            if (($location = $this->getMatchedRoute()->getOriginLocation($object, $this->getRequest()->getUrl())) !== false)
-            {
+            if (($location = $this->getMatchedRoute()->getOriginLocation($object, $this->getRequest()->getUrl())) !== false) {
                 $this->getResponse()->setHttpHeader('Location', $location);
             }
 
             $resultSet = ResultSet::create(array('location' => ($location) ? $location : 'unknown'), 'response');
-        } catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return $this->handleError($e, Response::STATUS_CODE_500);
         }
 

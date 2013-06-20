@@ -2,7 +2,6 @@
 
 namespace Drest\Mapping\Annotation;
 
-
 /**
  * @Annotation
  * @Target("ANNOTATION")

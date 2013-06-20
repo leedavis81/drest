@@ -1,10 +1,9 @@
 <?php
 namespace DrestTests\Representation;
 
-
-use DrestTests\DrestTestCase,
-    Drest\Query\ResultSet,
-    Drest\Representation\Json;
+use Drest\Query\ResultSet;
+use Drest\Representation\Json;
+use DrestTests\DrestTestCase;
 
 class JsonTest extends DrestTestCase
 {
@@ -17,7 +16,7 @@ class JsonTest extends DrestTestCase
     protected function getJsonArray()
     {
         return array('user' => array(
-        	'username' => 'leedavis81',
+            'username' => 'leedavis81',
             'email_address' => 'lee.davis@somewhere.com',
             'profile' => array(
                 'id' => '1',
@@ -27,23 +26,23 @@ class JsonTest extends DrestTestCase
             ),
             'phone_numbers' => array(
                 array(
-                	'id' => '1',
+                    'id' => '1',
                     'number' => '2087856458'
                 ),
                 array(
-                	'id' => '2',
+                    'id' => '2',
                     'number' => '2087865978'
                 ),
                 array(
-                	'id' => '3',
+                    'id' => '3',
                     'number' => '2074855978'
                 )
             )
         ));
     }
 
-	public function testArrayToJsonMatches()
-	{
+    public function testArrayToJsonMatches()
+    {
         $representation = new Json();
         $array = $this->getJsonArray();
         $resultSet = ResultSet::create($array['user'], 'user');
@@ -51,14 +50,14 @@ class JsonTest extends DrestTestCase
         $this->assertInstanceOf('Drest\Representation\Json', $representation);
 
         $this->assertEquals($this->getJsonString(), $representation->output($resultSet));
-	}
+    }
 
-	public function testJsonToArrayMatches()
-	{
-	    $representation = Json::createFromString($this->getJsonString());
+    public function testJsonToArrayMatches()
+    {
+        $representation = Json::createFromString($this->getJsonString());
 
-	    $this->assertInstanceOf('Drest\Representation\Json', $representation);
+        $this->assertInstanceOf('Drest\Representation\Json', $representation);
 
-	    $this->assertEquals($this->getJsonArray(), $representation->toArray());
-	}
+        $this->assertEquals($this->getJsonArray(), $representation->toArray());
+    }
 }

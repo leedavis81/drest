@@ -2,19 +2,18 @@
 namespace Action;
 
 
-use Drest\Service\Action\AbstractAction,
-    Drest\Query\ResultSet;
+use Drest\Query\ResultSet;
+use Drest\Service\Action\AbstractAction;
 
 class Custom extends AbstractAction
 {
 
-    /** (non-PHPdoc)
-     * @see Drest\Service\Action.AbstractAction::execute()
+    /**
+     * @see Drest\Service\Action\AbstractAction::execute()
      */
     public function execute()
     {
         // execute my own custom logic
-         return ResultSet::create(array('name' => 'lee', 'email' => 'lee@somedomain.com'), 'user');
+        return ResultSet::create(array('name' => 'lee', 'email' => 'lee@somedomain.com'), 'user');
     }
-
 }

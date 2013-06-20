@@ -14,8 +14,7 @@ class Json implements ResponseInterface
     public $message;
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Error\Response.ResponseInterface::setMessage()
+     * @see \Drest\Error\Response\ResponseInterface::setMessage()
      */
     public function setMessage($message)
     {
@@ -31,10 +30,9 @@ class Json implements ResponseInterface
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Error\Response.ResponseInterface::render()
+     * @see \Drest\Error\Response\ResponseInterface::render()
      */
-	public function render()
+    public function render()
     {
         return json_encode(
             array('error' => $this->message)
@@ -42,8 +40,7 @@ class Json implements ResponseInterface
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Drest\Error\Response.ResponseInterface::getContentType()
+     * @see \Drest\Error\Response\ResponseInterface::getContentType()
      */
     public static function getContentType()
     {
@@ -53,14 +50,13 @@ class Json implements ResponseInterface
     /**
      * Every error document you should be able to recreate from the generated string
      * @param string $string
-     * @return Drest\Error\Response\Json $errorResponse
+     * @return Json $errorResponse
      */
     public static function createFromString($string)
     {
         $result = json_decode($string, true);
         $instance = new self();
-        if (isset($result['error']))
-        {
+        if (isset($result['error'])) {
             $instance->setMessage($result['error']);
         }
         return $instance;

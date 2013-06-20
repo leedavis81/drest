@@ -1,8 +1,8 @@
 <?php
 namespace Drest\Error;
 
-use Drest\Error\Response\ResponseInterface,
-    Drest\Response;
+use Drest\Error\Response\ResponseInterface;
+use Drest\Response;
 
 /**
  *
@@ -14,20 +14,20 @@ class ErrorException extends \Exception
 
     /**
      * An error document
-     * @var Drest\Error\Response\ResponseInterface $errorDocument
+     * @var ResponseInterface $errorDocument
      */
     public $errorDocument;
 
     /**
      * The response document
-     * @var Drest\Response $response
+     * @var Response $response
      */
     public $response;
 
     /**
      *
      * Set the error document
-     * @param Drest\Error\Response\ResponseInterface $errorDocument
+     * @param ResponseInterface $errorDocument
      */
     public function setErrorDocument(ResponseInterface $errorDocument)
     {
@@ -36,7 +36,7 @@ class ErrorException extends \Exception
 
     /**
      * Get the error document
-     * @return Drest\Error\Response\ResponseInterface $errorDocument
+     * @return ResponseInterface $errorDocument
      */
     public function getErrorDocument()
     {
@@ -45,7 +45,7 @@ class ErrorException extends \Exception
 
     /**
      * Set the response of the error request
-     * @param Drest\Response $response
+     * @param Response $response
      */
     public function setResponse(Response $response)
     {
@@ -53,8 +53,8 @@ class ErrorException extends \Exception
     }
 
     /**
-     * Get the errored request's response
-     * @return Drest\Response $response
+     * Get the error'd request's response
+     * @return Response $response
      */
     public function getResponse()
     {
