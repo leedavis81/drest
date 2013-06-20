@@ -71,7 +71,7 @@ class GuzzleTest extends DrestTestCase
 
         $this->assertEquals(Response::STATUS_CODE_200, $response->getStatusCode());
     }
-
+    /*
     public function testResponseDocumentToString()
     {
         $this->markTestSkipped('Guzzle will automatically use HTTP 1.1 and add additional header params (Content-Length). Use a custom test until this changes');
@@ -123,4 +123,5 @@ EOT;
         ob_end_clean();
         $this->assertEquals($httpString, $actual);
     }
+    */
 }
