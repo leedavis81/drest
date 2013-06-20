@@ -1,4 +1,0 @@
-name: Drest Documentation Site
-pygments: true
-permalink: /:categories/:title
-url: http://localhost:4000/
