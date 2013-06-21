@@ -87,6 +87,12 @@ class RouteMetaData
     protected $handle_call;
 
     /**
+     * Whether to inject a Drest\Request object into the handle method
+     * @var bool $inject_request_into_handle
+     */
+    protected $inject_request_into_handle = false;
+
+    /**
      * An array of fields to be exposed to the end client
      * @var array $expose
      */
@@ -241,7 +247,7 @@ class RouteMetaData
     }
 
     /**
-     * Get any params that were set after a sucessful match
+     * Get any params that were set after a successful match
      * @return array $params
      */
     public function getRouteParams()
@@ -280,13 +286,12 @@ class RouteMetaData
 
     /**
      * Get the field exposure on this route
-     * @reutrn array $expose
+     * @return array $expose
      */
     public function getExpose()
     {
         return $this->expose;
     }
-
 
     /**
      * Set the handle function call
@@ -333,6 +338,24 @@ class RouteMetaData
             }
         }
         return false;
+    }
+
+    /**
+     * Set to inject the Drest\Request object into a handle method
+     * @param bool $setting
+     */
+    public function setInjectRequestIntoHandle($setting)
+    {
+        $this->inject_request_into_handle = (bool) $setting;
+    }
+
+    /**
+     * Do we need to inject the request object into the handle call
+     * @return bool
+     */
+    public function getInjectRequestIntoHandle()
+    {
+        return $this->inject_request_into_handle;
     }
 
     /**

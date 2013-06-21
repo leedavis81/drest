@@ -84,7 +84,7 @@ class ClassMetaData implements \Serializable
     /**
      * Get either and array of all route metadata information, or an entry by name. Returns false if entry cannot be found
      * @param null $name
-     * @return mixed $routes
+     * @return RouteMetaData|array $routes
      */
     public function getRoutesMetaData($name = null)
     {

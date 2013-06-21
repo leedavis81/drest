@@ -89,9 +89,9 @@ class User
     }
 
     /**
-     * @Drest\Handle(for="post_user")
+     * @Drest\Handle(for="post_user", injectRequest=true)
      */
-    public function populatePost(array $data)
+    public function populatePost(array $data, \Drest\Request $request)
     {
         if (isset($data['email_address'])) {
             $this->email_address = $data['email_address'];

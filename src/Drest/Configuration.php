@@ -127,7 +127,7 @@ class Configuration
 
 
     /**
-     * Set the methods to be used for detecting content type to be used, overwrites previous settings
+     * Set the methods to be used for detecting content type to be used to pull requests, overwrites previous settings
      * Eg ->setDetectContentOptions(array(self::DETECT_CONTENT_HEADER => $headerName))
      * self::DETECT_CONTENT_HEADER            = Uses the a header to detect the required content (typically use Accept)
      * self::DETECT_CONTENT_EXTENSION        = Uses an extension on the url eg .xml
