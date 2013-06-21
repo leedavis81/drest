@@ -76,6 +76,7 @@ If <strong>Drest\Config::set415ForNoMediaMatch();</strong> has been set to true 
 
 You can overide the way drest detects the representation type by using a number of available configuration options. Any number configuration options can be combined together.
 
+
 {% highlight php %}
 // Only use the Accept / Content-Type header to determine the representation (default behavior)
 $drestConfig->setDetectContentOptions(array(
@@ -95,6 +96,8 @@ $drestConfig->setDetectContentOptions(array(
     Configuration::DETECT_CONTENT_PARAM => 'format'
 ));
 {% endhighlight %}
+
+<div class="alert alert-info">These configurations only apply to pulling data [GET]. Content detection for push requests [POST/PATCH/PUT] will always use the "Content-Type" http header. If using the drest client tool this is automatically set.</div>
 
 Once a representation type has been determined it is set on a **Drest\Service** object and can be accessed from your own custom service action classes by using the following method:
 {% highlight php %}

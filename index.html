@@ -6,13 +6,19 @@ title: Drest Documentation
 <div class="page-header" style="margin: 0px">
   <h1>Dress up your doctrine entities</h1>
   <h3>- and expose them as RESTful resources</h3>  
-  <p style="margin: 0px">This library allows you to quickly annotate your doctrine entities into restful resources. 
+  <p style="margin: 0px">This library allows you to quickly/simply generate an API for your application by annotating your entities into RESTful resources.
     It comes shipped with it's own internal router, and can be used standalone or alongside your existing framework stack.
-    Routes are mapped to either a default or customised service action that takes care of handling requests.<br><br>      
-    </p>
+    Routes are mapped to either a default or customised service action that takes care of handling requests.<br><br>
+
+    Already using <a href="http://www.doctrine-project.org/projects/orm.html">Doctrine's Object Relational Mapper</a> and want to create a RESTful API? Drest can help you get up and running in a matter of minutes.
+    With some really simple configurations you can turn any one of your entities into a functioning REST endpoint.
+  </p>
 </div>
 <h4>Features:</h4>
-<h5>- Quickly annotate existing Doctrine entities to become a fully functional REST resource.</h5>
+
+<ul>
+    <li>
+        <strong>Quickly annotate existing Doctrine entities to become a fully functional REST resource</strong>
 <pre>@Drest\Resource(
     routes={
         @Drest\Route(
@@ -20,17 +26,21 @@ title: Drest Documentation
             route_pattern="/user/:id",
             verbs={"GET"}
 )})</pre>
-<h5>- Utilises the internal router for matching resource route patterns.</h5>
+    </li>
+    <li><strong>Utilises its own internal router for matching resource route patterns.</strong>
 <pre>
 [GET] http://myapplication.com/api/user/123
 </pre>
-<h5>- Specify what data you want to expose from your entities (including relations), or let the client choose! <a href="#" class="show_hide">(see code)</a></h5>
+    </li>
+    <li>
+        <strong>Specify what data you want to expose from your entities (including relations), or let the client choose!</strong> <a href="#" class="show_hide">(see code)</a>
+        <p>By using an <a href="{{site.url}}/docs/exposing-data/">expose</a> setting you can determine what data you want your users to see, and what they're allowed to update / create. Don't swamp your API consumers bandwidth by throwing data at them they don't need. <a href="{{site.url}}/docs/exposing-data/#tailored_for_the_client">Let them choose</a> what data they want from the exposable set. </p>
 <pre>
 // Set exactly what fields you want to expose
 @Drest\Route(
     expose={"username", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers"}
  )
- 
+
  // or let the client choose
 $config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
 
@@ -38,8 +48,17 @@ $config->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose
 
 // Also you can set a specific maximum depth you want to expose - (uses doctrines relations)
 $config->setExposureDepth(3);</pre>
-<h5>- Generate data objects using exposable data for your API users to consume. <a href="#" class="show_hide">(see code)</a></h5>
+    </li>
+
+
+    <li><strong>Generate data objects for your API users to interact with.</strong> <a href="#" class="show_hide">(see code)</a>
+        <p>Drest comes with a handy client tool (wrapped around <a href="http://guzzlephp.org/">guzzle</a>) that allows your users to operate solely on PHP data objects.
+        Classes tailored to the data you want to expose (or allow for update) from your drest routes are generated via a CLI tool.
+        Users can then operate directly on these, taking away the possibility of getting their XML or JSON syntax incorrect.
+        They simply create a data object, and send it.</p>
 <pre>
+--------------------------------CLI TOOL EXAMPLE------------------------------------------
+
 // Generate data classes to interact with
 php drest-client.php classes:generate --dest-path="/path/for/SomeApi" --namespace="SomeApi" http://yourapi.endpoint
 
@@ -49,8 +68,9 @@ Successfully wrote client class "/path/for/SomeApi/Entities/Profile.php"
 Successfully wrote client class "/path/for/SomeApi/Entities/PhoneNumber.php"
 Successfully wrote client class "/path/for/SomeApi/Entities/User.php"
 
-Client classes have been sucessfully generated at "/path/for/SomeApi"
---------------------------------------------------------------------------
+Client classes have been successfully generated at "/path/for/SomeApi"
+
+--------------------------------POST EXAMPLE------------------------------------------
 
 // Your users can then start operating on them using the client tool
 $client = new Drest\Client('http://yourapi.endpoint', 'Json');
@@ -59,7 +79,6 @@ $user = SomeApi\Entities\User::create()
         ->setEmailAddress('hello@somewhere.com')
         ->setUsername('leedavis81')
         ->setProfile(SomeApi\Entities\Profile::create()
-            ->setTitle('mr')
             ->setFirstname('lee')
             ->setLastname('davis'))
         ->addPhoneNumbers(array(
@@ -79,8 +98,22 @@ try
     echo $e->getErrorDocument()->render();
 }
 
+--------------------------------GET EXAMPLE------------------------------------------
+
+// They don't ever have to worry about building parsers for your data, the representations handle that for them.
+$response = $client->get('user/85');
+
+// echo the Json or Xml response
+echo $response->getRepresentation();
+
+// get it all in a nice tidy array
+$data = $response->getRepresentation()->toArray();
+
 </pre>
-<h5>- Comes shipped with both JSON and XML representations, or you can create your own. <a href="#" class="show_hide">(see code)</a></h5>
+    </li>
+    <li><strong>Comes shipped with both JSON and XML representations, or you can create your own.</strong> <a href="#" class="show_hide">(see code)</a>
+    <p>Data can be represented in any number of ways, you get to control how your data is handled by enabling the <a href="{{site.url}}/docs/representations">representations</a> you would like to use.
+        In future it's likely drest with leverage further "standards conforming" data types such as <a href="http://stateless.co/hal_specification.html">JSON/XML-HAL</a>.</p>
 <pre>
 // Set the default representations to be used
 $config->setDefaultRepresentations(array('Json', 'Xml'));
@@ -90,15 +123,21 @@ $config->setDefaultRepresentations(array('Json', 'Xml'));
     representations={"Json"}
     .....
 )</pre>
-<h5>- Allows media type detection from your client requests, getting you one step close to RMM level 3. <a href="#" class="show_hide">(see code)</a></h5>
+    </li>
+    <li><strong>Allows media type detection from your client requests, getting you one step close to RMM level 3.</strong> <a href="#" class="show_hide">(see code)</a>
+        <p>As well as giving you complete access to a request object, drest will automatically determine the media type to be used and build a corresponding <a href="{{site.url}}/docs/representations">representation</a> class for you to work with.
+        Want to use a HTTP header, a ".json" file extension, a "format" parameter or a combination of many to determine the media type? Drest makes it simple.
+        </p>
 <pre>
 // Determine the requested media type by reading:
 $drestConfig->setDetectContentOptions(array(
-    Configuration::DETECT_CONTENT_HEADER => 'Accept',   // An HTTP Header called "Accept"  
+    Configuration::DETECT_CONTENT_HEADER => 'Accept',   // An HTTP Header called "Accept"
     Configuration::DETECT_CONTENT_EXTENSION => true,    // A dot extension on the URL (eg .json)
     Configuration::DETECT_CONTENT_PARAM => 'format'     // A parameter parsed called "format" (eg format=xml)
 ));</pre>
-<h5>- Use it independently from your existing framework stack, or alongside it*. <a href="#" class="show_hide">(see code)</a></h5>
+    </li>
+    <li><strong>Use it independently from your existing framework stack, or alongside it.</strong> <a href="#" class="show_hide">(see code)</a>
+    <p>Drest comes with <a href="{{site.url}}/docs/getting-started/#configuring_the_drest_manager">request / response adapter objects</a> to interact with. By default these are adapted from symfony components but if you already have these object, then you can use them instead. Also if you've already have your API setup in a fully routed MVC environment, you can still instruct drest to dispatch a route by name and have it update your response object. <a href="{{site.url}}/docs/routing">See here</a> for more information.</p>
 <pre>
 // Dispatch from an application endpoint (index.php)
 echo $dm->dispatch();
@@ -109,9 +148,16 @@ $updatedResponseObject =  $dm->dispatch($myZf2RequestObject, $mySym2ResponseObje
 // Or call an exact route by name (bypasses routing)
 $updatedResponseObject =  $dm->dispatch(null, $myResponseObject, 'Entities\User::get_users');
 </pre>
-<p>* On the condition that both request / response adapters have been created for that particular framework.</p>
-<h5>- Allows extension points so you can configure requests to your specific needs. <a href="#" class="show_hide">(see code)</a></h5>        
+    <div class="alert">On the condition that drest request / response adapters have been created for that particular framework.</div>
+    </li>
+    <li><strong>Allows extension points so you can configure requests to your specific needs.</strong> <a href="#" class="show_hide">(see code)</a>
+        <p>Drest comes with a number of <a href="{{site.url}}/docs/service-actions">default behaviours</a> to handle requests.
+            These defaults will operate with your entity manager to fetch / persist / update entities depending on the HTTP verb and configurations used.
+            However these behaviours are not set in stone, drest is extensible so you can easily create and inject your own custom behaviour.
+        </p>
 <pre>
+ // Note that the full namespace (if applicable) to the custom plugin class must be provided in the action.
+ // You will need to include your custom class files, or set them up an autoloader.
  @Drest\Resource(
     routes={
         @Drest\Route(
@@ -120,14 +166,14 @@ $updatedResponseObject =  $dm->dispatch(null, $myResponseObject, 'Entities\User:
             verbs={"GET"},
             action="Action\Custom"
  )})
- 
+
 namespace Action;
 
 class Custom extends \Drest\Service\Action\AbstractAction
 {
     /*
      * From here you'll have access to the following objects via the service property. ie $this->service->get*
-     * 
+     *
      * @var \Doctrine\ORM\EntityManager                     $em                 - Doctrine Entity Manager
      * @var \Drest\Manager                                  $dm                 - Drest Manager
      * @var \Drest\Request                                  $request            - Drest Request Object
@@ -142,4 +188,5 @@ class Custom extends \Drest\Service\Action\AbstractAction
     }
 }
 </pre>
-<p>Note that the full namespace (if applicable) to the custom plugin class must be provided in the annotations. You will need to include your custom class files, or setup an autoloader to handle them.</p>
+    </li>
+</ul>

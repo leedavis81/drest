@@ -111,23 +111,9 @@ or manipulate further. You can even retrieve your original request object, updat
 
 Again, if no object is passed drest will attempt to create an instance of **Symfony\Component\HttpFoundation\Response** for use. This will require the installation of the the **symfony/http-foundation** component.
 
- 
-
-        
-####@todo Using the Drest Namespace
- 
-####@todo Configuring the cache
-    - Injecting doctrine ORM entity manager
-* see "Configuration" object section
-
-
-####@Already using a framework
-   #####@todo Creating your own response / request adapters
-
 ### Create Routes
 To begin leveraging drest you need to include the annotation namespace into your entities. It's likely you've already done something similar for the ORM.
 Once declared you can enable an entity as a resource by using the **@Drest\Resource** annotation.
-
 
 {% highlight php %}
 namespace Entities;
@@ -157,7 +143,6 @@ class User
 
 }
 {% endhighlight %} 
-
 
 #####@Drest\Resource properties
 
@@ -262,8 +247,12 @@ public function myMethod(array $data, \Drest\Request $request)
 }
 {% endhighlight %} 
 
-Any registered handle function will be called when using the [default service actions]({{site.url}}/docs/service-actions/#default_behaviours). 
-
+Any registered handle function will be called when using the [default service actions]({{site.url}}/docs/service-actions/#default_behaviours).
 
 If you've [created your own service action class](http://localhost:4000/docs/service-actions/#creating_your_own) and you still want to call a registered handle then you'll need to fire it off manually.
 See [creating your own service actions]({{site.url}}/docs/service-actions/#creating_your_own) for information on how this can be done.
+
+#####@Drest\Handle properties
+
+- (string) **for** *required* - Which push route this handle is for. Must match the @Drest\Route::name parameter.
+- (array) **injectRequest** *optional* - Add this annotation to instruct drest to inject the Drest\Request object as the second parameter. Defaults to false.
