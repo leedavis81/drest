@@ -4,15 +4,14 @@ ini_set('display_errors', 'On');
 
 $loader = require '../../../vendor/autoload.php';
 
-require '../Client/Entities/User.php';
-require '../Client/Entities/Profile.php';
-require '../Client/Entities/PhoneNumber.php';
 
+// Add the entities namespace to the loader
+$loader->add('Client', __DIR__ . '/../');
 
 $client = new Drest\Client('http://drest-example1.localhost', 'Json');
 
 
-/* Post an item
+/* Post an item */
 $user = Client\Entities\User::create()
         ->setEmailAddress('hello@somewhere.com')
         ->setUsername('leedavis81')
@@ -36,7 +35,7 @@ try
 {
     echo $e->getErrorDocument()->render();
 }
-*/
+/**/
 
 /* get an item
 
