@@ -16,8 +16,8 @@
         "php": ">=5.3.3",
         "doctrine/common": "~2.3",
         "doctrine/inflector": "~1.0",
-
-        "guzzle/guzzle": "~3.5",
+        /* Could use "~3.5" but doesn't appear valid with versioneye! */
+        "guzzle/guzzle": ">=3.5, <4.0",
         "zendframework/zend-code": "~2.0"
     },
     "require-dev": {
