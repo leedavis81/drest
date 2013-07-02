@@ -3,10 +3,10 @@
 namespace Drest\Representation;
 
 use Drest\DrestException;
-use Drest\Inflector;
 use Drest\Query\ResultSet;
 use Drest\Request;
 use Drest\Response;
+use Doctrine\Common\Inflector\Inflector;
 
 /**
  * XML Conversion inspired from http://www.lalit.org/lab/convert-php-array-to-xml-with-attributes

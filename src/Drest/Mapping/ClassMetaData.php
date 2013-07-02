@@ -2,9 +2,9 @@
 namespace Drest\Mapping;
 
 use Drest\DrestException;
-use Drest\Inflector;
 use Drest\Representation\AbstractRepresentation;
 use Drest\Representation\RepresentationException;
+use Doctrine\Common\Inflector\Inflector;
 
 /**
  *

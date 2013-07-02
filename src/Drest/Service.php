@@ -6,6 +6,7 @@ use Drest\Error\Handler\AbstractHandler;
 use Drest\Mapping\RouteMetaData;
 use Drest\Query\ResultSet;
 use Drest\Representation;
+use Drest\Event;
 use Drest\Service\Action\AbstractAction;
 
 class Service
@@ -62,15 +63,14 @@ class Service
     /**
      * Called on successful routing of a service call
      * Prepares the service to a request to be rendered
-     * @todo: Fires off any events registered to preLoad
+     *
      * @return boolean $result - if false then fail fast no call to runCallMethod() should be made.
      */
     public function setupRequest()
     {
-        // Make sure we have a route matched
-        //@todo: this shouldn't throw an exception, pass failure to the error handler
+        // Make sure we have a route matched (this should caught and an exception thrown on Manager::determineRoute())
         if (!$this->matched_route instanceof RouteMetaData) {
-            DrestException::noMatchedRouteSet();
+            return false;
         }
 
         // If its a GET request and no expose fields are present, fail early
@@ -81,13 +81,6 @@ class Service
             $this->renderDeterminedRepresentation($this->getActionInstance()->createResultSet(array()));
             return false;
         }
-
-        // @todo: Run verb type setup operations (do we want to break down by verb? or entity name? - evm)
-//	    switch ($this->getRequest()->getHttpMethod())
-//	    {
-//	        case Request::METHOD_GET:
-//	            break;
-//	    }
 
         return true;
     }
@@ -123,7 +116,15 @@ class Service
      */
     final public function runCallMethod()
     {
-        if (($return = $this->getActionInstance()->execute()) instanceof ResultSet) {
+        // dispatch preServiceAction event
+        $this->dm->getEventManager()->dispatchEvent(Event\Events::preServiceAction, new Event\PreServiceActionArgs($this));
+
+        $return = $this->getActionInstance()->execute();
+
+        // dispatch postServiceAction event
+        $this->dm->getEventManager()->dispatchEvent(Event\Events::postServiceAction, new Event\PostServiceActionArgs($this));
+
+        if ($return instanceof ResultSet) {
             $this->renderDeterminedRepresentation($return);
         }
     }

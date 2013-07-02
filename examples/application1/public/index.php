@@ -1,6 +1,6 @@
 <?php
-
 use Drest\Configuration;
+use Drest\Event;
 
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 'On');
@@ -10,6 +10,7 @@ $loader = require '../../../vendor/autoload.php';
 // Add the entities namespace to the loader
 $loader->add('Entities', __DIR__ . '/../');
 $loader->add('Action', __DIR__ . '/../');
+$loader->add('MyEvents', __DIR__ . '/../');
 
 // Create an example doctrine application
 $ormConfig = new \Doctrine\ORM\Configuration();
@@ -45,10 +46,18 @@ $drestConfig->setDetectContentOptions(array(
 $drestConfig->setExposureDepth(3);
 $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
 $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-$drestConfig->setDebugMode(false);
+$drestConfig->setDebugMode(true);
 $drestConfig->addPathsToConfigFiles($pathToEntities);
 
-$drestManager = \Drest\Manager::create($em, $drestConfig);
+
+// Set up event manager
+
+
+$evm = new Event\Manager();
+//$evm->addEventListener(array('preServiceAction', 'postServiceAction', 'preRouting', 'postRouting', 'preDispatch', 'postDispatch'), new MyEvents\MyEvent());
+
+
+$drestManager = \Drest\Manager::create($em, $drestConfig, $evm);
 
 
 echo $drestManager->dispatch();

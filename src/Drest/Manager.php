@@ -1,17 +1,28 @@
 <?php
-namespace Drest;
+/**
+ * This file is part of the Drest package.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author Lee Davis
+ * @copyright Copyright (c) Lee Davis <leedavis81@hotmail.com>
+ * @link https://github.com/leedavis81/drest/blob/master/LICENSE.txt
+ * @license http://opensource.org/licenses/MIT The MIT X License (MIT)
+ */
 
+namespace Drest;
 
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
 use Drest\Error\Handler\AbstractHandler;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
 use Drest\Query\ResultSet;
+use Drest\Event;
 use Drest\Representation\AbstractRepresentation;
 use Drest\Representation\RepresentationException;
 use Drest\Representation\UnableToMatchRepresentationException;
@@ -32,6 +43,12 @@ class Manager
      * @var Configuration $config
      */
     protected $config;
+
+    /**
+     * Event manager object
+     * @var Event\Manager
+     */
+    protected $eventManager;
 
     /**
      * Metadata factory object
@@ -72,13 +89,13 @@ class Manager
 
     /**
      * Creates an instance of the Drest Manager using the passed configuration object
-     * Can also pass in a Doctrine EventManager instance
+     * Can also pass in a Event Manager instance
      *
      * @param EntityManager $em
      * @param Configuration $config
-     * @param EventManager $eventManager
+     * @param Event\Manager $eventManager
      */
-    protected function __construct(EntityManager $em, Configuration $config, EventManager $eventManager)
+    private function __construct(EntityManager $em, Configuration $config, Event\Manager $eventManager)
     {
         $this->em = $em;
         $this->config = $config;
@@ -105,34 +122,19 @@ class Manager
      *
      * @param EntityManager $em
      * @param Configuration $config
-     * @param EventManager $eventManager
+     * @param Event\Manager $eventManager
      * @return Manager $manager
      */
-    public static function create(EntityManager $em, Configuration $config, EventManager $eventManager = null)
+    public static function create(EntityManager $em, Configuration $config, Event\Manager $eventManager = null)
     {
-        // Check there is a metadata driver registered (only annotations driver allowed atm
-
         // Register the annotations classes
         Mapping\Driver\AnnotationDriver::registerAnnotations();
 
         if ($eventManager === null) {
-            $eventManager = new EventManager();
+            $eventManager = new Event\Manager();
         }
 
         return new self($em, $config, $eventManager);
-    }
-
-    /**
-     * Read any defined route patterns that have been annotated into the router
-     */
-    protected function registerRoutes()
-    {
-        foreach ($this->metadataFactory->getAllClassNames() as $class) {
-            $classMetaData = $this->getClassMetadata($class);
-            foreach ($classMetaData->getRoutesMetaData() as $route) {
-                $this->router->registerRoute($route);
-            }
-        }
     }
 
     /**
@@ -148,42 +150,89 @@ class Manager
     {
         $this->setRequest(Request::create($request, $this->config->getRegisteredRequestAdapterClasses()));
         $this->setResponse(Response::create($response, $this->config->getRegisteredResponseAdapterClasses()));
+
+        // trigger preDispatch event
+        $this->getEventManager()->dispatchEvent(Event\Events::preDispatch, new Event\PreDispatchArgs($this->service));
+
+        $rethrowException = false;
         try {
-            return $this->execute($namedRoute, $routeParams);
+            $this->execute($namedRoute, $routeParams);
         } catch (\Exception $e) {
-            // Check debug mode, if set on then rethrow the exception
-            if ($this->config->inDebugMode()) {
-                throw $e;
+
+            if ($this->config->inDebugMode())
+            {
+                $rethrowException = $e;
+            } else
+            {
+                $this->handleError($e);
             }
-            return $this->handleError($e);
+        }
+
+        // trigger a postDispatch event
+        $this->getEventManager()->dispatchEvent(Event\Events::postDispatch, new Event\PostDispatchArgs($this->service));
+
+        if ($rethrowException)
+        {
+            throw $rethrowException;
+        }
+
+        return $this->getResponse();
+    }
+
+    /**
+     * Execute a dispatched request
+     * @param string $namedRoute        - Define the named Route to be dispatched - bypasses the internal router lookup
+     * @param array $routeParams        - Route parameters to be used for dispatching a namedRoute request
+     * @throws Route\NoMatchException|\Exception
+     */
+    protected function execute($namedRoute = null, array $routeParams = array())
+    {
+        if (($route = $this->determineRoute($namedRoute, $routeParams)) instanceof RouteMetaData)
+        {
+            // Get the representation to be used - always successful or it throws an exception
+            $representation = $this->getDeterminedRepresentation($route);
+
+            // Set the matched service object and the error handler into the service class
+            $this->service->setMatchedRoute($route);
+            $this->service->setRepresentation($representation);
+            $this->service->setErrorHandler($this->getErrorHandler());
+
+            // Set up the service for a new request
+            if ($this->service->setupRequest()) {
+                $this->service->runCallMethod();
+            }
         }
     }
 
     /**
-     * Handle an error by passing the exception to the registered error handler
-     * @param \Exception $e
-     * @return Response $response
+     * Determine the matched route from either the router or namedRoute
+     * @param null $namedRoute
+     * @param array $routeParams
+     * @throws Route\NoMatchException|\Exception
+     * @return RouteMetaData|bool $route - if false no route could be matched (ideally the response should be returned in this instance - fail fast)
      */
-    private function handleError(\Exception $e)
+    protected function determineRoute($namedRoute = null, array $routeParams = array())
     {
-        $eh = $this->getErrorHandler();
-
+        // dispatch preRoutingAction event
+        $this->getEventManager()->dispatchEvent(Event\Events::preRouting, new Event\PreRoutingArgs($this->service));
         try {
-            $representation = $this->getDeterminedRepresentation();
-            $errorDocument = $representation->getDefaultErrorResponse();
-            $eh->error($e, 500, $errorDocument);
-        } catch (UnableToMatchRepresentationException $e) {
-            $errorDocument = new Error\Response\Text();
-            $eh->error($e, 500, $errorDocument);
+            $route = (!is_null($namedRoute)) ? $this->getNamedRoute($namedRoute, $routeParams) : $this->getMatchedRoute(true);
+        } catch (\Exception $e) {
+            // dispatch postRoutingAction event
+            $this->getEventManager()->dispatchEvent(Event\Events::postRouting, new Event\PostRoutingArgs($this->service));
+            if ($e instanceof NoMatchException && ($this->doCGOptionsCheck() || $this->doOptionsCheck())) {
+                return false;
+            }
+            throw $e;
         }
+        // dispatch postRoutingAction event
+        $this->getEventManager()->dispatchEvent(Event\Events::postRouting, new Event\PostRoutingArgs($this->service));
 
-        $this->response->setStatusCode($eh->getResponseCode());
-        $this->response->setHttpHeader('Content-Type', $errorDocument::getContentType());
-        $this->response->setBody($errorDocument->render());
+        // Set parameters matched on the route to the request object
+        $this->request->setRouteParam($route->getRouteParams());
 
-        return $this->response;
+        return $route;
     }
-
 
     /**
      * Get a route based on Entity::route_name. eg Entities\User::get_users
@@ -210,61 +259,12 @@ class Manager
         return $route;
     }
 
-    /**
-     * Execute a dispatched request
-     * @param string $namedRoute        - Define the named Route to be dispatched - bypasses the internal router lookup
-     * @param array $routeParams        - Route parameters to be used for dispatching a namedRoute request
-     * @throws Route\NoMatchException|\Exception
-     * @return Response $response    - Returns a Drest response object which can be sent calling toString()
-     */
-    protected function execute($namedRoute = null, array $routeParams = array())
-    {
-        // Perform a match based on the current URL / Header / Params - remember to include HTTP VERB checking when performing a matched() call
-        // @todo: tidy this up
-        try {
-            $route = (!is_null($namedRoute)) ? $this->getNamedRoute($namedRoute, $routeParams) : $this->getMatchedRoute(true);
-        } catch (\Exception $e) {
-            if ($e instanceof NoMatchException && ($this->doCGOptionsCheck() || $this->doOptionsCheck())) {
-                return $this->getResponse();
-            }
-            throw $e;
-        }
-
-        // Get the representation to be used - always successful or it throws an exception
-        $representation = $this->getDeterminedRepresentation($route);
-        switch ($this->getRequest()->getHttpMethod()) {
-            case Request::METHOD_GET:
-                $route = $this->handlePullExposureConfiguration($route);
-                break;
-            case Request::METHOD_POST:
-            case Request::METHOD_PUT:
-            case Request::METHOD_PATCH:
-                $representation = $this->handlePushExposureConfiguration($route, $representation);
-                break;
-        }
-
-        // Set parameters matched on the route to the request object
-        $this->request->setRouteParam($route->getRouteParams());
-
-        // Set the matched service object and the error handler into the service class
-        $this->service->setMatchedRoute($route);
-        $this->service->setRepresentation($representation);
-        $this->service->setErrorHandler($this->getErrorHandler());
-
-        // Set up the service for a new request
-        if ($this->service->setupRequest()) {
-            $this->service->runCallMethod();
-        }
-
-        return $this->getResponse();
-    }
 
     /**
      * Handle a pull requests' exposure configuration (GET)
-     * @param RouteMetaData $route
-     * @return RouteMetaData $route
+     * @param RouteMetaData $route (referenced object)
      */
-    protected function handlePullExposureConfiguration(RouteMetaData $route)
+    protected function handlePullExposureConfiguration(RouteMetaData &$route)
     {
         $route->setExpose(
             Query\ExposeFields::create($route)
@@ -272,7 +272,6 @@ class Manager
                 ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
                 ->toArray()
         );
-        return $route;
     }
 
     /**
@@ -296,6 +295,7 @@ class Manager
 
     /**
      * Check if the client has requested the CG classes with an OPTIONS call
+     * @return bool
      */
     protected function doCGOptionsCheck()
     {
@@ -311,8 +311,8 @@ class Manager
             foreach ($this->metadataFactory->getAllClassNames() as $className) {
                 $metaData = $this->getClassMetadata($className);
                 foreach ($metaData->getRoutesMetaData() as $route) {
-                    //@todo: this need checking, does the expose actually get updated on the route?
-                    $route = $route->setExpose(
+                    /* @var RouteMetaData $route */
+                    $route->setExpose(
                         Query\ExposeFields::create($route)
                             ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
                             ->toArray()
@@ -366,7 +366,7 @@ class Manager
      * @throws Representation\RepresentationException - if unable to instantiate a representation object from config settings
      * @return AbstractRepresentation $representation
      */
-    protected function getDeterminedRepresentation(Mapping\RouteMetaData $route = null)
+    protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
     {
         $representations = (!is_null($route)) ? $route->getClassMetaData()->getRepresentations() : $this->config->getDefaultRepresentations();
         if (empty($representations)) {
@@ -393,6 +393,7 @@ class Manager
                 case Request::METHOD_GET:
                     // This representation matches the required media type requested by the client
                     if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request)) {
+                        $this->handlePullExposureConfiguration($route);
                         return $representation;
                     }
                     break;
@@ -401,6 +402,7 @@ class Manager
                 case Request::METHOD_PUT:
                 case Request::METHOD_PATCH:
                     if ($representation->getContentType() === $this->request->getHeaders('Content-Type')) {
+                        $representation = $this->handlePushExposureConfiguration($route, $representation);
                         return $representation;
                     }
                     break;
@@ -421,6 +423,18 @@ class Manager
         throw UnableToMatchRepresentationException::noMatch();
     }
 
+    /**
+     * Read any defined route patterns that have been annotated into the router
+     */
+    protected function registerRoutes()
+    {
+        foreach ($this->metadataFactory->getAllClassNames() as $class) {
+            $classMetaData = $this->getClassMetadata($class);
+            foreach ($classMetaData->getRoutesMetaData() as $route) {
+                $this->router->registerRoute($route);
+            }
+        }
+    }
 
     /**
      * Runs through all the registered routes and returns a single match
@@ -454,6 +468,29 @@ class Manager
     protected function getMatchedRoutes($matchVerb = true)
     {
         return $this->router->getMatchedRoutes($this->getRequest(), (bool)$matchVerb);
+    }
+
+    /**
+     * Handle an error by passing the exception to the registered error handler
+     * @param \Exception $e
+     * @throws \Exception
+     */
+    private function handleError(\Exception $e)
+    {
+        $eh = $this->getErrorHandler();
+
+        try {
+            $representation = $this->getDeterminedRepresentation();
+            $errorDocument = $representation->getDefaultErrorResponse();
+            $eh->error($e, 500, $errorDocument);
+        } catch (UnableToMatchRepresentationException $e) {
+            $errorDocument = new Error\Response\Text();
+            $eh->error($e, 500, $errorDocument);
+        }
+
+        $this->response->setStatusCode($eh->getResponseCode());
+        $this->response->setHttpHeader('Content-Type', $errorDocument::getContentType());
+        $this->response->setBody($errorDocument->render());
     }
 
     /**
@@ -499,6 +536,15 @@ class Manager
     public function setResponse(Response $response)
     {
         $this->response = $response;
+    }
+
+    /**
+     * Get the event manager
+     * @return Event\Manager
+     */
+    public function getEventManager()
+    {
+        return $this->eventManager;
     }
 
     /**

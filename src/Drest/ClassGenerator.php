@@ -4,7 +4,7 @@ namespace Drest;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
-use Drest\Inflector;
+use Doctrine\Common\Inflector\Inflector;
 use Drest\Mapping\ClassMetaData;
 use Drest\Mapping\RouteMetaData;
 use Zend\Code\Generator\ParameterGenerator;
