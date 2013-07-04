@@ -192,6 +192,20 @@ class Manager
             // Get the representation to be used - always successful or it throws an exception
             $representation = $this->getDeterminedRepresentation($route);
 
+            // Configure push / pull exposure fields
+            switch ($this->request->getHttpMethod()) {
+                // Match on content option
+                case Request::METHOD_GET:
+                    $this->handlePullExposureConfiguration($route);
+                    break;
+                // Match on content-type
+                case Request::METHOD_POST:
+                case Request::METHOD_PUT:
+                case Request::METHOD_PATCH:
+                    $representation = $this->handlePushExposureConfiguration($route, $representation);
+                    break;
+            }
+
             // Set the matched service object and the error handler into the service class
             $this->service->setMatchedRoute($route);
             $this->service->setRepresentation($representation);
@@ -289,6 +303,7 @@ class Manager
                 ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
                 ->configurePushRequest($representation->toArray())
         );
+
         return $representation;
     }
 
@@ -393,7 +408,6 @@ class Manager
                 case Request::METHOD_GET:
                     // This representation matches the required media type requested by the client
                     if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request)) {
-                        $this->handlePullExposureConfiguration($route);
                         return $representation;
                     }
                     break;
@@ -402,7 +416,6 @@ class Manager
                 case Request::METHOD_PUT:
                 case Request::METHOD_PATCH:
                     if ($representation->getContentType() === $this->request->getHeaders('Content-Type')) {
-                        $representation = $this->handlePushExposureConfiguration($route, $representation);
                         return $representation;
                     }
                     break;

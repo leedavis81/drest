@@ -5,47 +5,74 @@ namespace DrestTests;
 use Doctrine\ORM;
 use Drest\Configuration;
 use Drest\Manager;
+use Drest\Event\Manager as EventManager;
 
 /**
  * Base test case class.
  */
 abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
 {
+
+    protected function setUp()
+    {
+        \Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
+    }
+
     /**
      * Get a drest manager instance
      * @param ORM\EntityManager $em
      * @param Configuration $config
      * @return Manager $dm
      */
-    public function _getDrestManager(ORM\EntityManager $em = null, Configuration $config = null)
+    public function _getDrestManager(ORM\EntityManager $em = null, Configuration $config = null, EventManager $evm = null)
     {
-        $config = (is_null($config)) ? new Configuration() : $config;
+        if(is_null($config))
+        {
+            $config = $this->_getDefaultDrestConfig();
+        }
         $em = (is_null($em)) ? $this->_getTestEntityManager() : $em;
 
-        $dm = Manager::create($em, $config);
+        $dm = Manager::create($em, $config, $evm);
         return $dm;
     }
 
     /**
      * get a test entity manager
+     * @param \Doctrine\DBAL\Connection $conn
      * @param ORM\Configuration $config
      * @return ORM\EntityManager
      */
-    public function _getTestEntityManager(ORM\Configuration $config = null)
+    public function _getTestEntityManager(\Doctrine\DBAL\Connection $conn = null, ORM\Configuration $config = null)
     {
         if (is_null($config)) {
             $config = $this->_getDefaultORMConfig();
         }
 
-        $em = ORM\EntityManager::create(array(
-            'host' => 'localhost',
-            'user' => 'developer',
-            'password' => 'developer',
-            'dbname' => 'drest',
-            'driver' => 'pdo_sqlite'
-        ), $config);
+        if (is_null($conn))
+        {
+            $conn = $this->_getDefaultConnection();
+        }
+        $em = ORM\EntityManager::create($conn, $config);
 
         return $em;
+    }
+
+    public function _getDefaultConnection()
+    {
+        $params = array(
+            'driver' => 'pdo_sqlite',
+            'memory' => true
+        );
+        return \Doctrine\DBAL\DriverManager::getConnection($params);
+    }
+
+    public function _getDefaultDrestConfig()
+    {
+        $config = new Configuration();
+        $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
+        $config->addPathsToConfigFiles(array(__DIR__ . '/Entities'));
+        $config->setDebugMode(true);
+        return $config;
     }
 
     public function _getDefaultORMConfig()

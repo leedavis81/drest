@@ -1,17 +1,17 @@
 <?php
-namespace DrestTests\Entities;
+namespace DrestTests\Entities\CMS;
 
-use Doctrine\ORM\Mapping as ORM;
-//use Drest\Mapping\Annotation as Drest;
 // * @Drest\Resource(
 // * 		representations={"Xml", "Json"},
-// *      services={
-// *      	@Drest\Service(name="get_profile", route_pattern="/profile/:id", verbs={"GET"}, repository_method="getProfile", content="element"),
-// *          @Drest\Service(name="post_profile", route_pattern="/profile", verbs={"POST"}, repository_method="addProfile", content="element"),
-// *          @Drest\Service(name="get_profiles", route_pattern="/profiles", verbs={"GET"}, repository_method="getProfiles", content="collection"),
+// *      routes={
+// *      	@Drest\Route(name="get_profile", routePattern="/profile/:id", verbs={"GET"}, content="element"),
+// *          @Drest\Route(name="post_profile", routePattern="/profile", verbs={"POST"}, content="element"),
+// *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, content="collection"),
 // *      }
 // * )
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use Drest\Mapping\Annotation as Drest;
 
 
 /**
@@ -32,13 +32,14 @@ class Profile
     private $id;
 
     /**
-     * @var Entities\User $user
+     * @var \Entities\User $user
      * @ORM\OneToOne(targetEntity="User", inversedBy="profile", fetch="LAZY")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
     /**
-     * @var Doctrine\Common\Collections\ArrayCollection $addresses
+     * @var ArrayCollection $addresses
      * @ORM\OneToMany(targetEntity="Address", mappedBy="profile", fetch="LAZY")
      */
     private $addresses;
@@ -64,6 +65,6 @@ class Profile
 
     public function __construct()
     {
-        $this->addresses = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->addresses = new ArrayCollection();
     }
 }

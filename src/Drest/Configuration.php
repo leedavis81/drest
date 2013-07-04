@@ -73,6 +73,8 @@ class Configuration
         $this->setAllowOptionsRequest(true);
         // Set the route base paths to be an empty array
         $this->_attributes['routeBasePaths'] = array();
+        // Set the paths to the config files as an empty array
+        $this->_attributes['pathsToConfigFiles'] = array();
         // Don't send a 415 if we don't match a representation class, default to first available one
         $this->set415ForNoMediaMatch(false);
         // Set the default error handler class (immutable)
