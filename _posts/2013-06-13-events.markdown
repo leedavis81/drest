@@ -40,7 +40,7 @@ $evm = new Drest\Event\Manager();
 $evm->addListener(array(\Drest\Event\Events::postDispatch), new MyEventListener());
 {% endhighlight %}
 
-####Subscriber
+####Subscribers
 As the Doctrine event system also has the concept of event subscribers, you can also leverage this with Drest.
 These must extend **\Drest\Event\Subscriber** and implement a **getSubscribedEvents()** method that return an array of events to be subscribed to.
 
