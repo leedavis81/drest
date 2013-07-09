@@ -5,13 +5,91 @@ date:   2013-06-13 13:32:55
 categories: docs
 ---
 
-###Coming soon
+Drest comes shipped with an event manager that wraps around the \Doctrine\Common\EventManager.
+It has the facility to register listeners for a specific event, or create and register a subscriber with a declaration of
+all events they're subscribed to.
+
+To use the event system with drest you simply have to register an event manager object when constructing your [drest manager]({{site.url}}/docs/getting-started/#configuring_the_drest_manager).
+
+{% highlight php %}
+$evm = new Drest\Event\Manager();
+// .. attach listeners / subscribers ..
+$drestManager = \Drest\Manager::create($em, $drestConfig, $evm);
+{% endhighlight %}
+
+For further information about how to use the doctrine event system [click here](http://docs.doctrine-project.org/en/2.0.x/reference/events.html)
+
+####Lifecycle Event Listeners
+
+There are a number of hooks during the life cycle of a dispatched drest request [see event types]({{site.url}}/docs/events#event_types) that you can register listeners to.
+All listeners will be injected with a corresponding arguments object, which typically provides access to the [service action]({{site.url}}/docs/service-actions) object (although this may not always be the case).
 
 
-<!--
-    - Will allow hooks for:
-    *  PreRouting  - Before we've routed the request       injection: Request / Response
-    *  PostRouting - After we've routed the request        injection: Request / Response / Matched Route
-    *  PreLoad     - Before we load data from the DB
-    *  PostLoad    - After a result set has been generated injection: ResultSet
--->
+{% highlight php %}
+// Once a request has been sucessfully serviced, send a log message
+class MyEventListener
+{
+    // see \Drest\Event\PostDispatchArgs for info on available arguments
+    public function postDispatch(\Drest\Event\PostDispatchArgs $args)
+    {
+        MyLogger::log('Request was completed', $args->getService()->getRequest());
+    }
+}
+
+$evm = new Drest\Event\Manager();
+$evm->addListener(array(\Drest\Event\Events::postDispatch), new MyEventListener());
+{% endhighlight %}
+
+####Subscriber
+As the Doctrine event system also has the concept of event subscribers, you can also leverage this with Drest.
+These must extend **\Drest\Event\Subscriber** and implement a **getSubscribedEvents()** method that return an array of events to be subscribed to.
+
+{% highlight php %}
+// Log each request as it comes in
+class MyEventSubscriber extends \Drest\Event\Subscriber
+{
+    // see \Drest\Event\PostDispatchArgs for info on available arguments
+    public function preDispatch(\Drest\Event\PostDispatchArgs $args)
+    {
+        MyLogger::log('Request was started', $args->getService()->getRequest());
+    }
+
+    public function getSubscribedEvents()
+    {
+        return array(\Drest\Event\Events::postDispatch);
+    }
+}
+
+$evm = new Drest\Event\Manager();
+$evm->addSubscriber(new MyEventSubscriber());
+{% endhighlight %}
+
+
+
+####Event Types
+
+The following events are available (and triggered in their respective order) to register listeners / subscribers to.
+
+#####PreDispatch
+Event is triggered before anything else occurs on dispatch of the drest manager (before a routing lookup).
+This event will ALWAYS trigger.
+
+#####PreRouting
+This event is triggered before any routing occurs on the request object provided. This will be triggered regardless
+of whether a [named route]({{site.url}}/docs/routing) has been used.
+
+#####PostRouting
+This event is triggered after a routing lookup has occured on the request object provided. This will be triggered regardless
+of whether a [named route]({{site.url}}/docs/routing) has been used.
+
+#####PreServiceAction
+This event is triggered before the service action call is executed.
+If the request has failed on route look up this event WILL NOT be triggered.
+
+#####PostServiceAction
+This event is triggered after the service action call is executed.
+If the request has failed on route look up this event WILL NOT be triggered.
+
+#####PostDispatch
+Once a request has successfully dispatched through the drest manager, this event will be triggered.
+This event will ALWAYS trigger. Even in the event of an error.
