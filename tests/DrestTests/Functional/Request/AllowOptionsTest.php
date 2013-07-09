@@ -40,7 +40,7 @@ class AllowOptionsTest extends DrestFunctionalTestCase
 
 
     /**
-     * @expectedException Drest\Route\NoMatchException
+     * @expectedException \Drest\Route\NoMatchException
      */
     public function testAllowOptionsSetToFalse()
     {
