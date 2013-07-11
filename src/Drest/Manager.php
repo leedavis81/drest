@@ -139,8 +139,8 @@ class Manager
 
     /**
      * Dispatch a REST request
-     * @param object $request             - Framework request object
-     * @param object $response             - Framework response object
+     * @param object $request            - Framework request object
+     * @param object $response           - Framework response object
      * @param string $namedRoute         - Define the named Route to be dispatch - by passes the internal router
      * @param array $routeParams         - Route parameters to be used when dispatching a namedRoute request
      * @return \Drest\Response $response - returns a Drest response object which can be sent calling toString()
@@ -176,7 +176,7 @@ class Manager
             throw $rethrowException;
         }
 
-        return $this->getResponse();
+        return $this->response;
     }
 
     /**
@@ -369,7 +369,7 @@ class Manager
             return false;
         }
 
-        $this->getResponse()->setHttpHeader('Allow', implode(', ', $verbs));
+        $this->response->setHttpHeader('Allow', implode(', ', $verbs));
         return true;
     }
 
@@ -463,7 +463,7 @@ class Manager
             $this->router->setRouteBasePaths($this->config->getRouteBasePaths());
         }
 
-        $matchedRoutes = $this->router->getMatchedRoutes($this->getRequest(), (bool)$matchVerb);
+        $matchedRoutes = $this->router->getMatchedRoutes($this->request, (bool)$matchVerb);
         $routesSize = sizeof($matchedRoutes);
         if ($routesSize == 0) {
             throw NoMatchException::noMatchedRoutes();
@@ -480,7 +480,7 @@ class Manager
      */
     protected function getMatchedRoutes($matchVerb = true)
     {
-        return $this->router->getMatchedRoutes($this->getRequest(), (bool)$matchVerb);
+        return $this->router->getMatchedRoutes($this->request, (bool)$matchVerb);
     }
 
     /**
@@ -514,7 +514,7 @@ class Manager
     public function getRequest($fwRequest = null)
     {
         if (!$this->request instanceof Request) {
-            $this->request = Request::create($fwRequest);
+            $this->request = Request::create($fwRequest, $this->config->getRegisteredRequestAdapterClasses());
         }
         return $this->request;
     }
@@ -537,7 +537,7 @@ class Manager
     public function getResponse($fwResponse = null)
     {
         if (!$this->response instanceof Response) {
-            $this->response = Response::create($fwResponse);
+            $this->response = Response::create($fwResponse, $this->config->getRegisteredResponseAdapterClasses());
         }
         return $this->response;
     }

@@ -23,6 +23,14 @@ class Client
      */
     protected $representationClass;
 
+    /**
+     * Cached error response class
+     * Cleared whenever a new representation type is set
+     * Redetermined whenever empty and handleErrorResponse() is called
+     * @var string $errorResponseClass
+     */
+    protected $errorResponseClass;
+
 
     /**
      * Client constructor
@@ -48,6 +56,7 @@ class Client
      */
     public function setRepresentationClass($representation)
     {
+        $this->errorResponseClass = null;
         if (!is_object($representation)) {
             // Check if the class is namespaced, if so instantiate from root
             $className = (strstr($representation, '\\') !== false) ? '\\' . ltrim($representation, '\\') : $representation;
@@ -231,21 +240,44 @@ class Client
         $response = Response::create($exception->getResponse());
         $errorException = new ErrorException('An error occurred on this request', 0, $exception);
         $errorException->setResponse($response);
-        foreach ($this->getErrorDocumentClasses() as $errorClass) {
-            /* @var \Drest\Error\Response\ResponseInterface $errorClass */
-            if ($errorClass::getContentType() === $response->getHttpHeader('Content-Type')) {
+
+        $contentType = $response->getHttpHeader('Content-Type');
+        if (!empty($contentType))
+        {
+            $errorClass = $this->getErrorDocumentClass($contentType);
+            if (!is_null($errorClass))
+            {
                 $errorDocument = $errorClass::createFromString($response->getBody());
                 $errorException->setErrorDocument($errorDocument);
-                break;
             }
         }
+
         return $errorException;
+    }
+
+    /**
+     * Get the Error Document class from the response's content type
+     * @param $contentType
+     * @return string|null
+     */
+    protected function getErrorDocumentClass($contentType)
+    {
+        if (empty($this->errorResponseClass))
+        {
+            foreach ($this->getErrorDocumentClasses() as $errorClass) {
+                /* @var \Drest\Error\Response\ResponseInterface $errorClass */
+                if ($errorClass::getContentType() == $contentType) {
+                    $this->errorResponseClass = $errorClass;
+                    break;
+                }
+            }
+        }
+        return $this->errorResponseClass;
     }
 
     /**
      * Get all registered error document classes
      * @return array $classes
-     * @todo: this needs to be cached, or have the classes loaded up on client bootstrap
      */
     protected function getErrorDocumentClasses()
     {
@@ -262,8 +294,9 @@ class Client
                 continue;
             }
             $path = $file->getRealPath();
+
             if (!empty($path)) {
-                include $path;
+                include_once $path;
             }
         }
 

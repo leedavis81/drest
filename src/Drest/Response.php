@@ -142,13 +142,26 @@ class Response
     protected $adapter;
 
     /**
+     * Default available adapter classes
+     * @var array $defaultAdapterClasses
+     */
+    public static $defaultAdapterClasses = array(
+        'Drest\\Response\\Adapter\\ZendFramework2',
+        'Drest\\Response\\Adapter\\Symfony2',
+        'Drest\\Response\\Adapter\\Guzzle'
+    );
+
+    /**
      * Construct an instance of Drest Response object
      * @param mixed $response_object - preferred adapted response type
      * @param array $adapterClasses - an array of adapter classes available
      * @throws DrestException
      */
-    public function __construct($response_object = null, array $adapterClasses = array())
+    public function __construct($response_object = null, array $adapterClasses = null)
     {
+        // If none are passed use the default system adapters
+        $adapterClasses = (is_array($adapterClasses)) ? $adapterClasses : self::$defaultAdapterClasses;
+
         $defaultClass = 'Symfony\Component\HttpFoundation\Response';
         if (is_null($response_object)) {
             if (!class_exists($defaultClass)) {
@@ -173,6 +186,17 @@ class Response
         } else {
             throw DrestException::invalidResponsetObjectPassed();
         }
+    }
+
+    /**
+     * Factory call to create a Drest response object
+     * @param mixed $response_object preferred response object
+     * @param array $adapterClasses - an array of adapter classes available
+     * @return Response
+     */
+    public static function create($response_object = null, array $adapterClasses = null)
+    {
+        return new self($response_object, $adapterClasses);
     }
 
     /**
@@ -250,16 +274,5 @@ class Response
     public function __toString()
     {
         return $this->adapter->toString();
-    }
-
-    /**
-     * Factory call to create a Drest response object
-     * @param mixed $response_object preferred response object
-     * @param array $adapterClasses - an array of adapter classes available
-     * @return Response
-     */
-    public static function create($response_object = null, array $adapterClasses = array())
-    {
-        return new self($response_object, $adapterClasses);
     }
 }

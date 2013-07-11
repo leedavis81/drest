@@ -53,16 +53,9 @@ class Configuration
         // Use Json and XML as the default representations
         $this->setDefaultRepresentations(array('Json', 'Xml'));
         // register the default request adapter classes
-        $this->registerRequestAdapterClasses(array(
-            'Drest\\Request\\Adapter\\ZendFramework2',
-            'Drest\\Request\\Adapter\\Symfony2'
-        ));
+        $this->registerRequestAdapterClasses(Request::$defaultAdapterClasses);
         // register the default response adapter classes
-        $this->registerResponseAdapterClasses(array(
-            'Drest\\Response\\Adapter\\ZendFramework2',
-            'Drest\\Response\\Adapter\\Symfony2',
-            'Drest\\Response\\Adapter\\Guzzle',
-        ));
+        $this->registerResponseAdapterClasses(Response::$defaultAdapterClasses);
         // Depth of exposure on entity fields => relations
         $this->setExposureDepth(2);
         // Don't follow any relation type

@@ -24,13 +24,25 @@ class Request
     protected $adapter;
 
     /**
+     * Default available adapter classes
+     * @var array $defaultAdapterClasses
+     */
+    public static $defaultAdapterClasses = array(
+        'Drest\\Request\\Adapter\\ZendFramework2',
+        'Drest\\Request\\Adapter\\Symfony2'
+    );
+
+    /**
      * Construct an instance of Drest Request object
      * @param mixed $request_object preferred router type
      * @param array $adapterClasses - an array of adapter classes available
      * @throws DrestException
      */
-    public function __construct($request_object = null, array $adapterClasses = array())
+    public function __construct($request_object = null, array $adapterClasses = null)
     {
+        // If none are passed use the default system adapters
+        $adapterClasses = (is_array($adapterClasses)) ? $adapterClasses : self::$defaultAdapterClasses;
+
         $defaultClass = 'Symfony\Component\HttpFoundation\Request';
         if (is_null($request_object)) {
             if (!class_exists($defaultClass)) {
@@ -57,6 +69,16 @@ class Request
         }
     }
 
+    /**
+     * Factory call to create a Drest request object
+     * @param mixed $request_object preferred response object
+     * @param array $adapterClasses - an array of adapter classes available
+     * @return Request
+     */
+    public static function create($request_object = null, array $adapterClasses = null)
+    {
+        return new self($request_object, $adapterClasses);
+    }
 
     /**
      * Get all set headers as a key => value array, or a specific entry when passing $name variable
@@ -211,16 +233,4 @@ class Request
     {
         return $this->adapter->getExtension();
     }
-
-    /**
-     * Factory call to create a Drest request object
-     * @param mixed $request_object preferred response object
-     * @param array $adapterClasses - an array of adapter classes available
-     * @return Request
-     */
-    public static function create($request_object = null, array $adapterClasses = array())
-    {
-        return new self($request_object, $adapterClasses);
-    }
-
 }

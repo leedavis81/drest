@@ -28,7 +28,11 @@ class Guzzle extends AdapterAbstract
     {
 		if ($name !== null)
 		{
-            return $this->getResponse()->getHeader($name, true);
+            if ($this->getResponse()->hasHeader($name))
+            {
+                return $this->getResponse()->getHeader($name)->__toString();
+            }
+            return null;
 		}
 
 		if (($this->getResponse()->getHeaders()->count() === 0))
