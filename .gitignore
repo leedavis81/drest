@@ -5,4 +5,3 @@
 _site
 composer.lock
 vendor
-examples/application1/Client
