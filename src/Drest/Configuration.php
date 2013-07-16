@@ -113,14 +113,9 @@ class Configuration
      * Sets the cache driver implementation that is used for metadata caching.
      *
      * @param \Doctrine\Common\Cache\Cache $cacheImpl
-     * @throws DrestException
      */
     public function setMetadataCacheImpl(Cache $cacheImpl)
     {
-        if (!$cacheImpl instanceof Cache) {
-            throw DrestException::invalidCacheInstance();
-        }
-
         $this->_attributes['metadataCacheImpl'] = $cacheImpl;
     }
 
@@ -174,7 +169,7 @@ class Configuration
      */
     public function set415ForNoMediaMatch($value = true)
     {
-        $this->_attributes['send415ForNoMediaMatch'] = $value;
+        $this->_attributes['send415ForNoMediaMatch'] = (bool) $value;
     }
 
     /**
