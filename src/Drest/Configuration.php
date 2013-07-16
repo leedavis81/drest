@@ -23,7 +23,7 @@ class Configuration
 
     // any alteration will have an effect on drest-common (AbstractRepresentation.php)
     public static $detectContentOptions = array(
-        self::DETECT_CONTENT_HEADER => 'Accept Header',
+        self::DETECT_CONTENT_HEADER => 'Header',
         self::DETECT_CONTENT_EXTENSION => 'Extension',
         self::DETECT_CONTENT_PARAM => 'Parameter'
     );
