@@ -22,6 +22,7 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
      * Get a drest manager instance
      * @param ORM\EntityManager $em
      * @param Configuration $config
+     * @param \Drest\Event\Manager $evm
      * @return Manager $dm
      */
     public function _getDrestManager(ORM\EntityManager $em = null, Configuration $config = null, EventManager $evm = null)

@@ -2,8 +2,8 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
-use Drest\Query\ResultSet;
-use Drest\Response;
+use DrestCommon\ResultSet;
+use DrestCommon\Response\Response;
 
 class PatchElement extends AbstractAction
 {

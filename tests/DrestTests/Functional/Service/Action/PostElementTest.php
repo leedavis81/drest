@@ -9,7 +9,7 @@ class PostElementTests extends DrestFunctionalTestCase
     public function testPostElementRequest()
     {
         $dm = $this->_getDrestManager($this->_em);
-        $representation = new \Drest\Representation\Json();
+        $representation = new \DrestCommon\Representation\Json();
 
         // id's added for comparison but not used for persistence (see DrestTests\Entities\CMS\User::populatePost())
         $user = array(
@@ -23,7 +23,7 @@ class PostElementTests extends DrestFunctionalTestCase
             )
         );
 
-        $representation->write(\Drest\Query\ResultSet::create($user, 'user'));
+        $representation->write(\DrestCommon\ResultSet::create($user, 'user'));
 
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/user',

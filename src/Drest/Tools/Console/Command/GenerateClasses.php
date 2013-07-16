@@ -133,7 +133,7 @@ EOT
         }
 
         $output->write(
-            PHP_EOL . sprintf('Client classes have been sucessfully generated at "<info>%s</info>"', $path) . PHP_EOL
+            PHP_EOL . sprintf('Client classes have been successfully generated at "<info>%s</info>"', $path) . PHP_EOL
         );
     }
 }

@@ -18,14 +18,16 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
-use Drest\Error\Handler\AbstractHandler;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
-use Drest\Query\ResultSet;
 use Drest\Event;
-use Drest\Representation\AbstractRepresentation;
-use Drest\Representation\RepresentationException;
-use Drest\Representation\UnableToMatchRepresentationException;
+use DrestCommon\ResultSet;
+use DrestCommon\Error\Handler\AbstractHandler;
+use DrestCommon\Request\Request;
+use DrestCommon\Response\Response;
+use DrestCommon\Representation\AbstractRepresentation;
+use DrestCommon\Representation\RepresentationException;
+use DrestCommon\Representation\UnableToMatchRepresentationException;
 use Drest\Route\MultipleRoutesException;
 use Drest\Route\NoMatchException;
 
@@ -64,7 +66,7 @@ class Manager
 
     /**
      * Drest request object
-     * @var \Drest\Request $request
+     * @var \DrestCommon\Request\Request $request
      */
     protected $request;
 
@@ -143,7 +145,7 @@ class Manager
      * @param object $response           - Framework response object
      * @param string $namedRoute         - Define the named Route to be dispatch - by passes the internal router
      * @param array $routeParams         - Route parameters to be used when dispatching a namedRoute request
-     * @return \Drest\Response $response - returns a Drest response object which can be sent calling toString()
+     * @return Response $response - returns a Drest response object which can be sent calling toString()
      * @throws \Exception                - Upon failure
      */
     public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = array())
@@ -345,7 +347,7 @@ class Manager
 
     /**
      * No match on route has occurred. Check the HTTP verb used for an options response
-     * Returns true if it is, and option information was successfully written to the reponse object
+     * Returns true if it is, and option information was successfully written to the response object
      * @return boolean $success
      */
     protected function doOptionsCheck()
@@ -354,7 +356,7 @@ class Manager
             return false;
         }
 
-        // Do a match on all routes - dont include a verb check
+        // Do a match on all routes - don't include a verb check
         $verbs = array();
         foreach ($this->getMatchedRoutes(false) as $route) {
             /* @var RouteMetaData $route */
@@ -377,15 +379,15 @@ class Manager
      * Detect an instance of a representation class using a matched route, or default representation classes
      * @param RouteMetaData $route
      * @param Mapping\RouteMetaData $route
-     * @throws Representation\UnableToMatchRepresentationException
-     * @throws Representation\RepresentationException - if unable to instantiate a representation object from config settings
+     * @throws UnableToMatchRepresentationException
+     * @throws RepresentationException - if unable to instantiate a representation object from config settings
      * @return AbstractRepresentation $representation
      */
     protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
     {
         $representations = (!is_null($route)) ? $route->getClassMetaData()->getRepresentations() : $this->config->getDefaultRepresentations();
         if (empty($representations)) {
-            throw RepresentationException::noRepresentationsSetForRoute($route);
+            throw RepresentationException::noRepresentationsSetForRoute($route->getName(), $route->getClassMetaData()->getClassName());
         }
 
         $representationObjects = array();
@@ -393,7 +395,7 @@ class Manager
             if (!is_object($representation)) {
                 // Check if the class is namespaced, if so instantiate from root
                 $className = (strstr($representation, '\\') !== false) ? '\\' . ltrim($representation, '\\') : $representation;
-                $className = (!class_exists($className)) ? '\\Drest\\Representation\\' . ltrim($className, '\\') : $className;
+                $className = (!class_exists($className)) ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\') : $className;
                 if (!class_exists($className)) {
                     throw RepresentationException::unknownRepresentationClass($representation);
                 }
@@ -497,7 +499,7 @@ class Manager
             $errorDocument = $representation->getDefaultErrorResponse();
             $eh->error($e, 500, $errorDocument);
         } catch (UnableToMatchRepresentationException $e) {
-            $errorDocument = new Error\Response\Text();
+            $errorDocument = new \DrestCommon\Error\Response\Text();
             $eh->error($e, 500, $errorDocument);
         }
 

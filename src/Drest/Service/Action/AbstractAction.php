@@ -2,13 +2,13 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
-use Drest\Error\Response\ResponseInterface;
 use Drest\Mapping\RouteMetaData;
-use Drest\Query\ResultSet;
-use Drest\Representation\AbstractRepresentation;
-use Drest\Request;
-use Drest\Response;
 use Drest\Service;
+use DrestCommon\ResultSet;
+use DrestCommon\Representation\AbstractRepresentation;
+use DrestCommon\Request\Request;
+use DrestCommon\Response\Response;
+use DrestCommon\Error\Response\ResponseInterface;
 
 /**
  * abstract action class.
@@ -175,12 +175,12 @@ abstract class AbstractAction
     }
 
     /**
-     * Method used to write to the $data aray.
+     * Method used to write to the $data array.
      * -    wraps results in a single entry array keyed by entity name.
      *        Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
      * -    Removes any addition expose fields required for a partial DQL query
      * @param array $data - the data fetched from the database
-     * @param string $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singulise on single element request
+     * @param string $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singularize on single element request
      * @return ResultSet $data
      */
     public function createResultSet(array $data, $keyName = null)

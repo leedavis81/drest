@@ -32,7 +32,7 @@ class Profile
     private $id;
 
     /**
-     * @var \Entities\User $user
+     * @var \DrestTests\Entities\CMS\User $user
      * @ORM\OneToOne(targetEntity="User", inversedBy="profile", fetch="LAZY")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */

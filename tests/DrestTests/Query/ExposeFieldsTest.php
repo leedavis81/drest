@@ -5,7 +5,7 @@ use AltrEgo\AltrEgo;
 use Drest\Configuration;
 use Drest\Mapping\RouteMetaData;
 use Drest\Query\ExposeFields;
-use Drest\Request;
+use DrestCommon\Request\Request;
 use DrestTests\DrestTestCase;
 
 class ExposeFieldsTest extends DrestTestCase

@@ -10,6 +10,7 @@ namespace Entities;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Drest\Mapping\Annotation as Drest;
+use DrestCommon\Request\Request;
 
 /**
  * User
@@ -91,7 +92,7 @@ class User
     /**
      * @Drest\Handle(for="post_user", injectRequest=true)
      */
-    public function populatePost(array $data, \Drest\Request $request)
+    public function populatePost(array $data, Request $request)
     {
         if (isset($data['email_address'])) {
             $this->email_address = $data['email_address'];

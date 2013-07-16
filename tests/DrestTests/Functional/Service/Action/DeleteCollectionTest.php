@@ -9,7 +9,7 @@ class DeleteCollectionTests extends DrestFunctionalTestCase
     public function testDeleteCollectionRequest()
     {
         $dm = $this->_getDrestManager($this->_em);
-        $representation = new \Drest\Representation\Json();
+        $representation = new \DrestCommon\Representation\Json();
 
         $users = array(
             array('email_address' => 'frodo.baggin@theshire.com', 'username' => 'frodo.baggins'),

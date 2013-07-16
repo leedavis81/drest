@@ -25,7 +25,7 @@ class DeleteElementTests extends DrestFunctionalTestCase
     public function testDeleteElementRequest()
     {
         $dm = $this->_getDrestManager($this->_em);
-        $representation = new \Drest\Representation\Json();
+        $representation = new \DrestCommon\Representation\Json();
 
         $user = new \DrestTests\Entities\CMS\User();
 

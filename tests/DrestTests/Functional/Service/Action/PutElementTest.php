@@ -9,7 +9,7 @@ class PutElementTests extends DrestFunctionalTestCase
     public function testPutElementRequest()
     {
         $dm = $this->_getDrestManager($this->_em);
-        $representation = new \Drest\Representation\Json();
+        $representation = new \DrestCommon\Representation\Json();
 
         $user = new \DrestTests\Entities\CMS\User();
         $user->setEmailAddress('hello@somewhere.com');
@@ -21,7 +21,7 @@ class PutElementTests extends DrestFunctionalTestCase
 
         $putEmail = 'goodbye@nowhere.com';
 
-        $representation->write(\Drest\Query\ResultSet::create(array('email_address' => $putEmail), 'user'));
+        $representation->write(\DrestCommon\ResultSet::create(array('email_address' => $putEmail), 'user'));
 
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/user/' . $user->getId(),

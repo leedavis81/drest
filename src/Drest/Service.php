@@ -2,12 +2,14 @@
 namespace Drest;
 
 use Doctrine\ORM\EntityManager;
-use Drest\Error\Handler\AbstractHandler;
 use Drest\Mapping\RouteMetaData;
-use Drest\Query\ResultSet;
-use Drest\Representation;
 use Drest\Event;
 use Drest\Service\Action\AbstractAction;
+use DrestCommon\ResultSet;
+use DrestCommon\Representation;
+use DrestCommon\Request\Request;
+use DrestCommon\Response\Response;
+use DrestCommon\Error\Handler\AbstractHandler;
 
 class Service
 {
@@ -239,10 +241,10 @@ class Service
      * Handle an error - set the resulting error document to the response object
      * @param \Exception $e
      * @param integer $defaultResponseCode the default response code to use if no match on exception type occurs
-     * @param Error\Response\ResponseInterface $errorDocument
+     * @param \DrestCommon\Error\Response\ResponseInterface $errorDocument
      * @return ResultSet the error result set
      */
-    public function handleError(\Exception $e, $defaultResponseCode = 500, Error\Response\ResponseInterface $errorDocument = null)
+    public function handleError(\Exception $e, $defaultResponseCode = 500, \DrestCommon\Error\Response\ResponseInterface $errorDocument = null)
     {
         if (is_null($errorDocument)) {
             $errorDocument = $this->representation->getDefaultErrorResponse();

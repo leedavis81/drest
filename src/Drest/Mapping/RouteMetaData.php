@@ -2,7 +2,7 @@
 namespace Drest\Mapping;
 
 use Drest\DrestException;
-use Drest\Request;
+use DrestCommon\Request\Request;
 
 /**
  *
@@ -63,7 +63,7 @@ class RouteMetaData
     protected $name;
 
     /**
-     * Any array of verbs allowed on this route. They match the constant values defined in Drest\Request eg array('GET', 'POST')
+     * Any array of verbs allowed on this route. They match the constant values defined in DrestCommon\Request\Request eg array('GET', 'POST')
      * @var array $verbs
      */
     protected $verbs;
@@ -87,7 +87,7 @@ class RouteMetaData
     protected $handle_call;
 
     /**
-     * Whether to inject a Drest\Request object into the handle method
+     * Whether to inject a DrestCommon\Request\Request object into the handle method
      * @var bool $inject_request_into_handle
      */
     protected $inject_request_into_handle = false;
@@ -209,7 +209,7 @@ class RouteMetaData
         $verbs = (array)$verbs;
         foreach ($verbs as $verb) {
             $verb = strtoupper($verb);
-            if (!defined('Drest\Request::METHOD_' . $verb)) {
+            if (!defined('DrestCommon\Request\Request::METHOD_' . $verb)) {
                 throw DrestException::invalidHttpVerbUsed($verb);
             }
             $this->verbs[] = $verb;
@@ -218,7 +218,7 @@ class RouteMetaData
 
     /**
      * Set the action class to be executing upon routing a match
-     * @param string $action_class - classname (can include namespace)
+     * @param string $action_class - class name (can include namespace)
      */
     public function setActionClass($action_class)
     {
@@ -341,7 +341,7 @@ class RouteMetaData
     }
 
     /**
-     * Set to inject the Drest\Request object into a handle method
+     * Set to inject the DrestCommon\Request\Request object into a handle method
      * @param bool $setting
      */
     public function setInjectRequestIntoHandle($setting)

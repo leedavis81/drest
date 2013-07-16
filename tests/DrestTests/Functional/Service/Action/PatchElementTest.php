@@ -9,7 +9,7 @@ class PatchElementTests extends DrestFunctionalTestCase
     public function testPatchElementRequest()
     {
         $dm = $this->_getDrestManager($this->_em);
-        $representation = new \Drest\Representation\Json();
+        $representation = new \DrestCommon\Representation\Json();
 
         $user = new \DrestTests\Entities\CMS\User();
         $user->setEmailAddress('hello@somewhere.com');
@@ -21,7 +21,7 @@ class PatchElementTests extends DrestFunctionalTestCase
 
         $patchEmail = 'goodbye@nowhere.com';
 
-        $representation->write(\Drest\Query\ResultSet::create(array('email_address' => $patchEmail), 'user'));
+        $representation->write(\DrestCommon\ResultSet::create(array('email_address' => $patchEmail), 'user'));
 
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/user/' . $user->getId(),

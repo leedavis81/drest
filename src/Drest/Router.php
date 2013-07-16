@@ -2,6 +2,7 @@
 namespace Drest;
 
 use Drest\Mapping\RouteMetaData;
+use DrestCommon\Request\Request;
 
 /**
  * Drest Router

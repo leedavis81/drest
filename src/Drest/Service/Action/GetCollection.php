@@ -2,7 +2,7 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
-use Drest\Response;
+use DrestCommon\Response\Response;
 
 class GetCollection extends AbstractAction
 {

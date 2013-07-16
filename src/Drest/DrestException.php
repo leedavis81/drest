@@ -35,7 +35,7 @@ class DrestException extends Exception
 
     public static function annotatedResourceRequiresAtLeastOneServiceDefinition($className)
     {
-        return new self('The annotated resource on class ' . $className . ' doesn\'t have any service definitionions. Ensure you have "services={@Drest\Service(..)} set');
+        return new self('The annotated resource on class ' . $className . ' doesn\'t have any service definitions. Ensure you have "services={@Drest\Service(..)} set');
     }
 
     public static function routeAlreadyDefinedWithName($class, $name)
@@ -176,55 +176,6 @@ class DrestException extends Exception
     public static function dataWrapNameMustBeAString()
     {
         return new self('Data wrap name must be a string value. Eg array(\'user\' => array(...))');
-    }
-
-    public static function invalidParentKeyNameForResults()
-    {
-        return new self('Parent key name in a result set object is invalid. Must be an alphanumeric string (underscores allowed)');
-    }
-
-
-    // Request Exceptions
-    public static function unknownAdapterForRequestObject($object)
-    {
-        return new self('Unknown / Not yet created adapter for request object ' . get_class($object));
-    }
-
-    public static function invalidRequestObjectPassed()
-    {
-        return new self('Request object passed in is invalid (not type of object)');
-    }
-
-    public static function noRequestObjectDefinedAndCantInstantiateDefaultType($className)
-    {
-        return new self('No request object has been passed, and cannot instantiate the default request object: ' . $className . ' ensure this class is setup on your autoloader');
-    }
-
-    public static function unknownHttpVerb($className)
-    {
-        return new self('Unable to determine a valid HTTP verb from request adapter ' . $className);
-    }
-
-
-    // Response Exceptions
-    public static function unknownAdapterForResponseObject($object)
-    {
-        return new self('Unknown / Not yet created adapter for response object ' . get_class($object));
-    }
-
-    public static function invalidResponsetObjectPassed()
-    {
-        return new self('Response object passed in is invalid (not type of object)');
-    }
-
-    public static function noResponseObjectDefinedAndCantInstantiateDefaultType($className)
-    {
-        return new self('No response object has been passed, and cannot instantiate the default response object: ' . $className . ' ensure this class is setup on your autoloader');
-    }
-
-    public static function invalidHttpStatusCode($code)
-    {
-        return new self('Invalid HTTP Status code used "' . $code . '"');
     }
 }
 

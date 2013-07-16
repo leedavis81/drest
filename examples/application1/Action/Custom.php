@@ -2,7 +2,7 @@
 namespace Action;
 
 
-use Drest\Query\ResultSet;
+use DrestCommon\ResultSet;
 use Drest\Service\Action\AbstractAction;
 
 class Custom extends AbstractAction

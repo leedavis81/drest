@@ -2,8 +2,8 @@
 namespace Drest\Mapping;
 
 use Drest\DrestException;
-use Drest\Representation\AbstractRepresentation;
-use Drest\Representation\RepresentationException;
+use DrestCommon\Representation\AbstractRepresentation;
+use DrestCommon\Representation\RepresentationException;
 use Doctrine\Common\Inflector\Inflector;
 
 /**
@@ -22,7 +22,7 @@ class ClassMetaData implements \Serializable
     protected $routes = array();
 
     /**
-     * An array of Drest\Representation\AbstractRepresentation object defined on this entity
+     * An array of \DrestCommon\Representation\AbstractRepresentation object defined on this entity
      * @var array $representations
      */
     protected $representations = array();
@@ -124,8 +124,8 @@ class ClassMetaData implements \Serializable
 
     /**
      * Set a representation instance to be used on this resource
-     * @param object|string $representation - can be either an instance of Drest\Representation\AbstractRepresentation or a string (shorthand allowed - Json / Xml) referencing the class.
-     * @throws \Drest\Representation\RepresentationException
+     * @param object|string $representation - can be either an instance of DrestCommon\Representation\AbstractRepresentation or a string (shorthand allowed - Json / Xml) referencing the class.
+     * @throws RepresentationException
      */
     public function addRepresentation($representation)
     {

@@ -6,6 +6,8 @@ namespace Drest;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
 use Drest\DrestException;
+use DrestCommon\Request\Request;
+use DrestCommon\Response\Response;
 
 class Configuration
 {
@@ -19,6 +21,7 @@ class Configuration
     const EXPOSE_REQUEST_PARAM_GET = 3;
     const EXPOSE_REQUEST_PARAM_POST = 4;
 
+    // any alteration will have an effect on drest-common (AbstractRepresentation.php)
     public static $detectContentOptions = array(
         self::DETECT_CONTENT_HEADER => 'Accept Header',
         self::DETECT_CONTENT_EXTENSION => 'Extension',
@@ -51,6 +54,7 @@ class Configuration
             self::DETECT_CONTENT_HEADER => 'Accept'
         ));
         // Use Json and XML as the default representations
+        // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
         // register the default request adapter classes
         $this->registerRequestAdapterClasses(Request::$defaultAdapterClasses);
@@ -71,7 +75,7 @@ class Configuration
         // Don't send a 415 if we don't match a representation class, default to first available one
         $this->set415ForNoMediaMatch(false);
         // Set the default error handler class (immutable)
-        $this->_attributes['defaultErrorHandlerClass'] = 'Drest\\Error\\Handler\\DefaultHandler';
+        $this->_attributes['defaultErrorHandlerClass'] = 'DrestCommon\\Error\\Handler\\DefaultHandler';
     }
 
     /**
@@ -473,7 +477,7 @@ class Configuration
     }
 
     /**
-     * Set the default representation classes to be used across the entire API. Any representations defined locally on a resource will take presedence
+     * Set the default representation classes to be used across the entire API. Any representations defined locally on a resource will take precedence
      * @param array $representations
      */
     public function setDefaultRepresentations(array $representations)

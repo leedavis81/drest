@@ -23,7 +23,7 @@ class PhoneNumber
     private $id;
 
     /**
-     * @var Entities\User $user
+     * @var \DrestTests\Entities\CMS\User $user
      * @ORM\ManyToOne(targetEntity="User", inversedBy="phone_numbers", fetch="EAGER")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */

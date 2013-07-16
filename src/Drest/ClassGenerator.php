@@ -76,7 +76,7 @@ class ClassGenerator
 
     /**
      * Return the generated classes in serialized form
-     * @return string $serilaized
+     * @return string $serialized
      */
     public function serialize()
     {
@@ -170,7 +170,7 @@ EOT;
      * @param Generator\ClassGenerator $cg
      * @param string $name - the parameter name
      * @param int $type - The type of parameter to be handled
-     * @param string $targetClass - the target classname to be set (only used in relational setters)
+     * @param string $targetClass - the target class name to be set (only used in relational setters)
      * @return array $methods
      */
     private function getSetterMethods(&$cg, $name, $type, $targetClass = null)

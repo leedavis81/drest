@@ -9,7 +9,7 @@ class GetElementTests extends DrestFunctionalTestCase
     public function testGetElementRequest()
     {
         $dm = $this->_getDrestManager($this->_em);
-        $representation = new \Drest\Representation\Json();
+        $representation = new \DrestCommon\Representation\Json();
 
         $user = new \DrestTests\Entities\CMS\User();
 
