@@ -1,7 +1,7 @@
 Drest
 =====
 
-### Dress up doctrine entities and expose them as RESTful resources
+### Dress up doctrine entities and expose them as REST resources
 
 
 | Tests | Releases | Downloads | Dependencies |
