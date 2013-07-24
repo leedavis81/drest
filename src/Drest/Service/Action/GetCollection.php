@@ -22,6 +22,7 @@ class GetCollection extends AbstractAction
             $qb->andWhere($classMetaData->getEntityAlias() . '.' . $key . ' = :' . $key);
             $qb->setParameter($key, $value);
         }
+
         try {
             $resultSet = $this->createResultSet($qb->getQuery()->getResult(ORM\Query::HYDRATE_ARRAY));
         } catch (\Exception $e) {

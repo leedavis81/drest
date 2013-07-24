@@ -2,6 +2,7 @@
 namespace Drest\Mapping;
 
 use Drest\DrestException;
+use Drest\Service\Action\AbstractAction;
 use DrestCommon\Representation\AbstractRepresentation;
 use DrestCommon\Representation\RepresentationException;
 use Doctrine\Common\Inflector\Inflector;
@@ -175,11 +176,12 @@ class ClassMetaData implements \Serializable
 
     /**
      * Get an alias for this entity - used for DQL / QueryBuilder
+     * @param string $fieldName - The field the relation is on. Default to root when using top level.
      * @return string alias unique string representing this entity
      */
-    public function getEntityAlias()
+    public function getEntityAlias($fieldName = 'rt')
     {
-        return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $this->getClassName()));
+        return AbstractAction::getAlias($this->getClassName(), $fieldName);
     }
 
     /**

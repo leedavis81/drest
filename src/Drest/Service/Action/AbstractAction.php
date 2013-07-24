@@ -118,17 +118,19 @@ abstract class AbstractAction
      * @param array $fields - expose fields to process
      * @param ORM\QueryBuilder $qb
      * @param ORM\Mapping\ClassMetadata $classMetaData
+     * @param $rootAlias - table alias to be used on SQL query
      * @param array $addedKeyFields
      * @return ORM\QueryBuilder
      */
-    protected function registerExpose($fields, ORM\QueryBuilder $qb, ORM\Mapping\ClassMetadata $classMetaData, &$addedKeyFields = array())
+    protected function registerExpose($fields, ORM\QueryBuilder $qb, ORM\Mapping\ClassMetadata $classMetaData, $rootAlias = null, &$addedKeyFields = array())
     {
         if (empty($fields)) {
             return $qb;
         }
 
+        $rootAlias = (is_null($rootAlias)) ? self::getAlias($classMetaData->getName()) : $rootAlias;
+
         $addedKeyFields = (array)$addedKeyFields;
-        $classAlias = $this->getAlias($classMetaData->getName());
         $ormAssociationMappings = $classMetaData->getAssociationMappings();
 
         // Process single fields into a partial set - Filter fields not available on class meta data
@@ -147,7 +149,7 @@ abstract class AbstractAction
         }
 
         if (!empty($selectFields)) {
-            $qb->addSelect('partial ' . $classAlias . '.{' . implode(', ', $selectFields) . '}');
+            $qb->addSelect('partial ' . $rootAlias . '.{' . implode(', ', $selectFields) . '}');
         }
 
         // Process relational field with no deeper expose restrictions
@@ -159,14 +161,22 @@ abstract class AbstractAction
         });
 
         foreach ($relationalFields as $relationalField) {
-            $qb->leftJoin($classAlias . '.' . $relationalField, $this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
-            $qb->addSelect($this->getAlias($ormAssociationMappings[$relationalField]['targetEntity']));
+            $alias = self::getAlias($ormAssociationMappings[$relationalField]['targetEntity'], $relationalField);
+            $qb->leftJoin($rootAlias . '.' . $relationalField, $alias);
+            $qb->addSelect($alias);
         }
 
         foreach ($fields as $key => $value) {
             if (is_array($value) && isset($ormAssociationMappings[$key])) {
-                $qb->leftJoin($classAlias . '.' . $key, $this->getAlias($ormAssociationMappings[$key]['targetEntity']));
-                $qb = $this->registerExpose($value, $qb, $this->getEntityManager()->getClassMetadata($ormAssociationMappings[$key]['targetEntity']), $addedKeyFields[$key], $key);
+                $alias = self::getAlias($ormAssociationMappings[$key]['targetEntity'], $key);
+                $qb->leftJoin($rootAlias . '.' . $key, $alias);
+                $qb = $this->registerExpose(
+                    $value,
+                    $qb,
+                    $this->getEntityManager()->getClassMetadata($ormAssociationMappings[$key]['targetEntity']),
+                    $alias,
+                    $addedKeyFields[$key]
+                );
             }
         }
 
@@ -265,12 +275,22 @@ abstract class AbstractAction
     }
 
     /**
-     * Get a unique alias name from an entity class name
-     * @param string $className
+     * Get a unique alias name from an entity class name and relation field
+     * @param string $className - The class of the related entity
+     * @param string $fieldName - The field the relation is on. Default to root when using top level.
      * @return string
      */
-    protected function getAlias($className)
+    public static function getAlias($className, $fieldName = 'rt')
     {
-        return strtolower(preg_replace("/[^a-zA-Z0-9_\s]/", "", $className));
+        $classNameParts = explode('\\', $className);
+        if (sizeof($classNameParts) > 1)
+        {
+            $hash = preg_replace('/[0-9_\/]+/', '', base64_encode(sha1(implode('', array_slice($classNameParts, 0, -1)) . $fieldName)));
+            $className = array_pop($classNameParts);
+        } else {
+            $hash = preg_replace('/[0-9_\/]+/', '', base64_encode(sha1($fieldName)));
+        }
+
+        return strtolower(preg_replace("/[^a-zA-Z_\s]/", "", substr($hash, 0, 5) . '_' . $className));
     }
 }
