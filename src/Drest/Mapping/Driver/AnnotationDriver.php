@@ -240,18 +240,6 @@ class AnnotationDriver implements DriverInterface
                     $metadata->addRouteMetaData($routeMetaData);
                 }
 
-                // Attempt to determine the origin by using pattern GET {optional_string}/{primary_key}
-                if (!$originFound) {
-                    foreach ($metadata->getRoutesMetaData() as $route) {
-                        /* @var RouteMetaData $route */
-                        //@todo: possibly improve this by using the actual primary key (taken from $em metadata)
-                        if (in_array('GET', $route->getVerbs()) && preg_match('/^(.*)?\/:id$/', $route->getRoutePattern())) {
-                            $metadata->originRouteName = $route->getName();
-                            break;
-                        }
-                    }
-                }
-
                 // Set the handle calls
                 foreach ($class->getMethods() as $method) {
                     /* @var \ReflectionMethod $method */

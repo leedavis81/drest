@@ -22,7 +22,7 @@ class PostElement extends AbstractAction
             $em->flush($object);
 
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_201);
-            if (($location = $this->getMatchedRoute()->getOriginLocation($object, $this->getRequest()->getUrl())) !== false) {
+            if (($location = $this->getMatchedRoute()->getOriginLocation($object, $this->getRequest()->getUrl(), $this->getEntityManager())) !== false) {
                 $this->getResponse()->setHttpHeader('Location', $location);
             }
 

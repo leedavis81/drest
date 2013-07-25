@@ -35,7 +35,7 @@ class PatchElement extends AbstractAction
             $em->persist($object);
             $em->flush($object);
 
-            $location = $matchedRoute->getOriginLocation($object, $this->getRequest()->getUrl());
+            $location = $matchedRoute->getOriginLocation($object, $this->getRequest()->getUrl(), $this->getEntityManager());
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_200);
             $resultSet = ResultSet::create(array('location' => ($location) ? $location : 'unknown'), 'response');
         } catch (\Exception $e) {

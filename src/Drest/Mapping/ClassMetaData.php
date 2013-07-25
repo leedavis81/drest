@@ -1,6 +1,7 @@
 <?php
 namespace Drest\Mapping;
 
+use Doctrine\ORM\EntityManager;
 use Drest\DrestException;
 use Drest\Service\Action\AbstractAction;
 use DrestCommon\Representation\AbstractRepresentation;
@@ -99,14 +100,26 @@ class ClassMetaData implements \Serializable
     }
 
     /**
-     * get the origin route (if one is available)
+     * get the origin route (if one is available), otherwise attempts to determine it from a GET {path}/{primarykey} route
+     * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
      * @return null|RouteMetaData $route
      */
-    public function getOriginRoute()
+    public function getOriginRoute(EntityManager $em = null)
     {
         if (!empty($this->originRouteName)) {
             if (($route = $this->getRoutesMetaData($this->originRouteName)) !== false) {
                 return $route;
+            }
+        } elseif (!is_null($em))
+        {
+            $ormClassMetadata = $em->getClassMetadata($this->getClassName());
+
+            foreach ($this->getRoutesMetaData() as $route) {
+                /* @var RouteMetaData $route */
+                if (in_array('GET', $route->getVerbs()) && preg_match('/^(.*)?\/:' . implode('/:', $ormClassMetadata->getIdentifierFieldNames()) . '$/', $route->getRoutePattern())) {
+                    $this->originRouteName = $route->getName();
+                    return $route;
+                }
             }
         }
         return null;

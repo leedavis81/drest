@@ -1,6 +1,8 @@
 <?php
 namespace Drest\Mapping;
 
+use AltrEgo\AltrEgo;
+use Doctrine\ORM\EntityManager;
 use Drest\DrestException;
 use DrestCommon\Request\Request;
 
@@ -384,24 +386,41 @@ class RouteMetaData
 
     /**
      * Get the origin route (it could be this instance)
+     * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
      * @return null|RouteMetaData $route
      */
-    public function getOriginRoute()
+    public function getOriginRoute(EntityManager $em = null)
     {
-        return $this->classMetaData->getOriginRoute();
+        return $this->classMetaData->getOriginRoute($em);
     }
 
 
     /**
      * Generate the location string from the provided object
+     * @todo: This should be changed once AnnotationDriver is updated to determine the origin with the actual primary keys
      * @param object $object
      * @param string $url - the Url to be prepended to the location
+     * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
      * @return string|bool
      */
-    public function getOriginLocation($object, $url)
+    public function getOriginLocation($object, $url, EntityManager $em = null)
     {
-        if (($route = $this->getOriginRoute()) !== null && method_exists($object, 'getId')) {
-            return $url . '/' . ltrim(str_replace(':id', $object->getId(), $route->getRoutePattern()), '/');
+        $exposedObject = AltrEgo::create($object);
+        if (($route = $this->getOriginRoute($em)) !== null && method_exists($object, 'getId')) {
+
+            if (!is_null($em))
+            {
+                $pattern = $route->getRoutePattern();
+                $ormClassMetadata = $em->getClassMetadata($this->getClassMetaData()->getClassName());
+                foreach ($ormClassMetadata->getIdentifierFieldNames() as $identifier)
+                {
+                    if (isset($exposedObject->$identifier))
+                    {
+                        $pattern = str_replace(':' . $identifier, $exposedObject->$identifier, $pattern);
+                    }
+                }
+                return $url . '/' . ltrim($pattern, '/');
+            }
         }
         return false;
     }
