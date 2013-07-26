@@ -21,7 +21,7 @@ $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 $cli->addCommands(array(
 	// Drest Commands
-//    new Drest\Tools\Console\Command\CheckDefinitions(),
-//    new Drest\Tools\Console\Command\CheckProductionSettings()
+    new Drest\Tools\Console\Command\CheckDefinitions(),
+    new Drest\Tools\Console\Command\CheckProductionSettings()
 ));
 $cli->run();

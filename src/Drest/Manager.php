@@ -114,9 +114,10 @@ class Manager
             )
         );
 
-        $this->metadataFactory->setCache($config->getMetadataCacheImpl());
-
-        $this->registerRoutes();
+        if (($cache = $config->getMetadataCacheImpl()))
+        {
+            $this->metadataFactory->setCache($cache);
+        }
     }
 
     /**
@@ -152,6 +153,9 @@ class Manager
     {
         $this->setRequest(Request::create($request, $this->config->getRegisteredRequestAdapterClasses()));
         $this->setResponse(Response::create($response, $this->config->getRegisteredResponseAdapterClasses()));
+
+        // Register routes for lookup
+        $this->registerRoutes();
 
         // trigger preDispatch event
         $this->getEventManager()->dispatchEvent(Event\Events::preDispatch, new Event\PreDispatchArgs($this->service));
@@ -508,6 +512,17 @@ class Manager
         $this->response->setBody($errorDocument->render());
     }
 
+
+    /**
+     * Get Configuration object used
+     * @return Configuration
+     */
+    public function getConfiguration()
+    {
+        return $this->config;
+    }
+
+
     /**
      * Get the request object
      * @param $fwRequest - constructed using a fw adapted object
@@ -593,5 +608,16 @@ class Manager
     public function getClassMetadata($className)
     {
         return $this->metadataFactory->getMetadataForClass($className);
+    }
+
+    /**
+     * Iterates through annotation definitions, any exceptions thrown will bubble up.
+     */
+    public function checkDefinitions()
+    {
+        foreach ($this->metadataFactory->getAllClassNames() as $class)
+        {
+            $this->getClassMetadata($class);
+        }
     }
 }

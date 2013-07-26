@@ -5,3 +5,4 @@
 _site
 composer.lock
 vendor
+bin/server-config.php

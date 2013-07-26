@@ -20,8 +20,8 @@ class CheckDefinitions extends Command
     protected function configure()
     {
         $this
-            ->setName('drest:check-definitions')
-            ->setDescription('Checks the definitions used are valid.')
+            ->setName('annotation:check')
+            ->setDescription('Checks the definitions used in Entity annotations are valid.')
             ->setHelp(<<<EOT
 Validate that the drest definitions are correct
 EOT
@@ -34,12 +34,15 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // $drm = $this->getHelper('drm')->getDrestManager()
-        // $input->getArgument('xx');
+        /* @var $drm \Drest\Manager */
+        $drm = $this->getHelper('drm')->getDrestManager();
 
-
-        $message = 'This is some output';
-
-        $output->write($message);
+        try {
+            $drm->checkDefinitions();
+            $output->write('Syntax check OK' . PHP_EOL);
+        } catch (\Exception $e)
+        {
+            $output->write(PHP_EOL . $e->getMessage() . PHP_EOL);
+        }
     }
 }
