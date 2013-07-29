@@ -57,8 +57,10 @@ class Configuration
         // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
         // register the default request adapter classes
+        $this->_attributes['requestAdapterClasses'] = array();
         $this->registerRequestAdapterClasses(Request::$defaultAdapterClasses);
         // register the default response adapter classes
+        $this->_attributes['responseAdapterClasses'] = array();
         $this->registerResponseAdapterClasses(Response::$defaultAdapterClasses);
         // Depth of exposure on entity fields => relations
         $this->setExposureDepth(2);
@@ -287,7 +289,10 @@ class Configuration
      */
     public function registerResponseAdapterClass($class)
     {
-        $this->_attributes['responseAdapterClasses'][] = $class;
+        if ($this->containsResponseAdapterClass($class) === false)
+        {
+            $this->_attributes['responseAdapterClasses'][] = $class;
+        }
     }
 
     /**
@@ -296,9 +301,23 @@ class Configuration
      */
     public function unregisterResponseAdapterClass($class)
     {
-        if (($offset = array_search($class, $this->_attributes['responseAdapterClasses'])) !== false) {
+        if (($offset = $this->containsResponseAdapterClass($class)) !== false)
+        {
             unset($this->_attributes['responseAdapterClasses'][$offset]);
         }
+    }
+
+    /**
+     * Does this configuration contain a response adapter class by name
+     * @param $className
+     * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
+     */
+    public function containsResponseAdapterClass($className)
+    {
+        if (($offset = array_search($className, $this->_attributes['responseAdapterClasses'])) !== false) {
+            return $offset;
+        }
+        return false;
     }
 
     /**
@@ -327,7 +346,10 @@ class Configuration
      */
     public function registerRequestAdapterClass($class)
     {
-        $this->_attributes['requestAdapterClasses'][] = $class;
+        if ($this->containsRequestAdapterClass($class) === false)
+        {
+            $this->_attributes['requestAdapterClasses'][] = $class;
+        }
     }
 
     /**
@@ -336,9 +358,23 @@ class Configuration
      */
     public function unregisterRequestAdapterClass($class)
     {
-        if (($offset = array_search($class, $this->_attributes['requestAdapterClasses'])) !== false) {
+        if (($offset = $this->containsRequestAdapterClass($class)) !== false)
+        {
             unset($this->_attributes['requestAdapterClasses'][$offset]);
         }
+    }
+
+    /**
+     * Does this configuration contain a request adapter class by name
+     * @param $className
+     * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
+     */
+    public function containsRequestAdapterClass($className)
+    {
+        if (($offset = array_search($className, $this->_attributes['requestAdapterClasses'])) !== false) {
+            return $offset;
+        }
+        return false;
     }
 
     /**

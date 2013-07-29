@@ -96,4 +96,66 @@ class ConfigurationTest extends DrestTestCase
         ));
     }
 
+    public function testExposureRelationFetchType()
+    {
+        $config = new Configuration();
+        $config->setExposureRelationsFetchType(\Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_EAGER);
+
+        $this->assertEquals(\Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_EAGER, $config->getExposureRelationsFetchType());
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testInvalidExposureRelationFetchType()
+    {
+        $config = new Configuration();
+        $config->setExposureRelationsFetchType(1);
+    }
+
+
+    public function testRegisterResponseAdapterClasses()
+    {
+        $config = new Configuration();
+
+        $class = 'DrestCommon\\Response\\Adapter\\ZendFramework2';
+        $config->registerResponseAdapterClass($class);
+        $sizeofClasses = sizeof($config->getRegisteredResponseAdapterClasses());
+
+        $this->assertContains($class, $config->getRegisteredResponseAdapterClasses());
+
+        // Adding it again shouldn't increase the class count
+        $config->registerResponseAdapterClass($class);
+        $this->assertEquals($sizeofClasses, sizeof($config->getRegisteredResponseAdapterClasses()));
+
+        // Remove the entry
+        $config->unregisterResponseAdapterClass($class);
+        $this->assertNotContains($class, $config->getRegisteredResponseAdapterClasses());
+
+        // Check the count has reduced by one
+        $this->assertEquals(($sizeofClasses-1), sizeof($config->getRegisteredResponseAdapterClasses()));
+    }
+
+    public function testRegisterRequestAdapterClasses()
+    {
+        $config = new Configuration();
+
+        $class = 'DrestCommon\\Request\\Adapter\\ZendFramework2';
+        $config->registerRequestAdapterClass($class);
+        $sizeofClasses = sizeof($config->getRegisteredRequestAdapterClasses());
+
+        $this->assertContains($class, $config->getRegisteredRequestAdapterClasses());
+
+        // Adding it again shouldn't increase the class count
+        $config->registerRequestAdapterClass($class);
+        $this->assertEquals($sizeofClasses, sizeof($config->getRegisteredRequestAdapterClasses()));
+
+        // Remove the entry
+        $config->unregisterRequestAdapterClass($class);
+        $this->assertNotContains($class, $config->getRegisteredRequestAdapterClasses());
+
+        // Check the count has reduced by one
+        $this->assertEquals(($sizeofClasses-1), sizeof($config->getRegisteredRequestAdapterClasses()));
+    }
+
 }

@@ -135,4 +135,27 @@ class ClassMetaDataTest extends DrestTestCase
 
         $this->assertEquals($cmd->getRoutesMetaData(), $cmd2->getRoutesMetaData());
     }
+
+    public function testClassMetadataNotExpired()
+    {
+        $className = 'DrestTests\\Entities\\CMS\\User';
+        $cmd = new ClassMetaData(new \ReflectionClass($className));
+
+        $this->assertFalse($cmd->expired());
+    }
+
+    public function testClassMetadataElementName()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\CMS\\User';
+        $cmd = $metadataFactory->getMetadataForClass($className);
+
+        $this->assertEquals('user', $cmd->getElementName());
+    }
 }
