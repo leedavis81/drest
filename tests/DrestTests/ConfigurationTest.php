@@ -158,4 +158,55 @@ class ConfigurationTest extends DrestTestCase
         $this->assertEquals(($sizeofClasses-1), sizeof($config->getRegisteredRequestAdapterClasses()));
     }
 
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testMetaDataCacheNotConfigured()
+    {
+        $config = new Configuration();
+        $config->ensureProductionSettings();
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testRunningInDebugMode()
+    {
+        $config = new Configuration();
+        $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
+        $config->setDebugMode(true);
+        $config->ensureProductionSettings();
+    }
+
+    public function testAddingBasePath()
+    {
+        $config = new Configuration();
+        $path = 'v1';
+        $config->addRouteBasePath($path);
+        $this->assertContains($path, $config->getRouteBasePaths());
+
+        $config->removeRouteBasePath($path);
+
+        $this->assertNotContains($path, $config->getRouteBasePaths());
+    }
+
+    public function testAddingBasePathStripsSlashes()
+    {
+        $config = new Configuration();
+        $path = '//v1//';
+        $config->addRouteBasePath($path);
+        $this->assertContains('v1', $config->getRouteBasePaths());
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testAddingInvalidBasePath()
+    {
+        $config = new Configuration();
+        $path = new \StdClass();
+        $config->addRouteBasePath($path);
+    }
+
+
 }
