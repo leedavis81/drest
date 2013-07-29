@@ -12,13 +12,13 @@ use DrestCommon\Request\Request;
  * @author Lee
  *
  */
-class RouteMetaData
+class RouteMetaData implements \Serializable
 {
     /**
      * This route objects parent
      * @var ClassMetaData $classMetaData
      */
-    protected $classMetaData;
+    protected $class_metadata;
 
     /**
      * A string route pattern to be matched on. eg /user/:id
@@ -112,20 +112,20 @@ class RouteMetaData
 
     /**
      * Set this objects parent metadata class
-     * @param ClassMetaData $classMetaData
+     * @param ClassMetaData $class_metadata
      */
-    public function setClassMetaData(ClassMetaData $classMetaData)
+    public function setClassMetaData(ClassMetaData $class_metadata)
     {
-        $this->classMetaData = $classMetaData;
+        $this->class_metadata = $class_metadata;
     }
 
     /**
      * Get this classes metadata object
-     * @return ClassMetaData $classMetaData
+     * @return ClassMetaData $class_metadata
      */
     public function getClassMetaData()
     {
-        return $this->classMetaData;
+        return $this->class_metadata;
     }
 
     /**
@@ -391,7 +391,7 @@ class RouteMetaData
      */
     public function getOriginRoute(EntityManager $em = null)
     {
-        return $this->classMetaData->getOriginRoute($em);
+        return $this->class_metadata->getOriginRoute($em);
     }
 
 
@@ -503,5 +503,57 @@ class RouteMetaData
     public function usesHttpVerbs()
     {
         return !empty($this->verbs);
+    }
+
+    /**
+     * Serialise this object
+     * @return array
+     */
+    public function serialize()
+    {
+        $trace = debug_backtrace();
+        if (!isset($trace[2]) || $trace[2]['class'] != 'Drest\Mapping\ClassMetaData')
+        {
+            trigger_error('RouteMetaData can only be serialized from a parent instance of ClassMetaData', E_USER_ERROR);
+        }
+        return serialize(array(
+            $this->route_pattern,
+            $this->route_conditions,
+            $this->param_names,
+            $this->param_names_path,
+            $this->route_params,
+            $this->unmapped_route_params,
+            $this->name,
+            $this->verbs,
+            $this->collection,
+            $this->action_class,
+            $this->handle_call,
+            $this->inject_request_into_handle,
+            $this->expose,
+            $this->allowed_option_request
+        ));
+    }
+
+    /**
+     * Un-serialise this object and reestablish it's state
+     */
+    public function unserialize($string)
+    {
+        list(
+            $this->route_pattern,
+            $this->route_conditions,
+            $this->param_names,
+            $this->param_names_path,
+            $this->route_params,
+            $this->unmapped_route_params,
+            $this->name,
+            $this->verbs,
+            $this->collection,
+            $this->action_class,
+            $this->handle_call,
+            $this->inject_request_into_handle,
+            $this->expose,
+            $this->allowed_option_request
+            ) = unserialize($string);
     }
 }

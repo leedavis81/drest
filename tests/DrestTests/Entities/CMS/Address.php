@@ -2,10 +2,18 @@
 namespace DrestTests\Entities\CMS;
 
 use Doctrine\ORM\Mapping as ORM;
+use Drest\Mapping\Annotation as Drest;
 
 
 /**
- * Profile
+ * Address
+ *
+ * @Drest\Resource(
+ * 		representations={"Xml", "Json"},
+ *      routes={
+ *      	@Drest\Route(name="delete", routePattern="/address/:id", verbs={"DELETE"})
+ *      }
+ * )
  *
  * @ORM\Table(name="address")
  * @ORM\Entity

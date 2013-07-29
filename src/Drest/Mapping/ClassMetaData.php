@@ -237,6 +237,11 @@ class ClassMetaData implements \Serializable
             $this->originRouteName
             ) = unserialize($string);
 
+        foreach ($this->routes as $route)
+        {
+            /* @var $route RouteMetaData */
+            $route->setClassMetaData($this);
+        }
         $this->reflection = new \ReflectionClass($this->className);
     }
 

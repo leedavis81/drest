@@ -1,14 +1,6 @@
 <?php
 namespace DrestTests\Entities\CMS;
 
-// * @Drest\Resource(
-// * 		representations={"Xml", "Json"},
-// *      routes={
-// *      	@Drest\Route(name="get_profile", routePattern="/profile/:id", verbs={"GET"}, content="element"),
-// *          @Drest\Route(name="post_profile", routePattern="/profile", verbs={"POST"}, content="element"),
-// *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, content="collection"),
-// *      }
-// * )
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Drest\Mapping\Annotation as Drest;
@@ -16,6 +8,16 @@ use Drest\Mapping\Annotation as Drest;
 
 /**
  * Profile
+ *
+ * @Drest\Resource(
+ * 		representations={"Xml", "Json"},
+ *      routes={
+ *      	@Drest\Route(name="get_profile", routePattern="/profile/:id", verbs={"GET"}),
+ *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, origin=true),
+ *      }
+ * )
+ *
+ *
  *
  * @ORM\Table(name="profile")
  * @ORM\Entity
