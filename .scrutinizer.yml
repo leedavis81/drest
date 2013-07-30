@@ -1,0 +1,41 @@
+before_commands:
+  - composer update --prefer-source --dev --no-interaction
+tools:
+    php_code_coverage:
+        enabled: true
+        filter:
+            paths: ['src/']
+    php_code_sniffer:
+        enabled: true
+        config:
+            standard: psr2
+        filter:
+            paths: ['src/']
+    php_cpd:
+        enabled: true
+        min_lines: 5
+        min_tokens: 70
+        names:
+            - '*.php'
+    php_cs_fixer:
+        enabled: true
+        config:
+            level: psr2
+        filter:
+            paths: ['src/']
+    php_loc:
+        enabled: true
+    php_mess_detector:
+        enabled: true
+        filter:
+            paths: ['src/']
+    php_analyzer:
+        enabled: true
+        filter:
+            paths: ['src/']
+    sensiolabs_security_checker:
+        enabled: true
+        filter:
+            paths: ['src/']
+filter:
+    excluded_paths: ['vendor/*', 'tests/*']
