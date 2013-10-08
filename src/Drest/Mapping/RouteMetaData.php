@@ -406,8 +406,8 @@ class RouteMetaData implements \Serializable
     public function getOriginLocation($object, $url, EntityManager $em = null)
     {
         $exposedObject = AltrEgo::create($object);
-        if (($route = $this->getOriginRoute($em)) !== null && method_exists($object, 'getId')) {
-
+        if (($route = $this->getOriginRoute($em)) !== null)
+        {
             if (!is_null($em))
             {
                 $pattern = $route->getRoutePattern();
