@@ -397,7 +397,6 @@ class RouteMetaData implements \Serializable
 
     /**
      * Generate the location string from the provided object
-     * @todo: This should be changed once AnnotationDriver is updated to determine the origin with the actual primary keys
      * @param object $object
      * @param string $url - the Url to be prepended to the location
      * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
@@ -405,7 +404,7 @@ class RouteMetaData implements \Serializable
      */
     public function getOriginLocation($object, $url, EntityManager $em = null)
     {
-        $exposedObject = AltrEgo::create($object);
+        $exposedObjectArray = self::getObjectVarsArray($object);
         if (($route = $this->getOriginRoute($em)) !== null)
         {
             if (!is_null($em))
@@ -414,15 +413,35 @@ class RouteMetaData implements \Serializable
                 $ormClassMetadata = $em->getClassMetadata($this->getClassMetaData()->getClassName());
                 foreach ($ormClassMetadata->getIdentifierFieldNames() as $identifier)
                 {
-                    if (isset($exposedObject->$identifier))
+                    if (isset($exposedObjectArray[$identifier]))
                     {
-                        $pattern = str_replace(':' . $identifier, $exposedObject->$identifier, $pattern);
+                        $pattern = str_replace(':' . $identifier, $exposedObjectArray[$identifier], $pattern);
                     }
                 }
                 return $url . '/' . ltrim($pattern, '/');
             }
         }
         return false;
+    }
+
+    /**
+     * Get an objects variables (including private / protected) as an array
+     * @param $object
+     * @throws \InvalidArgumentException
+     * @return array
+     */
+    public static function getObjectVarsArray($object)
+    {
+        if (!is_object($object))
+        {
+            throw new \InvalidArgumentException('To extract variables from an object, you must supply an object.');
+        }
+
+        $objectArray = (array) $object;
+        $out = json_encode($objectArray);
+        $out = preg_replace('/\\\u0000[*a-zA-Z_\x7f-\xff\\\][a-zA-Z0-9_\x7f-\xff\\\]*\\\u0000/', '', $out);
+
+        return json_decode($out, true);
     }
 
     /**

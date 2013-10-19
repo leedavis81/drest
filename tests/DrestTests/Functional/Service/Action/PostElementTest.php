@@ -38,7 +38,7 @@ class PostElementTests extends DrestFunctionalTestCase
         $response = $dm->dispatch($request);
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertNotEmpty($response->getHttpHeader('Location'));
+        $this->assertEquals($dm->getRequest()->getUrl() . '/user/1', $response->getHttpHeader('Location'));
 
         // Ensure this item exists in persistence
         $query = $this->_em->createQuery('SELECT u, p FROM DrestTests\Entities\CMS\User u JOIN u.phone_numbers p');
