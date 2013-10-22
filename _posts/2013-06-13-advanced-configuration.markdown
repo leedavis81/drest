@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Advanced Configration"
+title:  "Advanced Configuration"
 date:   2013-06-13 13:32:55
 categories: docs
 ---
@@ -28,7 +28,7 @@ When passing your framework object into the drest manager's dispatch() method, d
 
 {% highlight php %}
 
-// register a request adpater class
+// register a request adapter class
 $drestConfig->registerRequestAdapterClasses(array(
     'Drest\\Request\\Adapter\\ZendFramework2',
     'Drest\\Request\\Adapter\\Symfony2'

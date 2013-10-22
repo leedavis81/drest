@@ -26,7 +26,7 @@ All listeners will be injected with a corresponding arguments object, which typi
 
 
 {% highlight php %}
-// Once a request has been sucessfully serviced, send a log message
+// Once a request has been successfully serviced, send a log message
 class MyEventListener
 {
     // see \Drest\Event\PostDispatchArgs for info on available arguments
@@ -79,7 +79,7 @@ This event is triggered before any routing occurs on the request object provided
 of whether a [named route]({{site.url}}/docs/routing) has been used.
 
 #####PostRouting
-This event is triggered after a routing lookup has occured on the request object provided. This will be triggered regardless
+This event is triggered after a routing lookup has occurred on the request object provided. This will be triggered regardless
 of whether a [named route]({{site.url}}/docs/routing) has been used.
 
 #####PreServiceAction
