@@ -195,13 +195,13 @@ These must extend **\Drest\Service\Action\AbstractAction**
 
 - (boolean) **allowOptions** *optional* - When a client performs an options request on route drest will collect all matching routes (excluding a verb check)
 and return them on the *Allow* HTTP header. 
-<br><br>Any mathing route configured with verb={"OPTIONS"} will take precedence over this. 
-Instead of sepcifying this behaviour per route, it can instead be defined across all routes with **Drest\Configuration::setAllowOptionsRequest({boolean})**.
+<br><br>Any matching route configured with verb={"OPTIONS"} will take precedence over this.
+Instead of specifying this behaviour per route, it can instead be defined across all routes with **Drest\Configuration::setAllowOptionsRequest({boolean})**.
 <br><br>So for example if you had routes \[PUT, PATCH\] **/user/:id**, \[POST\] **/users** and \[GET\] **/user:/id** and an OPTIONS request was
 made to **/user/:id**, then a response would be sent back to the client with an *Allow* header containing "PATCH, PUT, GET". 
 **This feature is on by default**. 
 
-- (boolean) **origin** *optional* - An origin route is the inital path that details the resource your exposing. 
+- (boolean) **origin** *optional* - An origin route is the initial path that details the resource your exposing.
 Whenever you update, or create an entity via a PUT/POST/PATCH route then it's always useful (and informative) to let the 
 client know where they can view that created/updated entity. Now it maybe that it's not exposed at all, but if there is a means to view it, drest will attempt
 to pass that information back to the client. These will typically be exposed as {entity name}/{primary key} but can be in any form. 

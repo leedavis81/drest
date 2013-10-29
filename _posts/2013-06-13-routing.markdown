@@ -5,7 +5,7 @@ date:   2013-06-13 09:24:55
 categories: docs
 ---
 
-REST is an architectural style that allows intereaction over HTTP of loosely coupled application resources. 
+REST is an architectural style that allows interaction over HTTP of loosely coupled application resources.
 Resources are described by using a uniform resource name (or URN) at your API endpoint (URL). 
 
 As detailed [previously]({{site.url}}/docs/getting-started/#exposing_entities) each **@Drest\Route** must be accompanied with a **routePattern** 
@@ -14,7 +14,7 @@ to be used for matching client requests, a **name**, and a set of matching **ver
 When *dispatch()* is called a lookup is performed on all registered routes (include a verb check). If a single route is matched, then this is used. If multiple routes are matched, then an exception is thrown.
 
 As each route has a unique name which you're able to bypass the routing mechanism with by passing it into a dispatch call. 
-This should be the full classname (namespace included if applicable) of the entity class and the route name seperated by double colon ( :: ). For example:
+This should be the full classname (namespace included if applicable) of the entity class and the route name separated by double colon ( :: ). For example:
 {% highlight php %}
 // dispatch a specific route, bypassing the router lookup.
 $drestManager->dispatch(null, null, 'Entities\User::get_user');  
