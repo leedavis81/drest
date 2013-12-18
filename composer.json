@@ -17,7 +17,7 @@
         "doctrine/common": "~2.3",
         "doctrine/inflector": "~1.0",
 
-        "leedavis81/drest-common": "1.0.0-beta",
+        "leedavis81/drest-common": "dev-master",
         "zendframework/zend-code": "~2.0"
     },
     "require-dev": {
