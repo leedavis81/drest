@@ -70,7 +70,7 @@ So the server might respond with something like this;
 
 By default drest will allow an **expose** to all entity properties and it's relations for depth of *2* - meaning all data on that entities relations, but no further.
 So using the example above that would include profile with the lastname property, but not the addresses. The default exposure depth can be configured on *Drest\Configuration::setExposureDepth($depth)*.
-By default when handling bi-directional relationships drest will never step back to the parent (owning-side) of relation. This is in place to prevent recursion. This can however be overwridden using either an explicit expose configuration, or from the client's tailored request.
+By default when handling bi-directional relationships drest will never step back to the parent (owning-side) of relation. This is in place to prevent recursion. This can however be overridden using either an explicit expose configuration, or from the client's tailored request.
 If an **expose** definition exists on a route configuration, it will always take precedence.
 
 As well as specifying the default maximum relationship depth you want to expose, you can also state whether you wish to follow relationships of a certain type.
@@ -113,7 +113,7 @@ They need to pass in a similar format to the expose definition, but rather than 
 ####syntax
 
 - The required expose should be sent as a string
-- Properties must be seperated by using a pipe character ( | ).
+- Properties must be separated by using a pipe character ( | ).
 - Nested relations should declared using open ( \[ ) and close ( \] ) square brackets.
 
 Examples:
@@ -169,7 +169,7 @@ If you were to enable a particularly large exposure depth, and you had [bi-direc
 {% highlight php %}
 [GET] http://yourapi.endpoint/user/123/?expose=profile[user[profile[user[profile]]]]
 
-// Ghastly reponse appropriately hidden 
+// Ghastly response appropriately hidden
 {% endhighlight %}
 
 Not at all ideal, so ensure you always set a reasonable depth limit.

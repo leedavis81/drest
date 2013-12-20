@@ -67,7 +67,7 @@ By default drest will use an instance of **Drest\Error\Handler\DefaultHandler** 
         $error_message = 'No resource available';
         break;
 {% endhighlight %}                 
-Of course these can all be overriden by creating and registering your own error handler.
+Of course these can all be overridden by creating and registering your own error handler.
 
 ####Create your own handler
 

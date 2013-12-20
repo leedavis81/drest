@@ -36,7 +36,7 @@ Successfully wrote client class "/path/for/SomeApi/Entities/Profile.php"
 Successfully wrote client class "/path/for/SomeApi/Entities/PhoneNumber.php"
 Successfully wrote client class "/path/for/SomeApi/Entities/User.php"
 
-Client classes have been sucessfully generated at "/path/for/SomeApi"       
+Client classes have been successfully generated at "/path/for/SomeApi"
 {% endhighlight %}        
 The classes will automatically be provided with getters and setters for both attributes and relations. They'll also all have the static method **create** to allow for quick /simple construction.
         

@@ -18,7 +18,7 @@ When you enable a drest representation for your API, your allowing the server an
  
 There are two ways to enable representation types. Either via the default representation setting in your **Drest\Configuration** instance;
 {% highlight php %}
-// Only allow JSON comminication (by default) across your API
+// Only allow JSON communication (by default) across your API
 $drestConfig->setDefaultRepresentations(array('Json'));
 {% endhighlight %}
 
@@ -33,7 +33,7 @@ or directly via the **@Drest\Resource** annotation:
 )
 {% endhighlight %}
 <div class="alert alert-info">
-Anything set on the resource annotation will overide the default configuration.
+Anything set on the resource annotation will override the default configuration.
 </div>
 
 Once this has been configured your server is ready to start communicating in that representation. If you were to enable the JSON representation on a resource with a POST route, your server may accept requests such as: 
@@ -74,7 +74,7 @@ Or if no representation can be determined from the HTTP headers then drest will 
 If <strong>Drest\Config::set415ForNoMediaMatch();</strong> has been set to true then any [GET] requests where a representation can't be determined will produce an <strong>UnableToMatchRepresentationException</strong>, which when using the default error handler will return a 415 HTTP status. Find out more in the <a href="{{site.url}}/docs/advanced-configuration">advanced configuration section</a>
 </div>
 
-You can overide the way drest detects the representation type by using a number of available configuration options. Any number configuration options can be combined together.
+You can override the way drest detects the representation type by using a number of available configuration options. Any number configuration options can be combined together.
 
 
 {% highlight php %}
