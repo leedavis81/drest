@@ -14,7 +14,7 @@ class PreRoutingTest extends DrestFunctionalTestCase
         $listener = new OnPreRoutingListener();
 
         $evm = new Manager();
-        $evm->addEventListener(\Drest\Event\Events::preRouting, $listener);
+        $evm->addEventListener(\Drest\Event\Events::PRE_ROUTING, $listener);
 
         $dm = $this->_getDrestManager($this->_em, null, $evm);
 
@@ -72,6 +72,6 @@ class OnPreRoutingSubscriber extends \Drest\Event\Subscriber
      */
     public function getSubscribedEvents()
     {
-        return array(\Drest\Event\Events::preRouting);
+        return array(\Drest\Event\Events::PRE_ROUTING);
     }
 }

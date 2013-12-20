@@ -14,7 +14,7 @@ class PreDispatchTest extends DrestFunctionalTestCase
         $listener = new OnPreDispatchListener();
 
         $evm = new Manager();
-        $evm->addEventListener(\Drest\Event\Events::preDispatch, $listener);
+        $evm->addEventListener(\Drest\Event\Events::PRE_DISPATCH, $listener);
 
         $dm = $this->_getDrestManager($this->_em, null, $evm);
 
@@ -72,6 +72,6 @@ class OnPreDispatchSubscriber extends \Drest\Event\Subscriber
      */
     public function getSubscribedEvents()
     {
-        return array(\Drest\Event\Events::preDispatch);
+        return array(\Drest\Event\Events::PRE_DISPATCH);
     }
 }

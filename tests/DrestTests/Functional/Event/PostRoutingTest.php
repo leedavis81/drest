@@ -14,7 +14,7 @@ class PostRoutingTest extends DrestFunctionalTestCase
         $listener = new OnPostRoutingListener();
 
         $evm = new Manager();
-        $evm->addEventListener(\Drest\Event\Events::postRouting, $listener);
+        $evm->addEventListener(\Drest\Event\Events::POST_ROUTING, $listener);
 
         $dm = $this->_getDrestManager($this->_em, null, $evm);
 
@@ -72,6 +72,6 @@ class OnPostRoutingSubscriber extends \Drest\Event\Subscriber
      */
     public function getSubscribedEvents()
     {
-        return array(\Drest\Event\Events::postRouting);
+        return array(\Drest\Event\Events::POST_ROUTING);
     }
 }

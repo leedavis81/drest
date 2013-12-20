@@ -7,7 +7,6 @@ use Doctrine\Common\Annotations;
 use Doctrine\Common\Persistence\Mapping\Driver as PersistenceDriver;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
-use Drest\Mapping\Driver\DriverInterface;
 use Drest\Mapping;
 use Drest\Mapping\RouteMetaData;
 
@@ -228,7 +227,7 @@ class AnnotationDriver implements DriverInterface
                         $routeMetaData->setActionClass($route->action);
                     }
 
-                    // If the origin flag is set, set the name on the classmetadata
+                    // If the origin flag is set, set the name on the class meta data
                     if (!is_null($route->origin)) {
                         if ($originFound) {
                             throw DrestException::resourceCanOnlyHaveOneRouteSetAsOrigin();

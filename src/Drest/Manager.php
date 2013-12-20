@@ -15,14 +15,12 @@ namespace Drest;
 
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
 use Drest\Event;
-use DrestCommon\ResultSet;
 use DrestCommon\Error\Handler\AbstractHandler;
+use DrestCommon\Error\Response\Text as ErrorResponseText;
 use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
 use DrestCommon\Representation\AbstractRepresentation;
@@ -114,7 +112,7 @@ class Manager
             )
         );
 
-        if (($cache = $config->getMetadataCacheImpl()))
+        if ($cache = $config->getMetadataCacheImpl())
         {
             $this->metadataFactory->setCache($cache);
         }
@@ -158,7 +156,7 @@ class Manager
         $this->registerRoutes();
 
         // trigger preDispatch event
-        $this->getEventManager()->dispatchEvent(Event\Events::preDispatch, new Event\PreDispatchArgs($this->service));
+        $this->getEventManager()->dispatchEvent(Event\Events::PRE_DISPATCH, new Event\PreDispatchArgs($this->service));
 
         $rethrowException = false;
         try {
@@ -175,7 +173,7 @@ class Manager
         }
 
         // trigger a postDispatch event
-        $this->getEventManager()->dispatchEvent(Event\Events::postDispatch, new Event\PostDispatchArgs($this->service));
+        $this->getEventManager()->dispatchEvent(Event\Events::POST_DISPATCH, new Event\PostDispatchArgs($this->service));
 
         if ($rethrowException)
         {
@@ -234,19 +232,19 @@ class Manager
     protected function determineRoute($namedRoute = null, array $routeParams = array())
     {
         // dispatch preRoutingAction event
-        $this->getEventManager()->dispatchEvent(Event\Events::preRouting, new Event\PreRoutingArgs($this->service));
+        $this->getEventManager()->dispatchEvent(Event\Events::PRE_ROUTING, new Event\PreRoutingArgs($this->service));
         try {
             $route = (!is_null($namedRoute)) ? $this->getNamedRoute($namedRoute, $routeParams) : $this->getMatchedRoute(true);
         } catch (\Exception $e) {
             // dispatch postRoutingAction event
-            $this->getEventManager()->dispatchEvent(Event\Events::postRouting, new Event\PostRoutingArgs($this->service));
+            $this->getEventManager()->dispatchEvent(Event\Events::POST_ROUTING, new Event\PostRoutingArgs($this->service));
             if ($e instanceof NoMatchException && ($this->doCGOptionsCheck() || $this->doOptionsCheck())) {
                 return false;
             }
             throw $e;
         }
         // dispatch postRoutingAction event
-        $this->getEventManager()->dispatchEvent(Event\Events::postRouting, new Event\PostRoutingArgs($this->service));
+        $this->getEventManager()->dispatchEvent(Event\Events::POST_ROUTING, new Event\PostRoutingArgs($this->service));
 
         // Set parameters matched on the route to the request object
         $this->request->setRouteParam($route->getRouteParams());
@@ -503,7 +501,7 @@ class Manager
             $errorDocument = $representation->getDefaultErrorResponse();
             $eh->error($e, 500, $errorDocument);
         } catch (UnableToMatchRepresentationException $e) {
-            $errorDocument = new \DrestCommon\Error\Response\Text();
+            $errorDocument = new ErrorResponseText();
             $eh->error($e, 500, $errorDocument);
         }
 

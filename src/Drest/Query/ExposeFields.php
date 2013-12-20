@@ -5,7 +5,6 @@ use Doctrine\ORM\EntityManager;
 use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\RouteMetaData;
-use Drest\Query\InvalidExposeFieldsException;
 use DrestCommon\Request\Request;
 use DrestCommon\ResultSet;
 

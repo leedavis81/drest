@@ -1,7 +1,6 @@
 <?php
 namespace Drest\Mapping;
 
-use AltrEgo\AltrEgo;
 use Doctrine\ORM\EntityManager;
 use Drest\DrestException;
 use DrestCommon\Request\Request;

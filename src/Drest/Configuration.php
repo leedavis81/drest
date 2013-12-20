@@ -5,7 +5,6 @@ namespace Drest;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
-use Drest\DrestException;
 use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
 

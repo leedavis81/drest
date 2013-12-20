@@ -14,7 +14,7 @@ class PostServiceActionTest extends DrestFunctionalTestCase
         $listener = new OnPostServiceActionListener();
 
         $evm = new Manager();
-        $evm->addEventListener(\Drest\Event\Events::postServiceAction, $listener);
+        $evm->addEventListener(\Drest\Event\Events::POST_SERVICE_ACTION, $listener);
 
         $dm = $this->_getDrestManager($this->_em, null, $evm);
 
@@ -72,6 +72,6 @@ class OnPostServiceActionSubscriber extends \Drest\Event\Subscriber
      */
     public function getSubscribedEvents()
     {
-        return array(\Drest\Event\Events::postServiceAction);
+        return array(\Drest\Event\Events::POST_SERVICE_ACTION);
     }
 }

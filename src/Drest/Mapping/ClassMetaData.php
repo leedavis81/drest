@@ -2,7 +2,6 @@
 namespace Drest\Mapping;
 
 use Doctrine\ORM\EntityManager;
-use Drest\DrestException;
 use Drest\Service\Action\AbstractAction;
 use DrestCommon\Representation\AbstractRepresentation;
 use DrestCommon\Representation\RepresentationException;
@@ -100,7 +99,7 @@ class ClassMetaData implements \Serializable
     }
 
     /**
-     * get the origin route (if one is available), otherwise attempts to determine it from a GET {path}/{primarykey} route
+     * get the origin route (if one is available), otherwise attempts to determine it from a GET {path}/{primary_key} route
      * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
      * @return null|RouteMetaData $route
      */

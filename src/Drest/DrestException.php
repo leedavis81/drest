@@ -60,7 +60,7 @@ class DrestException extends Exception
 
     public static function invalidExposeRelationFetchType()
     {
-        return new self('Invalid relation fetch type used. Please see Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_* for avaiable options');
+        return new self('Invalid relation fetch type used. Please see Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_* for available options');
     }
 
     public static function unknownExposeRequestOption()

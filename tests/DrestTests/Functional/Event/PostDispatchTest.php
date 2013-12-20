@@ -14,7 +14,7 @@ class PostDispatchTest extends DrestFunctionalTestCase
         $listener = new OnPostDispatchListener();
 
         $evm = new Manager();
-        $evm->addEventListener(\Drest\Event\Events::postDispatch, $listener);
+        $evm->addEventListener(\Drest\Event\Events::POST_DISPATCH, $listener);
 
         $dm = $this->_getDrestManager($this->_em, null, $evm);
 
@@ -71,6 +71,6 @@ class OnPostDispatchSubscriber extends \Drest\Event\Subscriber
      */
     public function getSubscribedEvents()
     {
-        return array(\Drest\Event\Events::postDispatch);
+        return array(\Drest\Event\Events::POST_DISPATCH);
     }
 }

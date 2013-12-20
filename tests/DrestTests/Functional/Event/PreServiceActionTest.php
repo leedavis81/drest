@@ -14,7 +14,7 @@ class PreServiceActionTest extends DrestFunctionalTestCase
         $listener = new OnPreServiceActionListener();
 
         $evm = new Manager();
-        $evm->addEventListener(\Drest\Event\Events::preServiceAction, $listener);
+        $evm->addEventListener(\Drest\Event\Events::PRE_SERVICE_ACTION, $listener);
 
         $dm = $this->_getDrestManager($this->_em, null, $evm);
 
@@ -72,6 +72,6 @@ class OnPreServiceActionSubscriber extends \Drest\Event\Subscriber
      */
     public function getSubscribedEvents()
     {
-        return array(\Drest\Event\Events::preServiceAction);
+        return array(\Drest\Event\Events::PRE_SERVICE_ACTION);
     }
 }

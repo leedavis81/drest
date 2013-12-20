@@ -9,7 +9,7 @@ class Events
      *
      * @var string
      */
-    const preRouting = 'preRouting';
+    const PRE_ROUTING = 'preRouting';
 
     /**
      * Event is triggered after a routing lookup is performed.
@@ -17,7 +17,7 @@ class Events
      *
      * @var string
      */
-    const postRouting = 'postRouting';
+    const POST_ROUTING = 'postRouting';
 
     /**
      * Event is triggered before the service action call is executed
@@ -25,7 +25,7 @@ class Events
      *
      * @var string
      */
-    const preServiceAction = 'preServiceAction';
+    const PRE_SERVICE_ACTION = 'preServiceAction';
 
     /**
      * Event is triggered after the service action call is executed
@@ -33,7 +33,7 @@ class Events
      *
      * @var string
      */
-    const postServiceAction = 'postServiceAction';
+    const POST_SERVICE_ACTION = 'postServiceAction';
 
 
     /**
@@ -41,7 +41,7 @@ class Events
      *
      * @var string
      */
-    const preDispatch = 'preDispatch';
+    const PRE_DISPATCH = 'preDispatch';
 
     /**
      * Event is triggered after dispatching the request through the Drest manager
@@ -49,5 +49,5 @@ class Events
      *
      * @var string
      */
-    const postDispatch = 'postDispatch';
+    const POST_DISPATCH = 'postDispatch';
 }

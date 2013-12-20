@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManager;
 use Drest\Mapping\RouteMetaData;
 use Drest\Event;
 use Drest\Service\Action\AbstractAction;
+use DrestCommon\Error\Response\ResponseInterface;
 use DrestCommon\ResultSet;
 use DrestCommon\Representation;
 use DrestCommon\Request\Request;
@@ -119,12 +120,12 @@ class Service
     final public function runCallMethod()
     {
         // dispatch preServiceAction event
-        $this->dm->getEventManager()->dispatchEvent(Event\Events::preServiceAction, new Event\PreServiceActionArgs($this));
+        $this->dm->getEventManager()->dispatchEvent(Event\Events::PRE_SERVICE_ACTION, new Event\PreServiceActionArgs($this));
 
         $return = $this->getActionInstance()->execute();
 
         // dispatch postServiceAction event
-        $this->dm->getEventManager()->dispatchEvent(Event\Events::postServiceAction, new Event\PostServiceActionArgs($this));
+        $this->dm->getEventManager()->dispatchEvent(Event\Events::POST_SERVICE_ACTION, new Event\PostServiceActionArgs($this));
 
         if ($return instanceof ResultSet) {
             $this->renderDeterminedRepresentation($return);
@@ -241,10 +242,10 @@ class Service
      * Handle an error - set the resulting error document to the response object
      * @param \Exception $e
      * @param integer $defaultResponseCode the default response code to use if no match on exception type occurs
-     * @param \DrestCommon\Error\Response\ResponseInterface $errorDocument
+     * @param ResponseInterface $errorDocument
      * @return ResultSet the error result set
      */
-    public function handleError(\Exception $e, $defaultResponseCode = 500, \DrestCommon\Error\Response\ResponseInterface $errorDocument = null)
+    public function handleError(\Exception $e, $defaultResponseCode = 500, ResponseInterface $errorDocument = null)
     {
         if (is_null($errorDocument)) {
             $errorDocument = $this->representation->getDefaultErrorResponse();
