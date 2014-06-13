@@ -28,4 +28,3 @@ class PostRoutingArgs extends EventArgs
         return $this->service;
     }
 }
-

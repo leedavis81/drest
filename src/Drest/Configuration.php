@@ -80,7 +80,8 @@ class Configuration
     }
 
     /**
-     * Set the debug mode - when on all DrestExceptions are rethrown, otherwise 500 errors are returned from the REST service
+     * Set the debug mode - when on all DrestExceptions are rethrown,
+     * otherwise 500 errors are returned from the REST service
      * Should be switched off in production
      * @param boolean $setting
      */
@@ -124,10 +125,10 @@ class Configuration
     /**
      * Set the methods to be used for detecting content type to be used to pull requests, overwrites previous settings
      * Eg ->setDetectContentOptions(array(self::DETECT_CONTENT_HEADER => $headerName))
-     * self::DETECT_CONTENT_HEADER            = Uses the a header to detect the required content (typically use Accept)
+     * self::DETECT_CONTENT_HEADER           = Uses the a header to detect the required content (typically use Accept)
      * self::DETECT_CONTENT_EXTENSION        = Uses an extension on the url eg .xml
      * self::DETECT_CONTENT_PARAM            = Uses a the "format" parameter
-     * @param array - pass in either a single array value using the constant value as a key, or a multi-dimensional array.
+     * @param array - pass either a single array value using the constant value as a key, or a multi-dimensional array.
      */
     public function setDetectContentOptions(array $options)
     {
@@ -154,7 +155,8 @@ class Configuration
     }
 
     /**
-     * Get detect content options. Returns an array indexed using constants as array key (value will be the value to be used for the content options)
+     * Get detect content options. Returns an array indexed using constants as array key
+     * (value will be the value to be used for the content options)
      * Eg array(self::DETECT_CONTENT_HEADER => 'Accept')
      * @return array
      */
@@ -507,7 +509,8 @@ class Configuration
     }
 
     /**
-     * Set the default representation classes to be used across the entire API. Any representations defined locally on a resource will take precedence
+     * Set the default representation classes to be used across the entire API.
+     * Any representations defined locally on a resource will take precedence
      * @param array $representations
      */
     public function setDefaultRepresentations(array $representations)
@@ -528,8 +531,7 @@ class Configuration
      * Ensures that this Configuration instance contains settings that are
      * suitable for a production environment.
      *
-     * @throws DrestException If a configuration setting has a value that is not
-     *                      suitable for a production environment.
+     * @throws DrestException If a configuration setting has a value that is not suitable for a production.
      */
     public function ensureProductionSettings()
     {

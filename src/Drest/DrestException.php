@@ -15,62 +15,80 @@ class DrestException extends Exception
     // Set up and configuration
     public static function metadataCacheNotConfigured()
     {
-        return new self('Class Metadata Cache is not configured, ensure an instance of Doctrine\Common\Cache\Cache is passed to the Drest\Configuration::setMetadataCacheImpl()');
+        return new self(
+            'Class Metadata Cache is not configured, ensure an instance of Doctrine\Common\Cache\Cache' .
+            'is passed to the Drest\Configuration::setMetadataCacheImpl()');
     }
 
     public static function currentlyRunningDebugMode()
     {
-        return new self('Debug mode is set to on. This will cause configuration exceptions to be displayed and should be switched off in production');
+        return new self(
+            'Debug mode is set to on. This will cause configuration exceptions to be' .
+            ' displayed and should be switched off in production');
     }
 
     public static function annotatedResourceRequiresAtLeastOneServiceDefinition($className)
     {
-        return new self('The annotated resource on class ' . $className . ' doesn\'t have any service definitions. Ensure you have "services={@Drest\Service(..)} set');
+        return new self(
+            'The annotated resource on class ' . $className . ' doesn\'t have any service definitions.' .
+            ' Ensure you have "services={@Drest\Service(..)} set');
     }
 
     public static function routeAlreadyDefinedWithName($class, $name)
     {
-        return new self('Route on class ' . $class . ' already exists with the name ' . $name . '. These must be unique');
+        return new self(
+            'Route on class ' . $class . ' already exists with the name ' . $name . '. These must be unique');
     }
 
     public static function routeNameIsEmpty()
     {
-        return new self('Route name used cannot be blank, and must only contain alphanumerics or underscore');
+        return new self(
+            'Route name used cannot be blank, and must only contain alphanumerics or underscore');
     }
 
     public static function invalidHttpVerbUsed($verb)
     {
-        return new self('Used an unknown HTTP verb of "' . $verb . '"');
+        return new self(
+            'Used an unknown HTTP verb of "' . $verb . '"');
     }
 
     public static function unknownDetectContentOption()
     {
-        return new self('Content option used is invalid. Please see DETECT_CONTENT_* options in Drest\Configuration');
+        return new self(
+            'Content option used is invalid. Please see DETECT_CONTENT_* options in Drest\Configuration');
     }
 
     public static function pathToConfigFilesRequired()
     {
-        return new self('Path to your configuration files are required for the driver to retrieve all class names');
+        return new self(
+            'Path to your configuration files are required for the driver to retrieve all class names');
     }
 
     public static function unableToLoadMetaDataFromDriver()
     {
-        return new self('Unable to load metadata using supplied driver');
+        return new self(
+            'Unable to load metadata using supplied driver');
     }
 
     public static function invalidExposeRelationFetchType()
     {
-        return new self('Invalid relation fetch type used. Please see Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_* for available options');
+        return new self(
+            'Invalid relation fetch type used. ' .
+            'Please see Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_* for available options');
     }
 
     public static function unknownExposeRequestOption()
     {
-        return new self('Unknown expose request option used. Please see EXPOSE_REQUEST_* options in Drest\Configuration');
+        return new self(
+            'Unknown expose request option used. ' .
+            'Please see EXPOSE_REQUEST_* options in Drest\Configuration');
     }
 
     public static function invalidAllowedOptionsValue()
     {
-        return new self('Invalid Allow Options value, must be -1 to unset, 0 for no or 1 for yes. Or you can use boolean values');
+        return new self(
+            'Invalid Allow Options value, must be -1 to unset,' .
+            ' 0 for no or 1 for yes. Or you can use boolean values');
     }
 
     public static function basePathMustBeAString()
@@ -80,17 +98,23 @@ class DrestException extends Exception
 
     public static function alreadyHandleDefinedForRoute(Mapping\RouteMetaData $route)
     {
-        return new self('There is a handle already defined for the route ' . $route->getName() . ' on class ' . $route->getClassMetaData()->getClassName());
+        return new self(
+            'There is a handle already defined for the route '
+            . $route->getName() . ' on class ' . $route->getClassMetaData()->getClassName());
     }
 
     public static function handleAnnotationDoesntMatchRouteName($name)
     {
-        return new self('The configured handle "' . $name . '" doesn\'t match any route of that name. Ensure @Drest\Handle(for="my_route") matches @Drest\Route(name="my_route")');
+        return new self(
+            'The configured handle "' . $name . '" doesn\'t match any route of that name. ' .
+            'Ensure @Drest\Handle(for="my_route") matches @Drest\Route(name="my_route")');
     }
 
     public static function routeRequiresHandle($name)
     {
-        return new self('Route requires a handle. Ensure a @Drest\Handle(for="' . $name . '") function is set. These are required for all push type routes (POST/PUT/PATCH)');
+        return new self(
+            'Route requires a handle. Ensure a @Drest\Handle(for="' . $name . '") function is set.' .
+            ' These are required for all push type routes (POST/PUT/PATCH)');
     }
 
     public static function handleForCannotBeEmpty()
@@ -100,12 +124,15 @@ class DrestException extends Exception
 
     public static function invalidNamedRouteSyntax()
     {
-        return new self('Invalid named route syntax. Must use a formatted string of: {EntityClassName}::{RouteName}. Eg "Entities\\User::get_users"');
+        return new self(
+            'Invalid named route syntax. ' .
+            'Must use a formatted string of: {EntityClassName}::{RouteName}. Eg "Entities\\User::get_users"');
     }
 
     public static function unableToFindRouteByName($routeName, $className)
     {
-        return new self('Unable to find the named route "' . $routeName . '" on class ' . $className);
+        return new self(
+            'Unable to find the named route "' . $routeName . '" on class ' . $className);
     }
 
     public static function resourceCanOnlyHaveOneRouteSetAsOrigin()
@@ -115,13 +142,16 @@ class DrestException extends Exception
 
     public static function unableToHandleACollectionPush()
     {
-        return new self('Requests to push data (PUT/POST/PATCH) can only be used on individual elements. Data collections cannot be pushed');
+        return new self(
+            'Requests to push data (PUT/POST/PATCH) can only be used on individual elements.' .
+            ' Data collections cannot be pushed');
     }
 
     // Service Exceptions
     public static function actionClassNotAnInstanceOfActionAbstract($class)
     {
-        return new self('Action class  "' . $class . '" is not an instance of Drest\Service\Action\ActionAbstract.');
+        return new self(
+            'Action class  "' . $class . '" is not an instance of Drest\Service\Action\ActionAbstract.');
     }
 
     public static function unknownActionClass($class)
@@ -131,14 +161,14 @@ class DrestException extends Exception
 
     public static function noMatchedRouteSet()
     {
-        return new self('No matched route has been set on this service class. The content type is needed for a default service method call');
+        return new self(
+            'No matched route has been set on this service class.' .
+            ' The content type is needed for a default service method call');
     }
 
     public static function dataWrapNameMustBeAString()
     {
-        return new self('Data wrap name must be a string value. Eg array(\'user\' => array(...))');
+        return new self(
+            'Data wrap name must be a string value. Eg array(\'user\' => array(...))');
     }
 }
-
-
-

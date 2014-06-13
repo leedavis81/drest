@@ -28,4 +28,3 @@ class PreServiceActionArgs extends EventArgs
         return $this->service;
     }
 }
-

@@ -156,7 +156,10 @@ class Manager
         $this->registerRoutes();
 
         // trigger preDispatch event
-        $this->getEventManager()->dispatchEvent(Event\Events::PRE_DISPATCH, new Event\PreDispatchArgs($this->service));
+        $this->getEventManager()->dispatchEvent(
+            Event\Events::PRE_DISPATCH,
+            new Event\PreDispatchArgs($this->service)
+        );
 
         $rethrowException = false;
         try {
@@ -173,7 +176,10 @@ class Manager
         }
 
         // trigger a postDispatch event
-        $this->getEventManager()->dispatchEvent(Event\Events::POST_DISPATCH, new Event\PostDispatchArgs($this->service));
+        $this->getEventManager()->dispatchEvent(
+            Event\Events::POST_DISPATCH,
+            new Event\PostDispatchArgs($this->service)
+        );
 
         if ($rethrowException)
         {
@@ -227,18 +233,25 @@ class Manager
      * @param null $namedRoute
      * @param array $routeParams
      * @throws Route\NoMatchException|\Exception
-     * @return RouteMetaData|bool $route - if false no route could be matched (ideally the response should be returned in this instance - fail fast)
+     * @return RouteMetaData|bool $route - if false no route could be matched
+     * (ideally the response should be returned in this instance - fail fast)
      */
     protected function determineRoute($namedRoute = null, array $routeParams = array())
     {
         // dispatch preRoutingAction event
         $this->getEventManager()->dispatchEvent(Event\Events::PRE_ROUTING, new Event\PreRoutingArgs($this->service));
         try {
-            $route = (!is_null($namedRoute)) ? $this->getNamedRoute($namedRoute, $routeParams) : $this->getMatchedRoute(true);
+            $route = (!is_null($namedRoute))
+                ? $this->getNamedRoute($namedRoute, $routeParams)
+                : $this->getMatchedRoute(true);
         } catch (\Exception $e) {
             // dispatch postRoutingAction event
-            $this->getEventManager()->dispatchEvent(Event\Events::POST_ROUTING, new Event\PostRoutingArgs($this->service));
-            if ($e instanceof NoMatchException && ($this->doCGOptionsCheck() || $this->doOptionsCheck())) {
+            $this->getEventManager()->dispatchEvent(
+                Event\Events::POST_ROUTING,
+                new Event\PostRoutingArgs($this->service)
+            );
+            if ($e instanceof NoMatchException &&
+                ($this->doCGOptionsCheck() || $this->doOptionsCheck())) {
                 return false;
             }
             throw $e;
@@ -286,7 +299,10 @@ class Manager
     {
         $route->setExpose(
             Query\ExposeFields::create($route)
-                ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+                ->configureExposeDepth(
+                    $this->em,
+                    $this->config->getExposureDepth(),
+                    $this->config->getExposureRelationsFetchType())
                 ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
                 ->toArray()
         );
@@ -304,7 +320,10 @@ class Manager
         // Write the filtered expose data
         $representation->write(
             Query\ExposeFields::create($route)
-                ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+                ->configureExposeDepth(
+                    $this->em,
+                    $this->config->getExposureDepth(),
+                    $this->config->getExposureRelationsFetchType())
                 ->configurePushRequest($representation->toArray())
         );
 
@@ -333,7 +352,10 @@ class Manager
                     /* @var RouteMetaData $route */
                     $route->setExpose(
                         Query\ExposeFields::create($route)
-                            ->configureExposeDepth($this->em, $this->config->getExposureDepth(), $this->config->getExposureRelationsFetchType())
+                            ->configureExposeDepth(
+                                $this->em,
+                                $this->config->getExposureDepth(),
+                                $this->config->getExposureRelationsFetchType())
                             ->toArray()
                     );
                 }
@@ -363,7 +385,9 @@ class Manager
         foreach ($this->getMatchedRoutes(false) as $route) {
             /* @var RouteMetaData $route */
             $allowedOptions = $route->isAllowedOptionRequest();
-            if (false === (($allowedOptions === -1) ? $this->config->getAllowOptionsRequest() : (bool)$allowedOptions)) {
+            if (false === (($allowedOptions === -1)
+                    ? $this->config->getAllowOptionsRequest()
+                    : (bool)$allowedOptions)) {
                 continue;
             }
             $verbs = array_merge($verbs, $route->getVerbs());
@@ -387,17 +411,25 @@ class Manager
      */
     protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
     {
-        $representations = (!is_null($route)) ? $route->getClassMetaData()->getRepresentations() : $this->config->getDefaultRepresentations();
+        $representations = (!is_null($route))
+            ? $route->getClassMetaData()->getRepresentations()
+            : $this->config->getDefaultRepresentations();
         if (empty($representations)) {
-            throw RepresentationException::noRepresentationsSetForRoute($route->getName(), $route->getClassMetaData()->getClassName());
+            throw RepresentationException::noRepresentationsSetForRoute(
+                $route->getName(),
+                $route->getClassMetaData()->getClassName());
         }
 
         $representationObjects = array();
         foreach ($representations as $representation) {
             if (!is_object($representation)) {
                 // Check if the class is namespaced, if so instantiate from root
-                $className = (strstr($representation, '\\') !== false) ? '\\' . ltrim($representation, '\\') : $representation;
-                $className = (!class_exists($className)) ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\') : $className;
+                $className = (strstr($representation, '\\') !== false)
+                    ? '\\' . ltrim($representation, '\\')
+                    : $representation;
+                $className = (!class_exists($className))
+                    ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\')
+                    : $className;
                 if (!class_exists($className)) {
                     throw RepresentationException::unknownRepresentationClass($representation);
                 }
@@ -510,7 +542,6 @@ class Manager
         $this->response->setBody($errorDocument->render());
     }
 
-
     /**
      * Get Configuration object used
      * @return Configuration
@@ -519,7 +550,6 @@ class Manager
     {
         return $this->config;
     }
-
 
     /**
      * Get the request object
@@ -542,7 +572,6 @@ class Manager
     {
         $this->request = $request;
     }
-
 
     /**
      * Get the response object

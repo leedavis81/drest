@@ -26,7 +26,8 @@ class RouteMetaData implements \Serializable
     protected $route_pattern;
 
     /**
-     * Any custom regex conditions that are needed when matching a route param component. Eg array('year' => '(19|20)\d\d')
+     * Any custom regex conditions that are needed when matching a route param component.
+     * Eg array('year' => '(19|20)\d\d')
      * @var array $route_conditions
      */
     protected $route_conditions = array();
@@ -44,14 +45,16 @@ class RouteMetaData implements \Serializable
     protected $param_names_path = array();
 
     /**
-     * Key-value array of URL parameters populated after a match has been successful - or directly by using available setter
+     * Key-value array of URL parameters populated after a match has been successful
+     * - or directly by using available setter
      * @var array $route_params
      */
     protected $route_params;
 
     /**
      * An index array of URL parameters that exist but didn't match a route pattern parameter
-     * Eg: pattern: /user/:id+  with url: /user/1/some/additional/params. The value id => 1 will go into $route_params
+     * Eg: pattern: /user/:id+  with url: /user/1/some/additional/params.
+     * The value id => 1 will go into $route_params
      * All the rest will go in here.
      * @var array $unmapped_route_params
      */
@@ -64,7 +67,8 @@ class RouteMetaData implements \Serializable
     protected $name;
 
     /**
-     * Any array of verbs allowed on this route. They match the constant values defined in DrestCommon\Request\Request eg array('GET', 'POST')
+     * Any array of verbs allowed on this route.
+     * They match the constant values defined in DrestCommon\Request\Request eg array('GET', 'POST')
      * @var array $verbs
      */
     protected $verbs;
@@ -165,7 +169,8 @@ class RouteMetaData implements \Serializable
     }
 
     /**
-     * Sets a unique reference name for the resource. If other resources are created with this name an exception is thrown (must be unique)
+     * Sets a unique reference name for the resource.
+     * If other resources are created with this name an exception is thrown (must be unique)
      * @param string $name
      */
     public function setName($name)
@@ -257,7 +262,8 @@ class RouteMetaData implements \Serializable
     }
 
     /**
-     * Inject unmapped route params onto this object without performing a match. Useful when calling a named route directly
+     * Inject unmapped route params onto this object without performing a match.
+     * Useful when calling a named route directly
      * @param array $params - should be a keyed array. associative values are ignored
      */
     public function setUnmappedRouteParams(array $params = array())
@@ -446,7 +452,8 @@ class RouteMetaData implements \Serializable
     /**
      * Does this request matches the route pattern
      * @param Request $request
-     * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb - useful for OPTIONS requests
+     * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb
+     *                           - useful for OPTIONS requests
      * @param string $basePath - add a base path to the route pattern
      * @return boolean $result
      */
@@ -464,8 +471,13 @@ class RouteMetaData implements \Serializable
         }
 
         //Convert URL params into regex patterns, construct a regex for this route, init params
-        $routePattern = (is_null($basePath)) ? (string)$this->route_pattern : '/' . $basePath . '/' . ltrim((string)$this->route_pattern, '/');
-        $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'), str_replace(')', ')?', $routePattern));
+        $routePattern = (is_null($basePath))
+            ? (string)$this->route_pattern
+            : '/' . $basePath . '/' . ltrim((string)$this->route_pattern, '/');
+        $patternAsRegex = preg_replace_callback(
+            '#:([\w]+)\+?#',
+            array($this, 'matchesCallback'),
+            str_replace(')', ')?', $routePattern));
         if (substr($this->route_pattern, -1) === '/') {
             $patternAsRegex .= '?';
         }

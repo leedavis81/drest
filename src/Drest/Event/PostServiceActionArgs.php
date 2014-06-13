@@ -28,4 +28,3 @@ class PostServiceActionArgs extends EventArgs
         return $this->service;
     }
 }
-
