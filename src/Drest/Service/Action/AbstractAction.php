@@ -103,10 +103,10 @@ abstract class AbstractAction
 
     /**
      * Handle an error - set the resulting error document to the response object
-     * @param \Exception $e
-     * @param integer $defaultResponseCode the default response code to use if no match on exception type occurs
-     * @param ResponseInterface $errorDocument
-     * @return ResultSet the error result set
+     * @param  \Exception        $e
+     * @param  integer           $defaultResponseCode the default response code to use if no match on exception type occurs
+     * @param  ResponseInterface $errorDocument
+     * @return ResultSet         the error result set
      */
     public function handleError(\Exception $e, $defaultResponseCode = 500, ResponseInterface $errorDocument = null)
     {
@@ -115,11 +115,11 @@ abstract class AbstractAction
 
     /**
      * A recursive function to process the specified expose fields for a fetch request (GET)
-     * @param array $fields - expose fields to process
-     * @param ORM\QueryBuilder $qb
-     * @param ORM\Mapping\ClassMetadata $classMetaData
+     * @param  array                     $fields         - expose fields to process
+     * @param  ORM\QueryBuilder          $qb
+     * @param  ORM\Mapping\ClassMetadata $classMetaData
      * @param $rootAlias - table alias to be used on SQL query
-     * @param array $addedKeyFields
+     * @param  array                     $addedKeyFields
      * @return ORM\QueryBuilder
      */
     protected function registerExpose(
@@ -135,7 +135,7 @@ abstract class AbstractAction
 
         $rootAlias = (is_null($rootAlias)) ? self::getAlias($classMetaData->getName()) : $rootAlias;
 
-        $addedKeyFields = (array)$addedKeyFields;
+        $addedKeyFields = (array) $addedKeyFields;
         $ormAssociationMappings = $classMetaData->getAssociationMappings();
 
         // Process single fields into a partial set - Filter fields not available on class meta data
@@ -145,6 +145,7 @@ abstract class AbstractAction
                 if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames())) {
                     return true;
                 }
+
                 return false;
             }
         );
@@ -167,6 +168,7 @@ abstract class AbstractAction
                 if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames())) {
                     return true;
                 }
+
                 return false;
             }
         );
@@ -192,6 +194,7 @@ abstract class AbstractAction
         }
 
         $this->addedKeyFields = $addedKeyFields;
+
         return $qb;
     }
 
@@ -200,8 +203,8 @@ abstract class AbstractAction
      * -    wraps results in a single entry array keyed by entity name.
      *        Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
      * -    Removes any addition expose fields required for a partial DQL query
-     * @param array $data - the data fetched from the database
-     * @param string $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singularize on single element request
+     * @param  array     $data    - the data fetched from the database
+     * @param  string    $keyName - the key name to use to wrap the data in. If null will attempt to pluralise the entity name on collection request, or singularize on single element request
      * @return ResultSet $data
      */
     public function createResultSet(array $data, $keyName = null)
@@ -236,13 +239,13 @@ abstract class AbstractAction
 
     /**
      * Functional recursive method to remove any fields added to make the partial DQL work and remove the data
-     * @param array $addedKeyFields
-     * @param array $data - pass by reference
+     * @param  array $addedKeyFields
+     * @param  array $data           - pass by reference
      * @return array
      */
     protected function removeAddedKeyFields($addedKeyFields, &$data)
     {
-        $addedKeyFields = (array)$addedKeyFields;
+        $addedKeyFields = (array) $addedKeyFields;
         foreach ($data as $key => $value) {
             if (is_array($value) && isset($addedKeyFields[$key])) {
                 if (is_int($key)) {
@@ -261,6 +264,7 @@ abstract class AbstractAction
                 }
             }
         }
+
         return $data;
     }
 
@@ -286,8 +290,8 @@ abstract class AbstractAction
 
     /**
      * Get a unique alias name from an entity class name and relation field
-     * @param string $className - The class of the related entity
-     * @param string $fieldName - The field the relation is on. Default to root when using top level.
+     * @param  string $className - The class of the related entity
+     * @param  string $fieldName - The field the relation is on. Default to root when using top level.
      * @return string
      */
     public static function getAlias($className, $fieldName = 'rt')

@@ -2,7 +2,6 @@
 namespace Drest;
 
 use Doctrine\ORM\EntityManager;
-use Drest\Event;
 use Drest\Mapping\RouteMetaData;
 use Drest\Service\Action\AbstractAction;
 use DrestCommon\Error\Handler\AbstractHandler;
@@ -55,7 +54,7 @@ class Service
     /**
      * Initialise a new instance of a Drest service
      * @param EntityManager $em The EntityManager to use.
-     * @param Manager $dm The Drest Manager object
+     * @param Manager       $dm The Drest Manager object
      */
     public function __construct(EntityManager $em, Manager $dm)
     {
@@ -82,6 +81,7 @@ class Service
             (empty($expose) || (sizeof($expose) == 1 && empty($expose[0])))
         ) {
             $this->renderDeterminedRepresentation($this->getActionInstance()->createResultSet(array()));
+
             return false;
         }
 
@@ -111,6 +111,7 @@ class Service
                 throw DrestException::actionClassNotAnInstanceOfActionAbstract($this->service_action);
             }
         }
+
         return $this->service_action;
     }
 
@@ -246,10 +247,10 @@ class Service
 
     /**
      * Handle an error - set the resulting error document to the response object
-     * @param \Exception $e
-     * @param integer $defaultResponseCode the default response code to use if no match on exception type occurs
-     * @param ResponseInterface $errorDocument
-     * @return ResultSet the error result set
+     * @param  \Exception        $e
+     * @param  integer           $defaultResponseCode the default response code to use if no match on exception type occurs
+     * @param  ResponseInterface $errorDocument
+     * @return ResultSet         the error result set
      */
     public function handleError(\Exception $e, $defaultResponseCode = 500, ResponseInterface $errorDocument = null)
     {

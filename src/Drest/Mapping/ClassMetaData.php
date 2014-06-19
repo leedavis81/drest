@@ -84,7 +84,7 @@ class ClassMetaData implements \Serializable
 
     /**
      * Get either and array of all route metadata information, or an entry by name. Returns false if entry cannot be found
-     * @param null $name
+     * @param  null                $name
      * @return RouteMetaData|array $routes
      */
     public function getRoutesMetaData($name = null)
@@ -95,12 +95,13 @@ class ClassMetaData implements \Serializable
         if (isset($this->routes[$name])) {
             return $this->routes[$name];
         }
+
         return false;
     }
 
     /**
      * get the origin route (if one is available), otherwise attempts to determine it from a GET {path}/{primary_key} route
-     * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
+     * @param  EntityManager      $em - Optionally pass the entity manager to assist in determining a GET origin location
      * @return null|RouteMetaData $route
      */
     public function getOriginRoute(EntityManager $em = null)
@@ -120,10 +121,12 @@ class ClassMetaData implements \Serializable
                     )
                 ) {
                     $this->originRouteName = $route->getName();
+
                     return $route;
                 }
             }
         }
+
         return null;
     }
 
@@ -140,7 +143,7 @@ class ClassMetaData implements \Serializable
 
     /**
      * Set a representation instance to be used on this resource
-     * @param object|string $representation - can be either an instance of DrestCommon\Representation\AbstractRepresentation or a string (shorthand allowed - Json / Xml) referencing the class.
+     * @param  object|string           $representation - can be either an instance of DrestCommon\Representation\AbstractRepresentation or a string (shorthand allowed - Json / Xml) referencing the class.
      * @throws RepresentationException
      */
     public function addRepresentation($representation)
@@ -186,12 +189,13 @@ class ClassMetaData implements \Serializable
         if (is_array($classNameParts)) {
             return strtolower(Inflector::singularize(array_pop($classNameParts)));
         }
+
         return $this->className;
     }
 
     /**
      * Get an alias for this entity - used for DQL / QueryBuilder
-     * @param string $fieldName - The field the relation is on. Default to root when using top level.
+     * @param  string $fieldName - The field the relation is on. Default to root when using top level.
      * @return string alias unique string representing this entity
      */
     public function getEntityAlias($fieldName = 'rt')
@@ -206,12 +210,13 @@ class ClassMetaData implements \Serializable
     public function getCollectionName()
     {
         $elementName = $this->getElementName();
+
         return Inflector::pluralize($elementName);
     }
 
     /**
      * Serialise this object
-     * @return array
+     * @return string
      */
     public function serialize()
     {
@@ -262,6 +267,7 @@ class ClassMetaData implements \Serializable
         if (!file_exists($this->filePath) || $timestamp < filemtime($this->filePath)) {
             return true;
         }
+
         return false;
     }
 }

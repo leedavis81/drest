@@ -72,7 +72,6 @@ class User
      */
     private $email_address;
 
-
     public function __construct()
     {
         $this->phone_numbers = new ArrayCollection();
@@ -107,7 +106,6 @@ class User
         }
     }
 
-
     /**
      * Add a phone number
      * @param PhoneNumber $phoneNumber
@@ -129,7 +127,7 @@ class User
 
     /**
      * Set the email address
-     * @param $email_address
+     * @param string $email_address
      */
     public function setEmailAddress($email_address)
     {
@@ -155,13 +153,12 @@ class User
 
     /**
      * Set the username
-     * @param $username
+     * @param string $username
      */
     public function setUsername($username)
     {
         $this->username = $username;
     }
-
 
     /**
      * @Drest\Handle(for="update_user")
@@ -175,6 +172,5 @@ class User
             $this->username = $data['username'];
         }
     }
-
 
 }

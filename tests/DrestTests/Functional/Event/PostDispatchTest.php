@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Functional\Event;
 
-
 use Drest\Event\Manager;
 use DrestTests\DrestFunctionalTestCase;
 
@@ -46,7 +45,6 @@ class PostDispatchTest extends DrestFunctionalTestCase
 
 }
 
-
 class OnPostDispatchListener
 {
     public function postDispatch(\Drest\Event\PostDispatchArgs $args)
@@ -55,7 +53,6 @@ class OnPostDispatchListener
         $args->getService()->getResponse()->setBody($args->getService()->getRequest()->getParams('return'));
     }
 }
-
 
 class OnPostDispatchSubscriber extends \Drest\Event\Subscriber
 {

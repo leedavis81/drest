@@ -2,7 +2,6 @@
 
 namespace Drest;
 
-
 use Doctrine\Common\Cache\Cache;
 use Doctrine\ORM\Mapping\ClassMetadataInfo as ORMClassMetaDataInfo;
 use DrestCommon\Request\Request;
@@ -85,13 +84,13 @@ class Configuration
      */
     public function setDebugMode($setting)
     {
-        $this->_attributes['debugMode'] = (bool)$setting;
+        $this->_attributes['debugMode'] = (bool) $setting;
     }
 
     /**
      * Set the default representation classes to be used across the entire API.
      * Any representations defined locally on a resource will take precedence
-     * @param array $representations
+     * @param string[] $representations
      */
     public function setDefaultRepresentations(array $representations)
     {
@@ -122,7 +121,7 @@ class Configuration
 
     /**
      * Does this configuration contain a request adapter class by name
-     * @param $className
+     * @param string $className
      * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
      */
     public function containsRequestAdapterClass($className)
@@ -130,6 +129,7 @@ class Configuration
         if (($offset = array_search($className, $this->_attributes['requestAdapterClasses'])) !== false) {
             return $offset;
         }
+
         return false;
     }
 
@@ -157,7 +157,7 @@ class Configuration
 
     /**
      * Does this configuration contain a response adapter class by name
-     * @param $className
+     * @param string $className
      * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
      */
     public function containsResponseAdapterClass($className)
@@ -165,6 +165,7 @@ class Configuration
         if (($offset = array_search($className, $this->_attributes['responseAdapterClasses'])) !== false) {
             return $offset;
         }
+
         return false;
     }
 
@@ -174,14 +175,14 @@ class Configuration
      */
     public function setExposureDepth($depth)
     {
-        $this->_attributes['defaultExposureDepth'] = (int)$depth;
+        $this->_attributes['defaultExposureDepth'] = (int) $depth;
     }
 
     /**
      * Set the exposure fields by following relations that have the a certain fetch type.
      * This is useful if you only want to display fields that are loaded eagerly.
      * eg ->setExposureRelationsFetchType(ORMClassMetaDataInfo::FETCH_EAGER)
-     * @param integer $fetch
+     * @param  integer        $fetch
      * @throws DrestException
      */
     public function setExposureRelationsFetchType($fetch)
@@ -206,7 +207,7 @@ class Configuration
      */
     public function setAllowOptionsRequest($value)
     {
-        $this->_attributes['allowOptionsRequest'] = (bool)$value;
+        $this->_attributes['allowOptionsRequest'] = (bool) $value;
     }
 
     /**
@@ -216,7 +217,7 @@ class Configuration
      */
     public function set415ForNoMediaMatch($value = true)
     {
-        $this->_attributes['send415ForNoMediaMatch'] = (bool)$value;
+        $this->_attributes['send415ForNoMediaMatch'] = (bool) $value;
     }
 
     /**
@@ -232,8 +233,8 @@ class Configuration
     /**
      * Set a content option for detecting the media type to be used. To unset pass null as a value
      * For any options that don't required a value, set them to true to activate them
-     * @param integer $option
-     * @param string $value
+     * @param  integer        $option
+     * @param  string         $value
      * @throws DrestException
      */
     public function setDetectContentOption($option, $value)
@@ -283,8 +284,8 @@ class Configuration
 
     /**
      * Method used to retrieve the required expose contents from the client. To unset pass null as value
-     * @param integer $option
-     * @param string $value
+     * @param  integer        $option
+     * @param  string         $value
      * @throws DrestException
      */
     public function setExposeRequestOption($option, $value)
@@ -324,7 +325,7 @@ class Configuration
      */
     public function getExposureDepth()
     {
-        return (int)$this->_attributes['defaultExposureDepth'];
+        return (int) $this->_attributes['defaultExposureDepth'];
     }
 
     /**
@@ -336,6 +337,7 @@ class Configuration
         if (isset($this->_attributes['defaultExposureRelationsFetchType'])) {
             return $this->_attributes['defaultExposureRelationsFetchType'];
         }
+
         return null;
     }
 
@@ -397,7 +399,7 @@ class Configuration
         if (!isset($this->_attributes['pathsToConfigFiles'])) {
             $this->_attributes['pathsToConfigFiles'] = array();
         }
-        $this->_attributes['pathsToConfigFiles'] = array_merge($this->_attributes['pathsToConfigFiles'], (array)$paths);
+        $this->_attributes['pathsToConfigFiles'] = array_merge($this->_attributes['pathsToConfigFiles'], (array) $paths);
     }
 
     /**
@@ -428,7 +430,7 @@ class Configuration
 
     /**
      * Add a base path to be used when matching routes. Eg /v1 would be useful IF you want versioning in the URL
-     * @param string $basePath
+     * @param  string         $basePath
      * @throws DrestException
      */
     public function addRouteBasePath($basePath)
@@ -441,7 +443,7 @@ class Configuration
 
     /**
      * Remove a route base path (if it has been registered)
-     * @param string $basePath
+     * @param  string  $basePath
      * @return boolean true if $basePath was unset
      */
     public function removeRouteBasePath($basePath)
@@ -452,22 +454,26 @@ class Configuration
         }
         if (($offset = array_search($basePath, $this->_attributes['routeBasePaths'])) !== false) {
             unset($this->_attributes['routeBasePaths'][$offset]);
+
             return true;
         }
+
         return false;
     }
 
     /**
      * Have base paths been registered - or look for a specific entry
-     * @param string $basePath - optional, has a specific route path been registered
+     * @param  string  $basePath - optional, has a specific route path been registered
      * @return boolean true if route base paths have been registered
      */
     public function hasRouteBasePaths($basePath = null)
     {
         if (!is_null($basePath)) {
             $basePath = trim($basePath, '/');
+
             return in_array($basePath, $this->_attributes['routeBasePaths']);
         }
+
         return (sizeof($this->_attributes['routeBasePaths']) > 0) ? true : false;
     }
 

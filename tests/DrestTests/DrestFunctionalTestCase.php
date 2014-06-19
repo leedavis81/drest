@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests;
 
-
 abstract class DrestFunctionalTestCase extends DrestTestCase
 {
 
@@ -21,7 +20,6 @@ abstract class DrestFunctionalTestCase extends DrestTestCase
      */
     protected $_em;
 
-
     protected function setUp()
     {
         parent::setUp();
@@ -35,7 +33,6 @@ abstract class DrestFunctionalTestCase extends DrestTestCase
 
         $this->_schemaTool->createSchema($this->_em->getMetadataFactory()->getAllMetadata());
     }
-
 
     protected function tearDown()
     {

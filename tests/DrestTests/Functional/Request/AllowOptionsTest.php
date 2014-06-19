@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Functional\Event;
 
-
 use Drest\Configuration;
 use DrestTests\DrestFunctionalTestCase;
 
@@ -44,7 +43,6 @@ class AllowOptionsTest extends DrestFunctionalTestCase
 
     }
 
-
     /**
      * @expectedException \Drest\Route\NoMatchException
      */
@@ -63,6 +61,5 @@ class AllowOptionsTest extends DrestFunctionalTestCase
 
         $dm->dispatch($request);
     }
-
 
 }

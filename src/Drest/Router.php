@@ -24,9 +24,9 @@ class Router
 
     /**
      * Get matched routes
-     * @param Request $request
-     * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb
-     * @return array $routes sends back an array of routes that have matched
+     * @param  Request $request
+     * @param  boolean $matchVerb - Whether you want to match the route using the request HTTP verb
+     * @return array   $routes sends back an array of routes that have matched
      */
     public function getMatchedRoutes(Request $request, $matchVerb = true)
     {
@@ -46,6 +46,7 @@ class Router
                 }
             }
         }
+
         return $matches;
     }
 
@@ -60,7 +61,7 @@ class Router
 
     /**
      * A check to see if the router object has already been populated with a route object by $name
-     * @param string $name
+     * @param  string $name
      * @return bool
      */
     public function hasRoute($name)

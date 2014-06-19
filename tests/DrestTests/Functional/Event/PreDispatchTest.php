@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Functional\Event;
 
-
 use Drest\Event\Manager;
 use DrestTests\DrestFunctionalTestCase;
 
@@ -45,7 +44,6 @@ class PreDispatchTest extends DrestFunctionalTestCase
 
 }
 
-
 class OnPreDispatchListener
 {
     public function preDispatch(\Drest\Event\PreDispatchArgs $args)
@@ -55,7 +53,6 @@ class OnPreDispatchListener
         $service->getResponse()->setHttpHeader('xHeader', $service->getRequest()->getParams('xHeader'));
     }
 }
-
 
 class OnPreDispatchSubscriber extends \Drest\Event\Subscriber
 {

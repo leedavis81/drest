@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Functional\Event;
 
-
 use Drest\Event\Manager;
 use DrestTests\DrestFunctionalTestCase;
 
@@ -45,7 +44,6 @@ class PreRoutingTest extends DrestFunctionalTestCase
 
 }
 
-
 class OnPreRoutingListener
 {
     public function PreRouting(\Drest\Event\PreRoutingArgs $args)
@@ -55,7 +53,6 @@ class OnPreRoutingListener
         $service->getResponse()->setHttpHeader('xHeader', $service->getRequest()->getParams('xHeader'));
     }
 }
-
 
 class OnPreRoutingSubscriber extends \Drest\Event\Subscriber
 {

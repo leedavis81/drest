@@ -415,7 +415,7 @@ class RouteMetaData implements \Serializable
      * @param object $object
      * @param string $url - the Url to be prepended to the location
      * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
-     * @return string|bool
+     * @return string|false
      */
     public function getOriginLocation($object, $url, EntityManager $em = null)
     {
@@ -543,7 +543,7 @@ class RouteMetaData implements \Serializable
 
     /**
      * Serialise this object
-     * @return array
+     * @return string
      */
     public function serialize()
     {

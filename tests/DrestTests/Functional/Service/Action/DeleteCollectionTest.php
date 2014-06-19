@@ -3,7 +3,7 @@ namespace DrestTests\Functional\Service\Action;
 
 use DrestTests\DrestFunctionalTestCase;
 
-class DeleteCollectionTests extends DrestFunctionalTestCase
+class DeleteCollectionTest extends DrestFunctionalTestCase
 {
 
     public function testDeleteCollectionRequest()

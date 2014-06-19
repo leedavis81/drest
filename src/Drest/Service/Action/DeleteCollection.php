@@ -23,6 +23,7 @@ class DeleteCollection extends AbstractAction
         try {
             $qb->getQuery()->execute();
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_200);
+
             return ResultSet::create(array('successfully deleted'), 'response');
         } catch (\Exception $e) {
             return $this->handleError($e, Response::STATUS_CODE_500);

@@ -44,7 +44,7 @@ class GenerateClasses extends Command
                 Generate the classes required to interact with a Drest API endpoint.
 Example usage:
 
-		classes:generate http://api.endpoint.com --dest-path "{/home/me/classes}"
+        classes:generate http://api.endpoint.com --dest-path "{/home/me/classes}"
 EOT
             );
     }

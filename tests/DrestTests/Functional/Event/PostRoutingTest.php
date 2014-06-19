@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Functional\Event;
 
-
 use Drest\Event\Manager;
 use DrestTests\DrestFunctionalTestCase;
 
@@ -45,7 +44,6 @@ class PostRoutingTest extends DrestFunctionalTestCase
 
 }
 
-
 class OnPostRoutingListener
 {
     public function PostRouting(\Drest\Event\PostRoutingArgs $args)
@@ -55,7 +53,6 @@ class OnPostRoutingListener
         $service->getResponse()->setHttpHeader('xHeader', $service->getRequest()->getParams('xHeader'));
     }
 }
-
 
 class OnPostRoutingSubscriber extends \Drest\Event\Subscriber
 {

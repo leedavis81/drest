@@ -253,7 +253,7 @@ class ExposeFields implements \Iterator
     /**
      * Get information on parsed (top-level) brackets
      * @param string $string
-     * @return object $information contains parse information object containing a $parts array eg array(
+     * @return \stdClass $information contains parse information object containing a $parts array eg array(
      *    'openBracket' => xx,        - The position of the open bracket
      *    'closeBracket' => xx        - The position of the close bracket
      *  'contents' => xx            - The contents of the bracket

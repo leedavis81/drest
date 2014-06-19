@@ -1,7 +1,6 @@
 <?php
 namespace Drest;
 
-use Drest\Mapping;
 use Exception;
 
 /**
@@ -46,6 +45,9 @@ class DrestException extends Exception
             'Route name used cannot be blank, and must only contain alphanumerics or underscore');
     }
 
+    /**
+     * @param string $verb
+     */
     public static function invalidHttpVerbUsed($verb)
     {
         return new self(
@@ -103,6 +105,9 @@ class DrestException extends Exception
             . $route->getName() . ' on class ' . $route->getClassMetaData()->getClassName());
     }
 
+    /**
+     * @param string $name
+     */
     public static function handleAnnotationDoesntMatchRouteName($name)
     {
         return new self(
@@ -129,6 +134,9 @@ class DrestException extends Exception
             'Must use a formatted string of: {EntityClassName}::{RouteName}. Eg "Entities\\User::get_users"');
     }
 
+    /**
+     * @param string $className
+     */
     public static function unableToFindRouteByName($routeName, $className)
     {
         return new self(
@@ -154,6 +162,9 @@ class DrestException extends Exception
             'Action class  "' . $class . '" is not an instance of Drest\Service\Action\ActionAbstract.');
     }
 
+    /**
+     * @param string $class
+     */
     public static function unknownActionClass($class)
     {
         return new self('Unknown action class "' . $class . '"');

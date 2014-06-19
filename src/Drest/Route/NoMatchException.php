@@ -1,7 +1,6 @@
 <?php
 namespace Drest\Route;
 
-
 class NoMatchException extends \Exception
 {
     public static function noMatchedRoutes()

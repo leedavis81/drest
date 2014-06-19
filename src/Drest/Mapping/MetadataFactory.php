@@ -33,7 +33,6 @@ class MetadataFactory
      */
     private $loadedMetadata = array();
 
-
     /**
      * @param DriverInterface $driver
      */
@@ -62,9 +61,9 @@ class MetadataFactory
 
     /**
      * Get metadata for a certain class - loads once and caches
-     * @param string $className
+     * @param  string                $className
      * @throws \Drest\DrestException
-     * @return ClassMetaData $metaData
+     * @return ClassMetaData         $metaData
      */
     public function getMetadataForClass($className)
     {
@@ -80,6 +79,7 @@ class MetadataFactory
                     $this->cache->delete($this->cache_prefix . $className);
                 } else {
                     $this->loadedMetadata[$className] = $classMetadata;
+
                     return $classMetadata;
                 }
             }
@@ -91,13 +91,13 @@ class MetadataFactory
             if ($this->cache !== null) {
                 $this->cache->save($this->cache_prefix . $className, $classMetadata);
             }
+
             return $classMetadata;
         }
 
         if (is_null($this->loadedMetadata[$className])) {
             throw DrestException::unableToLoadMetaDataFromDriver();
         }
-
 
         return $this->loadedMetadata[$className];
     }

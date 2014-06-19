@@ -1,7 +1,6 @@
 <?php
 namespace Drest;
 
-
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
@@ -54,7 +53,7 @@ class ClassGenerator
     /**
      * Create a class generator instance from provided route metadata.
      * Each route will generate it's own unique version of the class (as it will have its own exposure definitions)
-     * @param array $classMetadatas
+     * @param  array $classMetadatas
      * @return array $object - an array of ClassGenerator objects
      */
     public function create(array $classMetadatas)
@@ -84,7 +83,7 @@ class ClassGenerator
 
     /**
      * Recurse the expose parameters - pass the entities full class name (including namespace)
-     * @param array $expose
+     * @param array  $expose
      * @param string $fullClassName
      */
     protected function recurseParams(array $expose, $fullClassName)
@@ -139,7 +138,7 @@ EOT;
 
     /**
      * Build a ::create() method for each data class
-     * @param string $class - The name of the class returned (self)
+     * @param  string                               $class - The name of the class returned (self)
      * @return \Zend\Code\Generator\MethodGenerator $method
      */
     private function getStaticCreateMethod($class)
@@ -149,12 +148,13 @@ EOT;
         $method->setBody('return new self();');
         $method->setName('create');
         $method->setStatic(true);
+
         return $method;
     }
 
     /**
      * Create a property instance
-     * @param string $name - property name
+     * @param  string                      $name - property name
      * @return Generator\PropertyGenerator $property
      */
     private function createProperty($name)
@@ -162,16 +162,17 @@ EOT;
         $property = new Generator\PropertyGenerator();
         $property->setName($name);
         $property->setVisibility(Generator\AbstractMemberGenerator::FLAG_PUBLIC);
+
         return $property;
     }
 
     /**
      * get setter methods for a parameter based on type
-     * @param Generator\ClassGenerator $cg
-     * @param string $name - the parameter name
-     * @param int $type - The type of parameter to be handled
-     * @param string $targetClass - the target class name to be set (only used in relational setters)
-     * @return array $methods
+     * @param  Generator\ClassGenerator $cg
+     * @param  string                   $name        - the parameter name
+     * @param  int                      $type        - The type of parameter to be handled
+     * @param  string                   $targetClass - the target class name to be set (only used in relational setters)
+     * @return array                    $methods
      */
     private function getSetterMethods(&$cg, $name, $type, $targetClass = null)
     {
@@ -236,13 +237,14 @@ EOT;
             $methods[$x]->setDocBlock($docBlock);
             $methods[$x]->setBody($methods[$x]->getBody() . "\nreturn \$this;");
         }
+
         return $methods;
     }
 
     /**
      * Handle a non associative property
-     * @param string $name - name of the field
-     * @param \Zend\Code\Generator\ClassGenerator $cg - The class generator object to attach to
+     * @param string                              $name - name of the field
+     * @param \Zend\Code\Generator\ClassGenerator $cg   - The class generator object to attach to
      */
     private function handleNonAssocProperty($name, Generator\ClassGenerator &$cg)
     {
@@ -255,8 +257,8 @@ EOT;
 
     /**
      * Handle an associative property field
-     * @param string $name - name of the field
-     * @param \Zend\Code\Generator\ClassGenerator $cg - The class generator object to attach to
+     * @param string                              $name             - name of the field
+     * @param \Zend\Code\Generator\ClassGenerator $cg               - The class generator object to attach to
      * @param \Doctrine\ORM\Mapping\ClassMetadata $ormClassMetaData - The ORM class meta data
      */
     private function handleAssocProperty($name, Generator\ClassGenerator &$cg, ORMClassMetadata $ormClassMetaData)
@@ -284,7 +286,7 @@ EOT;
 
     /**
      * camel case a parameter into a suitable method name
-     * @param string $name
+     * @param  string $name
      * @return string $name
      */
     private function camelCaseMethodName($name)
@@ -302,12 +304,13 @@ EOT;
 
     /**
      * Get the target type class (excludes any namespace)
-     * @param string $targetClass
+     * @param  string $targetClass
      * @return string
      */
     private function getTargetType($targetClass)
     {
         $parts = explode('\\', $targetClass);
+
         return (sizeof($parts) > 1) ? implode('\\', array_slice($parts, 1)) : $targetClass;
     }
 }

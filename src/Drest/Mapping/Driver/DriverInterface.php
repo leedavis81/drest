@@ -5,7 +5,7 @@ interface DriverInterface
 {
     /**
      * Load metadata for the given class name
-     * @param $className
+     * @param string $className
      * @internal param string $class
      * @return \Drest\Mapping\ClassMetadata
      */

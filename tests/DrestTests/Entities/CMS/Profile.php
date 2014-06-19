@@ -5,7 +5,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Drest\Mapping\Annotation as Drest;
 
-
 /**
  * Profile
  *
@@ -63,7 +62,6 @@ class Profile
      * @ORM\Column(name="lastname", type="string")
      */
     private $lastname;
-
 
     public function __construct()
     {

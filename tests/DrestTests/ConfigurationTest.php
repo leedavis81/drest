@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests;
 
-
 use Doctrine\Common\Cache\ArrayCache;
 use Drest\Configuration;
 
@@ -124,7 +123,6 @@ class ConfigurationTest extends DrestTestCase
         $config->setExposureRelationsFetchType(1);
     }
 
-
     public function testRegisterResponseAdapterClasses()
     {
         $config = new Configuration();
@@ -218,6 +216,5 @@ class ConfigurationTest extends DrestTestCase
         $path = new \StdClass();
         $config->addRouteBasePath($path);
     }
-
 
 }

@@ -3,7 +3,7 @@ namespace DrestTests\Functional\Service\Action;
 
 use DrestTests\DrestFunctionalTestCase;
 
-class DeleteElementTests extends DrestFunctionalTestCase
+class DeleteElementTest extends DrestFunctionalTestCase
 {
 
     public function testEmptyRequest()
@@ -17,7 +17,6 @@ class DeleteElementTests extends DrestFunctionalTestCase
         $response = $dm->dispatch($request);
         $this->assertEquals(404, $response->getStatusCode());
     }
-
 
     /**
      * @expectedException \Doctrine\ORM\ORMException

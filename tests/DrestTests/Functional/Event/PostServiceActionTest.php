@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Functional\Event;
 
-
 use Drest\Event\Manager;
 use DrestTests\DrestFunctionalTestCase;
 
@@ -45,7 +44,6 @@ class PostServiceActionTest extends DrestFunctionalTestCase
 
 }
 
-
 class OnPostServiceActionListener
 {
     public function PostServiceAction(\Drest\Event\PostServiceActionArgs $args)
@@ -55,7 +53,6 @@ class OnPostServiceActionListener
         $service->getResponse()->setHttpHeader('xHeader', $service->getRequest()->getParams('xHeader'));
     }
 }
-
 
 class OnPostServiceActionSubscriber extends \Drest\Event\Subscriber
 {

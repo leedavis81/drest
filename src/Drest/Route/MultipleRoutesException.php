@@ -10,6 +10,7 @@ class MultipleRoutesException extends \Exception
             /* @var \Drest\Mapping\RouteMetaData $route */
             $helperText .= '"' . $route->getName() . '"';
         }
+
         return new self('Multiple routes have matched to this request. See route definitions for: ' . $helperText);
     }
 }

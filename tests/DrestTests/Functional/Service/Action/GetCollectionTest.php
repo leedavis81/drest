@@ -3,7 +3,7 @@ namespace DrestTests\Functional\Service\Action;
 
 use DrestTests\DrestFunctionalTestCase;
 
-class GetCollectionTests extends DrestFunctionalTestCase
+class GetCollectionTest extends DrestFunctionalTestCase
 {
 
     public function testEmptyRequest()
@@ -18,7 +18,6 @@ class GetCollectionTests extends DrestFunctionalTestCase
 
         $this->assertEquals(404, $response->getStatusCode());
     }
-
 
     public function testGetCollectionRequest()
     {

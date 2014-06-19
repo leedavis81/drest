@@ -35,7 +35,6 @@ class Events
      */
     const POST_SERVICE_ACTION = 'postServiceAction';
 
-
     /**
      * Event is triggered before dispatching the request through the Drest manager
      *

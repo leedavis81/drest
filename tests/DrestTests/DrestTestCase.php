@@ -20,10 +20,10 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * Get a drest manager instance
-     * @param ORM\EntityManager $em
-     * @param Configuration $config
-     * @param \Drest\Event\Manager $evm
-     * @return Manager $dm
+     * @param  ORM\EntityManager    $em
+     * @param  Configuration        $config
+     * @param  \Drest\Event\Manager $evm
+     * @return Manager              $dm
      */
     public function _getDrestManager(
         ORM\EntityManager $em = null,
@@ -36,13 +36,14 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
         $em = (is_null($em)) ? $this->_getTestEntityManager() : $em;
 
         $dm = Manager::create($em, $config, $evm);
+
         return $dm;
     }
 
     /**
      * get a test entity manager
-     * @param \Doctrine\DBAL\Connection $conn
-     * @param ORM\Configuration $config
+     * @param  \Doctrine\DBAL\Connection $conn
+     * @param  ORM\Configuration         $config
      * @return ORM\EntityManager
      */
     public function _getTestEntityManager(\Doctrine\DBAL\Connection $conn = null, ORM\Configuration $config = null)
@@ -65,6 +66,7 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
             'driver' => 'pdo_sqlite',
             'memory' => true
         );
+
         return \Doctrine\DBAL\DriverManager::getConnection($params);
     }
 
@@ -74,6 +76,7 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
         $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
         $config->addPathsToConfigFiles(array(__DIR__ . '/Entities'));
         $config->setDebugMode(true);
+
         return $config;
     }
 
@@ -89,6 +92,7 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
         $ormConfig->setProxyDir(__DIR__ . '/Entities/Proxies');
         $ormConfig->setProxyNamespace('DrestTests\Entities\Proxies');
         $ormConfig->setAutoGenerateProxyClasses(true);
+
         return $ormConfig;
     }
 }

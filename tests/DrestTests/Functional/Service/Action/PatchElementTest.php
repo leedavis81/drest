@@ -3,7 +3,7 @@ namespace DrestTests\Functional\Service\Action;
 
 use DrestTests\DrestFunctionalTestCase;
 
-class PatchElementTests extends DrestFunctionalTestCase
+class PatchElementTest extends DrestFunctionalTestCase
 {
 
     public function testPatchElementRequest()

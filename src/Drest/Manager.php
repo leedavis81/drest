@@ -13,7 +13,6 @@
 
 namespace Drest;
 
-use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
 use Drest\Event;
@@ -225,7 +224,7 @@ class Manager
 
     /**
      * Determine the matched route from either the router or namedRoute
-     * @param null $namedRoute
+     * @param string|null $namedRoute
      * @param array $routeParams
      * @throws Route\NoMatchException|\Exception
      * @return RouteMetaData|bool $route - if false no route could be matched

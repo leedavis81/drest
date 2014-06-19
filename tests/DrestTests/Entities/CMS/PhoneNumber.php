@@ -3,7 +3,6 @@ namespace DrestTests\Entities\CMS;
 
 
 use Doctrine\ORM\Mapping as ORM;
-use Drest\Mapping\Annotation as Drest;
 
 /**
  *

@@ -4,7 +4,6 @@ namespace Drest\Mapping\Driver;
 
 
 use Doctrine\Common\Annotations;
-use Doctrine\Common\Persistence\Mapping\Driver as PersistenceDriver;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
@@ -61,7 +60,7 @@ class AnnotationDriver implements DriverInterface
 
     /**
      * Add an extension to look for classes
-     * @param mixed $extension - can be a string or an array of extensions
+     * @param string $extension - can be a string or an array of extensions
      */
     public function addExtension($extension)
     {
