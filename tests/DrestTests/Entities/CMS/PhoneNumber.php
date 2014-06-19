@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Entities\CMS;
 
-
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -33,7 +32,6 @@ class PhoneNumber
      * @ORM\Column(name="number", type="bigint")
      */
     private $number;
-
 
     public function setUser(User $user)
     {

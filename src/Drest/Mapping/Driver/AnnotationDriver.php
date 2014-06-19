@@ -2,7 +2,6 @@
 
 namespace Drest\Mapping\Driver;
 
-
 use Doctrine\Common\Annotations;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
@@ -64,7 +63,7 @@ class AnnotationDriver implements DriverInterface
      */
     public function addExtension($extension)
     {
-        $extension = (array)$extension;
+        $extension = (array) $extension;
         foreach ($extension as $ext) {
             if (!in_array($ext, $this->extensions)) {
                 $this->extensions[] = strtolower(preg_replace("/[^a-zA-Z0-9.\s]/", "", $ext));
@@ -92,7 +91,7 @@ class AnnotationDriver implements DriverInterface
     /**
      * Get all the metadata class names known to this driver.
      * @throws DrestException
-     * @return array $classes
+     * @return array          $classes
      */
     public function getAllClassNames()
     {
@@ -140,7 +139,7 @@ class AnnotationDriver implements DriverInterface
 
     /**
      * Does the class contain a drest resource object
-     * @param string $className
+     * @param  string $className
      * @return bool
      */
     public function isDrestResource($className)
@@ -152,13 +151,13 @@ class AnnotationDriver implements DriverInterface
                 return true;
             }
         }
+
         return false;
     }
 
-
     /**
      * Load metadata for a class name
-     * @param object|string $class - Pass in either the class name, or an instance of that class
+     * @param  object|string         $class - Pass in either the class name, or an instance of that class
      * @return Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
      * @throws DrestException
      */
@@ -276,12 +275,11 @@ class AnnotationDriver implements DriverInterface
         return ($resourceFound) ? $metadata : null;
     }
 
-
     /**
      * Factory method for the Annotation Driver
      *
-     * @param Annotations\AnnotationReader $reader
-     * @param array|string $paths
+     * @param  Annotations\AnnotationReader $reader
+     * @param  array|string                 $paths
      * @return AnnotationDriver
      */
     public static function create(Annotations\AnnotationReader $reader = null, $paths = array())
