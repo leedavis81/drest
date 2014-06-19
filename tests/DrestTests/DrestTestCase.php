@@ -4,8 +4,8 @@ namespace DrestTests;
 
 use Doctrine\ORM;
 use Drest\Configuration;
-use Drest\Manager;
 use Drest\Event\Manager as EventManager;
+use Drest\Manager;
 
 /**
  * Base test case class.
@@ -25,10 +25,12 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
      * @param \Drest\Event\Manager $evm
      * @return Manager $dm
      */
-    public function _getDrestManager(ORM\EntityManager $em = null, Configuration $config = null, EventManager $evm = null)
-    {
-        if(is_null($config))
-        {
+    public function _getDrestManager(
+        ORM\EntityManager $em = null,
+        Configuration $config = null,
+        EventManager $evm = null
+    ) {
+        if (is_null($config)) {
             $config = $this->_getDefaultDrestConfig();
         }
         $em = (is_null($em)) ? $this->_getTestEntityManager() : $em;
@@ -49,8 +51,7 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
             $config = $this->_getDefaultORMConfig();
         }
 
-        if (is_null($conn))
-        {
+        if (is_null($conn)) {
             $conn = $this->_getDefaultConnection();
         }
         $em = ORM\EntityManager::create($conn, $config);

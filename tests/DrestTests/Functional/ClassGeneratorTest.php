@@ -2,7 +2,6 @@
 namespace DrestTests\Functional;
 
 use DrestTests\DrestFunctionalTestCase;
-use Drest\ClassGenerator;
 
 class ClassGeneratorTest extends DrestFunctionalTestCase
 {
@@ -24,13 +23,15 @@ class ClassGeneratorTest extends DrestFunctionalTestCase
         $response = $dm->dispatch($request);
 
         $classes = unserialize($response->getBody(true));
-        $classes = array_filter($classes, function ($item) {
-            return (get_class($item) == 'Zend\Code\Generator\ClassGenerator');
-        });
+        $classes = array_filter(
+            $classes,
+            function ($item) {
+                return (get_class($item) == 'Zend\Code\Generator\ClassGenerator');
+            }
+        );
 
         $this->assertTrue((sizeof($classes) > 0));
-        foreach ($classes as $class)
-        {
+        foreach ($classes as $class) {
             $this->assertInstanceOf('Zend\Code\Generator\ClassGenerator', $class);
         }
     }

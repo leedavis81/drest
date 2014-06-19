@@ -9,7 +9,7 @@ use Drest\Mapping\Annotation as Drest;
  * Address
  *
  * @Drest\Resource(
- * 		representations={"Xml", "Json"},
+ *        representations={"Xml", "Json"},
  *      routes={
  *      	@Drest\Route(name="delete", routePattern="/address/:id", verbs={"DELETE"})
  *      }

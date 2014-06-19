@@ -2,8 +2,8 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
-use DrestCommon\ResultSet;
 use DrestCommon\Response\Response;
+use DrestCommon\ResultSet;
 
 /**
  *

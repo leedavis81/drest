@@ -117,7 +117,7 @@ class ClassMetaDataTest extends DrestTestCase
         $className = 'DrestTests\\Entities\\CMS\\Address';
         $cmd = $metadataFactory->getMetadataForClass($className);
 
-        $this->assertNull( $cmd->getOriginRoute($this->_getTestEntityManager()));
+        $this->assertNull($cmd->getOriginRoute($this->_getTestEntityManager()));
     }
 
     public function testClassMetaDataIsSerializable()

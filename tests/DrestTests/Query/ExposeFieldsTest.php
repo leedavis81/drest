@@ -104,9 +104,12 @@ class ExposeFieldsTest extends DrestTestCase
         $request = new Request();
         $request->setPost('expose', 'username|address');
 
-        $expose->configurePullRequest(array(
-            Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
-        ), $request);
+        $expose->configurePullRequest(
+            array(
+                Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
+            ),
+            $request
+        );
 
         // No explicit expose has been set by depth setting, this should be empty
         $this->assertEquals(array(), $expose->toArray());
@@ -123,9 +126,12 @@ class ExposeFieldsTest extends DrestTestCase
         $request = new Request();
         $request->setPost('expose', 'username|address');
 
-        $expose->configurePullRequest(array(
-            Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
-        ), $request);
+        $expose->configurePullRequest(
+            array(
+                Configuration::EXPOSE_REQUEST_PARAM_POST => 'expose'
+            ),
+            $request
+        );
 
         $this->assertEquals($explicit_expose, $expose->toArray());
     }

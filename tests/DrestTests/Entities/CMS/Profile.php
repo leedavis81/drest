@@ -10,7 +10,7 @@ use Drest\Mapping\Annotation as Drest;
  * Profile
  *
  * @Drest\Resource(
- * 		representations={"Xml", "Json"},
+ *        representations={"Xml", "Json"},
  *      routes={
  *      	@Drest\Route(name="get_profile", routePattern="/profile/:id", verbs={"GET"}),
  *          @Drest\Route(name="get_profiles", routePattern="/profiles", verbs={"GET"}, origin=true),

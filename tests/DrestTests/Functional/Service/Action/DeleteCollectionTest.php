@@ -16,8 +16,7 @@ class DeleteCollectionTests extends DrestFunctionalTestCase
             array('email_address' => 'samwise.gamgee@theshire.com', 'username' => 'samwise.gamgee')
         );
 
-        foreach ($users as $user)
-        {
+        foreach ($users as $user) {
             $userObj = new \DrestTests\Entities\CMS\User();
             $userObj->setEmailAddress($user['email_address']);
             $userObj->setUsername($user['username']);

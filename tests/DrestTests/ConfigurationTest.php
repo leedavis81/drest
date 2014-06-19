@@ -4,7 +4,6 @@ namespace DrestTests;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Drest\Configuration;
-use Drest\DrestException;
 
 class ConfigurationTest extends DrestTestCase
 {
@@ -33,18 +32,23 @@ class ConfigurationTest extends DrestTestCase
     {
         $config = new Configuration();
 
-        $config->setDetectContentOptions(array(
-            Configuration::DETECT_CONTENT_HEADER => 'james'
-        ));
+        $config->setDetectContentOptions(
+            array(
+                Configuration::DETECT_CONTENT_HEADER => 'james'
+            )
+        );
         $this->assertCount(1, $config->getDetectContentOptions());
 
-        $config->setDetectContentOptions(array(
-            Configuration::DETECT_CONTENT_HEADER => 'jill'
-        ));
+        $config->setDetectContentOptions(
+            array(
+                Configuration::DETECT_CONTENT_HEADER => 'jill'
+            )
+        );
         $this->assertCount(1, $config->getDetectContentOptions());
 
-        $config->setDetectContentOptions(array(
-        ));
+        $config->setDetectContentOptions(
+            array()
+        );
         $this->assertCount(0, $config->getDetectContentOptions());
     }
 
@@ -55,9 +59,11 @@ class ConfigurationTest extends DrestTestCase
     {
         $config = new Configuration();
 
-        $config->setDetectContentOptions(array(
-            'Invalid' => 'james'
-        ));
+        $config->setDetectContentOptions(
+            array(
+                'Invalid' => 'james'
+            )
+        );
     }
 
     public function testSet415NoMediaMatch()
@@ -91,9 +97,11 @@ class ConfigurationTest extends DrestTestCase
     {
         $config = new Configuration();
 
-        $config->setExposeRequestOptions(array(
-            'Invalid' => 'expose'
-        ));
+        $config->setExposeRequestOptions(
+            array(
+                'Invalid' => 'expose'
+            )
+        );
     }
 
     public function testExposureRelationFetchType()
@@ -101,7 +109,10 @@ class ConfigurationTest extends DrestTestCase
         $config = new Configuration();
         $config->setExposureRelationsFetchType(\Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_EAGER);
 
-        $this->assertEquals(\Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_EAGER, $config->getExposureRelationsFetchType());
+        $this->assertEquals(
+            \Doctrine\ORM\Mapping\ClassMetadataInfo::FETCH_EAGER,
+            $config->getExposureRelationsFetchType()
+        );
     }
 
     /**
@@ -133,7 +144,7 @@ class ConfigurationTest extends DrestTestCase
         $this->assertNotContains($class, $config->getRegisteredResponseAdapterClasses());
 
         // Check the count has reduced by one
-        $this->assertEquals(($sizeofClasses-1), sizeof($config->getRegisteredResponseAdapterClasses()));
+        $this->assertEquals(($sizeofClasses - 1), sizeof($config->getRegisteredResponseAdapterClasses()));
     }
 
     public function testRegisterRequestAdapterClasses()
@@ -155,7 +166,7 @@ class ConfigurationTest extends DrestTestCase
         $this->assertNotContains($class, $config->getRegisteredRequestAdapterClasses());
 
         // Check the count has reduced by one
-        $this->assertEquals(($sizeofClasses-1), sizeof($config->getRegisteredRequestAdapterClasses()));
+        $this->assertEquals(($sizeofClasses - 1), sizeof($config->getRegisteredRequestAdapterClasses()));
     }
 
     /**

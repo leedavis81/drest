@@ -4,11 +4,11 @@ namespace Drest\Service\Action;
 use Doctrine\ORM;
 use Drest\Mapping\RouteMetaData;
 use Drest\Service;
-use DrestCommon\ResultSet;
+use DrestCommon\Error\Response\ResponseInterface;
 use DrestCommon\Representation\AbstractRepresentation;
 use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
-use DrestCommon\Error\Response\ResponseInterface;
+use DrestCommon\ResultSet;
 
 /**
  * abstract action class.
@@ -122,8 +122,13 @@ abstract class AbstractAction
      * @param array $addedKeyFields
      * @return ORM\QueryBuilder
      */
-    protected function registerExpose($fields, ORM\QueryBuilder $qb, ORM\Mapping\ClassMetadata $classMetaData, $rootAlias = null, &$addedKeyFields = array())
-    {
+    protected function registerExpose(
+        $fields,
+        ORM\QueryBuilder $qb,
+        ORM\Mapping\ClassMetadata $classMetaData,
+        $rootAlias = null,
+        &$addedKeyFields = array()
+    ) {
         if (empty($fields)) {
             return $qb;
         }
@@ -134,12 +139,15 @@ abstract class AbstractAction
         $ormAssociationMappings = $classMetaData->getAssociationMappings();
 
         // Process single fields into a partial set - Filter fields not available on class meta data
-        $selectFields = array_filter($fields, function ($offset) use ($classMetaData) {
-            if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames())) {
-                return true;
+        $selectFields = array_filter(
+            $fields,
+            function ($offset) use ($classMetaData) {
+                if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames())) {
+                    return true;
+                }
+                return false;
             }
-            return false;
-        });
+        );
 
         // merge required identifier fields with select fields
         $keyFieldDiff = array_diff($classMetaData->getIdentifierFieldNames(), $selectFields);
@@ -153,12 +161,15 @@ abstract class AbstractAction
         }
 
         // Process relational field with no deeper expose restrictions
-        $relationalFields = array_filter($fields, function ($offset) use ($classMetaData) {
-            if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames())) {
-                return true;
+        $relationalFields = array_filter(
+            $fields,
+            function ($offset) use ($classMetaData) {
+                if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames())) {
+                    return true;
+                }
+                return false;
             }
-            return false;
-        });
+        );
 
         foreach ($relationalFields as $relationalField) {
             $alias = self::getAlias($ormAssociationMappings[$relationalField]['targetEntity'], $relationalField);
@@ -214,7 +225,8 @@ abstract class AbstractAction
                 $keyName = key($data);
                 $data = $data[key($data)];
             } else {
-                $keyName = ($matchedRoute->isCollection()) ? $classMetaData->getCollectionName() : $classMetaData->getElementName();
+                $keyName = ($matchedRoute->isCollection()) ? $classMetaData->getCollectionName(
+                ) : $classMetaData->getElementName();
             }
         }
 
@@ -264,11 +276,9 @@ abstract class AbstractAction
         if ($matchedRoute->hasHandleCall()) {
             $handleMethod = $matchedRoute->getHandleCall();
 
-            if ($matchedRoute->getInjectRequestIntoHandle())
-            {
+            if ($matchedRoute->getInjectRequestIntoHandle()) {
                 $object->$handleMethod($this->getRepresentation()->toArray(false), $this->getRequest());
-            } else
-            {
+            } else {
                 $object->$handleMethod($this->getRepresentation()->toArray(false));
             }
         }
@@ -283,9 +293,12 @@ abstract class AbstractAction
     public static function getAlias($className, $fieldName = 'rt')
     {
         $classNameParts = explode('\\', $className);
-        if (sizeof($classNameParts) > 1)
-        {
-            $hash = preg_replace('/[0-9_\/]+/', '', base64_encode(sha1(implode('', array_slice($classNameParts, 0, -1)) . $fieldName)));
+        if (sizeof($classNameParts) > 1) {
+            $hash = preg_replace(
+                '/[0-9_\/]+/',
+                '',
+                base64_encode(sha1(implode('', array_slice($classNameParts, 0, -1)) . $fieldName))
+            );
             $className = array_pop($classNameParts);
         } else {
             $hash = preg_replace('/[0-9_\/]+/', '', base64_encode(sha1($fieldName)));

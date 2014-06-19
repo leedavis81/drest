@@ -24,21 +24,24 @@ class GenerateClasses extends Command
         $this
             ->setName('classes:generate')
             ->setDescription('Generate client classes to interact with a Drest endpoint.')
-            ->setDefinition(array(
-                new InputArgument(
-                    'endpoint', InputArgument::REQUIRED, 'The location of the drest API endpoint.'
-                ),
-                new InputOption(
-                    'dest-path', null, InputOption::VALUE_OPTIONAL,
-                    'The path to generate your client classes too. If not provided classes are put in the execution path.'
-                ),
-                new InputOption(
-                    'namespace', null, InputOption::VALUE_OPTIONAL,
-                    'The namespace you would like applied to the classes. This would be prepended to any existing namespaces the classes have'
+            ->setDefinition(
+                array(
+                    new InputArgument(
+                        'endpoint', InputArgument::REQUIRED, 'The location of the drest API endpoint.'
+                    ),
+                    new InputOption(
+                        'dest-path', null, InputOption::VALUE_OPTIONAL,
+                        'The path to generate your client classes too. If not provided classes are put in the execution path.'
+                    ),
+                    new InputOption(
+                        'namespace', null, InputOption::VALUE_OPTIONAL,
+                        'The namespace you would like applied to the classes. This would be prepended to any existing namespaces the classes have'
+                    )
                 )
-            ))
-            ->setHelp(<<<EOT
-Generate the classes required to interact with a Drest API endpoint.
+            )
+            ->setHelp(
+                <<<EOT
+                Generate the classes required to interact with a Drest API endpoint.
 Example usage:
 
 		classes:generate http://api.endpoint.com --dest-path "{/home/me/classes}"
@@ -83,17 +86,22 @@ EOT
         $path = realpath($path);
         if (!file_exists($path)) {
             throw new \Exception('Destination path doesn\'t exist and couldn\'t be created');
-        } else if (!is_writable($path)) {
-            throw new \Exception('Cannot write to destination path');
+        } else {
+            if (!is_writable($path)) {
+                throw new \Exception('Cannot write to destination path');
+            }
         }
 
         $classes = unserialize($response->getBody(true));
         if (!is_array($classes)) {
             throw new \Exception('Unexpected response from HTTP endpoint. Array of class objects was expected');
         }
-        $classes = array_filter($classes, function ($item) {
-            return (get_class($item) == 'Zend\Code\Generator\ClassGenerator');
-        });
+        $classes = array_filter(
+            $classes,
+            function ($item) {
+                return (get_class($item) == 'Zend\Code\Generator\ClassGenerator');
+            }
+        );
         if (sizeof($classes) === 0) {
             throw new \Exception('No classes to be generated');
         }

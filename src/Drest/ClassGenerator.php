@@ -2,9 +2,9 @@
 namespace Drest;
 
 
+use Doctrine\Common\Inflector\Inflector;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
-use Doctrine\Common\Inflector\Inflector;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator;
 
@@ -230,7 +230,7 @@ EOT;
 
         // All setter methods will return $this
         for ($x = 0; $x < sizeof($methods); $x++) {
-            /** @var Generator\MethodGenerator $methods[$x] * */
+            /** @var Generator\MethodGenerator $methods [$x] * */
             $docBlock = $methods[$x]->getDocBlock();
             $docBlock->setShortDescription($docBlock->getShortDescription() . "\n@return " . $cg->getName() . ' $this');
             $methods[$x]->setDocBlock($docBlock);
@@ -289,9 +289,15 @@ EOT;
      */
     private function camelCaseMethodName($name)
     {
-        return implode('', array_map(function ($item) {
-            return ucfirst($item);
-        }, explode('_', $name)));
+        return implode(
+            '',
+            array_map(
+                function ($item) {
+                    return ucfirst($item);
+                },
+                explode('_', $name)
+            )
+        );
     }
 
     /**

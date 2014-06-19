@@ -14,7 +14,6 @@ class Configuration
     const DETECT_CONTENT_HEADER = 1;
     const DETECT_CONTENT_EXTENSION = 2;
     const DETECT_CONTENT_PARAM = 3;
-
     const EXPOSE_REQUEST_HEADER = 1;
     const EXPOSE_REQUEST_PARAM = 2;
     const EXPOSE_REQUEST_PARAM_GET = 3;
@@ -26,20 +25,17 @@ class Configuration
         self::DETECT_CONTENT_EXTENSION => 'Extension',
         self::DETECT_CONTENT_PARAM => 'Parameter'
     );
-
     public static $exposeRequestOptions = array(
         self::EXPOSE_REQUEST_HEADER => 'X-Expose',
         self::EXPOSE_REQUEST_PARAM => 'Parameter',
         self::EXPOSE_REQUEST_PARAM_GET => 'Get Parameter',
         self::EXPOSE_REQUEST_PARAM_POST => 'Post Parameter'
     );
-
     /**
      * Configuration attributes
      * @var array
      */
     protected $_attributes = array();
-
 
     /**
      * Set configuration defaults
@@ -49,9 +45,11 @@ class Configuration
         // Turn off debug mode
         $this->setDebugMode(false);
         // Allow content detection using the Accept header
-        $this->setDetectContentOptions(array(
-            self::DETECT_CONTENT_HEADER => 'Accept'
-        ));
+        $this->setDetectContentOptions(
+            array(
+                self::DETECT_CONTENT_HEADER => 'Accept'
+            )
+        );
         // Use Json and XML as the default representations
         // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
@@ -91,24 +89,134 @@ class Configuration
     }
 
     /**
-     * Are we in debug mode?
-     * @return boolean
+     * Set the default representation classes to be used across the entire API.
+     * Any representations defined locally on a resource will take precedence
+     * @param array $representations
      */
-    public function inDebugMode()
+    public function setDefaultRepresentations(array $representations)
     {
-        return $this->_attributes['debugMode'];
+        $this->_attributes['defaultRepresentations'] = $representations;
     }
 
     /**
-     * Gets the cache driver implementation that is used for metadata caching.
-     *
-     * @return \Doctrine\Common\Cache\Cache
+     * Register an array of request adapter classes
+     * @param array $classes
      */
-    public function getMetadataCacheImpl()
+    public function registerRequestAdapterClasses(array $classes)
     {
-        return isset($this->_attributes['metadataCacheImpl'])
-            ? $this->_attributes['metadataCacheImpl']
-            : null;
+        foreach ($classes as $class) {
+            $this->registerRequestAdapterClass($class);
+        }
+    }
+
+    /**
+     * Register a class name to be used as a request adapter
+     * @param string $class
+     */
+    public function registerRequestAdapterClass($class)
+    {
+        if ($this->containsRequestAdapterClass($class) === false) {
+            $this->_attributes['requestAdapterClasses'][] = $class;
+        }
+    }
+
+    /**
+     * Does this configuration contain a request adapter class by name
+     * @param $className
+     * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
+     */
+    public function containsRequestAdapterClass($className)
+    {
+        if (($offset = array_search($className, $this->_attributes['requestAdapterClasses'])) !== false) {
+            return $offset;
+        }
+        return false;
+    }
+
+    /**
+     * Register an array of response adapter classes
+     * @param array $classes
+     */
+    public function registerResponseAdapterClasses(array $classes)
+    {
+        foreach ($classes as $class) {
+            $this->registerResponseAdapterClass($class);
+        }
+    }
+
+    /**
+     * Register a class name to be used as a response adapter
+     * @param string $class
+     */
+    public function registerResponseAdapterClass($class)
+    {
+        if ($this->containsResponseAdapterClass($class) === false) {
+            $this->_attributes['responseAdapterClasses'][] = $class;
+        }
+    }
+
+    /**
+     * Does this configuration contain a response adapter class by name
+     * @param $className
+     * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
+     */
+    public function containsResponseAdapterClass($className)
+    {
+        if (($offset = array_search($className, $this->_attributes['responseAdapterClasses'])) !== false) {
+            return $offset;
+        }
+        return false;
+    }
+
+    /**
+     * Set the default depth of columns to expose to client
+     * @param integer $depth
+     */
+    public function setExposureDepth($depth)
+    {
+        $this->_attributes['defaultExposureDepth'] = (int)$depth;
+    }
+
+    /**
+     * Set the exposure fields by following relations that have the a certain fetch type.
+     * This is useful if you only want to display fields that are loaded eagerly.
+     * eg ->setExposureRelationsFetchType(ORMClassMetaDataInfo::FETCH_EAGER)
+     * @param integer $fetch
+     * @throws DrestException
+     */
+    public function setExposureRelationsFetchType($fetch)
+    {
+        switch ($fetch) {
+            case ORMClassMetaDataInfo::FETCH_EAGER:
+            case ORMClassMetaDataInfo::FETCH_LAZY:
+            case ORMClassMetaDataInfo::FETCH_EXTRA_LAZY:
+            case null:
+                $this->_attributes['defaultExposureRelationsFetchType'] = $fetch;
+                break;
+            default:
+                throw DrestException::invalidExposeRelationFetchType();
+                break;
+        }
+    }
+
+    /**
+     * A setting to generically allow OPTIONS requests across the entire API.
+     * This can be overridden by using the @Route\Metadata $allowOptions parameter
+     * @param boolean $value
+     */
+    public function setAllowOptionsRequest($value)
+    {
+        $this->_attributes['allowOptionsRequest'] = (bool)$value;
+    }
+
+    /**
+     * When no content type is detected, the response will default to using the first available.
+     * To switch this feature off and send a 415 error, call this configuration function
+     * @param boolean $value
+     */
+    public function set415ForNoMediaMatch($value = true)
+    {
+        $this->_attributes['send415ForNoMediaMatch'] = (bool)$value;
     }
 
     /**
@@ -119,23 +227,6 @@ class Configuration
     public function setMetadataCacheImpl(Cache $cacheImpl)
     {
         $this->_attributes['metadataCacheImpl'] = $cacheImpl;
-    }
-
-
-    /**
-     * Set the methods to be used for detecting content type to be used to pull requests, overwrites previous settings
-     * Eg ->setDetectContentOptions(array(self::DETECT_CONTENT_HEADER => $headerName))
-     * self::DETECT_CONTENT_HEADER           = Uses the a header to detect the required content (typically use Accept)
-     * self::DETECT_CONTENT_EXTENSION        = Uses an extension on the url eg .xml
-     * self::DETECT_CONTENT_PARAM            = Uses a the "format" parameter
-     * @param array - pass either a single array value using the constant value as a key, or a multi-dimensional array.
-     */
-    public function setDetectContentOptions(array $options)
-    {
-        $this->_attributes['detectContentOptions'] = array();
-        foreach ($options as $key => $value) {
-            $this->setDetectContentOption($key, $value);
-        }
     }
 
     /**
@@ -166,13 +257,19 @@ class Configuration
     }
 
     /**
-     * When no content type is detected, the response will default to using the first available.
-     * To switch this feature off and send a 415 error, call this configuration function
-     * @param boolean $value
+     * Set the methods to be used for detecting content type to be used to pull requests, overwrites previous settings
+     * Eg ->setDetectContentOptions(array(self::DETECT_CONTENT_HEADER => $headerName))
+     * self::DETECT_CONTENT_HEADER           = Uses the a header to detect the required content (typically use Accept)
+     * self::DETECT_CONTENT_EXTENSION        = Uses an extension on the url eg .xml
+     * self::DETECT_CONTENT_PARAM            = Uses a the "format" parameter
+     * @param array - pass either a single array value using the constant value as a key, or a multi-dimensional array.
      */
-    public function set415ForNoMediaMatch($value = true)
+    public function setDetectContentOptions(array $options)
     {
-        $this->_attributes['send415ForNoMediaMatch'] = (bool) $value;
+        $this->_attributes['detectContentOptions'] = array();
+        foreach ($options as $key => $value) {
+            $this->setDetectContentOption($key, $value);
+        }
     }
 
     /**
@@ -182,19 +279,6 @@ class Configuration
     public function get415ForNoMediaMatchSetting()
     {
         return $this->_attributes['send415ForNoMediaMatch'];
-    }
-
-    /**
-     * Set the methods to be used for detecting the expose content from the client. Overwrites any previous value
-     * Eg ->setExposeRequestOptions(array(self::EXPOSE_REQUEST_HEADER => $headerName))
-     * @param array $options
-     */
-    public function setExposeRequestOptions(array $options)
-    {
-        $this->_attributes['exposeRequestOptions'] = array();
-        foreach ($options as $key => $value) {
-            $this->setExposeRequestOption($key, $value);
-        }
     }
 
     /**
@@ -222,12 +306,16 @@ class Configuration
     }
 
     /**
-     * Set the default depth of columns to expose to client
-     * @param integer $depth
+     * Set the methods to be used for detecting the expose content from the client. Overwrites any previous value
+     * Eg ->setExposeRequestOptions(array(self::EXPOSE_REQUEST_HEADER => $headerName))
+     * @param array $options
      */
-    public function setExposureDepth($depth)
+    public function setExposeRequestOptions(array $options)
     {
-        $this->_attributes['defaultExposureDepth'] = (int)$depth;
+        $this->_attributes['exposeRequestOptions'] = array();
+        foreach ($options as $key => $value) {
+            $this->setExposeRequestOption($key, $value);
+        }
     }
 
     /**
@@ -237,28 +325,6 @@ class Configuration
     public function getExposureDepth()
     {
         return (int)$this->_attributes['defaultExposureDepth'];
-    }
-
-    /**
-     * Set the exposure fields by following relations that have the a certain fetch type.
-     * This is useful if you only want to display fields that are loaded eagerly.
-     * eg ->setExposureRelationsFetchType(ORMClassMetaDataInfo::FETCH_EAGER)
-     * @param integer $fetch
-     * @throws DrestException
-     */
-    public function setExposureRelationsFetchType($fetch)
-    {
-        switch ($fetch) {
-            case ORMClassMetaDataInfo::FETCH_EAGER:
-            case ORMClassMetaDataInfo::FETCH_LAZY:
-            case ORMClassMetaDataInfo::FETCH_EXTRA_LAZY:
-            case null:
-                $this->_attributes['defaultExposureRelationsFetchType'] = $fetch;
-                break;
-            default:
-                throw DrestException::invalidExposeRelationFetchType();
-                break;
-        }
     }
 
     /**
@@ -274,51 +340,14 @@ class Configuration
     }
 
     /**
-     * Register an array of response adapter classes
-     * @param array $classes
-     */
-    public function registerResponseAdapterClasses(array $classes)
-    {
-        foreach ($classes as $class) {
-            $this->registerResponseAdapterClass($class);
-        }
-    }
-
-    /**
-     * Register a class name to be used as a response adapter
-     * @param string $class
-     */
-    public function registerResponseAdapterClass($class)
-    {
-        if ($this->containsResponseAdapterClass($class) === false)
-        {
-            $this->_attributes['responseAdapterClasses'][] = $class;
-        }
-    }
-
-    /**
      * Un-register an adapter class name entry
      * @param string $class
      */
     public function unregisterResponseAdapterClass($class)
     {
-        if (($offset = $this->containsResponseAdapterClass($class)) !== false)
-        {
+        if (($offset = $this->containsResponseAdapterClass($class)) !== false) {
             unset($this->_attributes['responseAdapterClasses'][$offset]);
         }
-    }
-
-    /**
-     * Does this configuration contain a response adapter class by name
-     * @param $className
-     * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
-     */
-    public function containsResponseAdapterClass($className)
-    {
-        if (($offset = array_search($className, $this->_attributes['responseAdapterClasses'])) !== false) {
-            return $offset;
-        }
-        return false;
     }
 
     /**
@@ -331,51 +360,14 @@ class Configuration
     }
 
     /**
-     * Register an array of request adapter classes
-     * @param array $classes
-     */
-    public function registerRequestAdapterClasses(array $classes)
-    {
-        foreach ($classes as $class) {
-            $this->registerRequestAdapterClass($class);
-        }
-    }
-
-    /**
-     * Register a class name to be used as a request adapter
-     * @param string $class
-     */
-    public function registerRequestAdapterClass($class)
-    {
-        if ($this->containsRequestAdapterClass($class) === false)
-        {
-            $this->_attributes['requestAdapterClasses'][] = $class;
-        }
-    }
-
-    /**
      * Un-register an adapter class name entry
      * @param string $class
      */
     public function unregisterRequestAdapterClass($class)
     {
-        if (($offset = $this->containsRequestAdapterClass($class)) !== false)
-        {
+        if (($offset = $this->containsRequestAdapterClass($class)) !== false) {
             unset($this->_attributes['requestAdapterClasses'][$offset]);
         }
-    }
-
-    /**
-     * Does this configuration contain a request adapter class by name
-     * @param $className
-     * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
-     */
-    public function containsRequestAdapterClass($className)
-    {
-        if (($offset = array_search($className, $this->_attributes['requestAdapterClasses'])) !== false) {
-            return $offset;
-        }
-        return false;
     }
 
     /**
@@ -385,17 +377,6 @@ class Configuration
     public function getRegisteredRequestAdapterClasses()
     {
         return $this->_attributes['requestAdapterClasses'];
-    }
-
-
-    /**
-     * A setting to generically allow OPTIONS requests across the entire API.
-     * This can be overridden by using the @Route\Metadata $allowOptions parameter
-     * @param boolean $value
-     */
-    public function setAllowOptionsRequest($value)
-    {
-        $this->_attributes['allowOptionsRequest'] = (bool)$value;
     }
 
     /**
@@ -509,16 +490,6 @@ class Configuration
     }
 
     /**
-     * Set the default representation classes to be used across the entire API.
-     * Any representations defined locally on a resource will take precedence
-     * @param array $representations
-     */
-    public function setDefaultRepresentations(array $representations)
-    {
-        $this->_attributes['defaultRepresentations'] = $representations;
-    }
-
-    /**
      * Get the default error handler class
      * @return string $className
      */
@@ -542,5 +513,26 @@ class Configuration
         if (!$this->getMetadataCacheImpl()) {
             throw DrestException::metadataCacheNotConfigured();
         }
+    }
+
+    /**
+     * Are we in debug mode?
+     * @return boolean
+     */
+    public function inDebugMode()
+    {
+        return $this->_attributes['debugMode'];
+    }
+
+    /**
+     * Gets the cache driver implementation that is used for metadata caching.
+     *
+     * @return \Doctrine\Common\Cache\Cache
+     */
+    public function getMetadataCacheImpl()
+    {
+        return isset($this->_attributes['metadataCacheImpl'])
+            ? $this->_attributes['metadataCacheImpl']
+            : null;
     }
 }

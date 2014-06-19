@@ -24,17 +24,23 @@ class AllowOptionsTest extends DrestFunctionalTestCase
         $response = $dm->dispatch($request);
 
         $allow = explode(',', $response->getHttpHeader('Allow'));
-        $allow = array_map(function($item){
-           return trim($item);
-        }, $allow);
+        $allow = array_map(
+            function ($item) {
+                return trim($item);
+            },
+            $allow
+        );
         // sort it so we can array_diff
         sort($allow);
 
         // Allow should show PUT, PATCH, DELETE, GET as in CMS/User.php
-        $this->assertCount(0, array_diff(
-            array('DELETE', 'GET', 'PATCH', 'PUT'),
-            $allow
-        ));
+        $this->assertCount(
+            0,
+            array_diff(
+                array('DELETE', 'GET', 'PATCH', 'PUT'),
+                $allow
+            )
+        );
 
     }
 

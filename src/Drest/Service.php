@@ -2,15 +2,15 @@
 namespace Drest;
 
 use Doctrine\ORM\EntityManager;
-use Drest\Mapping\RouteMetaData;
 use Drest\Event;
+use Drest\Mapping\RouteMetaData;
 use Drest\Service\Action\AbstractAction;
+use DrestCommon\Error\Handler\AbstractHandler;
 use DrestCommon\Error\Response\ResponseInterface;
-use DrestCommon\ResultSet;
 use DrestCommon\Representation;
 use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
-use DrestCommon\Error\Handler\AbstractHandler;
+use DrestCommon\ResultSet;
 
 class Service
 {
@@ -120,12 +120,18 @@ class Service
     final public function runCallMethod()
     {
         // dispatch preServiceAction event
-        $this->dm->getEventManager()->dispatchEvent(Event\Events::PRE_SERVICE_ACTION, new Event\PreServiceActionArgs($this));
+        $this->dm->getEventManager()->dispatchEvent(
+            Event\Events::PRE_SERVICE_ACTION,
+            new Event\PreServiceActionArgs($this)
+        );
 
         $return = $this->getActionInstance()->execute();
 
         // dispatch postServiceAction event
-        $this->dm->getEventManager()->dispatchEvent(Event\Events::POST_SERVICE_ACTION, new Event\PostServiceActionArgs($this));
+        $this->dm->getEventManager()->dispatchEvent(
+            Event\Events::POST_SERVICE_ACTION,
+            new Event\PostServiceActionArgs($this)
+        );
 
         if ($return instanceof ResultSet) {
             $this->renderDeterminedRepresentation($return);

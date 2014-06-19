@@ -5,6 +5,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console;
+
 /**
  * Check Drest Production Setting
  */
@@ -18,7 +19,8 @@ class CheckProductionSettings extends Command
         $this
             ->setName('config:production-ready')
             ->setDescription('Checks the settings used are suitable for a production environment.')
-            ->setHelp(<<<EOT
+            ->setHelp(
+                <<<EOT
 
 Checks the settings used are suitable for a production environment.
 Notifications are given for using debug mode, or using a bad cache implementation.
@@ -41,8 +43,7 @@ EOT
         try {
             $drm->getConfiguration()->ensureProductionSettings();
             $output->write('Production settings OK' . PHP_EOL);
-        } catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $output->write(PHP_EOL . $e->getMessage() . PHP_EOL);
         }
     }

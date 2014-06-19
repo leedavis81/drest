@@ -1,11 +1,11 @@
 <?php
 namespace Drest\Mapping;
 
+use Doctrine\Common\Inflector\Inflector;
 use Doctrine\ORM\EntityManager;
 use Drest\Service\Action\AbstractAction;
 use DrestCommon\Representation\AbstractRepresentation;
 use DrestCommon\Representation\RepresentationException;
-use Doctrine\Common\Inflector\Inflector;
 
 /**
  *
@@ -109,13 +109,16 @@ class ClassMetaData implements \Serializable
             if (($route = $this->getRoutesMetaData($this->originRouteName)) !== false) {
                 return $route;
             }
-        } elseif (!is_null($em))
-        {
+        } elseif (!is_null($em)) {
             $ormClassMetadata = $em->getClassMetadata($this->getClassName());
 
             foreach ($this->getRoutesMetaData() as $route) {
                 /* @var RouteMetaData $route */
-                if (in_array('GET', $route->getVerbs()) && preg_match('/^(.*)?\/:' . implode('/:', $ormClassMetadata->getIdentifierFieldNames()) . '$/', $route->getRoutePattern())) {
+                if (in_array('GET', $route->getVerbs()) && preg_match(
+                        '/^(.*)?\/:' . implode('/:', $ormClassMetadata->getIdentifierFieldNames()) . '$/',
+                        $route->getRoutePattern()
+                    )
+                ) {
                     $this->originRouteName = $route->getName();
                     return $route;
                 }
@@ -212,14 +215,16 @@ class ClassMetaData implements \Serializable
      */
     public function serialize()
     {
-        return serialize(array(
-            $this->routes,
-            $this->representations,
-            $this->className,
-            $this->filePath,
-            $this->createdAt,
-            $this->originRouteName
-        ));
+        return serialize(
+            array(
+                $this->routes,
+                $this->representations,
+                $this->className,
+                $this->filePath,
+                $this->createdAt,
+                $this->originRouteName
+            )
+        );
     }
 
     /**
@@ -236,8 +241,7 @@ class ClassMetaData implements \Serializable
             $this->originRouteName
             ) = unserialize($string);
 
-        foreach ($this->routes as $route)
-        {
+        foreach ($this->routes as $route) {
             /* @var $route RouteMetaData */
             $route->setClassMetaData($this);
         }

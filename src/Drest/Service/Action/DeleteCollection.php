@@ -1,8 +1,8 @@
 <?php
 namespace Drest\Service\Action;
 
-use DrestCommon\ResultSet;
 use DrestCommon\Response\Response;
+use DrestCommon\ResultSet;
 
 class DeleteCollection extends AbstractAction
 {

@@ -2,8 +2,8 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
-use DrestCommon\ResultSet;
 use DrestCommon\Response\Response;
+use DrestCommon\ResultSet;
 
 class PutElement extends AbstractAction
 {
@@ -35,7 +35,11 @@ class PutElement extends AbstractAction
             $em->persist($object);
             $em->flush($object);
 
-            $location = $matchedRoute->getOriginLocation($object, $this->getRequest()->getUrl(), $this->getEntityManager());
+            $location = $matchedRoute->getOriginLocation(
+                $object,
+                $this->getRequest()->getUrl(),
+                $this->getEntityManager()
+            );
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_200);
             $resultSet = ResultSet::create(array('location' => ($location) ? $location : 'unknown'), 'response');
         } catch (\Exception $e) {

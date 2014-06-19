@@ -16,18 +16,18 @@ namespace Drest;
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
+use Drest\Event;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
-use Drest\Event;
+use Drest\Route\MultipleRoutesException;
+use Drest\Route\NoMatchException;
 use DrestCommon\Error\Handler\AbstractHandler;
 use DrestCommon\Error\Response\Text as ErrorResponseText;
-use DrestCommon\Request\Request;
-use DrestCommon\Response\Response;
 use DrestCommon\Representation\AbstractRepresentation;
 use DrestCommon\Representation\RepresentationException;
 use DrestCommon\Representation\UnableToMatchRepresentationException;
-use Drest\Route\MultipleRoutesException;
-use Drest\Route\NoMatchException;
+use DrestCommon\Request\Request;
+use DrestCommon\Response\Response;
 
 class Manager
 {
@@ -112,8 +112,7 @@ class Manager
             )
         );
 
-        if ($cache = $config->getMetadataCacheImpl())
-        {
+        if ($cache = $config->getMetadataCacheImpl()) {
             $this->metadataFactory->setCache($cache);
         }
     }
@@ -140,10 +139,10 @@ class Manager
 
     /**
      * Dispatch a REST request
-     * @param object $request            - Framework request object
-     * @param object $response           - Framework response object
-     * @param string $namedRoute         - Define the named Route to be dispatch - by passes the internal router
-     * @param array $routeParams         - Route parameters to be used when dispatching a namedRoute request
+     * @param object $request - Framework request object
+     * @param object $response - Framework response object
+     * @param string $namedRoute - Define the named Route to be dispatch - by passes the internal router
+     * @param array $routeParams - Route parameters to be used when dispatching a namedRoute request
      * @return Response $response - returns a Drest response object which can be sent calling toString()
      * @throws \Exception                - Upon failure
      */
@@ -166,11 +165,9 @@ class Manager
             $this->execute($namedRoute, $routeParams);
         } catch (\Exception $e) {
 
-            if ($this->config->inDebugMode())
-            {
+            if ($this->config->inDebugMode()) {
                 $rethrowException = $e;
-            } else
-            {
+            } else {
                 $this->handleError($e);
             }
         }
@@ -181,8 +178,7 @@ class Manager
             new Event\PostDispatchArgs($this->service)
         );
 
-        if ($rethrowException)
-        {
+        if ($rethrowException) {
             throw $rethrowException;
         }
 
@@ -191,14 +187,13 @@ class Manager
 
     /**
      * Execute a dispatched request
-     * @param string $namedRoute        - Define the named Route to be dispatched - bypasses the internal router lookup
-     * @param array $routeParams        - Route parameters to be used for dispatching a namedRoute request
+     * @param string $namedRoute - Define the named Route to be dispatched - bypasses the internal router lookup
+     * @param array $routeParams - Route parameters to be used for dispatching a namedRoute request
      * @throws Route\NoMatchException|\Exception
      */
     protected function execute($namedRoute = null, array $routeParams = array())
     {
-        if (($route = $this->determineRoute($namedRoute, $routeParams)) instanceof RouteMetaData)
-        {
+        if (($route = $this->determineRoute($namedRoute, $routeParams)) instanceof RouteMetaData) {
             // Get the representation to be used - always successful or it throws an exception
             $representation = $this->getDeterminedRepresentation($route);
 
@@ -251,7 +246,8 @@ class Manager
                 new Event\PostRoutingArgs($this->service)
             );
             if ($e instanceof NoMatchException &&
-                ($this->doCGOptionsCheck() || $this->doOptionsCheck())) {
+                ($this->doCGOptionsCheck() || $this->doOptionsCheck())
+            ) {
                 return false;
             }
             throw $e;
@@ -302,7 +298,8 @@ class Manager
                 ->configureExposeDepth(
                     $this->em,
                     $this->config->getExposureDepth(),
-                    $this->config->getExposureRelationsFetchType())
+                    $this->config->getExposureRelationsFetchType()
+                )
                 ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
                 ->toArray()
         );
@@ -323,7 +320,8 @@ class Manager
                 ->configureExposeDepth(
                     $this->em,
                     $this->config->getExposureDepth(),
-                    $this->config->getExposureRelationsFetchType())
+                    $this->config->getExposureRelationsFetchType()
+                )
                 ->configurePushRequest($representation->toArray())
         );
 
@@ -355,7 +353,8 @@ class Manager
                             ->configureExposeDepth(
                                 $this->em,
                                 $this->config->getExposureDepth(),
-                                $this->config->getExposureRelationsFetchType())
+                                $this->config->getExposureRelationsFetchType()
+                            )
                             ->toArray()
                     );
                 }
@@ -387,7 +386,8 @@ class Manager
             $allowedOptions = $route->isAllowedOptionRequest();
             if (false === (($allowedOptions === -1)
                     ? $this->config->getAllowOptionsRequest()
-                    : (bool)$allowedOptions)) {
+                    : (bool)$allowedOptions)
+            ) {
                 continue;
             }
             $verbs = array_merge($verbs, $route->getVerbs());
@@ -417,7 +417,8 @@ class Manager
         if (empty($representations)) {
             throw RepresentationException::noRepresentationsSetForRoute(
                 $route->getName(),
-                $route->getClassMetaData()->getClassName());
+                $route->getClassMetaData()->getClassName()
+            );
         }
 
         $representationObjects = array();
@@ -642,8 +643,7 @@ class Manager
      */
     public function checkDefinitions()
     {
-        foreach ($this->metadataFactory->getAllClassNames() as $class)
-        {
+        foreach ($this->metadataFactory->getAllClassNames() as $class) {
             $this->getClassMetadata($class);
         }
     }

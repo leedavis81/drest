@@ -30,8 +30,7 @@ class GetCollectionTests extends DrestFunctionalTestCase
             array('email_address' => 'samwise.gamgee@theshire.com', 'username' => 'samwise.gamgee')
         );
 
-        foreach ($users as $user)
-        {
+        foreach ($users as $user) {
             $userObj = new \DrestTests\Entities\CMS\User();
             $userObj->setEmailAddress($user['email_address']);
             $userObj->setUsername($user['username']);
@@ -54,8 +53,7 @@ class GetCollectionTests extends DrestFunctionalTestCase
         $representation = $representation::createFromString($response->getBody());
         $usersArray = $representation->toArray(false);
 
-        for ($x = 0; $x < sizeof($users); $x++)
-        {
+        for ($x = 0; $x < sizeof($users); $x++) {
             $this->assertEquals($users[$x]['email_address'], $usersArray[$x]['email_address']);
             $this->assertEquals($users[$x]['username'], $usersArray[$x]['username']);
         }

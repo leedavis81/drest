@@ -2,8 +2,8 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
-use DrestCommon\ResultSet;
 use DrestCommon\Response\Response;
+use DrestCommon\ResultSet;
 
 class PostElement extends AbstractAction
 {
@@ -22,7 +22,12 @@ class PostElement extends AbstractAction
             $em->flush($object);
 
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_201);
-            if (($location = $this->getMatchedRoute()->getOriginLocation($object, $this->getRequest()->getUrl(), $this->getEntityManager())) !== false) {
+            if (($location = $this->getMatchedRoute()->getOriginLocation(
+                    $object,
+                    $this->getRequest()->getUrl(),
+                    $this->getEntityManager()
+                )) !== false
+            ) {
                 $this->getResponse()->setHttpHeader('Location', $location);
             }
 

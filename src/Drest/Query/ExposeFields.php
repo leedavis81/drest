@@ -42,7 +42,7 @@ class ExposeFields implements \Iterator
     /**
      * An array of classes that are registered on default expose depth.
      * Temporary used during processExposeDepth to prevent you traversing up and down bi-directional relations
-     * @var array $registered_expose_classes;
+     * @var array $registered_expose_classes ;
      */
     protected $registered_expose_classes = array();
 
@@ -94,7 +94,7 @@ class ExposeFields implements \Iterator
      * Configure the expose object to filter out fields that are not allowed to be use by the client.
      * Unlike the configuring of the Pull request, this function will return the formatted array in a ResultSet object
      * This is only applicable for a HTTP push (POST/PUT/PATCH) call
-     * @param array $pushed    - the data push on the request
+     * @param array $pushed - the data push on the request
      * @throws \Drest\DrestException
      * @return \DrestCommon\ResultSet
      *
@@ -239,9 +239,15 @@ class ExposeFields implements \Iterator
             $this->recurseExposeString($part['contents'], $results[$part['tagName']]);
         }
 
-        $results = array_merge(array_filter(explode('|', $parts->remaining_string), function ($item) {
-            return (empty($item)) ? false : true;
-        }), $results);
+        $results = array_merge(
+            array_filter(
+                explode('|', $parts->remaining_string),
+                function ($item) {
+                    return (empty($item)) ? false : true;
+                }
+            ),
+            $results
+        );
     }
 
     /**
@@ -330,7 +336,11 @@ class ExposeFields implements \Iterator
                     continue;
                 }
             } else {
-                if (isset($actual[$requestedValue]) && is_array($actual[$requestedValue]) && array_key_exists($requestedValue, $actual)) {
+                if (isset($actual[$requestedValue]) && is_array($actual[$requestedValue]) && array_key_exists(
+                        $requestedValue,
+                        $actual
+                    )
+                ) {
                     continue;
                 }
             }
@@ -358,8 +368,17 @@ class ExposeFields implements \Iterator
             if (($depth - 1) > 0) {
                 --$depth;
                 foreach ($metaData->getAssociationMappings() as $key => $assocMapping) {
-                    if (!in_array($assocMapping['targetEntity'], $this->registered_expose_classes) && (is_null($fetchType) || ($assocMapping['fetch'] == $fetchType))) {
-                        $this->processExposeDepth($fields[$key], $assocMapping['targetEntity'], $em, $depth, $fetchType);
+                    if (!in_array($assocMapping['targetEntity'], $this->registered_expose_classes) && (is_null(
+                                $fetchType
+                            ) || ($assocMapping['fetch'] == $fetchType))
+                    ) {
+                        $this->processExposeDepth(
+                            $fields[$key],
+                            $assocMapping['targetEntity'],
+                            $em,
+                            $depth,
+                            $fetchType
+                        );
                     }
                 }
             }

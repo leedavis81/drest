@@ -1,8 +1,8 @@
 <?php
 namespace Drest\Event;
 
-use Drest\Service;
 use Doctrine\Common\EventArgs;
+use Drest\Service;
 
 class PostRoutingArgs extends EventArgs
 {

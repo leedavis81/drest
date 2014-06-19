@@ -15,14 +15,14 @@ use Drest\Mapping\Annotation as Drest;
  * User
  *
  * @Drest\Resource(
- * 		representations={"Json", "Xml"},
+ *        representations={"Json", "Xml"},
  *      routes={
  *      	@Drest\Route(
- *      		name="get_user",
- *      		routePattern="/user/:id",
- *      		routeConditions={"id": "\d+"},
- *      		verbs={"GET"}
- *      	),
+ *            name="get_user",
+ *            routePattern="/user/:id",
+ *            routeConditions={"id": "\d+"},
+ *            verbs={"GET"}
+ *        ),
  *      	@Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
  *      	@Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),
  *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}, expose={"username", "email_address", "profile" : {"firstname", "lastname"}, "phone_numbers" : {"number"}}),

@@ -108,7 +108,7 @@ class RouteMetaData implements \Serializable
      * -1 = not set
      * 0  = not allowed
      * 1  = allowed
-     * @var integer $allowed_option_request;
+     * @var integer $allowed_option_request ;
      */
     protected $allowed_option_request = -1;
 
@@ -247,9 +247,14 @@ class RouteMetaData implements \Serializable
      */
     public function setRouteParams(array $params = array())
     {
-        $this->route_params = array_flip(array_filter(array_flip($params), function ($entry) {
-            return !is_int($entry);
-        }));
+        $this->route_params = array_flip(
+            array_filter(
+                array_flip($params),
+                function ($entry) {
+                    return !is_int($entry);
+                }
+            )
+        );
     }
 
     /**
@@ -268,9 +273,14 @@ class RouteMetaData implements \Serializable
      */
     public function setUnmappedRouteParams(array $params = array())
     {
-        $this->unmapped_route_params = array_flip(array_filter(array_flip($params), function ($entry) {
-            return !is_string($entry);
-        }));
+        $this->unmapped_route_params = array_flip(
+            array_filter(
+                array_flip($params),
+                function ($entry) {
+                    return !is_string($entry);
+                }
+            )
+        );
     }
 
     /**
@@ -353,7 +363,7 @@ class RouteMetaData implements \Serializable
      */
     public function setInjectRequestIntoHandle($setting)
     {
-        $this->inject_request_into_handle = (bool) $setting;
+        $this->inject_request_into_handle = (bool)$setting;
     }
 
     /**
@@ -410,16 +420,12 @@ class RouteMetaData implements \Serializable
     public function getOriginLocation($object, $url, EntityManager $em = null)
     {
         $exposedObjectArray = self::getObjectVarsArray($object);
-        if (($route = $this->getOriginRoute($em)) !== null)
-        {
-            if (!is_null($em))
-            {
+        if (($route = $this->getOriginRoute($em)) !== null) {
+            if (!is_null($em)) {
                 $pattern = $route->getRoutePattern();
                 $ormClassMetadata = $em->getClassMetadata($this->getClassMetaData()->getClassName());
-                foreach ($ormClassMetadata->getIdentifierFieldNames() as $identifier)
-                {
-                    if (isset($exposedObjectArray[$identifier]))
-                    {
+                foreach ($ormClassMetadata->getIdentifierFieldNames() as $identifier) {
+                    if (isset($exposedObjectArray[$identifier])) {
                         $pattern = str_replace(':' . $identifier, $exposedObjectArray[$identifier], $pattern);
                     }
                 }
@@ -437,12 +443,11 @@ class RouteMetaData implements \Serializable
      */
     public static function getObjectVarsArray($object)
     {
-        if (!is_object($object))
-        {
+        if (!is_object($object)) {
             throw new \InvalidArgumentException('To extract variables from an object, you must supply an object.');
         }
 
-        $objectArray = (array) $object;
+        $objectArray = (array)$object;
         $out = json_encode($objectArray);
         $out = preg_replace('/\\\u0000[*a-zA-Z_\x7f-\xff\\\][a-zA-Z0-9_\x7f-\xff\\\]*\\\u0000/', '', $out);
 
@@ -477,7 +482,8 @@ class RouteMetaData implements \Serializable
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
             array($this, 'matchesCallback'),
-            str_replace(')', ')?', $routePattern));
+            str_replace(')', ')?', $routePattern)
+        );
         if (substr($this->route_pattern, -1) === '/') {
             $patternAsRegex .= '?';
         }
@@ -542,26 +548,27 @@ class RouteMetaData implements \Serializable
     public function serialize()
     {
         $trace = debug_backtrace();
-        if (!isset($trace[2]) || $trace[2]['class'] != 'Drest\Mapping\ClassMetaData')
-        {
+        if (!isset($trace[2]) || $trace[2]['class'] != 'Drest\Mapping\ClassMetaData') {
             trigger_error('RouteMetaData can only be serialized from a parent instance of ClassMetaData', E_USER_ERROR);
         }
-        return serialize(array(
-            $this->route_pattern,
-            $this->route_conditions,
-            $this->param_names,
-            $this->param_names_path,
-            $this->route_params,
-            $this->unmapped_route_params,
-            $this->name,
-            $this->verbs,
-            $this->collection,
-            $this->action_class,
-            $this->handle_call,
-            $this->inject_request_into_handle,
-            $this->expose,
-            $this->allowed_option_request
-        ));
+        return serialize(
+            array(
+                $this->route_pattern,
+                $this->route_conditions,
+                $this->param_names,
+                $this->param_names_path,
+                $this->route_params,
+                $this->unmapped_route_params,
+                $this->name,
+                $this->verbs,
+                $this->collection,
+                $this->action_class,
+                $this->handle_call,
+                $this->inject_request_into_handle,
+                $this->expose,
+                $this->allowed_option_request
+            )
+        );
     }
 
     /**
