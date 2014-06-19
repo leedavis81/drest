@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         verbose="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         syntaxCheck="true"
+         bootstrap="./tests/DrestTests/Bootstrap.php">
+
+    <testsuites>
+        <testsuite name="Drest Test Suite">
+            <directory>./tests/DrestTests</directory>
+        </testsuite>
+    </testsuites>
+
+</phpunit>

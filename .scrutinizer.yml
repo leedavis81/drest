@@ -3,39 +3,37 @@ before_commands:
 tools:
     php_code_coverage:
         enabled: true
-        filter:
-            paths: ['src/']
+        test_command: phpunit -c .scrutinizer-ci.phpunit.xml.dist
     php_code_sniffer:
         enabled: true
         config:
-            standard: psr2
+            standard: PSR2
         filter:
-            paths: ['src/']
+            paths: ['src/', 'tests/']
     php_cpd:
         enabled: true
-        min_lines: 5
-        min_tokens: 70
         names:
             - '*.php'
+        excluded_dirs: ['build', 'examples', 'tests', 'vendor']
     php_cs_fixer:
         enabled: true
         config:
-            level: psr2
+            level: all
         filter:
-            paths: ['src/']
+            paths: ['src/', 'tests/']
     php_loc:
         enabled: true
+        excluded_dirs: ['build', 'examples', 'tests', 'vendor']
     php_mess_detector:
         enabled: true
         filter:
             paths: ['src/']
+    php_pdepend:
+        enabled: true
+        excluded_dirs: ['build', 'examples', 'tests', 'vendor']
     php_analyzer:
         enabled: true
         filter:
-            paths: ['src/']
+            paths: ['src/', 'tests/']
     sensiolabs_security_checker:
         enabled: true
-        filter:
-            paths: ['src/']
-filter:
-    excluded_paths: ['vendor/*', 'tests/*']
