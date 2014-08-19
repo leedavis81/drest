@@ -46,7 +46,6 @@ class ExposeFields implements \Iterator
      */
     protected $registered_expose_classes = array();
 
-
     /**
      * Create an instance of ExposeFields - use create() method
      * @param RouteMetaData $route - requires a matched route
@@ -59,7 +58,7 @@ class ExposeFields implements \Iterator
 
     /**
      * Create an instance of ExposeFields
-     * @param RouteMetaData $route - requires a matched route
+     * @param  RouteMetaData             $route - requires a matched route
      * @return \Drest\Query\ExposeFields
      */
     public static function create(RouteMetaData $route)
@@ -69,10 +68,10 @@ class ExposeFields implements \Iterator
 
     /**
      * Set the default exposure fields using the configured exposure depth
-     * @param EntityManager $em
-     * @param integer $exposureDepth
-     * @param integer $exposureRelationsFetchType
-     * @return ExposeFields $this object instance
+     * @param  EntityManager $em
+     * @param  integer       $exposureDepth
+     * @param  integer       $exposureRelationsFetchType
+     * @return ExposeFields  $this object instance
      */
     public function configureExposeDepth(EntityManager $em, $exposureDepth = 0, $exposureRelationsFetchType = null)
     {
@@ -87,6 +86,7 @@ class ExposeFields implements \Iterator
                 $exposureRelationsFetchType
             );
         }
+
         return $this;
     }
 
@@ -94,7 +94,7 @@ class ExposeFields implements \Iterator
      * Configure the expose object to filter out fields that are not allowed to be use by the client.
      * Unlike the configuring of the Pull request, this function will return the formatted array in a ResultSet object
      * This is only applicable for a HTTP push (POST/PUT/PATCH) call
-     * @param array $pushed - the data push on the request
+     * @param  array                  $pushed - the data push on the request
      * @throws \Drest\DrestException
      * @return \DrestCommon\ResultSet
      *
@@ -115,13 +115,13 @@ class ExposeFields implements \Iterator
 
     /**
      * Filter out requested expose fields against what's allowed
-     * @param array $requested - The requested expose definition
-     * @param array $actual - current allowed expose definition
+     * @param  array $requested - The requested expose definition
+     * @param  array $actual    - current allowed expose definition
      * @return array $request - The requested expose data with non-allowed data stripped off
      */
     protected function filterPushExpose($requested, $actual)
     {
-        $actual = (array)$actual;
+        $actual = (array) $actual;
         foreach ($requested as $requestedKey => $requestedValue) {
             if ($requestedKey !== 0 && in_array($requestedKey, $actual)) {
                 continue;
@@ -142,6 +142,7 @@ class ExposeFields implements \Iterator
             }
             unset($requested[$requestedKey]);
         }
+
         return $requested;
     }
 
@@ -149,8 +150,8 @@ class ExposeFields implements \Iterator
     /**
      * Configure the expose object to filter out fields that have been explicitly requested by the client.
      * This is only applicable for a HTTP pull (GET) call. For configuring
-     * @param array $requestOptions
-     * @param Request $request
+     * @param  array        $requestOptions
+     * @param  Request      $request
      * @return ExposeFields $this object instance
      */
     public function configurePullRequest(array $requestOptions, Request $request)
@@ -204,8 +205,8 @@ class ExposeFields implements \Iterator
      *
      * Parses an expose string into an array
      * Example: "username|email_address|profile[id|lastname|addresses[id]]|phone_numbers"
-     * @param string $string
-     * @return array $result
+     * @param  string                       $string
+     * @return array                        $result
      * @throws InvalidExposeFieldsException - if any syntax error occurs, or unable to parse the string
      */
     protected function parseExposeString($string)
@@ -217,13 +218,14 @@ class ExposeFields implements \Iterator
 
         $results = array();
         $this->recurseExposeString(trim($string, '|'), $results);
+
         return $results;
     }
 
     /**
      * Recursively process the passed expose string
-     * @param string $string - the string to be processed
-     * @param array $results - passed by reference
+     * @param  string                       $string  - the string to be processed
+     * @param  array                        $results - passed by reference
      * @throws InvalidExposeFieldsException if unable to correctly parse the square brackets.
      */
     protected function recurseExposeString($string, &$results)
@@ -232,7 +234,7 @@ class ExposeFields implements \Iterator
             throw InvalidExposeFieldsException::unableToParseExposeString($string);
         }
 
-        $results = (array)$results;
+        $results = (array) $results;
 
         $parts = $this->parseStringParts($string);
         foreach ($parts->parts as $part) {
@@ -252,13 +254,13 @@ class ExposeFields implements \Iterator
 
     /**
      * Get information on parsed (top-level) brackets
-     * @param string $string
+     * @param  string    $string
      * @return \stdClass $information contains parse information object containing a $parts array eg array(
-     *    'openBracket' => xx,        - The position of the open bracket
-     *    'closeBracket' => xx        - The position of the close bracket
-     *  'contents' => xx            - The contents of the bracket
-     *  'tagName' => xx                - The name of the accompanying tag
-     * )
+     *                          'openBracket' => xx,        - The position of the open bracket
+     *                          'closeBracket' => xx        - The position of the close bracket
+     *                          'contents' => xx            - The contents of the bracket
+     *                          'tagName' => xx                - The name of the accompanying tag
+     *                          )
      */
     private function parseStringParts($string)
     {
@@ -314,17 +316,18 @@ class ExposeFields implements \Iterator
         $string = str_replace('||', '|', $string);
 
         $information->remaining_string = trim($string, '|');
+
         return $information;
     }
 
     /**
      * Filter out requested expose fields against what's allowed
      * @param array $requested - The requested expose definition - invalid / not allowed data is stripped off
-     * @param array $actual - current allowed expose definition
+     * @param array $actual    - current allowed expose definition
      */
     protected function filterRequestedExpose(&$requested, &$actual)
     {
-        $actual = (array)$actual;
+        $actual = (array) $actual;
         foreach ($requested as $requestedKey => $requestedValue) {
             if (in_array($requestedValue, $actual)) {
                 continue;
@@ -351,12 +354,12 @@ class ExposeFields implements \Iterator
     /**
      * Recursive function to generate default expose columns
      *
-     * @param array $fields - array to be populated recursively (referenced)
-     * @param string $class - name of the class to process
-     * @param EntityManager $em - entity manager used to fetch class information
-     * @param integer $depth - maximum depth you want to travel through the relations
-     * @param integer $fetchType - The fetch type to be used
-     * @param integer|null $fetchType - The required fetch type of the relation
+     * @param array         $fields    - array to be populated recursively (referenced)
+     * @param string        $class     - name of the class to process
+     * @param EntityManager $em        - entity manager used to fetch class information
+     * @param integer       $depth     - maximum depth you want to travel through the relations
+     * @param integer       $fetchType - The fetch type to be used
+     * @param integer|null  $fetchType - The required fetch type of the relation
      */
     protected function processExposeDepth(&$fields, $class, EntityManager $em, $depth = 0, $fetchType = null)
     {
@@ -385,7 +388,6 @@ class ExposeFields implements \Iterator
         }
     }
 
-
     /**
      * Get the expose fields
      * @return array $fields
@@ -395,6 +397,7 @@ class ExposeFields implements \Iterator
         if (!empty($this->route_expose)) {
             return $this->route_expose;
         }
+
         return $this->fields;
     }
 

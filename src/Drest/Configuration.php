@@ -121,7 +121,7 @@ class Configuration
 
     /**
      * Does this configuration contain a request adapter class by name
-     * @param string $className
+     * @param  string          $className
      * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
      */
     public function containsRequestAdapterClass($className)
@@ -157,7 +157,7 @@ class Configuration
 
     /**
      * Does this configuration contain a response adapter class by name
-     * @param string $className
+     * @param  string          $className
      * @return boolean|integer returns the offset position if it exists (can be zero, do type check)
      */
     public function containsResponseAdapterClass($className)

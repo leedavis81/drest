@@ -185,7 +185,7 @@ class RouteMetaData implements \Serializable
      */
     public function setCollection($value = true)
     {
-        $this->collection = (bool)$value;
+        $this->collection = (bool) $value;
     }
 
     /**
@@ -193,7 +193,7 @@ class RouteMetaData implements \Serializable
      */
     public function isCollection()
     {
-        return (bool)$this->collection;
+        return (bool) $this->collection;
     }
 
     /**
@@ -207,12 +207,12 @@ class RouteMetaData implements \Serializable
 
     /**
      * Add verbs that are to be allowed on this route.
-     * @param mixed $verbs = a single or array of verbs valid for this route. eg array('GET', 'PUT')
+     * @param  mixed          $verbs = a single or array of verbs valid for this route. eg array('GET', 'PUT')
      * @throws DrestException if verb is invalid
      */
     public function setVerbs($verbs)
     {
-        $verbs = (array)$verbs;
+        $verbs = (array) $verbs;
         foreach ($verbs as $verb) {
             $verb = strtoupper($verb);
             if (!defined('DrestCommon\Request\Request::METHOD_' . $verb)) {
@@ -354,6 +354,7 @@ class RouteMetaData implements \Serializable
                     break;
             }
         }
+
         return false;
     }
 
@@ -363,7 +364,7 @@ class RouteMetaData implements \Serializable
      */
     public function setInjectRequestIntoHandle($setting)
     {
-        $this->inject_request_into_handle = (bool)$setting;
+        $this->inject_request_into_handle = (bool) $setting;
     }
 
     /**
@@ -377,7 +378,7 @@ class RouteMetaData implements \Serializable
 
     /**
      * Set whether we would like to expose this route (and its verbs) to OPTIONS requests
-     * @param integer|boolean $value - if using integer -1 to unset, 0 for no and 1 if yes
+     * @param  integer|boolean $value - if using integer -1 to unset, 0 for no and 1 if yes
      * @throws DrestException
      */
     public function setAllowedOptionRequest($value = true)
@@ -401,7 +402,7 @@ class RouteMetaData implements \Serializable
 
     /**
      * Get the origin route (it could be this instance)
-     * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
+     * @param  EntityManager      $em - Optionally pass the entity manager to assist in determining a GET origin location
      * @return null|RouteMetaData $route
      */
     public function getOriginRoute(EntityManager $em = null)
@@ -409,12 +410,11 @@ class RouteMetaData implements \Serializable
         return $this->class_metadata->getOriginRoute($em);
     }
 
-
     /**
      * Generate the location string from the provided object
-     * @param object $object
-     * @param string $url - the Url to be prepended to the location
-     * @param EntityManager $em - Optionally pass the entity manager to assist in determining a GET origin location
+     * @param  object        $object
+     * @param  string        $url    - the Url to be prepended to the location
+     * @param  EntityManager $em     - Optionally pass the entity manager to assist in determining a GET origin location
      * @return string|false
      */
     public function getOriginLocation($object, $url, EntityManager $em = null)
@@ -429,9 +429,11 @@ class RouteMetaData implements \Serializable
                         $pattern = str_replace(':' . $identifier, $exposedObjectArray[$identifier], $pattern);
                     }
                 }
+
                 return $url . '/' . ltrim($pattern, '/');
             }
         }
+
         return false;
     }
 
@@ -447,7 +449,7 @@ class RouteMetaData implements \Serializable
             throw new \InvalidArgumentException('To extract variables from an object, you must supply an object.');
         }
 
-        $objectArray = (array)$object;
+        $objectArray = (array) $object;
         $out = json_encode($objectArray);
         $out = preg_replace('/\\\u0000[*a-zA-Z_\x7f-\xff\\\][a-zA-Z0-9_\x7f-\xff\\\]*\\\u0000/', '', $out);
 
@@ -456,10 +458,10 @@ class RouteMetaData implements \Serializable
 
     /**
      * Does this request matches the route pattern
-     * @param Request $request
-     * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb
-     *                           - useful for OPTIONS requests
-     * @param string $basePath - add a base path to the route pattern
+     * @param  Request $request
+     * @param  boolean $matchVerb - Whether you want to match the route using the request HTTP verb
+     *                            - useful for OPTIONS requests
+     * @param  string  $basePath  - add a base path to the route pattern
      * @return boolean $result
      */
     public function matches(Request $request, $matchVerb = true, $basePath = null)
@@ -477,8 +479,8 @@ class RouteMetaData implements \Serializable
 
         //Convert URL params into regex patterns, construct a regex for this route, init params
         $routePattern = (is_null($basePath))
-            ? (string)$this->route_pattern
-            : '/' . $basePath . '/' . ltrim((string)$this->route_pattern, '/');
+            ? (string) $this->route_pattern
+            : '/' . $basePath . '/' . ltrim((string) $this->route_pattern, '/');
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
             array($this, 'matchesCallback'),
@@ -509,6 +511,7 @@ class RouteMetaData implements \Serializable
         foreach ($this->route_conditions as $key => $condition) {
             if (!preg_match('/^' . $condition . '$/', $this->route_params[$key])) {
                 $this->param_names_path = $this->route_params = $this->unmapped_route_params = array();
+
                 return false;
             }
         }
@@ -527,6 +530,7 @@ class RouteMetaData implements \Serializable
 
         if (substr($m[0], -1) === '+') {
             $this->param_names_path[$m[1]] = 1;
+
             return '(?P<' . $m[1] . '>.+)';
         }
 
@@ -551,6 +555,7 @@ class RouteMetaData implements \Serializable
         if (!isset($trace[2]) || $trace[2]['class'] != 'Drest\Mapping\ClassMetaData') {
             trigger_error('RouteMetaData can only be serialized from a parent instance of ClassMetaData', E_USER_ERROR);
         }
+
         return serialize(
             array(
                 $this->route_pattern,

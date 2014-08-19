@@ -15,7 +15,6 @@ namespace Drest;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
-use Drest\Event;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
 use Drest\Route\MultipleRoutesException;
@@ -85,7 +84,6 @@ class Manager
      */
     protected $error_handler;
 
-
     /**
      * Creates an instance of the Drest Manager using the passed configuration object
      * Can also pass in a Event Manager instance
@@ -119,10 +117,10 @@ class Manager
     /**
      * Static call to create the Drest Manager instance
      *
-     * @param EntityManager $em
-     * @param Configuration $config
-     * @param Event\Manager $eventManager
-     * @return Manager $manager
+     * @param  EntityManager $em
+     * @param  Configuration $config
+     * @param  Event\Manager $eventManager
+     * @return Manager       $manager
      */
     public static function create(EntityManager $em, Configuration $config, Event\Manager $eventManager = null)
     {
@@ -138,12 +136,12 @@ class Manager
 
     /**
      * Dispatch a REST request
-     * @param object $request - Framework request object
-     * @param object $response - Framework response object
-     * @param string $namedRoute - Define the named Route to be dispatch - by passes the internal router
-     * @param array $routeParams - Route parameters to be used when dispatching a namedRoute request
-     * @return Response $response - returns a Drest response object which can be sent calling toString()
-     * @throws \Exception                - Upon failure
+     * @param  object     $request     - Framework request object
+     * @param  object     $response    - Framework response object
+     * @param  string     $namedRoute  - Define the named Route to be dispatch - by passes the internal router
+     * @param  array      $routeParams - Route parameters to be used when dispatching a namedRoute request
+     * @return Response   $response - returns a Drest response object which can be sent calling toString()
+     * @throws \Exception - Upon failure
      */
     public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = array())
     {
@@ -186,8 +184,8 @@ class Manager
 
     /**
      * Execute a dispatched request
-     * @param string $namedRoute - Define the named Route to be dispatched - bypasses the internal router lookup
-     * @param array $routeParams - Route parameters to be used for dispatching a namedRoute request
+     * @param  string                            $namedRoute  - Define the named Route to be dispatched - bypasses the internal router lookup
+     * @param  array                             $routeParams - Route parameters to be used for dispatching a namedRoute request
      * @throws Route\NoMatchException|\Exception
      */
     protected function execute($namedRoute = null, array $routeParams = array())
@@ -224,11 +222,11 @@ class Manager
 
     /**
      * Determine the matched route from either the router or namedRoute
-     * @param string|null $namedRoute
-     * @param array $routeParams
+     * @param  string|null                       $namedRoute
+     * @param  array                             $routeParams
      * @throws Route\NoMatchException|\Exception
-     * @return RouteMetaData|bool $route - if false no route could be matched
-     * (ideally the response should be returned in this instance - fail fast)
+     * @return RouteMetaData|bool                $route - if false no route could be matched
+     *                                                       (ideally the response should be returned in this instance - fail fast)
      */
     protected function determineRoute($namedRoute = null, array $routeParams = array())
     {
@@ -263,10 +261,10 @@ class Manager
     /**
      * Get a route based on Entity::route_name. eg Entities\User::get_users
      * Syntax checking is performed
-     * @param string $name
-     * @param array $params
+     * @param  string         $name
+     * @param  array          $params
      * @throws DrestException on invalid syntax or unmatched named route
-     * @return RouteMetaData $route
+     * @return RouteMetaData  $route
      */
     protected function getNamedRoute($name, array $params = array())
     {
@@ -282,9 +280,9 @@ class Manager
         }
 
         $route->setRouteParams($params);
+
         return $route;
     }
-
 
     /**
      * Handle a pull requests' exposure configuration (GET)
@@ -306,8 +304,8 @@ class Manager
 
     /**
      * Handle a push requests' exposure configuration (POST/PUT/PATCH)
-     * @param RouteMetaData $route - the matched route
-     * @param AbstractRepresentation $representation - the representation class to be used
+     * @param  RouteMetaData          $route          - the matched route
+     * @param  AbstractRepresentation $representation - the representation class to be used
      * @return AbstractRepresentation $representation
      */
     protected function handlePushExposureConfiguration(RouteMetaData $route, AbstractRepresentation $representation)
@@ -326,7 +324,6 @@ class Manager
 
         return $representation;
     }
-
 
     /**
      * Check if the client has requested the CG classes with an OPTIONS call
@@ -364,6 +361,7 @@ class Manager
         $classGenerator->create($classMetadatas);
 
         $this->response->setBody($classGenerator->serialize());
+
         return true;
     }
 
@@ -385,7 +383,7 @@ class Manager
             $allowedOptions = $route->isAllowedOptionRequest();
             if (false === (($allowedOptions === -1)
                     ? $this->config->getAllowOptionsRequest()
-                    : (bool)$allowedOptions)
+                    : (bool) $allowedOptions)
             ) {
                 continue;
             }
@@ -397,16 +395,17 @@ class Manager
         }
 
         $this->response->setHttpHeader('Allow', implode(', ', $verbs));
+
         return true;
     }
 
     /**
      * Detect an instance of a representation class using a matched route, or default representation classes
-     * @param RouteMetaData $route
-     * @param Mapping\RouteMetaData $route
+     * @param  RouteMetaData                        $route
+     * @param  Mapping\RouteMetaData                $route
      * @throws UnableToMatchRepresentationException
-     * @throws RepresentationException - if unable to instantiate a representation object from config settings
-     * @return AbstractRepresentation $representation
+     * @throws RepresentationException              - if unable to instantiate a representation object from config settings
+     * @return AbstractRepresentation               $representation
      */
     protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
     {
@@ -487,10 +486,10 @@ class Manager
 
     /**
      * Runs through all the registered routes and returns a single match
-     * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb
-     * @throws NoMatchException if no routes are found
+     * @param  boolean                 $matchVerb - Whether you want to match the route using the request HTTP verb
+     * @throws NoMatchException        if no routes are found
      * @throws MultipleRoutesException If there are multiple matches
-     * @return RouteMetaData $route
+     * @return RouteMetaData           $route
      */
     protected function getMatchedRoute($matchVerb = true)
     {
@@ -499,29 +498,30 @@ class Manager
             $this->router->setRouteBasePaths($this->config->getRouteBasePaths());
         }
 
-        $matchedRoutes = $this->router->getMatchedRoutes($this->request, (bool)$matchVerb);
+        $matchedRoutes = $this->router->getMatchedRoutes($this->request, (bool) $matchVerb);
         $routesSize = sizeof($matchedRoutes);
         if ($routesSize == 0) {
             throw NoMatchException::noMatchedRoutes();
         } elseif (sizeof($matchedRoutes) > 1) {
             throw MultipleRoutesException::multipleRoutesFound($matchedRoutes);
         }
+
         return $matchedRoutes[0];
     }
 
     /**
      * Get all possible match routes for this request
-     * @param boolean $matchVerb - Whether you want to match the route using the request HTTP verb
-     * @return array of Drest\Mapping\RouteMetaData object
+     * @param  boolean $matchVerb - Whether you want to match the route using the request HTTP verb
+     * @return array   of Drest\Mapping\RouteMetaData object
      */
     protected function getMatchedRoutes($matchVerb = true)
     {
-        return $this->router->getMatchedRoutes($this->request, (bool)$matchVerb);
+        return $this->router->getMatchedRoutes($this->request, (bool) $matchVerb);
     }
 
     /**
      * Handle an error by passing the exception to the registered error handler
-     * @param \Exception $e
+     * @param  \Exception $e
      * @throws \Exception
      */
     private function handleError(\Exception $e)
@@ -561,6 +561,7 @@ class Manager
         if (!$this->request instanceof Request) {
             $this->request = Request::create($fwRequest, $this->config->getRegisteredRequestAdapterClasses());
         }
+
         return $this->request;
     }
 
@@ -583,6 +584,7 @@ class Manager
         if (!$this->response instanceof Response) {
             $this->response = Response::create($fwResponse, $this->config->getRegisteredResponseAdapterClasses());
         }
+
         return $this->response;
     }
 
@@ -615,6 +617,7 @@ class Manager
             $className = $this->config->getDefaultErrorHandlerClass();
             $this->error_handler = new $className();
         }
+
         return $this->error_handler;
     }
 
@@ -629,7 +632,7 @@ class Manager
 
     /**
      * Get metadata for an entity class
-     * @param string $className
+     * @param  string                $className
      * @return Mapping\ClassMetaData
      */
     public function getClassMetadata($className)
