@@ -409,9 +409,9 @@ class Manager
      */
     protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
     {
-        $representations = (!is_null($route))
-            ? $route->getClassMetaData()->getRepresentations()
-            : $this->config->getDefaultRepresentations();
+        $representations = (is_null($route) || array() === $route->getClassMetaData()->getRepresentations())
+            ? $this->config->getDefaultRepresentations()
+            :$route->getClassMetaData()->getRepresentations();
         if (empty($representations)) {
             throw RepresentationException::noRepresentationsSetForRoute(
                 $route->getName(),

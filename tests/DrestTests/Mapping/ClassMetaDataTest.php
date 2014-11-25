@@ -27,7 +27,6 @@ class ClassMetaDataTest extends DrestTestCase
         $cmd->addRepresentation($rep);
 
         $this->assertContains($rep, $cmd->getRepresentations());
-
     }
 
     public function testMetadataCanAddStringRepresentation()
@@ -89,6 +88,20 @@ class ClassMetaDataTest extends DrestTestCase
         $cmd = $metadataFactory->getMetadataForClass($className);
 
         $this->assertEquals('get_user', $cmd->getOriginRoute($this->_getTestEntityManager())->getName());
+    }
+
+    public function testNoRepresentationIsAllowed()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities')
+            )
+        );
+        $className = 'DrestTests\\Entities\\CMS\\NoRepresentation';
+        $cmd = $metadataFactory->getMetadataForClass($className);
+
+        $this->assertEmpty($cmd->getRepresentations());
     }
 
     public function testAnnotatedOriginRoute()

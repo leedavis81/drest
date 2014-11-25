@@ -179,7 +179,10 @@ class AnnotationDriver implements DriverInterface
                     throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($class->name);
                 }
 
-                $metadata->addRepresentations($annotatedObject->representations);
+                if (is_array($annotatedObject->representations))
+                {
+                    $metadata->addRepresentations($annotatedObject->representations);
+                }
 
                 foreach ($annotatedObject->routes as $route) {
                     $routeMetaData = new Mapping\RouteMetaData();
