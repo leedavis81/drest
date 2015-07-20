@@ -1,39 +1,64 @@
-before_commands:
-  - composer update --prefer-source --dev --no-interaction
+build:
+    environment:
+        php: '5.6.9'
+        mysql: true
+        mongodb: true
+        postgresql: false
+        redis: false
+        timezone: 'Europe/London'
+    dependencies:
+        before:
+            - sudo apt-get update
+            - sudo apt-get install -y make libtool autoconf automake uuid-dev gcc-4.6
+            - sudo apt-get install -y php5 php5-mysql php5-curl php-apc php-pear php-xml-serializer php5-dev php5-gd
+            - sudo apt-get install -y curl git unzip gcc pkg-config makepasswd build-essential ntp
+            - pecl channel-update pecl.php.net
+            - printf "\n" | pecl install mongo
+            - echo "extension=mongo.so" | sudo tee /etc/php5/mods-available/mongo.ini
+            - sudo php5enmod mongo
+    project_setup:
+        before:
+            - echo "{\"config\":{\"github-oauth\":{\"github.com\":\"b570db4db20d2cb79386fe8e55485bbe3f6141dc\"}}}" | sudo tee ~/.composer/config.json
+            - sudo composer self-update
+            - composer update --prefer-source --no-interaction
+    tests:
+        override:
+            -
+                command: 'vendor/bin/phpunit --coverage-clover=coverage.clover'
+                coverage:
+                    file: 'coverage.clover'
+                    format: 'php-clover'
 tools:
-    php_code_coverage:
+    php_sim:
         enabled: true
-        test_command: phpunit -c .scrutinizer-ci.phpunit.xml.dist
-    php_code_sniffer:
-        enabled: true
-        config:
-            standard: PSR2
-        filter:
-            paths: ['src/', 'tests/']
-    php_cpd:
-        enabled: true
-        names:
-            - '*.php'
-        excluded_dirs: ['build', 'examples', 'tests', 'vendor']
-    php_cs_fixer:
-        enabled: true
-        config:
-            level: all
-        filter:
-            paths: ['src/', 'tests/']
-    php_loc:
-        enabled: true
-        excluded_dirs: ['build', 'examples', 'tests', 'vendor']
-    php_mess_detector:
-        enabled: true
-        filter:
-            paths: ['src/']
+        min_mass: 16
     php_pdepend:
         enabled: true
-        excluded_dirs: ['build', 'examples', 'tests', 'vendor']
+        configuration_file: null
+        suffixes:
+            - php
     php_analyzer:
         enabled: true
-        filter:
-            paths: ['src/', 'tests/']
+        extensions:
+            - php
+    php_changetracking:
+        enabled: true
+        bug_patterns:
+            - '\bfix(?:es|ed)?\b'
+        feature_patterns:
+            - '\badd(?:s|ed)?\b'
+            - '\bimplement(?:s|ed)?\b'
     sensiolabs_security_checker:
         enabled: true
+filter:
+    excluded_paths:
+      - tests/*
+      - bin/*
+      - build/*
+      - vendor/*
+      - examples/*
+
+checks:
+    php:
+        code_rating: true
+        duplication: true
