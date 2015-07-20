@@ -485,7 +485,7 @@ class RouteMetaData implements \Serializable
         }
 
         // Process the param names and save them on the route params
-        $this->processRouteParams();
+        $this->processRouteParams($paramValues);
 
         // Check the route conditions
         foreach ($this->route_conditions as $key => $condition) {
@@ -523,8 +523,9 @@ class RouteMetaData implements \Serializable
 
     /**
      * Process the route names and add them as parameters
+     * @param array $paramValues
      */
-    protected function processRouteParams()
+    protected function processRouteParams(array $paramValues)
     {
         foreach ($this->param_names as $name) {
             if (isset($paramValues[$name])) {
