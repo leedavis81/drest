@@ -2,20 +2,10 @@ build:
     environment:
         php: '5.6.9'
         mysql: true
-        mongodb: true
-        postgresql: false
-        redis: false
         timezone: 'Europe/London'
     dependencies:
         before:
             - sudo apt-get update
-            - sudo apt-get install -y make libtool autoconf automake uuid-dev gcc-4.6
-            - sudo apt-get install -y php5 php5-mysql php5-curl php-apc php-pear php-xml-serializer php5-dev php5-gd
-            - sudo apt-get install -y curl git unzip gcc pkg-config makepasswd build-essential ntp
-            - pecl channel-update pecl.php.net
-            - printf "\n" | pecl install mongo
-            - echo "extension=mongo.so" | sudo tee /etc/php5/mods-available/mongo.ini
-            - sudo php5enmod mongo
     project_setup:
         before:
             - echo "{\"config\":{\"github-oauth\":{\"github.com\":\"b570db4db20d2cb79386fe8e55485bbe3f6141dc\"}}}" | sudo tee ~/.composer/config.json

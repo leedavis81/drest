@@ -184,8 +184,8 @@ class Manager
 
     /**
      * Execute a dispatched request
-     * @param  string                            $namedRoute  - Define the named Route to be dispatched - bypasses the internal router lookup
-     * @param  array                             $routeParams - Route parameters to be used for dispatching a namedRoute request
+     * @param  string           $namedRoute  - Define the named Route to be dispatched - bypasses the internal router lookup
+     * @param  array            $routeParams - Route parameters to be used for dispatching a namedRoute request
      * @throws Route\NoMatchException|\Exception
      */
     protected function execute($namedRoute = null, array $routeParams = array())
@@ -411,7 +411,8 @@ class Manager
     {
         $representations = (is_null($route) || array() === $route->getClassMetaData()->getRepresentations())
             ? $this->config->getDefaultRepresentations()
-            :$route->getClassMetaData()->getRepresentations();
+            : $route->getClassMetaData()->getRepresentations();
+
         if (empty($representations)) {
             throw RepresentationException::noRepresentationsSetForRoute(
                 $route->getName(),
@@ -419,6 +420,23 @@ class Manager
             );
         }
 
+        if (($representation = $this->searchAndValidateRepresentations($representations)) !== null) {
+            return $representation;
+        }
+
+        // We have no representation instances from either annotations or config object
+        throw UnableToMatchRepresentationException::noMatch();
+    }
+
+    /**
+     * Iterate through an array of representations and return a match
+     * @param array $representations
+     * @return AbstractRepresentation|null
+     * @throws RepresentationException
+     * @throws UnableToMatchRepresentationException
+     */
+    protected function searchAndValidateRepresentations(array $representations)
+    {
         $representationObjects = array();
         foreach ($representations as $representation) {
             if (!is_object($representation)) {
@@ -467,8 +485,7 @@ class Manager
             return $representationObjects[0];
         }
 
-        // We have no representation instances from either annotations or config object
-        throw UnableToMatchRepresentationException::noMatch();
+        return null;
     }
 
     /**
