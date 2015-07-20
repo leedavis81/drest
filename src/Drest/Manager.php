@@ -456,22 +456,9 @@ class Manager
                 throw RepresentationException::representationMustBeInstanceOfDrestRepresentation();
             }
 
-            switch ($this->request->getHttpMethod()) {
-                // Match on content option
-                case Request::METHOD_GET:
-                    // This representation matches the required media type requested by the client
-                    if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request)) {
-                        return $representation;
-                    }
-                    break;
-                // Match on content-type
-                case Request::METHOD_POST:
-                case Request::METHOD_PUT:
-                case Request::METHOD_PATCH:
-                    if ($representation->getContentType() === $this->request->getHeaders('Content-Type')) {
-                        return $representation;
-                    }
-                    break;
+            if (($representation = $this->determineRepresentationByHttpMethod($representation)) !== null)
+            {
+                return $representation;
             }
         }
 
@@ -485,6 +472,33 @@ class Manager
             return $representationObjects[0];
         }
 
+        return null;
+    }
+
+    /**
+     * Determine the representation by inspecting the HTTP method
+     * @param AbstractRepresentation $representation
+     * @return AbstractRepresentation|null
+     */
+    protected function determineRepresentationByHttpMethod(AbstractRepresentation $representation)
+    {
+        switch ($this->request->getHttpMethod()) {
+            // Match on content option
+            case Request::METHOD_GET:
+                // This representation matches the required media type requested by the client
+                if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request)) {
+                    return $representation;
+                }
+                break;
+            // Match on content-type
+            case Request::METHOD_POST:
+            case Request::METHOD_PUT:
+            case Request::METHOD_PATCH:
+                if ($representation->getContentType() === $this->request->getHeaders('Content-Type')) {
+                    return $representation;
+                }
+                break;
+        }
         return null;
     }
 
