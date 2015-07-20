@@ -457,7 +457,7 @@ class RouteMetaData implements \Serializable
     }
 
     /**
-     * Does this request matches the route pattern
+     * Does this request match the route pattern
      * @param  Request $request
      * @param  boolean $matchVerb - Whether you want to match the route using the request HTTP verb
      *                            - useful for OPTIONS requests
@@ -477,35 +477,15 @@ class RouteMetaData implements \Serializable
             }
         }
 
-        //Convert URL params into regex patterns, construct a regex for this route, init params
-        $routePattern = (is_null($basePath))
-            ? (string) $this->route_pattern
-            : '/' . $basePath . '/' . ltrim((string) $this->route_pattern, '/');
-        $patternAsRegex = preg_replace_callback(
-            '#:([\w]+)\+?#',
-            array($this, 'matchesCallback'),
-            str_replace(')', ')?', $routePattern)
-        );
-        if (substr($this->route_pattern, -1) === '/') {
-            $patternAsRegex .= '?';
-        }
+        $patternAsRegex = $this->getMatchRegexPattern($basePath);
 
         //Cache URL params' names and values if this route matches the current HTTP request
         if (!preg_match('#^' . $patternAsRegex . '$#', $request->getPath(), $paramValues)) {
             return false;
         }
 
-        foreach ($this->param_names as $name) {
-            if (isset($paramValues[$name])) {
-                if (isset($this->param_names_path[$name])) {
-                    $parts = explode('/', urldecode($paramValues[$name]));
-                    $this->route_params[$name] = array_shift($parts);
-                    $this->unmapped_route_params = $parts;
-                } else {
-                    $this->route_params[$name] = urldecode($paramValues[$name]);
-                }
-            }
-        }
+        // Process the param names and save them on the route params
+        $this->processRouteParams();
 
         // Check the route conditions
         foreach ($this->route_conditions as $key => $condition) {
@@ -517,6 +497,46 @@ class RouteMetaData implements \Serializable
         }
 
         return true;
+    }
+
+    /**
+     * Get the regex pattern to match the request path
+     * @param $basePath
+     * @return string
+     */
+    protected function getMatchRegexPattern($basePath)
+    {
+        // Convert URL params into regex patterns, construct a regex for this route, init params
+        $routePattern = (is_null($basePath))
+            ? (string) $this->route_pattern
+            : '/' . $basePath . '/' . ltrim((string) $this->route_pattern, '/');
+        $patternAsRegex = preg_replace_callback(
+            '#:([\w]+)\+?#',
+            array($this, 'matchesCallback'),
+            str_replace(')', ')?', $routePattern)
+        );
+        if (substr($this->route_pattern, -1) === '/') {
+            $patternAsRegex .= '?';
+        }
+        return $patternAsRegex;
+    }
+
+    /**
+     * Process the route names and add them as parameters
+     */
+    protected function processRouteParams()
+    {
+        foreach ($this->param_names as $name) {
+            if (isset($paramValues[$name])) {
+                if (isset($this->param_names_path[$name])) {
+                    $parts = explode('/', urldecode($paramValues[$name]));
+                    $this->route_params[$name] = array_shift($parts);
+                    $this->unmapped_route_params = $parts;
+                } else {
+                    $this->route_params[$name] = urldecode($paramValues[$name]);
+                }
+            }
+        }
     }
 
     /**
