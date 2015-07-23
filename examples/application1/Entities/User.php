@@ -7,6 +7,7 @@ namespace Entities;
 //  *      		expose={"username", "email_address", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers" : {"number"}}
 // Use short expose syntax in http headers / request params:  username|email_address|profile[id|lastname|addresses[id]]|phone_numbers
 // service_call={"Service\User", "getMyCustomElement"}
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Drest\Mapping\Annotation as Drest;
@@ -16,7 +17,7 @@ use DrestCommon\Request\Request;
  * User
  *
  * @Drest\Resource(
- * 		representations={"Json", "Xml"},
+ * 		representations={"Json"},
  *      routes={
  *      	@Drest\Route(
  *      		name="get_user",

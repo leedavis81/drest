@@ -212,8 +212,7 @@ class RouteMetaData implements \Serializable
      */
     public function setVerbs($verbs)
     {
-        $verbs = (array) $verbs;
-        foreach ($verbs as $verb) {
+        foreach ((array) $verbs as $verb) {
             $verb = strtoupper($verb);
             if (!defined('DrestCommon\Request\Request::METHOD_' . $verb)) {
                 throw DrestException::invalidHttpVerbUsed($verb);

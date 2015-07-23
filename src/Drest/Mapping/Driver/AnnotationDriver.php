@@ -173,7 +173,6 @@ class AnnotationDriver implements DriverInterface
         foreach ($this->reader->getClassAnnotations($class) as $annotatedObject) {
             if ($annotatedObject instanceof Annotation\Resource) {
                 $resourceFound = true;
-                $originFound = false;
 
                 if ($annotatedObject->routes === null) {
                     throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($class->name);
@@ -181,88 +180,12 @@ class AnnotationDriver implements DriverInterface
 
                 if (is_array($annotatedObject->representations))
                 {
-                    $metadata->addRepresentations($annotatedObject->representations);
+                    $metadata->addRepresentations($annotatedObject->representations, $metadata);
                 }
 
-                foreach ($annotatedObject->routes as $route) {
-                    $routeMetaData = new Mapping\RouteMetaData();
+                $this->processRoutes($annotatedObject->routes, $metadata);
 
-                    // Set name
-                    $route->name = preg_replace("/[^a-zA-Z0-9_\s]/", "", $route->name);
-                    if ($route->name == '') {
-                        throw DrestException::routeNameIsEmpty();
-                    }
-                    if ($metadata->getRoutesMetaData($route->name) !== false) {
-                        throw DrestException::routeAlreadyDefinedWithName($class->name, $route->name);
-                    }
-                    $routeMetaData->setName($route->name);
-
-                    // Set verbs (will throw if invalid)
-                    if (isset($route->verbs)) {
-                        $routeMetaData->setVerbs($route->verbs);
-                    }
-
-                    if (isset($route->collection)) {
-                        $routeMetaData->setCollection($route->collection);
-                    }
-
-                    // Add the route pattern
-                    $routeMetaData->setRoutePattern($route->routePattern);
-
-                    if (is_array($route->routeConditions)) {
-                        $routeMetaData->setRouteConditions($route->routeConditions);
-                    }
-
-                    // Set the exposure array
-                    if (is_array($route->expose)) {
-                        $routeMetaData->setExpose($route->expose);
-                    }
-
-                    // Set the allow options value
-                    if (isset($route->allowOptions)) {
-                        $routeMetaData->setAllowedOptionRequest($route->allowOptions);
-                    }
-
-                    // Add action class
-                    if (isset($route->action)) {
-                        $routeMetaData->setActionClass($route->action);
-                    }
-
-                    // If the origin flag is set, set the name on the class meta data
-                    if (!is_null($route->origin)) {
-                        if ($originFound) {
-                            throw DrestException::resourceCanOnlyHaveOneRouteSetAsOrigin();
-                        }
-                        $metadata->originRouteName = $route->name;
-                        $originFound = true;
-                    }
-
-                    $metadata->addRouteMetaData($routeMetaData);
-                }
-
-                // Set the handle calls
-                foreach ($class->getMethods() as $method) {
-                    /* @var \ReflectionMethod $method */
-                    if ($method->isPublic()) {
-                        foreach ($this->reader->getMethodAnnotations($method) as $methodAnnotation) {
-                            if ($methodAnnotation instanceof Annotation\Handle) {
-                                // Make sure the for is not empty
-                                if (empty($methodAnnotation->for) || !is_string($methodAnnotation->for)) {
-                                    throw DrestException::handleForCannotBeEmpty();
-                                }
-                                if (($routeMetaData = $metadata->getRoutesMetaData($methodAnnotation->for)) === false) {
-                                    throw DrestException::handleAnnotationDoesntMatchRouteName($methodAnnotation->for);
-                                }
-                                if ($routeMetaData->hasHandleCall()) {
-                                    // There is already a handle set for this route
-                                    throw DrestException::alreadyHandleDefinedForRoute($routeMetaData);
-                                }
-                                $routeMetaData->setHandleCall($method->getName());
-                                $routeMetaData->setInjectRequestIntoHandle($methodAnnotation->injectRequest);
-                            }
-                        }
-                    }
-                }
+                $this->processMethods($class->getMethods(), $metadata);
 
                 // Error for any push metadata routes that don't have a handle
                 foreach ($metadata->getRoutesMetaData() as $routeMetaData) {
@@ -276,6 +199,106 @@ class AnnotationDriver implements DriverInterface
         }
 
         return ($resourceFound) ? $metadata : null;
+    }
+
+
+    /**
+     * Process the method annotations
+     * @param $methods
+     * @param Mapping\ClassMetaData $metadata
+     * @throws DrestException
+     */
+    protected function processMethods($methods, Mapping\ClassMetaData $metadata)
+    {
+        // Set the handle calls
+        foreach ($methods as $method) {
+            /* @var \ReflectionMethod $method */
+            if ($method->isPublic()) {
+                foreach ($this->reader->getMethodAnnotations($method) as $methodAnnotation) {
+                    if ($methodAnnotation instanceof Annotation\Handle) {
+                        // Make sure the for is not empty
+                        if (empty($methodAnnotation->for) || !is_string($methodAnnotation->for)) {
+                            throw DrestException::handleForCannotBeEmpty();
+                        }
+                        if (($routeMetaData = $metadata->getRoutesMetaData($methodAnnotation->for)) === false) {
+                            throw DrestException::handleAnnotationDoesntMatchRouteName($methodAnnotation->for);
+                        }
+                        if ($routeMetaData->hasHandleCall()) {
+                            // There is already a handle set for this route
+                            throw DrestException::alreadyHandleDefinedForRoute($routeMetaData);
+                        }
+                        $routeMetaData->setHandleCall($method->getName());
+                        $routeMetaData->setInjectRequestIntoHandle($methodAnnotation->injectRequest);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Process all routes defined
+     * @param array $routes
+     * @param Mapping\ClassMetaData $metadata
+     * @throws DrestException
+     */
+    protected function processRoutes(array $routes, Mapping\ClassMetaData $metadata)
+    {
+        $originFound = false;
+        foreach ($routes as $route) {
+            $routeMetaData = new Mapping\RouteMetaData();
+
+            // Set name
+            $route->name = preg_replace("/[^a-zA-Z0-9_\s]/", "", $route->name);
+            if ($route->name == '') {
+                throw DrestException::routeNameIsEmpty();
+            }
+            if ($metadata->getRoutesMetaData($route->name) !== false) {
+                throw DrestException::routeAlreadyDefinedWithName($metadata->getClassName(), $route->name);
+            }
+            $routeMetaData->setName($route->name);
+
+            // Set verbs (will throw if invalid)
+            if (isset($route->verbs)) {
+                $routeMetaData->setVerbs($route->verbs);
+            }
+
+            if (isset($route->collection)) {
+                $routeMetaData->setCollection($route->collection);
+            }
+
+            // Add the route pattern
+            $routeMetaData->setRoutePattern($route->routePattern);
+
+            if (is_array($route->routeConditions)) {
+                $routeMetaData->setRouteConditions($route->routeConditions);
+            }
+
+            // Set the exposure array
+            if (is_array($route->expose)) {
+                $routeMetaData->setExpose($route->expose);
+            }
+
+            // Set the allow options value
+            if (isset($route->allowOptions)) {
+                $routeMetaData->setAllowedOptionRequest($route->allowOptions);
+            }
+
+            // Add action class
+            if (isset($route->action)) {
+                $routeMetaData->setActionClass($route->action);
+            }
+
+            // If the origin flag is set, set the name on the class meta data
+            if (!is_null($route->origin)) {
+                if ($originFound) {
+                    throw DrestException::resourceCanOnlyHaveOneRouteSetAsOrigin();
+                }
+                $metadata->originRouteName = $route->name;
+                $originFound = true;
+            }
+
+            $metadata->addRouteMetaData($routeMetaData);
+        }
     }
 
     /**
@@ -294,6 +317,9 @@ class AnnotationDriver implements DriverInterface
         return new self($reader, $paths);
     }
 
+    /**
+     * Register out annotation classes with the annotation registry.
+     */
     public static function registerAnnotations()
     {
         Annotations\AnnotationRegistry::registerFile(__DIR__ . '/DrestAnnotations.php');
