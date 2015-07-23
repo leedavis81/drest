@@ -55,6 +55,12 @@ class Manager
     protected $metadataFactory;
 
     /**
+     * Annotation Driver being used
+     * @var Mapping\Driver\AnnotationDriver $annotationsDriver
+     */
+    protected $annotationsDriver;
+
+    /**
      * Drest router
      * @var \Drest\Router $router
      */
