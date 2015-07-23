@@ -432,9 +432,11 @@ class Manager
             : $route->getClassMetaData()->getRepresentations();
 
         if (empty($representations)) {
+            $name = (is_null($route)) ? '"unknown name"' : $route->getName();
+            $className = (is_null($route)) ? '"unknown class"' : $route->getClassMetaData()->getClassName();
             throw RepresentationException::noRepresentationsSetForRoute(
-                $route->getName(),
-                $route->getClassMetaData()->getClassName()
+                $name,
+                $className
             );
         }
 
