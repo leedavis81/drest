@@ -102,16 +102,28 @@ class Manager
         // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
 
+        $this->annotationDriver = Mapping\Driver\AnnotationDriver::create(
+            new AnnotationReader(),
+            $config->getPathsToConfigFiles()
+        );
+
         $this->metadataFactory = new MetadataFactory(
-            Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
-                $config->getPathsToConfigFiles()
-            )
+            $this->annotationDriver
         );
 
         if ($cache = $config->getMetadataCacheImpl()) {
             $this->metadataFactory->setCache($cache);
         }
+    }
+
+    /**
+     * Get the annotations driver, currently hard coded in the __construct.
+     * We would need to inject this in future if allowing other drivers to be used
+     * @return Mapping\Driver\AnnotationDriver
+     */
+    public function getAnnotationDriver()
+    {
+        return $this->annotationDriver;
     }
 
     /**

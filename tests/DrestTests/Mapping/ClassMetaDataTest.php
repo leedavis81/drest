@@ -171,4 +171,22 @@ class ClassMetaDataTest extends DrestTestCase
 
         $this->assertEquals('user', $cmd->getElementName());
     }
+
+
+
+    public function testRemovingExtension()
+    {
+        $annotationDriver = \Drest\Mapping\Driver\AnnotationDriver::create(
+            new AnnotationReader(),
+            array(__DIR__ . '/../Entities')
+        );
+
+        $annotationDriver->removeExtensions();
+        $metadataFactory = new MetadataFactory($annotationDriver);
+
+        $this->assertCount(0, $metadataFactory->getAllClassNames());
+        $annotationDriver->addExtension('php');
+        $this->assertGreaterThan(0, $metadataFactory->getAllClassNames());
+    }
+
 }

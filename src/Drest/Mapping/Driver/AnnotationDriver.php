@@ -187,6 +187,7 @@ class AnnotationDriver implements DriverInterface
 
                 $this->processMethods($class->getMethods(), $metadata);
 
+
                 // Error for any push metadata routes that don't have a handle
                 foreach ($metadata->getRoutesMetaData() as $routeMetaData) {
                     /* @var RouteMetaData $routeMetaData */
@@ -203,7 +204,7 @@ class AnnotationDriver implements DriverInterface
 
 
     /**
-     * Process the method annotations
+     * Process the methofd
      * @param $methods
      * @param Mapping\ClassMetaData $metadata
      * @throws DrestException

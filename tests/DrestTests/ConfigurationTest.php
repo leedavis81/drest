@@ -216,5 +216,4 @@ class ConfigurationTest extends DrestTestCase
         $path = new \StdClass();
         $config->addRouteBasePath($path);
     }
-
 }

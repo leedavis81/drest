@@ -15,7 +15,14 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        // Register the DREST annotations
         \Drest\Mapping\Driver\AnnotationDriver::registerAnnotations();
+
+
+        // Register the ORM annotations
+        \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(
+            __DIR__ . '/../../vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php'
+        );
     }
 
     /**
