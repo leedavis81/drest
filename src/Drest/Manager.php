@@ -15,6 +15,7 @@ namespace Drest;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
 use Drest\Route\MultipleRoutesException;
@@ -31,10 +32,10 @@ class Manager
 {
 
     /**
-     * Doctrine Entity Manager
-     * @var EntityManager $em
+     * Doctrine Entity Manager Registry
+     * @var ManagerRegistry $emr
      */
-    protected $em;
+    protected $emr;
 
     /**
      * Drest configuration object
@@ -56,9 +57,9 @@ class Manager
 
     /**
      * Annotation Driver being used
-     * @var Mapping\Driver\AnnotationDriver $annotationsDriver
+     * @var Mapping\Driver\AnnotationDriver $metaDataDriver
      */
-    protected $annotationsDriver;
+    protected $metaDataDriver;
 
     /**
      * Drest router
@@ -94,27 +95,30 @@ class Manager
      * Creates an instance of the Drest Manager using the passed configuration object
      * Can also pass in a Event Manager instance
      *
-     * @param EntityManager $em
-     * @param Configuration $config
-     * @param Event\Manager $eventManager
+     * @param ManagerRegistry   $entityManagerRegistry
+     * @param Configuration     $config
+     * @param Event\Manager     $eventManager
      */
-    private function __construct(EntityManager $em, Configuration $config, Event\Manager $eventManager)
+    private function __construct(
+        ManagerRegistry $entityManagerRegistry,
+        Configuration $config,
+        Event\Manager $eventManager)
     {
-        $this->em = $em;
+        $this->emr = $entityManagerRegistry;
         $this->config = $config;
         $this->eventManager = $eventManager;
-        $this->service = new Service($this->em, $this);
+        $this->service = new Service($this);
 
         // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
 
-        $this->annotationDriver = Mapping\Driver\AnnotationDriver::create(
+        $this->metaDataDriver = Mapping\Driver\AnnotationDriver::create(
             new AnnotationReader(),
             $config->getPathsToConfigFiles()
         );
 
         $this->metadataFactory = new MetadataFactory(
-            $this->annotationDriver
+            $this->metaDataDriver
         );
 
         if ($cache = $config->getMetadataCacheImpl()) {
@@ -123,24 +127,17 @@ class Manager
     }
 
     /**
-     * Get the annotations driver, currently hard coded in the __construct.
-     * We would need to inject this in future if allowing other drivers to be used
-     * @return Mapping\Driver\AnnotationDriver
-     */
-    public function getAnnotationDriver()
-    {
-        return $this->annotationDriver;
-    }
-
-    /**
      * Static call to create the Drest Manager instance
      *
-     * @param  EntityManager $em
+     * @param  ManagerRegistry $entityManagerRegistry
      * @param  Configuration $config
-     * @param  Event\Manager $eventManager
-     * @return Manager       $manager
+     * @param  Event\Manager|null $eventManager
+     * @return Manager $manager
      */
-    public static function create(EntityManager $em, Configuration $config, Event\Manager $eventManager = null)
+    public static function create(
+        ManagerRegistry $entityManagerRegistry,
+        Configuration $config,
+        Event\Manager $eventManager = null)
     {
         // Register the annotations classes
         Mapping\Driver\AnnotationDriver::registerAnnotations();
@@ -149,7 +146,17 @@ class Manager
             $eventManager = new Event\Manager();
         }
 
-        return new self($em, $config, $eventManager);
+        return new self($entityManagerRegistry, $config, $eventManager);
+    }
+
+    /**
+     * Get the metadata (annotations only for now) driver, currently hard coded in the __construct.
+     * We would need to inject this in future if allowing other drivers to be used
+     * @return Mapping\Driver\AnnotationDriver
+     */
+    public function getMetaDataDriver()
+    {
+        return $this->metaDataDriver;
     }
 
     /**
@@ -311,7 +318,7 @@ class Manager
         $route->setExpose(
             Query\ExposeFields::create($route)
                 ->configureExposeDepth(
-                    $this->em,
+                    $this->emr,
                     $this->config->getExposureDepth(),
                     $this->config->getExposureRelationsFetchType()
                 )
@@ -333,7 +340,7 @@ class Manager
         $representation->write(
             Query\ExposeFields::create($route)
                 ->configureExposeDepth(
-                    $this->em,
+                    $this->emr,
                     $this->config->getExposureDepth(),
                     $this->config->getExposureRelationsFetchType()
                 )
@@ -354,7 +361,7 @@ class Manager
             return false;
         }
 
-        $classGenerator = new ClassGenerator($this->em);
+        $classGenerator = new ClassGenerator($this->emr);
 
         $classMetadatas = array();
         if (!empty($genClasses)) {
@@ -365,7 +372,7 @@ class Manager
                     $route->setExpose(
                         Query\ExposeFields::create($route)
                             ->configureExposeDepth(
-                                $this->em,
+                                $this->emr,
                                 $this->config->getExposureDepth(),
                                 $this->config->getExposureRelationsFetchType()
                             )
@@ -600,6 +607,15 @@ class Manager
     public function getConfiguration()
     {
         return $this->config;
+    }
+
+    /**
+     * Get the entity manager registry
+     * @return ManagerRegistry
+     */
+    public function getEntityManagerRegistry()
+    {
+        return $this->emr;
     }
 
     /**

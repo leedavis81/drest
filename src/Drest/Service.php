@@ -11,14 +11,13 @@ use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
 use DrestCommon\ResultSet;
 
+/**
+ * Class Service handles all attributes of a single service call.
+ * Is also injected into custom service actions
+ * @package Drest
+ */
 class Service
 {
-    /**
-     * Doctrine Entity Manager
-     * @var EntityManager $em
-     */
-    protected $em;
-
     /**
      * Drest Manager
      * @var Manager $dm
@@ -50,15 +49,12 @@ class Service
      */
     protected $error_handler;
 
-
     /**
      * Initialise a new instance of a Drest service
-     * @param EntityManager $em The EntityManager to use.
      * @param Manager       $dm The Drest Manager object
      */
-    public function __construct(EntityManager $em, Manager $dm)
+    public function __construct(Manager $dm)
     {
-        $this->em = $em;
         $this->dm = $dm;
     }
 
@@ -211,11 +207,21 @@ class Service
 
     /**
      * Get the entity manager
+     * This will return the default manager, to choose a specific one use getEntityManagerRegistry()
      * @return EntityManager $em
      */
     public function getEntityManager()
     {
-        return $this->em;
+        return $this->getEntityManagerRegistry()->getManager();
+    }
+
+    /**
+     * Get the entity manager registry
+     * @return \Doctrine\Common\Persistence\ManagerRegistry
+     */
+    public function getEntityManagerRegistry()
+    {
+        return $this->dm->getEntityManagerRegistry();
     }
 
     /**

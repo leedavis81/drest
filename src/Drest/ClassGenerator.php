@@ -37,17 +37,17 @@ class ClassGenerator
 
     /**
      * Entity manager - required to detect relation types and classNames on expose data
-     * @param EntityManager $em
+     * @param EntityManagerRegistry $emr
      */
-    protected $em;
+    protected $emr;
 
     /**
      * Create an class generator instance
-     * @param EntityManager $em
+     * @param EntityManagerRegistry $emr
      */
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManagerRegistry $emr)
     {
-        $this->em = $em;
+        $this->emr = $emr;
     }
 
     /**
@@ -89,7 +89,7 @@ class ClassGenerator
     protected function recurseParams(array $expose, $fullClassName)
     {
         // get ORM metadata for the current class
-        $ormClassMetaData = $this->em->getClassMetadata($fullClassName);
+        $ormClassMetaData = $this->emr->getManagerForClass($fullClassName)->getClassMetadata($fullClassName);
 
         if (isset($this->classes[$fullClassName])) {
             $cg = $this->classes[$fullClassName];
@@ -124,7 +124,7 @@ EOT;
                     $this->handleAssocProperty($value, $cg, $ormClassMetaData);
 
                     $assocMapping = $ormClassMetaData->getAssociationMapping($value);
-                    $teCmd = $this->em->getClassMetadata($assocMapping['targetEntity']);
+                    $teCmd = $this->emr->getManagerForClass($assocMapping['targetEntity'])->getClassMetadata($assocMapping['targetEntity']);
                     $this->recurseParams($teCmd->getColumnNames(), $assocMapping['targetEntity']);
                 } else {
                     $this->handleNonAssocProperty($value, $cg);

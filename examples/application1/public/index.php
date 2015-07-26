@@ -57,6 +57,7 @@ $evm = new Event\Manager();
 //$evm->addEventListener(array('preServiceAction', 'postServiceAction', 'preRouting', 'postRouting', 'preDispatch', 'postDispatch'), new MyEvents\MyEvent());
 
 
+$emr = \Drest\EntityManagerRegistry::getSimpleManagerRegistry($em);
 $drestManager = \Drest\Manager::create($em, $drestConfig, $evm);
 
 

@@ -42,7 +42,8 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
         }
         $em = (is_null($em)) ? $this->_getTestEntityManager() : $em;
 
-        $dm = Manager::create($em, $config, $evm);
+        $emr = \Drest\EntityManagerRegistry::getSimpleManagerRegistry($em);
+        $dm = Manager::create($emr, $config, $evm);
 
         return $dm;
     }

@@ -1,7 +1,7 @@
 <?php
 namespace Drest\Query;
 
-use Doctrine\ORM\EntityManager;
+use Drest\EntityManagerRegistry;
 use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\RouteMetaData;
@@ -68,12 +68,12 @@ class ExposeFields implements \Iterator
 
     /**
      * Set the default exposure fields using the configured exposure depth
-     * @param  EntityManager $em
-     * @param  integer       $exposureDepth
-     * @param  integer       $exposureRelationsFetchType
-     * @return ExposeFields  $this object instance
+     * @param  EntityManagerRegistry    $emr
+     * @param  integer                  $exposureDepth
+     * @param  integer                  $exposureRelationsFetchType
+     * @return ExposeFields             $this object instance
      */
-    public function configureExposeDepth(EntityManager $em, $exposureDepth = 0, $exposureRelationsFetchType = null)
+    public function configureExposeDepth(EntityManagerRegistry $emr, $exposureDepth = 0, $exposureRelationsFetchType = null)
     {
         if (!empty($this->route_expose)) {
             $this->fields = $this->route_expose;
@@ -81,7 +81,7 @@ class ExposeFields implements \Iterator
             $this->processExposeDepth(
                 $this->fields,
                 $this->route->getClassMetaData()->getClassName(),
-                $em,
+                $emr,
                 $exposureDepth,
                 $exposureRelationsFetchType
             );
@@ -354,18 +354,18 @@ class ExposeFields implements \Iterator
     /**
      * Recursive function to generate default expose columns
      *
-     * @param array         $fields    - array to be populated recursively (referenced)
-     * @param string        $class     - name of the class to process
-     * @param EntityManager $em        - entity manager used to fetch class information
-     * @param integer       $depth     - maximum depth you want to travel through the relations
-     * @param integer       $fetchType - The fetch type to be used
-     * @param integer|null  $fetchType - The required fetch type of the relation
+     * @param array                     $fields    - array to be populated recursively (referenced)
+     * @param string                    $class     - name of the class to process
+     * @param EntityManagerRegistry     $emr       - entity manager registry used to fetch class information
+     * @param integer                   $depth     - maximum depth you want to travel through the relations
+     * @param integer                   $fetchType - The fetch type to be used
+     * @param integer|null              $fetchType - The required fetch type of the relation
      */
-    protected function processExposeDepth(&$fields, $class, EntityManager $em, $depth = 0, $fetchType = null)
+    protected function processExposeDepth(&$fields, $class, EntityManagerRegistry $emr, $depth = 0, $fetchType = null)
     {
         $this->registered_expose_classes[] = $class;
         if ($depth > 0) {
-            $metaData = $em->getClassMetadata($class);
+            $metaData = $emr->getManagerForClass($class)->getClassMetadata($class);
             $fields = $metaData->getColumnNames();
 
             if (($depth - 1) > 0) {
@@ -378,7 +378,7 @@ class ExposeFields implements \Iterator
                         $this->processExposeDepth(
                             $fields[$key],
                             $assocMapping['targetEntity'],
-                            $em,
+                            $emr,
                             $depth,
                             $fetchType
                         );

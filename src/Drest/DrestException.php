@@ -5,8 +5,6 @@ use Exception;
 
 /**
  * Base exception class for all Drest exceptions.
- *
- * @author Lee
  */
 class DrestException extends Exception
 {
@@ -47,6 +45,7 @@ class DrestException extends Exception
 
     /**
      * @param string $verb
+     * @return DrestException
      */
     public static function invalidHttpVerbUsed($verb)
     {
@@ -107,6 +106,7 @@ class DrestException extends Exception
 
     /**
      * @param string $name
+     * @return DrestException
      */
     public static function handleAnnotationDoesntMatchRouteName($name)
     {
@@ -115,6 +115,10 @@ class DrestException extends Exception
             'Ensure @Drest\Handle(for="my_route") matches @Drest\Route(name="my_route")');
     }
 
+    /**
+     * @param string $name
+     * @return DrestException
+     */
     public static function routeRequiresHandle($name)
     {
         return new self(
@@ -134,8 +138,11 @@ class DrestException extends Exception
             'Must use a formatted string of: {EntityClassName}::{RouteName}. Eg "Entities\\User::get_users"');
     }
 
+
     /**
+     * @param string $routeName
      * @param string $className
+     * @return DrestException
      */
     public static function unableToFindRouteByName($routeName, $className)
     {
@@ -155,7 +162,11 @@ class DrestException extends Exception
             ' Data collections cannot be pushed');
     }
 
-    // Service Exceptions
+    /**
+     * Service Exceptions
+     * @param string $class
+     * @return DrestException
+     */
     public static function actionClassNotAnInstanceOfActionAbstract($class)
     {
         return new self(
@@ -164,6 +175,7 @@ class DrestException extends Exception
 
     /**
      * @param string $class
+     * @return DrestException
      */
     public static function unknownActionClass($class)
     {

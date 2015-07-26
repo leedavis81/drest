@@ -66,12 +66,21 @@ abstract class AbstractAction
     }
 
     /**
-     * Get the entity manager from the service object
+     * Get the entity manager from the service object (uses the default manager)
      * @return \Doctrine\ORM\EntityManager $em
      */
     protected function getEntityManager()
     {
-        return $this->service->getEntityManager();
+        return $this->getEntityManagerRegistry()->getManager();
+    }
+
+    /**
+     * Get the entity manager registry
+     * @return \Doctrine\Common\Persistence\ManagerRegistry
+     */
+    protected function getEntityManagerRegistry()
+    {
+        return $this->service->getEntityManagerRegistry();
     }
 
     /**
