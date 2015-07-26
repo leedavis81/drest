@@ -33,7 +33,10 @@ EOT
 
     /**
      * @see Console\Command\Command
-     * @todo: Implement a production ready check
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

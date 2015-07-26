@@ -51,6 +51,10 @@ EOT
 
     /**
      * @see Console\Command\Command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @throws \Exception
+     * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

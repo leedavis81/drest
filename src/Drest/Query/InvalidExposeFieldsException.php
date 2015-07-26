@@ -8,8 +8,10 @@ class InvalidExposeFieldsException extends \Exception
         return new self('Characters used in the expose fields string are invalid. Only character allowed are [a-z], [A-Z], [0-9], "[", "]", "|" and "_"');
     }
 
+
     /**
-     * @param string $string
+     * @param $string
+     * @return InvalidExposeFieldsException
      */
     public static function unableToParseExposeString($string)
     {

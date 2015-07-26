@@ -2,8 +2,8 @@
 namespace Drest;
 
 use Doctrine\Common\Inflector\Inflector;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use \Doctrine\Common\Persistence\Mapping\ClassMetadata as ORMClassMetadata;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator;
 
@@ -43,9 +43,9 @@ class ClassGenerator
 
     /**
      * Create an class generator instance
-     * @param EntityManagerRegistry $emr
+     * @param ManagerRegistry $emr
      */
-    public function __construct(EntityManagerRegistry $emr)
+    public function __construct(ManagerRegistry $emr)
     {
         $this->emr = $emr;
     }
@@ -259,10 +259,11 @@ EOT;
      * Handle an associative property field
      * @param string                              $name             - name of the field
      * @param \Zend\Code\Generator\ClassGenerator $cg               - The class generator object to attach to
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $ormClassMetaData - The ORM class meta data
+     * @param ORMClassMetadata $ormClassMetaData - The ORM class meta data
      */
     private function handleAssocProperty($name, Generator\ClassGenerator &$cg, ORMClassMetadata $ormClassMetaData)
     {
+        /** @var \Doctrine\ORM\Mapping\ClassMetaData $ormClassMetaData */
         $assocMapping = $ormClassMetaData->getAssociationMapping($name);
         $property = $this->createProperty($name);
 

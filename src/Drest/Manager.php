@@ -14,7 +14,6 @@
 namespace Drest;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;

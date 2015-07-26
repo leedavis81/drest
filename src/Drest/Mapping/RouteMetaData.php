@@ -151,6 +151,7 @@ class RouteMetaData implements \Serializable
 
     /**
      * Add an array of route conditions
+     * @param array $route_conditions
      */
     public function setRouteConditions(array $route_conditions)
     {
@@ -598,6 +599,7 @@ class RouteMetaData implements \Serializable
 
     /**
      * Un-serialise this object and reestablish it's state
+     * @param string $string
      */
     public function unserialize($string)
     {

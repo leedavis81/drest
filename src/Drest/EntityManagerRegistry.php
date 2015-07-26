@@ -1,8 +1,9 @@
 <?php
 namespace Drest;
 
-use \Doctrine\Common\Persistence\AbstractManagerRegistry;
-use \Doctrine\ORM\ORMException;
+use Doctrine\Common\Persistence\AbstractManagerRegistry;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMException;
 /**
  * Drest EntityManagerRegistry
  */
@@ -78,10 +79,10 @@ class EntityManagerRegistry extends AbstractManagerRegistry
      * Get a simple manager registry if you only use one $em
      * It's advised you either extend or implement your own version of AbstractManagerRegistry
      * for custom handling of varied services
-     * @param \Doctrine\ORM\EntityManager $em
+     * @param EntityManager $em
      * @return EntityManagerRegistry
      */
-    public static function getSimpleManagerRegistry(\Doctrine\ORM\EntityManager $em)
+    public static function getSimpleManagerRegistry(EntityManager $em)
     {
         $registry = new self(
             'drestApp',

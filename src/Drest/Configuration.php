@@ -393,6 +393,7 @@ class Configuration
     /**
      * Register paths to your configuration files. This will typically be where your entities live
      * This will overwrite any previously registered paths. To add new one use addPathsToConfigFiles($paths)
+     * @param array $paths
      */
     public function addPathsToConfigFiles($paths = array())
     {

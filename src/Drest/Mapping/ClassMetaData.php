@@ -234,6 +234,7 @@ class ClassMetaData implements \Serializable
 
     /**
      * Un-serialise this object and reestablish it's state
+     * @param string $string
      */
     public function unserialize($string)
     {
