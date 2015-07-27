@@ -60,6 +60,7 @@ class EntityManagerRegistry extends AbstractManagerRegistry
             try {
                 return $this->getManager($name)->getConfiguration()->getEntityNamespace($alias);
             } catch (ORMException $e) {
+                // If any exception is throw when attempting to retrieve then have our custom one thrown
             }
         }
         throw ORMException::unknownEntityNamespace($alias);

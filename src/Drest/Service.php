@@ -104,7 +104,7 @@ class Service
             }
 
             if (!$this->service_action instanceof AbstractAction) {
-                throw DrestException::actionClassNotAnInstanceOfActionAbstract($this->service_action);
+                throw DrestException::actionClassNotAnInstanceOfActionAbstract($actionClass);
             }
         }
 

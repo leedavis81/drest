@@ -177,6 +177,7 @@ EOT;
      */
     private function getSetterMethods(&$cg, $name, $type, $targetClass = null)
     {
+        /** @var Generator\MethodGenerator[] $methods **/
         $methods = array();
         switch ($type) {
             case self::PARAM_TYPE_ITEM:
@@ -233,7 +234,6 @@ EOT;
         // All setter methods will return $this
         $methodsSize = sizeof($methods);
         for ($x = 0; $x < $methodsSize; $x++) {
-            /** @var Generator\MethodGenerator $methods [$x] * */
             $docBlock = $methods[$x]->getDocBlock();
             $docBlock->setShortDescription($docBlock->getShortDescription() . "\n@return " . $cg->getName() . ' $this');
             $methods[$x]->setDocBlock($docBlock);

@@ -351,7 +351,6 @@ class RouteMetaData implements \Serializable
                 case Request::METHOD_PUT:
                 case Request::METHOD_PATCH:
                     return true;
-                    break;
             }
         }
 
@@ -385,10 +384,10 @@ class RouteMetaData implements \Serializable
     {
         if (is_bool($value)) {
             $this->allowed_option_request = ($value) ? 1 : 0;
-        } elseif ($value != -1) {
+        } elseif ($value !== -1) {
             throw DrestException::invalidAllowedOptionsValue();
         }
-        $this->allowed_option_request = $value;
+        $this->allowed_option_request = (int) $value;
     }
 
     /**

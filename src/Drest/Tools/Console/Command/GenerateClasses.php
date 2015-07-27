@@ -58,9 +58,6 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // $drm = $this->getHelper('drm')->getDrestManager()
-        // $input->getArgument('xx');
-
         $endpoint = $input->getArgument('endpoint');
 
         if (($endpoint = filter_var($endpoint, FILTER_VALIDATE_URL)) === false) {
