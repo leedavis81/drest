@@ -26,7 +26,7 @@ Setting up endpoints is as easy as adding in a simple annotation to an entity
             verbs={"GET"}
 )})
 
-// hitting [GET] http://myapplication.com/api/user/123 my return:
+// hitting [GET] http://myapplication.com/api/user/123 may return:
 
 {
   "user": {
