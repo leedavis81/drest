@@ -33,3 +33,4 @@
         "psr-0": { "Drest\\": "src/", "DrestTests\\": "tests/"}
     }
 }
+        
