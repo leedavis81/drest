@@ -2,6 +2,7 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
+use Drest\DrestException;
 use Drest\Mapping\RouteMetaData;
 use Drest\Service;
 use DrestCommon\Error\Response\ResponseInterface;
@@ -148,16 +149,7 @@ abstract class AbstractAction
         $ormAssociationMappings = $classMetaData->getAssociationMappings();
 
         // Process single fields into a partial set - Filter fields not available on class meta data
-        $selectFields = array_filter(
-            $fields,
-            function ($offset) use ($classMetaData) {
-                if (!is_array($offset) && in_array($offset, $classMetaData->getFieldNames())) {
-                    return true;
-                }
-
-                return false;
-            }
-        );
+        $selectFields = $this->getFilteredAssociations($fields, $classMetaData, 'fields');
 
         // merge required identifier fields with select fields
         $keyFieldDiff = array_diff($classMetaData->getIdentifierFieldNames(), $selectFields);
@@ -171,18 +163,7 @@ abstract class AbstractAction
         }
 
         // Process relational field with no deeper expose restrictions
-        $relationalFields = array_filter(
-            $fields,
-            function ($offset) use ($classMetaData) {
-                if (!is_array($offset) && in_array($offset, $classMetaData->getAssociationNames())) {
-                    return true;
-                }
-
-                return false;
-            }
-        );
-
-        foreach ($relationalFields as $relationalField) {
+        foreach ($this->getFilteredAssociations($fields, $classMetaData, 'association') as $relationalField) {
             $alias = self::getAlias($ormAssociationMappings[$relationalField]['targetEntity'], $relationalField);
             $qb->leftJoin($rootAlias . '.' . $relationalField, $alias);
             $qb->addSelect($alias);
@@ -208,6 +189,33 @@ abstract class AbstractAction
     }
 
     /**
+     * Get filtered associations
+     * @param array $fields
+     * @param ORM\Mapping\ClassMetadata $classMetaData
+     * @param string $type 'fields' or 'association
+     * @return array
+     */
+    protected function getFilteredAssociations(array $fields, ORM\Mapping\ClassMetadata $classMetaData, $type = 'fields')
+    {
+        // Process relational fields / association with no deeper expose restrictions
+        if ($type !== 'fields' && $type !== 'associations')
+        {
+            return array();
+        }
+
+        $names = ($type === 'fields') ? $classMetaData->getFieldNames() : $classMetaData->getAssociationNames();
+        return array_filter(
+            $fields,
+            function ($offset) use ($names) {
+                if (!is_array($offset) && in_array($offset, $names)) {
+                    return true;
+                }
+                return false;
+            }
+        );
+    }
+
+    /**
      * Method used to write to the $data array.
      * -    wraps results in a single entry array keyed by entity name.
      *        Eg array(user1, user2) becomes array('users' => array(user1, user2)) - this is useful for a more descriptive output of collection resources
@@ -223,7 +231,8 @@ abstract class AbstractAction
 
         // Recursively remove any additionally added pk fields ($data must be a single record hierarchy. Iterate if we're getting a collection)
         if ($matchedRoute->isCollection()) {
-            for ($x = 0; $x < sizeof($data); $x++) {
+            $dataSize = sizeof($data);
+            for ($x = 0; $x < $dataSize; $x++) {
                 $this->removeAddedKeyFields($this->addedKeyFields, $data[$x]);
             }
         } else {
@@ -258,7 +267,8 @@ abstract class AbstractAction
         foreach ($data as $key => $value) {
             if (is_array($value) && isset($addedKeyFields[$key])) {
                 if (is_int($key)) {
-                    for ($x = 0; $x <= sizeof($value); $x++) {
+                    $valueSize = sizeof($value);
+                    for ($x = 0; $x <= $valueSize; $x++) {
                         if (isset($data[$x]) && is_array($data[$x])) {
                             $this->removeAddedKeyFields($addedKeyFields[$key], $data[$x]);
                         }
