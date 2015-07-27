@@ -15,9 +15,32 @@ Drest
 
 This library allows you to quickly annotate your doctrine entities into restful resources. It comes shipped with it's own internal router, and can be used standalone or alongside your existing framework stack. Routes are mapped to either a default or customised service action that takes care of handling requests.
 
-[check out the documentation here](http://leedavis81.github.io/drest/)
+Setting up endpoints is as easy as adding in a simple annotation to an entity
 
-Features:
+```php
+@Drest\Resource(
+    routes={
+        @Drest\Route(
+            name="get_user",
+            route_pattern="/user/:id",
+            verbs={"GET"}
+)})
+
+// hitting [GET] http://myapplication.com/api/user/123 my return:
+
+{
+  "user": {
+    "name": "lee",
+    "email": "lee@somedomain.com"
+  }
+}
+```
+
+## Documentation
+
+Check out how to use drest by [reading the documentation](http://leedavis81.github.io/drest/)
+
+## Features
 
 - Quickly annotate existing Doctrine entities to become a fully functional REST resource.
 
@@ -34,5 +57,3 @@ Features:
 - Use it independently from your existing framework stack, or alongside it.
 
 - Allows extension points so you can configure requests to your specific needs.
-
-Find out more by [viewing the documentation](http://leedavis81.github.io/drest/)
