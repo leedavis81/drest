@@ -25,12 +25,13 @@ Setting up endpoints is as easy as adding in a simple annotation to an entity
             verbs={"GET"}
 )})
 
-// hitting [GET] http://myapplication.com/api/user/123 may return:
+// hitting [GET] http://myapplication.com/user/123 may return:
 
 {
   "user": {
     "name": "lee",
     "email": "lee@somedomain.com"
+    ... + other attributes set up to be exposed ...
   }
 }
 ```

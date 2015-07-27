@@ -13,8 +13,6 @@
 
 namespace Drest;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
 use Drest\Route\MultipleRoutesException;
 use Drest\Route\NoMatchException;
@@ -48,17 +46,10 @@ class Manager
     protected $eventManager;
 
     /**
-     * Metadata factory object
-     * @var \Drest\Mapping\MetadataFactory $metadataFactory
+     * Metadata manager object
+     * @var \Drest\Manager\Metadata $metadataManager
      */
-    protected $metadataFactory;
-
-    /**
-    /**
-     * Annotation Driver being used
-     * @var Mapping\Driver\AnnotationDriver $metaDataDriver
-     */
-    protected $metaDataDriver;
+    protected $metadataManager;
 
     /**
      * Drest router
@@ -111,18 +102,7 @@ class Manager
         // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
 
-        $this->metaDataDriver = Mapping\Driver\AnnotationDriver::create(
-            new AnnotationReader(),
-            $config->getPathsToConfigFiles()
-        );
-
-        $this->metadataFactory = new MetadataFactory(
-            $this->metaDataDriver
-        );
-
-        if ($cache = $config->getMetadataCacheImpl()) {
-            $this->metadataFactory->setCache($cache);
-        }
+        $this->metadataManager = new \Drest\Manager\Metadata($config);
     }
 
     /**
@@ -148,15 +128,6 @@ class Manager
         return new self($entityManagerRegistry, $config, $eventManager);
     }
 
-    /**
-     * Get the metadata (annotations only for now) driver, currently hard coded in the __construct.
-     * We would need to inject this in future if allowing other drivers to be used
-     * @return Mapping\Driver\AnnotationDriver
-     */
-    public function getMetaDataDriver()
-    {
-        return $this->metaDataDriver;
-    }
 
     /**
      * Dispatch a REST request
@@ -173,7 +144,7 @@ class Manager
         $this->setResponse(Response::create($response, $this->config->getRegisteredResponseAdapterClasses()));
 
         // Register routes for lookup
-        $this->registerRoutes();
+        $this->metadataManager->registerRoutes($this->router);
 
         // trigger preDispatch event
         $this->getEventManager()->dispatchEvent(
@@ -364,7 +335,7 @@ class Manager
 
         $classMetadatas = array();
         if (!empty($genClasses)) {
-            foreach ($this->metadataFactory->getAllClassNames() as $className) {
+            foreach ($this->metadataManager->getAllClassNames() as $className) {
                 $metaData = $this->getClassMetadata($className);
                 foreach ($metaData->getRoutesMetaData() as $route) {
                     /* @var RouteMetaData $route */
@@ -529,19 +500,6 @@ class Manager
     }
 
     /**
-     * Read any defined route patterns that have been annotated into the router
-     */
-    protected function registerRoutes()
-    {
-        foreach ($this->metadataFactory->getAllClassNames() as $class) {
-            $classMetaData = $this->getClassMetadata($class);
-            foreach ($classMetaData->getRoutesMetaData() as $route) {
-                $this->router->registerRoute($route);
-            }
-        }
-    }
-
-    /**
      * Runs through all the registered routes and returns a single match
      * @param  boolean                 $matchVerb - Whether you want to match the route using the request HTTP verb
      * @throws NoMatchException        if no routes are found
@@ -698,12 +656,12 @@ class Manager
 
     /**
      * Get metadata for an entity class
-     * @param  string                $className
+     * @param  string                   $className
      * @return Mapping\ClassMetaData
      */
     public function getClassMetadata($className)
     {
-        return $this->metadataFactory->getMetadataForClass($className);
+        return $this->metadataManager->getMetadataForClass($className);
     }
 
     /**
@@ -711,7 +669,7 @@ class Manager
      */
     public function checkDefinitions()
     {
-        foreach ($this->metadataFactory->getAllClassNames() as $class) {
+        foreach ($this->metadataManager->getAllClassNames() as $class) {
             $this->getClassMetadata($class);
         }
     }

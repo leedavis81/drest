@@ -61,6 +61,22 @@ class Router
     }
 
     /**
+     * Register an array of routes
+     * @param RouteMetaData[] $routes
+     */
+    public function registerRoutes(array $routes)
+    {
+        foreach ($routes as $route)
+        {
+            if (!$route instanceof RouteMetaData)
+            {
+                continue;
+            }
+            $this->registerRoute($route);
+        }
+    }
+
+    /**
      * A check to see if the router object has already been populated with a route object by $name
      * @param  string $name
      * @return bool
