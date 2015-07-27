@@ -52,9 +52,9 @@ class Router
 
     /**
      * Register a route definition (pulled from annotations) into the router stack
-     * @param \Drest\Mapping\RouteMetaData $route
+     * @param RouteMetaData $route
      */
-    public function registerRoute($route)
+    public function registerRoute(RouteMetaData $route)
     {
         $this->routes[$route->getName()] = $route;
     }
