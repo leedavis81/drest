@@ -58,7 +58,10 @@ class EntityManagerRegistry extends AbstractManagerRegistry
     {
         foreach (array_keys($this->getManagers()) as $name) {
             try {
-                return $this->getManager($name)->getConfiguration()->getEntityNamespace($alias);
+                if (($em = $this->getManager($name)) instanceof \Doctrine\ORM\EntityManager)
+                {
+                    return $em->getConfiguration()->getEntityNamespace($alias);
+                }
             } catch (ORMException $e) {
                 // If any exception is throw when attempting to retrieve then have our custom one thrown
             }

@@ -417,9 +417,8 @@ class Configuration
         if (is_null($path)) {
             $this->_attributes['pathsToConfigFiles'] = array();
         } else {
-            $offset = array_search($path, $this->_attributes['pathsToConfigFiles']);
-
-            if ($offset !== false) {
+            if (($offset = array_search($path, $this->_attributes['pathsToConfigFiles'])) !== false)
+            {
                 unset($this->_attributes['pathsToConfigFiles'][$offset]);
             }
         }
