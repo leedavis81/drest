@@ -126,10 +126,20 @@ class Configuration
      */
     public function containsRequestAdapterClass($className)
     {
-        if (($offset = array_search($className, $this->_attributes['requestAdapterClasses'])) !== false) {
+        return $this->searchForAdapterClass($className, 'requestAdapterClasses');
+    }
+
+    /**
+     * Search for a request/response adapter class by name
+     * @param $className
+     * @param $adapterType
+     * @return bool|integer returns the offset position if it exists
+     */
+    protected function searchForAdapterClass($className, $adapterType)
+    {
+        if (($offset = array_search($className, $this->_attributes[$adapterType])) !== false) {
             return $offset;
         }
-
         return false;
     }
 
@@ -162,11 +172,7 @@ class Configuration
      */
     public function containsResponseAdapterClass($className)
     {
-        if (($offset = array_search($className, $this->_attributes['responseAdapterClasses'])) !== false) {
-            return $offset;
-        }
-
-        return false;
+        return $this->searchForAdapterClass($className, 'responseAdapterClasses');
     }
 
     /**
@@ -196,7 +202,6 @@ class Configuration
                 break;
             default:
                 throw DrestException::invalidExposeRelationFetchType();
-                break;
         }
     }
 

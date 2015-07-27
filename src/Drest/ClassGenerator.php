@@ -231,7 +231,8 @@ EOT;
         }
 
         // All setter methods will return $this
-        for ($x = 0; $x < sizeof($methods); $x++) {
+        $methodsSize = sizeof($methods);
+        for ($x = 0; $x < $methodsSize; $x++) {
             /** @var Generator\MethodGenerator $methods [$x] * */
             $docBlock = $methods[$x]->getDocBlock();
             $docBlock->setShortDescription($docBlock->getShortDescription() . "\n@return " . $cg->getName() . ' $this');

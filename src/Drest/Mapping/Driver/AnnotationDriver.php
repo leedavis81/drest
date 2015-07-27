@@ -35,7 +35,7 @@ class AnnotationDriver implements DriverInterface
 
     /**
      * Extensions of the files to read
-     * @var array
+     * @var array $paths
      */
     protected $extensions = array();
 
@@ -43,7 +43,7 @@ class AnnotationDriver implements DriverInterface
     public function __construct(Annotations\AnnotationReader $reader, $paths = array())
     {
         $this->reader = $reader;
-        $this->paths = $paths;
+        $this->paths = (array) $paths;
 
         $this->addExtension('php');
     }
@@ -315,7 +315,7 @@ class AnnotationDriver implements DriverInterface
             $reader = new Annotations\AnnotationReader();
         }
 
-        return new self($reader, $paths);
+        return new self($reader, (array) $paths);
     }
 
     /**

@@ -173,7 +173,6 @@ class ClassMetaDataTest extends DrestTestCase
     }
 
 
-
     public function testRemovingExtension()
     {
         $annotationDriver = \Drest\Mapping\Driver\AnnotationDriver::create(
@@ -188,5 +187,4 @@ class ClassMetaDataTest extends DrestTestCase
         $annotationDriver->addExtension('php');
         $this->assertGreaterThan(0, $metadataFactory->getAllClassNames());
     }
-
 }
