@@ -76,7 +76,7 @@ abstract class AbstractAction
 
     /**
      * Get the entity manager registry
-     * @return \Doctrine\Common\Persistence\ManagerRegistry
+     * @return \Drest\EntityManagerRegistry
      */
     protected function getEntityManagerRegistry()
     {

@@ -1,7 +1,7 @@
 <?php
 namespace Drest\Query;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Drest\EntityManagerRegistry;
 use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\RouteMetaData;
@@ -68,12 +68,12 @@ class ExposeFields implements \Iterator
 
     /**
      * Set the default exposure fields using the configured exposure depth
-     * @param  ManagerRegistry          $emr
+     * @param  EntityManagerRegistry    $emr
      * @param  integer                  $exposureDepth
      * @param  integer                  $exposureRelationsFetchType
      * @return ExposeFields             $this object instance
      */
-    public function configureExposeDepth(ManagerRegistry $emr, $exposureDepth = 0, $exposureRelationsFetchType = null)
+    public function configureExposeDepth(EntityManagerRegistry $emr, $exposureDepth = 0, $exposureRelationsFetchType = null)
     {
         if (!empty($this->route_expose)) {
             $this->fields = $this->route_expose;
@@ -356,12 +356,12 @@ class ExposeFields implements \Iterator
      *
      * @param array                     $fields    - array to be populated recursively (referenced)
      * @param string                    $class     - name of the class to process
-     * @param ManagerRegistry           $emr       - entity manager registry used to fetch class information
+     * @param EntityManagerRegistry     $emr       - entity manager registry used to fetch class information
      * @param integer                   $depth     - maximum depth you want to travel through the relations
      * @param integer                   $fetchType - The fetch type to be used
      * @param integer|null              $fetchType - The required fetch type of the relation
      */
-    protected function processExposeDepth(&$fields, $class, ManagerRegistry $emr, $depth = 0, $fetchType = null)
+    protected function processExposeDepth(&$fields, $class, EntityManagerRegistry $emr, $depth = 0, $fetchType = null)
     {
         $this->registered_expose_classes[] = $class;
         if ($depth > 0) {

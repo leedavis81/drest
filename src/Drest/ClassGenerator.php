@@ -2,8 +2,7 @@
 namespace Drest;
 
 use Doctrine\Common\Inflector\Inflector;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use \Doctrine\Common\Persistence\Mapping\ClassMetadata as ORMClassMetadata;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata as ORMClassMetadata;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator;
 
@@ -43,9 +42,9 @@ class ClassGenerator
 
     /**
      * Create an class generator instance
-     * @param ManagerRegistry $emr
+     * @param EntityManagerRegistry $emr
      */
-    public function __construct(ManagerRegistry $emr)
+    public function __construct(EntityManagerRegistry $emr)
     {
         $this->emr = $emr;
     }

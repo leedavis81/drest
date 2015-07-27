@@ -217,7 +217,7 @@ class Service
 
     /**
      * Get the entity manager registry
-     * @return \Doctrine\Common\Persistence\ManagerRegistry
+     * @return EntityManagerRegistry
      */
     public function getEntityManagerRegistry()
     {

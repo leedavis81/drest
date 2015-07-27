@@ -14,7 +14,6 @@
 namespace Drest;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\RouteMetaData;
 use Drest\Route\MultipleRoutesException;
@@ -32,7 +31,7 @@ class Manager
 
     /**
      * Doctrine Entity Manager Registry
-     * @var ManagerRegistry $emr
+     * @var EntityManagerRegistry $emr
      */
     protected $emr;
 
@@ -95,12 +94,12 @@ class Manager
      * Creates an instance of the Drest Manager using the passed configuration object
      * Can also pass in a Event Manager instance
      *
-     * @param ManagerRegistry   $entityManagerRegistry
-     * @param Configuration     $config
-     * @param Event\Manager     $eventManager
+     * @param EntityManagerRegistry   $entityManagerRegistry
+     * @param Configuration           $config
+     * @param Event\Manager           $eventManager
      */
     private function __construct(
-        ManagerRegistry $entityManagerRegistry,
+        EntityManagerRegistry $entityManagerRegistry,
         Configuration $config,
         Event\Manager $eventManager)
     {
@@ -129,13 +128,13 @@ class Manager
     /**
      * Static call to create the Drest Manager instance
      *
-     * @param  ManagerRegistry $entityManagerRegistry
-     * @param  Configuration $config
-     * @param  Event\Manager|null $eventManager
-     * @return Manager $manager
+     * @param  EntityManagerRegistry    $entityManagerRegistry
+     * @param  Configuration            $config
+     * @param  Event\Manager|null       $eventManager
+     * @return Manager                  $manager
      */
     public static function create(
-        ManagerRegistry $entityManagerRegistry,
+        EntityManagerRegistry $entityManagerRegistry,
         Configuration $config,
         Event\Manager $eventManager = null)
     {
@@ -611,7 +610,7 @@ class Manager
 
     /**
      * Get the entity manager registry
-     * @return ManagerRegistry
+     * @return EntityManagerRegistry
      */
     public function getEntityManagerRegistry()
     {
