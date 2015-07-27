@@ -208,6 +208,7 @@ This can be done using the method **registerExpose($exposeArray, $queryBuilder, 
 $classMetaData = $this->getMatchedRoute()->getClassMetaData();
 $elementName = $classMetaData->getEntityAlias();
 
+// Note this will return the default entity manager.
 $em = $this->getEntityManager();
 
 $qb = $this->registerExpose(
@@ -216,6 +217,13 @@ $qb = $this->registerExpose(
     $em->getClassMetadata($classMetaData->getClassName())
 );  
  {% endhighlight %}
+
+The example above will fetch the default entity manager that was registered with \Drest\EntityManagerRegistry.
+If you have multiple entity managers or connection resources within your application then you can retrieve the one you require like so:
+
+{% highlight php %}
+$this->getEntityManagerRegistry()->getManager({name you registered it with})
+{% endhighlight %}
 
 
 ####Triggering a handle

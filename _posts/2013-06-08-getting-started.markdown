@@ -68,14 +68,16 @@ One requirement when creating the drest manager is that you provide your configu
 It's also advised that you provide a caching mechanism for the annotations reader. 
 In the same fashion as Doctrine's ORM tool drest interacts with data objects generated from reading the annotations you've supplied. 
 Parsing these are computationally expensive, and so a caching mechanism is imperative for a production environment. You can use any of the cache adapters provided by doctrine.
-        
+
+Drest requires that you pass in an instance (or multiple instances) of the Doctrine Entity Manager. This is used to get knowledge of entity relations. It allows you to annotate a single entity as a rest endpoint, and still use all of its relations without having to explicitly provide knowledge of those related entities to the drest configuration object.
+To pass in a Doctrine Entity Manager it must be wrapped in a \Drest\EntityManagerRegistry instance. This allows you to use multiple entity managers or connection resources. If you only have one Entity Manager then static method is available to help you get up running quickly.
 
 {% highlight php %}
 $drestConfig = new \Drest\Configuration();
 $drestConfig->addPathsToConfigFiles($pathToEntities);
 $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());   // use a different adapter for production
 
-$drestManager = \Drest\Manager::create($em, $drestConfig);
+$drestManager = \Drest\Manager::create(\Drest\EntityManagerRegistry::getSimpleManagerRegistry($em), $drestConfig);
 
 echo $drestManager->dispatch();    
 {% endhighlight %}    

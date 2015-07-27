@@ -14,7 +14,11 @@ To use the event system with drest you simply have to register an event manager 
 {% highlight php %}
 $evm = new Drest\Event\Manager();
 // .. attach listeners / subscribers ..
-$drestManager = \Drest\Manager::create($em, $drestConfig, $evm);
+$drestManager = \Drest\Manager::create(
+    \Drest\EntityManagerRegistry::getSimpleManagerRegistry($em),
+    $drestConfig,
+    $evm
+);
 {% endhighlight %}
 
 For further information about how to use the doctrine event system [click here](http://docs.doctrine-project.org/en/2.0.x/reference/events.html)
