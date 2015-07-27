@@ -89,6 +89,7 @@ class ClassGenerator
     protected function recurseParams(array $expose, $fullClassName)
     {
         // get ORM metadata for the current class
+        /** @var \Doctrine\ORM\Mapping\ClassMetadata $ormClassMetaData */
         $ormClassMetaData = $this->emr->getManagerForClass($fullClassName)->getClassMetadata($fullClassName);
 
         if (isset($this->classes[$fullClassName])) {
@@ -124,6 +125,7 @@ EOT;
                     $this->handleAssocProperty($value, $cg, $ormClassMetaData);
 
                     $assocMapping = $ormClassMetaData->getAssociationMapping($value);
+                    /** @var \Doctrine\ORM\Mapping\ClassMetadata $teCmd */
                     $teCmd = $this->emr->getManagerForClass($assocMapping['targetEntity'])->getClassMetadata($assocMapping['targetEntity']);
                     $this->recurseParams($teCmd->getColumnNames(), $assocMapping['targetEntity']);
                 } else {

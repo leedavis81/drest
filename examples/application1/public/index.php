@@ -58,7 +58,7 @@ $evm = new Event\Manager();
 
 
 $emr = \Drest\EntityManagerRegistry::getSimpleManagerRegistry($em);
-$drestManager = \Drest\Manager::create($em, $drestConfig, $evm);
+$drestManager = \Drest\Manager::create($emr, $drestConfig, $evm);
 
 
 echo $drestManager->dispatch();

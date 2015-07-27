@@ -55,6 +55,7 @@ class Manager
     protected $metadataFactory;
 
     /**
+    /**
      * Annotation Driver being used
      * @var Mapping\Driver\AnnotationDriver $metaDataDriver
      */
