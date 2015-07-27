@@ -180,7 +180,7 @@ class AnnotationDriver implements DriverInterface
 
                 if (is_array($annotatedObject->representations))
                 {
-                    $metadata->addRepresentations($annotatedObject->representations, $metadata);
+                    $metadata->addRepresentations($annotatedObject->representations);
                 }
 
                 $this->processRoutes($annotatedObject->routes, $metadata);
