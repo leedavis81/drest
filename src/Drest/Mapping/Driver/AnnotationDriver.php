@@ -221,7 +221,7 @@ class AnnotationDriver implements DriverInterface
                         if (empty($methodAnnotation->for) || !is_string($methodAnnotation->for)) {
                             throw DrestException::handleForCannotBeEmpty();
                         }
-                        if (($routeMetaData = $metadata->getRoutesMetaData($methodAnnotation->for)) === false) {
+                        if (($routeMetaData = $metadata->getRouteMetaData($methodAnnotation->for)) === false) {
                             throw DrestException::handleAnnotationDoesntMatchRouteName($methodAnnotation->for);
                         }
                         if ($routeMetaData->hasHandleCall()) {
@@ -253,7 +253,7 @@ class AnnotationDriver implements DriverInterface
             if ($route->name == '') {
                 throw DrestException::routeNameIsEmpty();
             }
-            if ($metadata->getRoutesMetaData($route->name) !== false) {
+            if ($metadata->getRouteMetaData($route->name) !== false) {
                 throw DrestException::routeAlreadyDefinedWithName($metadata->getClassName(), $route->name);
             }
             $routeMetaData->setName($route->name);

@@ -299,7 +299,7 @@ class Manager
 
         // Allow exception to bubble up
         $classMetaData = $this->getClassMetadata($parts[0]);
-        if (($route = $classMetaData->getRoutesMetaData($parts[1])) === false) {
+        if (($route = $classMetaData->getRouteMetaData($parts[1])) === false) {
             throw DrestException::unableToFindRouteByName($parts[1], $classMetaData->getClassName());
         }
 

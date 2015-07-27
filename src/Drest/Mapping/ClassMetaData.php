@@ -83,20 +83,26 @@ class ClassMetaData implements \Serializable
     }
 
     /**
-     * Get either and array of all route metadata information, or an entry by name. Returns false if entry cannot be found
-     * @param  null                         $name
-     * @return RouteMetaData|array|false  $routes
+     * Get an array of all route metadata information.
+     * @return RouteMetaData[]|false  $routes
      */
-    public function getRoutesMetaData($name = null)
+    public function getRoutesMetaData()
     {
-        if ($name === null) {
-            return $this->routes;
-        }
-        if (isset($this->routes[$name])) {
-            return $this->routes[$name];
+        return $this->routes;
+    }
+
+    /**
+     * Get metadata for a specific route. Returns false if entry cannot be found
+     * @param $name
+     * @return RouteMetaData|false  $routes
+     */
+    public function getRouteMetaData($name)
+    {
+        if (!isset($this->routes[$name])) {
+            return false;
         }
 
-        return false;
+        return $this->routes[$name];
     }
 
     /**
@@ -107,7 +113,7 @@ class ClassMetaData implements \Serializable
     public function getOriginRoute(EntityManager $em = null)
     {
         if (!empty($this->originRouteName)) {
-            if (($route = $this->getRoutesMetaData($this->originRouteName)) !== false) {
+            if (($route = $this->getRouteMetaData($this->originRouteName)) !== false) {
                 return $route;
             }
         } elseif (!is_null($em)) {
