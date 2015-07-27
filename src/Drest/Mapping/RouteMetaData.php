@@ -459,21 +459,17 @@ class RouteMetaData implements \Serializable
      * Does this request match the route pattern
      * @param  Request $request
      * @param  boolean $matchVerb - Whether you want to match the route using the request HTTP verb
-     *                            - useful for OPTIONS requests
+     *                            - useful for OPTIONS requests to provide route info
      * @param  string  $basePath  - add a base path to the route pattern
      * @return boolean $result
      */
     public function matches(Request $request, $matchVerb = true, $basePath = null)
     {
-        if ($matchVerb && $this->usesHttpVerbs()) {
-            try {
-                $method = $request->getHttpMethod();
-                if (!in_array($method, $this->verbs)) {
-                    return false;
-                }
-            } catch (DrestException $e) {
-                return false;
-            }
+        // If we're matching the verb and we've defined them, ensure the method used is in our list of registered verbs
+        if ($matchVerb &&
+            $this->usesHttpVerbs() &&
+            !$this->methodIsInOurListOfAllowedVerbs($request->getHttpMethod())) {
+            return false;
         }
 
         $patternAsRegex = $this->getMatchRegexPattern($basePath);
@@ -487,14 +483,39 @@ class RouteMetaData implements \Serializable
         $this->processRouteParams($paramValues);
 
         // Check the route conditions
+        return $this->routeConditionsAreValid();
+    }
+
+
+    /**
+     * Are the given route conditions matching
+     * @return bool
+     */
+    protected function routeConditionsAreValid()
+    {
         foreach ($this->route_conditions as $key => $condition) {
             if (!preg_match('/^' . $condition . '$/', $this->route_params[$key])) {
                 $this->param_names_path = $this->route_params = $this->unmapped_route_params = array();
-
                 return false;
             }
         }
+        return true;
+    }
 
+    /**
+     * Ensure our method is in out list of allowed verbs
+     * @param $httpMethod
+     * @return bool
+     */
+    protected function methodIsInOurListOfAllowedVerbs($httpMethod)
+    {
+        try {
+            if (!in_array($httpMethod, $this->verbs)) {
+                return false;
+            }
+        } catch (DrestException $e) {
+            return false;
+        }
         return true;
     }
 

@@ -40,10 +40,11 @@ class Router
                         $matches[] = $route;
                     }
                 }
-            } else {
-                if ($route->matches($request, $matchVerb)) {
-                    $matches[] = $route;
-                }
+                return $matches;
+            }
+
+            if ($route->matches($request, $matchVerb)) {
+                $matches[] = $route;
             }
         }
 
