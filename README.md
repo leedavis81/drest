@@ -10,7 +10,7 @@ Drest
 [![Build Status](https://scrutinizer-ci.com/g/leedavis81/drest/badges/build.png?b=master)](https://scrutinizer-ci.com/g/leedavis81/drest/build-status/master) [![Code Coverage](https://scrutinizer-ci.com/g/leedavis81/drest/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/leedavis81/drest/?branch=master) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/leedavis81/drest/badges/quality-score.png?s=54655af2afbd263417c9e80a4d6ee9664083b5c5)](https://scrutinizer-ci.com/g/leedavis81/drest/) | [![Latest Stable Version](https://poser.pugx.org/leedavis81/drest/v/stable.png)](https://packagist.org/packages/leedavis81/drest) [![Latest Unstable Version](https://poser.pugx.org/leedavis81/drest/v/unstable.png)](https://packagist.org/packages/leedavis81/drest) | [![Total Downloads](https://poser.pugx.org/leedavis81/drest/downloads.png)](https://packagist.org/packages/leedavis81/drest)| [![Dependency Status](https://www.versioneye.com/user/projects/5194ec66296d610002000343/badge.png)](https://www.versioneye.com/user/projects/5194ec66296d610002000343) |
 
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/leedavis81/drest/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+![HHVM Status](http://hhvm.h4cc.de/badge/leedavis81/drest.svg)](http://hhvm.h4cc.de/package/leedavis81/drest)
 
 This library allows you to quickly annotate your doctrine entities into restful resources. It comes shipped with it's own internal router, and can be used standalone or alongside your existing framework stack. Routes are mapped to either a default or customised service action that takes care of handling requests.
 
