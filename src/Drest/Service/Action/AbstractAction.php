@@ -124,9 +124,23 @@ abstract class AbstractAction
     }
 
     /**
+     * Register the expose details from given metadata, typically used when setting up GET single/collection endpoints
+     * @param ORM\QueryBuilder $qb
+     * @param ORM\Mapping\ClassMetadata $classMetaData
+     */
+    protected function registerExposeFromMetaData(ORM\QueryBuilder $qb, ORM\Mapping\ClassMetadata $classMetaData)
+    {
+        $this->registerExpose(
+            $this->getMatchedRoute()->getExpose(),
+            $qb,
+            $classMetaData
+        );
+    }
+
+    /**
      * A recursive function to process the specified expose fields for a fetch request (GET)
      * @param  array                     $fields         - expose fields to process
-     * @param  ORM\QueryBuilder          $qb
+     * @param  ORM\QueryBuilder $qb
      * @param  ORM\Mapping\ClassMetadata $classMetaData
      * @param $rootAlias - table alias to be used on SQL query
      * @param  array                     $addedKeyFields

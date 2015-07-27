@@ -12,11 +12,8 @@ class GetCollection extends AbstractAction
         $classMetaData = $this->getMatchedRoute()->getClassMetaData();
         $em = $this->getEntityManager();
 
-        $qb = $this->registerExpose(
-            $this->getMatchedRoute()->getExpose(),
-            $em->createQueryBuilder()->from($classMetaData->getClassName(), $classMetaData->getEntityAlias()),
-            $em->getClassMetadata($classMetaData->getClassName())
-        );
+        $qb = $em->createQueryBuilder()->from($classMetaData->getClassName(), $classMetaData->getEntityAlias());
+        $this->registerExposeFromMetaData($qb, $em->getClassMetadata($classMetaData->getClassName()));
 
         foreach ($this->getMatchedRoute()->getRouteParams() as $key => $value) {
             $qb->andWhere($classMetaData->getEntityAlias() . '.' . $key . ' = :' . $key);

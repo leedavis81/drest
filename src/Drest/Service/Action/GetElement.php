@@ -13,12 +13,8 @@ class GetElement extends AbstractAction
         $elementName = $classMetaData->getEntityAlias();
 
         $em = $this->getEntityManager();
-
-        $qb = $this->registerExpose(
-            $this->getMatchedRoute()->getExpose(),
-            $em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName),
-            $em->getClassMetadata($classMetaData->getClassName())
-        );
+        $qb = $em->createQueryBuilder()->from($classMetaData->getClassName(), $elementName);
+        $this->registerExposeFromMetaData($qb, $em->getClassMetadata($classMetaData->getClassName()));
 
         foreach ($this->getMatchedRoute()->getRouteParams() as $key => $value) {
             $qb->andWhere($elementName . '.' . $key . ' = :' . $key);
