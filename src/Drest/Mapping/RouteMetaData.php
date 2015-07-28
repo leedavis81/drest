@@ -155,6 +155,15 @@ class RouteMetaData implements \Serializable
     }
 
     /**
+     * Get the route conditions
+     * @return array|null
+     */
+    public function getRouteConditions()
+    {
+        return $this->route_conditions;
+    }
+
+    /**
      * Get the name of this route
      * @return string $name
      */
@@ -278,15 +287,6 @@ class RouteMetaData implements \Serializable
     }
 
     /**
-     * Get any unmapped route parameters
-     * @return array $params
-     */
-    public function getUnmappedRouteParams()
-    {
-        return $this->unmapped_route_params;
-    }
-
-    /**
      * An array of fields we're allowed to expose to the client
      * @param array $expose
      */
@@ -384,7 +384,7 @@ class RouteMetaData implements \Serializable
      */
     public function getOriginLocation($object, $url, EntityManager $em = null)
     {
-        $exposedObjectArray = self::getObjectVarsArray($object);
+        $exposedObjectArray = \Drest\Helper\ObjectToArray::execute($object);
         if (($route = $this->class_metadata->getOriginRoute($em)) !== null) {
             if (!is_null($em)) {
                 $pattern = $route->getRoutePattern();
@@ -403,25 +403,6 @@ class RouteMetaData implements \Serializable
     }
 
     /**
-     * Get an objects variables (including private / protected) as an array
-     * @param $object
-     * @throws \InvalidArgumentException
-     * @return array
-     */
-    public static function getObjectVarsArray($object)
-    {
-        if (!is_object($object)) {
-            throw new \InvalidArgumentException('To extract variables from an object, you must supply an object.');
-        }
-
-        $objectArray = (array) $object;
-        $out = json_encode($objectArray);
-        $out = preg_replace('/\\\u0000[*a-zA-Z_\x7f-\xff\\\][a-zA-Z0-9_\x7f-\xff\\\]*\\\u0000/', '', $out);
-
-        return json_decode($out, true);
-    }
-
-    /**
      * Does this request match the route pattern
      * @param  Request $request
      * @param  boolean $matchVerb - Whether you want to match the route using the request HTTP verb
@@ -431,117 +412,18 @@ class RouteMetaData implements \Serializable
      */
     public function matches(Request $request, $matchVerb = true, $basePath = null)
     {
-        // If we're matching the verb and we've defined them, ensure the method used is in our list of registered verbs
-        if ($matchVerb &&
-            $this->usesHttpVerbs() &&
-            !$this->methodIsInOurListOfAllowedVerbs($request->getHttpMethod())) {
+        $matcher = new \Drest\Route\Matcher($this);
+        if (!$matcher->matches($request, $matchVerb, $basePath))
+        {
             return false;
         }
 
-        $patternAsRegex = $this->getMatchRegexPattern($basePath);
+        // set determined parameters from running the match
+        $this->unmapped_route_params = $matcher->getUnmappedRouteParams();
+        $this->param_names = $matcher->getParamNames();
+        $this->param_names_path = $matcher->getParamNamesPath();
 
-        //Cache URL params' names and values if this route matches the current HTTP request
-        if (!preg_match('#^' . $patternAsRegex . '$#', $request->getPath(), $paramValues)) {
-            return false;
-        }
-
-        // Process the param names and save them on the route params
-        $this->processRouteParams($paramValues);
-
-        // Check the route conditions
-        return $this->routeConditionsAreValid();
-    }
-
-
-    /**
-     * Are the given route conditions matching
-     * @return bool
-     */
-    protected function routeConditionsAreValid()
-    {
-        foreach ($this->route_conditions as $key => $condition) {
-            if (!preg_match('/^' . $condition . '$/', $this->route_params[$key])) {
-                $this->param_names_path = $this->route_params = $this->unmapped_route_params = array();
-                return false;
-            }
-        }
         return true;
-    }
-
-    /**
-     * Ensure our method is in out list of allowed verbs
-     * @param $httpMethod
-     * @return bool
-     */
-    protected function methodIsInOurListOfAllowedVerbs($httpMethod)
-    {
-        try {
-            if (!in_array($httpMethod, $this->verbs)) {
-                return false;
-            }
-        } catch (DrestException $e) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Get the regex pattern to match the request path
-     * @param $basePath
-     * @return string
-     */
-    protected function getMatchRegexPattern($basePath)
-    {
-        // Convert URL params into regex patterns, construct a regex for this route, init params
-        $routePattern = (is_null($basePath))
-            ? (string) $this->route_pattern
-            : '/' . $basePath . '/' . ltrim((string) $this->route_pattern, '/');
-        $patternAsRegex = preg_replace_callback(
-            '#:([\w]+)\+?#',
-            array($this, 'matchesCallback'),
-            str_replace(')', ')?', $routePattern)
-        );
-        if (substr($this->route_pattern, -1) === '/') {
-            $patternAsRegex .= '?';
-        }
-        return $patternAsRegex;
-    }
-
-    /**
-     * Process the route names and add them as parameters
-     * @param array $paramValues
-     */
-    protected function processRouteParams(array $paramValues)
-    {
-        foreach ($this->param_names as $name) {
-            if (isset($paramValues[$name])) {
-                if (isset($this->param_names_path[$name])) {
-                    $parts = explode('/', urldecode($paramValues[$name]));
-                    $this->route_params[$name] = array_shift($parts);
-                    $this->unmapped_route_params = $parts;
-                } else {
-                    $this->route_params[$name] = urldecode($paramValues[$name]);
-                }
-            }
-        }
-    }
-
-    /**
-     * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
-     * @param array - url parameters
-     * @return string - Regular expression for URL parameter
-     */
-    protected function matchesCallback($m)
-    {
-        $this->param_names[] = $m[1];
-
-        if (substr($m[0], -1) === '+') {
-            $this->param_names_path[$m[1]] = 1;
-
-            return '(?P<' . $m[1] . '>.+)';
-        }
-
-        return '(?P<' . $m[1] . '>[^/]+)';
     }
 
     /**
