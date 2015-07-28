@@ -51,7 +51,10 @@ class Matcher
      */
     public function __construct(\Drest\Mapping\RouteMetaData $routeMetaData = null)
     {
-        $this->setRouteMetaData($routeMetaData);
+        if (!is_null($routeMetaData))
+        {
+            $this->setRouteMetaData($routeMetaData);
+        }
     }
 
     /**
@@ -125,23 +128,6 @@ class Matcher
     public function getParamNamesPath()
     {
         return $this->param_names_path;
-    }
-
-    /**
-     * Inject unmapped route params onto this object without performing a match.
-     * Useful when calling a named route directly
-     * @param array $params - should be a keyed array. associative values are ignored
-     */
-    public function setUnmappedRouteParams(array $params = array())
-    {
-        $this->unmapped_route_params = array_flip(
-            array_filter(
-                array_flip($params),
-                function ($entry) {
-                    return !is_string($entry);
-                }
-            )
-        );
     }
 
     /**
