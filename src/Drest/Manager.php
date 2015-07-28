@@ -26,6 +26,7 @@ use DrestCommon\Response\Response;
 
 class Manager
 {
+    use HttpManagerTrait;
 
     /**
      * Doctrine Entity Manager Registry
@@ -56,18 +57,6 @@ class Manager
      * @var \Drest\Router $router
      */
     protected $router;
-
-    /**
-     * Drest request object
-     * @var \DrestCommon\Request\Request $request
-     */
-    protected $request;
-
-    /**
-     * Drest response object
-     * @var Response $response
-     */
-    protected $response;
 
     /**
      * A service object used to handle service actions
@@ -140,8 +129,7 @@ class Manager
      */
     public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = array())
     {
-        $this->setRequest(Request::create($request, $this->config->getRegisteredRequestAdapterClasses()));
-        $this->setResponse(Response::create($response, $this->config->getRegisteredResponseAdapterClasses()));
+        $this->setUpHttp($request, $response, $this->getConfiguration());
 
         // Register routes for lookup
         $this->metadataManager->registerRoutes($this->router);
@@ -174,7 +162,7 @@ class Manager
             throw $rethrowException;
         }
 
-        return $this->response;
+        return $this->getResponse();
     }
 
     /**
@@ -190,7 +178,7 @@ class Manager
             $representation = $this->getDeterminedRepresentation($route);
 
             // Configure push / pull exposure fields
-            switch ($this->request->getHttpMethod()) {
+            switch ($this->getRequest()->getHttpMethod()) {
                 // Match on content option
                 case Request::METHOD_GET:
                     $this->handlePullExposureConfiguration($route);
@@ -248,7 +236,7 @@ class Manager
         $this->getEventManager()->dispatchEvent(Event\Events::POST_ROUTING, new Event\PostRoutingArgs($this->service));
 
         // Set parameters matched on the route to the request object
-        $this->request->setRouteParam($route->getRouteParams());
+        $this->getRequest()->setRouteParam($route->getRouteParams());
 
         return $route;
     }
@@ -292,7 +280,7 @@ class Manager
                     $this->config->getExposureDepth(),
                     $this->config->getExposureRelationsFetchType()
                 )
-                ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
+                ->configurePullRequest($this->config->getExposeRequestOptions(), $this->getRequest())
                 ->toArray()
         );
     }
@@ -305,7 +293,7 @@ class Manager
      */
     protected function handlePushExposureConfiguration(RouteMetaData $route, AbstractRepresentation $representation)
     {
-        $representation = $representation::createFromString($this->request->getBody());
+        $representation = $representation::createFromString($this->getRequest()->getBody());
         // Write the filtered expose data
         $representation->write(
             Query\ExposeFields::create($route)
@@ -326,8 +314,8 @@ class Manager
      */
     protected function doCGOptionsCheck()
     {
-        $genClasses = $this->request->getHeaders(ClassGenerator::HEADER_PARAM);
-        if ($this->request->getHttpMethod() != Request::METHOD_OPTIONS || empty($genClasses)) {
+        $genClasses = $this->getRequest()->getHeaders(ClassGenerator::HEADER_PARAM);
+        if ($this->getRequest()->getHttpMethod() != Request::METHOD_OPTIONS || empty($genClasses)) {
             return false;
         }
 
@@ -355,7 +343,7 @@ class Manager
 
         $classGenerator->create($classMetadatas);
 
-        $this->response->setBody($classGenerator->serialize());
+        $this->getResponse()->setBody($classGenerator->serialize());
 
         return true;
     }
@@ -367,7 +355,7 @@ class Manager
      */
     protected function doOptionsCheck()
     {
-        if ($this->request->getHttpMethod() != Request::METHOD_OPTIONS) {
+        if ($this->getRequest()->getHttpMethod() != Request::METHOD_OPTIONS) {
             return false;
         }
 
@@ -389,7 +377,7 @@ class Manager
             return false;
         }
 
-        $this->response->setHttpHeader('Allow', implode(', ', $verbs));
+        $this->getResponse()->setHttpHeader('Allow', implode(', ', $verbs));
 
         return true;
     }
@@ -453,14 +441,14 @@ class Manager
                 throw RepresentationException::representationMustBeInstanceOfDrestRepresentation();
             }
 
-            if (($representation = $this->determineRepresentationByHttpMethod($representation)) !== null)
+            if (($representation = $this->determineRepresentationByHttpMethod($representation, $this->config->getDetectContentOptions())) !== null)
             {
                 return $representation;
             }
         }
 
         // For get requests with "415 for no media match" set on, throw an exception
-        if ($this->request->getHttpMethod() == Request::METHOD_GET && $this->config->get415ForNoMediaMatchSetting()) {
+        if ($this->getRequest()->getHttpMethod() == Request::METHOD_GET && $this->config->get415ForNoMediaMatchSetting()) {
             throw UnableToMatchRepresentationException::noMatch();
         }
 
@@ -469,33 +457,6 @@ class Manager
             return $representationObjects[0];
         }
 
-        return null;
-    }
-
-    /**
-     * Determine the representation by inspecting the HTTP method
-     * @param AbstractRepresentation $representation
-     * @return AbstractRepresentation|null
-     */
-    protected function determineRepresentationByHttpMethod(AbstractRepresentation $representation)
-    {
-        switch ($this->request->getHttpMethod()) {
-            // Match on content option
-            case Request::METHOD_GET:
-                // This representation matches the required media type requested by the client
-                if ($representation->isExpectedContent($this->config->getDetectContentOptions(), $this->request)) {
-                    return $representation;
-                }
-                break;
-            // Match on content-type
-            case Request::METHOD_POST:
-            case Request::METHOD_PUT:
-            case Request::METHOD_PATCH:
-                if ($representation->getContentType() === $this->request->getHeaders('Content-Type')) {
-                    return $representation;
-                }
-                break;
-        }
         return null;
     }
 
@@ -513,7 +474,7 @@ class Manager
             $this->router->setRouteBasePaths($this->config->getRouteBasePaths());
         }
 
-        $matchedRoutes = $this->router->getMatchedRoutes($this->request, (bool) $matchVerb);
+        $matchedRoutes = $this->router->getMatchedRoutes($this->getRequest(), (bool) $matchVerb);
         $routesSize = sizeof($matchedRoutes);
         if ($routesSize == 0) {
             throw NoMatchException::noMatchedRoutes();
@@ -531,7 +492,7 @@ class Manager
      */
     protected function getMatchedRoutes($matchVerb = true)
     {
-        return $this->router->getMatchedRoutes($this->request, (bool) $matchVerb);
+        return $this->router->getMatchedRoutes($this->getRequest(), (bool) $matchVerb);
     }
 
     /**
@@ -552,9 +513,9 @@ class Manager
             $eh->error($e, 500, $errorDocument);
         }
 
-        $this->response->setStatusCode($eh->getResponseCode());
-        $this->response->setHttpHeader('Content-Type', $errorDocument::getContentType());
-        $this->response->setBody($errorDocument->render());
+        $this->getResponse()->setStatusCode($eh->getResponseCode());
+        $this->getResponse()->setHttpHeader('Content-Type', $errorDocument::getContentType());
+        $this->getResponse()->setBody($errorDocument->render());
     }
 
     /**
@@ -575,51 +536,6 @@ class Manager
         return $this->emr;
     }
 
-    /**
-     * Get the request object
-     * @param $fwRequest - constructed using a fw adapted object
-     * @return Request $request
-     */
-    public function getRequest($fwRequest = null)
-    {
-        if (!$this->request instanceof Request) {
-            $this->request = Request::create($fwRequest, $this->config->getRegisteredRequestAdapterClasses());
-        }
-
-        return $this->request;
-    }
-
-    /**
-     * Set the request object
-     * @param Request $request
-     */
-    public function setRequest(Request $request)
-    {
-        $this->request = $request;
-    }
-
-    /**
-     * Get the response object
-     * @param $fwResponse - constructed using a fw adapted object
-     * @return Response $response
-     */
-    public function getResponse($fwResponse = null)
-    {
-        if (!$this->response instanceof Response) {
-            $this->response = Response::create($fwResponse, $this->config->getRegisteredResponseAdapterClasses());
-        }
-
-        return $this->response;
-    }
-
-    /**
-     * Set the response object
-     * @param Response $response
-     */
-    public function setResponse(Response $response)
-    {
-        $this->response = $response;
-    }
 
     /**
      * Get the event manager
