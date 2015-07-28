@@ -92,12 +92,6 @@ class RouteMetaData implements \Serializable
     protected $handle_call;
 
     /**
-     * Whether to inject a DrestCommon\Request\Request object into the handle method
-     * @var bool $inject_request_into_handle
-     */
-    protected $inject_request_into_handle = false;
-
-    /**
      * An array of fields to be exposed to the end client
      * @var array $expose
      */
@@ -358,24 +352,6 @@ class RouteMetaData implements \Serializable
     }
 
     /**
-     * Set to inject the DrestCommon\Request\Request object into a handle method
-     * @param bool $setting
-     */
-    public function setInjectRequestIntoHandle($setting)
-    {
-        $this->inject_request_into_handle = (bool) $setting;
-    }
-
-    /**
-     * Do we need to inject the request object into the handle call
-     * @return bool
-     */
-    public function getInjectRequestIntoHandle()
-    {
-        return $this->inject_request_into_handle;
-    }
-
-    /**
      * Set whether we would like to expose this route (and its verbs) to OPTIONS requests
      * @param  integer|boolean $value - if using integer -1 to unset, 0 for no and 1 if yes
      * @throws DrestException
@@ -400,16 +376,6 @@ class RouteMetaData implements \Serializable
     }
 
     /**
-     * Get the origin route (it could be this instance)
-     * @param  EntityManager      $em - Optionally pass the entity manager to assist in determining a GET origin location
-     * @return null|RouteMetaData $route
-     */
-    public function getOriginRoute(EntityManager $em = null)
-    {
-        return $this->class_metadata->getOriginRoute($em);
-    }
-
-    /**
      * Generate the location string from the provided object
      * @param  object        $object
      * @param  string        $url    - the Url to be prepended to the location
@@ -419,7 +385,7 @@ class RouteMetaData implements \Serializable
     public function getOriginLocation($object, $url, EntityManager $em = null)
     {
         $exposedObjectArray = self::getObjectVarsArray($object);
-        if (($route = $this->getOriginRoute($em)) !== null) {
+        if (($route = $this->class_metadata->getOriginRoute($em)) !== null) {
             if (!is_null($em)) {
                 $pattern = $route->getRoutePattern();
                 $ormClassMetadata = $em->getClassMetadata($this->getClassMetaData()->getClassName());
@@ -610,7 +576,6 @@ class RouteMetaData implements \Serializable
                 $this->collection,
                 $this->action_class,
                 $this->handle_call,
-                $this->inject_request_into_handle,
                 $this->expose,
                 $this->allowed_option_request
             )
@@ -635,7 +600,6 @@ class RouteMetaData implements \Serializable
             $this->collection,
             $this->action_class,
             $this->handle_call,
-            $this->inject_request_into_handle,
             $this->expose,
             $this->allowed_option_request
             ) = unserialize($string);

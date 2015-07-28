@@ -229,7 +229,6 @@ class AnnotationDriver implements DriverInterface
                             throw DrestException::alreadyHandleDefinedForRoute($routeMetaData);
                         }
                         $routeMetaData->setHandleCall($method->getName());
-                        $routeMetaData->setInjectRequestIntoHandle($methodAnnotation->injectRequest);
                     }
                 }
             }

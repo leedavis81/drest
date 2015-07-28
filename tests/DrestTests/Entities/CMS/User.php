@@ -87,7 +87,7 @@ class User
     }
 
     /**
-     * @Drest\Handle(for="post_user", injectRequest=true)
+     * @Drest\Handle(for="post_user")
      */
     public function populatePost(array $data, \DrestCommon\Request\Request $request)
     {

@@ -359,12 +359,7 @@ abstract class AbstractAction
         // Run any attached handle function
         if ($matchedRoute->hasHandleCall()) {
             $handleMethod = $matchedRoute->getHandleCall();
-
-            if ($matchedRoute->getInjectRequestIntoHandle()) {
-                $object->$handleMethod($this->getRepresentation()->toArray(false), $this->getRequest());
-            } else {
-                $object->$handleMethod($this->getRepresentation()->toArray(false));
-            }
+            $object->$handleMethod($this->getRepresentation()->toArray(false), $this->getRequest());
         }
     }
 
