@@ -236,13 +236,13 @@ public function myMethod(array $data)
 }
 {% endhighlight %} 
 
-For simplicity an array representation of the pushed data is passed as a parameter to the handle method. 
+For simplicity an array representation of the pushed data is passed as a parameter to the handle method along with the request object.
 In some instances you may need more information about the request to determine the state of your entity. 
 In this instance you can instruct drest to inject the **Drest\Request** object instance.   
 
 {% highlight php %}
 /**
- * @Drest\Handle(for="update_users", injectRequest=true)
+ * @Drest\Handle(for="update_users")
  */
 public function myMethod(array $data, \Drest\Request $request)
 {
@@ -257,4 +257,3 @@ See [creating your own service actions]({{site.url}}/docs/service-actions/#creat
 #####@Drest\Handle properties
 
 - (string) **for** *required* - Which push route this handle is for. Must match the @Drest\Route::name parameter.
-- (array) **injectRequest** *optional* - Add this annotation to instruct drest to inject the Drest\Request object as the second parameter. Defaults to false.
