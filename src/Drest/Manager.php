@@ -183,9 +183,9 @@ class Manager
 
     /**
      * Set up exposure setting on route by HTTP method
-     * @param $method
-     * @param $route
-     * @param $representation
+     * @param string $method
+     * @param RouteMetaData $route
+     * @param AbstractRepresentation $representation
      * @return AbstractRepresentation
      */
     protected function handleExposureSettingsFromHttpMethod($method, $route, $representation)
