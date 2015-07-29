@@ -16,7 +16,7 @@ include $configFile;
 $helperSet = (isset($helperSet)) ? $helperSet : new \Symfony\Component\Console\Helper\HelperSet();
 
 
-$cli = new \Symfony\Component\Console\Application('Drest Server Command Line Interface Tool', Drest\Version::VERSION);
+$cli = new \Symfony\Component\Console\Application('Drest Server Command Line Interface Tool');
 $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 $cli->addCommands(array(

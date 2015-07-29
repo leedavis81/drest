@@ -6,11 +6,10 @@
  * file that was distributed with this source code.
  *
  * @author Lee Davis
- * @copyright Copyright (c) Lee Davis <leedavis81@hotmail.com>
- * @link https://github.com/leedavis81/drest/blob/master/LICENSE.txt
+ * @copyright Copyright (c) Lee Davis <@leedavis81>
+ * @link https://github.com/leedavis81/drest/blob/master/LICENSE
  * @license http://opensource.org/licenses/MIT The MIT X License (MIT)
  */
-
 namespace Drest;
 
 use Drest\Mapping\RouteMetaData;
