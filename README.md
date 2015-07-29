@@ -17,13 +17,20 @@ This library allows you to quickly annotate your doctrine entities into restful 
 Setting up endpoints is as easy as adding in a simple annotation to an entity
 
 ```php
-@Drest\Resource(
-    routes={
-        @Drest\Route(
-            name="get_user",
-            route_pattern="/user/:id",
-            verbs={"GET"}
-)})
+/* @Drest\Resource(
+ *    routes={
+ *        @Drest\Route(
+ *            name="get_user",
+ *            route_pattern="/user/:id",
+ *            verbs={"GET"}
+ * )})
+ * @ORM\Table(name="user")
+ * @ORM\Entity
+ */
+class User
+{
+   .......
+}
 
 // hitting [GET] http://myapplication.com/user/123 may return:
 
