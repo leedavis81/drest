@@ -128,18 +128,12 @@ class Service
     final public function runCallMethod()
     {
         // dispatch preServiceAction event
-        $this->dm->getEventManager()->dispatchEvent(
-            Event\Events::PRE_SERVICE_ACTION,
-            new Event\PreServiceActionArgs($this)
-        );
+        $this->dm->triggerPreServiceActionEvent($this);
 
         $return = $this->getActionInstance()->execute();
 
         // dispatch postServiceAction event
-        $this->dm->getEventManager()->dispatchEvent(
-            Event\Events::POST_SERVICE_ACTION,
-            new Event\PostServiceActionArgs($this)
-        );
+        $this->dm->triggerPostServiceActionEvent($this);
 
         if ($return instanceof ResultSet) {
             $this->renderDeterminedRepresentation($return);

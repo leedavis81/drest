@@ -26,6 +26,7 @@ use DrestCommon\Response\Response;
 class Manager
 {
     use HttpManagerTrait;
+    use EventManagerTrait;
 
     /**
      * Doctrine Entity Manager Registry
@@ -38,12 +39,6 @@ class Manager
      * @var Configuration $config
      */
     protected $config;
-
-    /**
-     * Event manager object
-     * @var Event\Manager
-     */
-    protected $eventManager;
 
     /**
      * Metadata manager object
@@ -134,10 +129,7 @@ class Manager
         $this->metadataManager->registerRoutes($this->router);
 
         // trigger preDispatch event
-        $this->getEventManager()->dispatchEvent(
-            Event\Events::PRE_DISPATCH,
-            new Event\PreDispatchArgs($this->service)
-        );
+        $this->triggerPreDispatchEvent($this->service);
 
         $rethrowException = false;
         try {
@@ -152,10 +144,7 @@ class Manager
         }
 
         // trigger a postDispatch event
-        $this->getEventManager()->dispatchEvent(
-            Event\Events::POST_DISPATCH,
-            new Event\PostDispatchArgs($this->service)
-        );
+        $this->triggerPostDispatchEvent($this->service);
 
         if ($rethrowException) {
             throw $rethrowException;
@@ -227,17 +216,16 @@ class Manager
     protected function determineRoute($namedRoute = null, array $routeParams = array())
     {
         // dispatch preRoutingAction event
-        $this->getEventManager()->dispatchEvent(Event\Events::PRE_ROUTING, new Event\PreRoutingArgs($this->service));
+        $this->triggerPreRoutingEvent($this->service);
         try {
             $route = (!is_null($namedRoute))
                 ? $this->getNamedRoute($namedRoute, $routeParams)
                 : $this->getMatchedRoute(true);
         } catch (\Exception $e) {
+
             // dispatch postRoutingAction event
-            $this->getEventManager()->dispatchEvent(
-                Event\Events::POST_ROUTING,
-                new Event\PostRoutingArgs($this->service)
-            );
+            $this->triggerPostRoutingEvent($this->service);
+
             if ($e instanceof NoMatchException &&
                 ($this->doCGOptionsCheck() || $this->doOptionsCheck())
             ) {
@@ -246,7 +234,7 @@ class Manager
             throw $e;
         }
         // dispatch postRoutingAction event
-        $this->getEventManager()->dispatchEvent(Event\Events::POST_ROUTING, new Event\PostRoutingArgs($this->service));
+        $this->triggerPostRoutingEvent($this->service);
 
         // Set parameters matched on the route to the request object
         $this->getRequest()->setRouteParam($route->getRouteParams());
@@ -572,15 +560,6 @@ class Manager
         return $this->emr;
     }
 
-
-    /**
-     * Get the event manager
-     * @return Event\Manager
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
-    }
 
     /**
      * Get the error handler object, if none has been injected use default from config
