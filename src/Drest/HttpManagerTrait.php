@@ -36,7 +36,7 @@ trait HttpManagerTrait
      * @param $response
      * @param Configuration $config
      */
-    public function setUpHttp($request, $response, \Drest\Configuration $config)
+    public function setUpHttp($request, $response, Configuration $config)
     {
         $this->setRequest(Request::create($request, $config->getRegisteredRequestAdapterClasses()));
         $this->setResponse(Response::create($response, $config->getRegisteredResponseAdapterClasses()));

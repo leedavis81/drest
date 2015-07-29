@@ -16,6 +16,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\Driver\AnnotationDriver;
 use Drest\Configuration;
+use Drest\Router;
 
 class Metadata
 {
@@ -75,9 +76,9 @@ class Metadata
 
     /**
      * Read any defined route patterns from metadata and inject them into the router
-     * @param \Drest\Router $router
+     * @param Router $router
      */
-    public function registerRoutes(\Drest\Router $router)
+    public function registerRoutes(Router $router)
     {
         foreach ($this->getAllClassNames() as $class) {
             $classMetaData = $this->getMetaDataForClass($class);

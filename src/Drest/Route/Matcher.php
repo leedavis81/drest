@@ -12,6 +12,7 @@
  */
 namespace Drest\Route;
 
+use Drest\Mapping\RouteMetaData;
 use DrestCommon\Request\Request;
 
 
@@ -24,7 +25,7 @@ class Matcher
 
     /**
      * The route meta data this matcher should operate on
-     * @var \Drest\Mapping\RouteMetaData $routeMetaData
+     * @var RouteMetaData $routeMetaData
      */
     protected $routeMetaData;
 
@@ -58,9 +59,9 @@ class Matcher
 
     /**
      * Route meta data to test a match on
-     * @param \Drest\Mapping\RouteMetaData|null $routeMetaData
+     * @param RouteMetaData|null $routeMetaData
      */
-    public function __construct(\Drest\Mapping\RouteMetaData $routeMetaData = null)
+    public function __construct(RouteMetaData $routeMetaData = null)
     {
         if (!is_null($routeMetaData))
         {
@@ -70,9 +71,9 @@ class Matcher
 
     /**
      * Set the route meta data
-     * @param \Drest\Mapping\RouteMetaData $routeMetaData
+     * @param RouteMetaData $routeMetaData
      */
-    public function setRouteMetaData(\Drest\Mapping\RouteMetaData $routeMetaData)
+    public function setRouteMetaData(RouteMetaData $routeMetaData)
     {
         $this->routeMetaData = $routeMetaData;
     }

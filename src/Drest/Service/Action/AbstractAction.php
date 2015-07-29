@@ -13,7 +13,6 @@
 namespace Drest\Service\Action;
 
 use Doctrine\ORM;
-use Drest\DrestException;
 use Drest\Mapping\RouteMetaData;
 use Drest\Service;
 use DrestCommon\Error\Response\ResponseInterface;

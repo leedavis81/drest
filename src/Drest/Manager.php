@@ -42,7 +42,7 @@ class Manager
 
     /**
      * Metadata manager object
-     * @var \Drest\Manager\Metadata $metadataManager
+     * @var Manager\Metadata $metadataManager
      */
     protected $metadataManager;
 
@@ -85,7 +85,7 @@ class Manager
         // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
 
-        $this->metadataManager = new \Drest\Manager\Metadata($config);
+        $this->metadataManager = new Manager\Metadata($config);
     }
 
     /**
@@ -452,13 +452,16 @@ class Manager
         return null;
     }
 
+
     /**
      * Attempt to match a representation
+     *
      * @param AbstractRepresentation|string $representation
+     * @param array $representationObjects
      * @return AbstractRepresentation|null
      * @throws RepresentationException
      */
-    protected function matchRepresentation($representation, &$representationObjects)
+    protected function matchRepresentation($representation, array &$representationObjects)
     {
         if (!is_object($representation)) {
             $className = $this->getRepresentationClassName($representation);
