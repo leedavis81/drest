@@ -462,9 +462,6 @@ class Manager
     {
         if (!is_object($representation)) {
             $className = $this->getRepresentationClassName($representation);
-            if (!class_exists($className)) {
-                throw RepresentationException::unknownRepresentationClass($representation);
-            }
             $representationObjects[] = $representation = new $className();
         }
         if (!$representation instanceof AbstractRepresentation) {
@@ -482,17 +479,23 @@ class Manager
      * Get's the representation class name.
      * Removes any root NS chars
      * Falls back to a DrestCommon Representation lookup
-     * @param string $representation
+     *
+     * @param $representation
      * @return string
+     * @throws RepresentationException
      */
     protected function getRepresentationClassName($representation)
     {
         $className = (strstr($representation, '\\') !== false)
             ? '\\' . ltrim($representation, '\\')
             : $representation;
-        return (!class_exists($className))
+        $className = (!class_exists($className))
             ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\')
             : $className;
+        if (!class_exists($className)) {
+            throw RepresentationException::unknownRepresentationClass($representation);
+        }
+        return $className;
     }
 
     /**
