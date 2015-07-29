@@ -461,13 +461,7 @@ class Manager
     protected function matchRepresentation($representation, &$representationObjects)
     {
         if (!is_object($representation)) {
-            // Check if the class is namespaced, if so instantiate from root
-            $className = (strstr($representation, '\\') !== false)
-                ? '\\' . ltrim($representation, '\\')
-                : $representation;
-            $className = (!class_exists($className))
-                ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\')
-                : $className;
+            $className = $this->getRepresentationClassName($representation);
             if (!class_exists($className)) {
                 throw RepresentationException::unknownRepresentationClass($representation);
             }
@@ -482,6 +476,23 @@ class Manager
             return $representation;
         }
         return null;
+    }
+
+    /**
+     * Get's the representation class name.
+     * Removes any root NS chars
+     * Falls back to a DrestCommon Representation lookup
+     * @param string $representation
+     * @return string
+     */
+    protected function getRepresentationClassName($representation)
+    {
+        $className = (strstr($representation, '\\') !== false)
+            ? '\\' . ltrim($representation, '\\')
+            : $representation;
+        return (!class_exists($className))
+            ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\')
+            : $className;
     }
 
     /**
