@@ -405,11 +405,7 @@ class Manager
      */
     protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
     {
-        $representations = (is_null($route) || array() === $route->getClassMetaData()->getRepresentations())
-            ? $this->config->getDefaultRepresentations()
-            : $route->getClassMetaData()->getRepresentations();
-
-        if (empty($representations)) {
+        if (($representations = $this->getRepresentationClasses($route)) === array()) {
             $name = (is_null($route)) ? '"unknown name"' : $route->getName();
             $className = (is_null($route)) ? '"unknown class"' : $route->getClassMetaData()->getClassName();
             throw RepresentationException::noRepresentationsSetForRoute(
@@ -424,6 +420,18 @@ class Manager
 
         // We have no representation instances from either annotations or config object
         throw UnableToMatchRepresentationException::noMatch();
+    }
+
+    /**
+     * Get representation options. Determined from route or config
+     * @param RouteMetaData|null $route
+     * @return array
+     */
+    protected function getRepresentationClasses(Mapping\RouteMetaData &$route = null)
+    {
+        return (is_null($route) || array() === $route->getClassMetaData()->getRepresentations())
+            ? $this->config->getDefaultRepresentations()
+            : $route->getClassMetaData()->getRepresentations();
     }
 
     /**

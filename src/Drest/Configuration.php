@@ -498,7 +498,7 @@ class Configuration
      */
     public function getRouteBasePaths()
     {
-        return $this->_attributes['routeBasePaths'];
+        return (array) $this->_attributes['routeBasePaths'];
     }
 
     /**
@@ -507,7 +507,7 @@ class Configuration
      */
     public function getDefaultRepresentations()
     {
-        return $this->_attributes['defaultRepresentations'];
+        return (array) $this->_attributes['defaultRepresentations'];
     }
 
     /**
