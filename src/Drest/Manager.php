@@ -174,21 +174,11 @@ class Manager
     {
         if (($route = $this->determineRoute($namedRoute, $routeParams)) instanceof RouteMetaData) {
             // Get the representation to be used - always successful or it throws an exception
-            $representation = $this->getDeterminedRepresentation($route);
-
-            // Configure push / pull exposure fields
-            switch ($this->getRequest()->getHttpMethod()) {
-                // Match on content option
-                case Request::METHOD_GET:
-                    $this->handlePullExposureConfiguration($route);
-                    break;
-                // Match on content-type
-                case Request::METHOD_POST:
-                case Request::METHOD_PUT:
-                case Request::METHOD_PATCH:
-                    $representation = $this->handlePushExposureConfiguration($route, $representation);
-                    break;
-            }
+            $representation = $this->handleExposureSettingsFromHttpMethod(
+                $this->getRequest()->getHttpMethod(),
+                $route,
+                $this->getDeterminedRepresentation($route)
+            );
 
             // Set the matched service object and the error handler into the service class
             $this->service->setMatchedRoute($route);
@@ -200,6 +190,30 @@ class Manager
                 $this->service->runCallMethod();
             }
         }
+    }
+
+    /**
+     * Set up exposure setting on route by HTTP method
+     * @param $method
+     * @param $route
+     * @param $representation
+     * @return AbstractRepresentation
+     */
+    protected function handleExposureSettingsFromHttpMethod($method, $route, $representation)
+    {
+        switch ($method) {
+            // Match on content option
+            case Request::METHOD_GET:
+                $this->handlePullExposureConfiguration($route);
+                break;
+            // Match on content-type
+            case Request::METHOD_POST:
+            case Request::METHOD_PUT:
+            case Request::METHOD_PATCH:
+                $representation = $this->handlePushExposureConfiguration($route, $representation);
+                break;
+        }
+        return $representation;
     }
 
     /**
@@ -423,26 +437,9 @@ class Manager
     {
         $representationObjects = array();
         foreach ($representations as $representation) {
-            if (!is_object($representation)) {
-                // Check if the class is namespaced, if so instantiate from root
-                $className = (strstr($representation, '\\') !== false)
-                    ? '\\' . ltrim($representation, '\\')
-                    : $representation;
-                $className = (!class_exists($className))
-                    ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\')
-                    : $className;
-                if (!class_exists($className)) {
-                    throw RepresentationException::unknownRepresentationClass($representation);
-                }
-                $representationObjects[] = $representation = new $className();
-            }
-            if (!$representation instanceof AbstractRepresentation) {
-                throw RepresentationException::representationMustBeInstanceOfDrestRepresentation();
-            }
-
-            if (($representation = $this->determineRepresentationByHttpMethod($representation, $this->config->getDetectContentOptions())) !== null)
+            if (($representationObj = $this->matchRepresentation($representation, $representationObjects)) instanceof AbstractRepresentation)
             {
-                return $representation;
+                return $representationObj;
             }
         }
 
@@ -456,6 +453,38 @@ class Manager
             return $representationObjects[0];
         }
 
+        return null;
+    }
+
+    /**
+     * Attempt to match a representation
+     * @param AbstractRepresentation|string $representation
+     * @return AbstractRepresentation|null
+     * @throws RepresentationException
+     */
+    protected function matchRepresentation($representation, &$representationObjects)
+    {
+        if (!is_object($representation)) {
+            // Check if the class is namespaced, if so instantiate from root
+            $className = (strstr($representation, '\\') !== false)
+                ? '\\' . ltrim($representation, '\\')
+                : $representation;
+            $className = (!class_exists($className))
+                ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\')
+                : $className;
+            if (!class_exists($className)) {
+                throw RepresentationException::unknownRepresentationClass($representation);
+            }
+            $representationObjects[] = $representation = new $className();
+        }
+        if (!$representation instanceof AbstractRepresentation) {
+            throw RepresentationException::representationMustBeInstanceOfDrestRepresentation();
+        }
+
+        if (($representation = $this->determineRepresentationByHttpMethod($representation, $this->config->getDetectContentOptions())) !== null)
+        {
+            return $representation;
+        }
         return null;
     }
 
