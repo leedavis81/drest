@@ -46,7 +46,7 @@ $drestConfig->setDetectContentOptions(array(
 $drestConfig->setExposureDepth(3);
 $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
 $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-$drestConfig->setDebugMode(true);
+//$drestConfig->setDebugMode(true);
 $drestConfig->addPathsToConfigFiles($pathToEntities);
 
 
