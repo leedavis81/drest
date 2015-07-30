@@ -221,9 +221,9 @@ class Manager
 
     /**
      * Determine the matched route from either the router or namedRoute
+     * Returns false no route could be matched (ideally the response should be returned in this instance - fail fast)
      * @throws Route\NoMatchException|\Exception
-     * @return RouteMetaData|bool                $route - if false no route could be matched
-     *                                                       (ideally the response should be returned in this instance - fail fast)
+     * @return RouteMetaData|false $route
      */
     protected function determineRoute()
     {
@@ -502,7 +502,7 @@ class Manager
      * Removes any root NS chars
      * Falls back to a DrestCommon Representation lookup
      *
-     * @param $representation
+     * @param string $representation
      * @return string
      * @throws RepresentationException
      */
