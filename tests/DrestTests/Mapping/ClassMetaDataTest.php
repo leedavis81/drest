@@ -93,6 +93,24 @@ class ClassMetaDataTest extends DrestTestCase
         $metadataFactory->getMetadataForClass($className);
     }
 
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testUnableToLoadMetaDataFromClass()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities/MissingMetaData')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\MissingMetaData\\MissingMetaData';
+        $metadataFactory->getMetadataForClass($className);
+    }
+
+
     /**
      * @expectedException \Drest\DrestException
      */

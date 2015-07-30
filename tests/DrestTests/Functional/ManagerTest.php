@@ -41,7 +41,7 @@ class ManagerTest extends DrestFunctionalTestCase
         $dm->dispatch($request);
     }
 
-    
+
     public function testNoRouteMatchExceptionReturnedInAcceptedFormat()
     {
         $config = new Configuration();

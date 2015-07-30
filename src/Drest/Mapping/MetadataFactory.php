@@ -105,7 +105,7 @@ class MetadataFactory
             return $classMetadata;
         }
 
-        if (is_null($this->loadedMetadata[$className])) {
+        if (!isset($this->loadedMetadata[$className])) {
             throw DrestException::unableToLoadMetaDataFromDriver();
         }
 

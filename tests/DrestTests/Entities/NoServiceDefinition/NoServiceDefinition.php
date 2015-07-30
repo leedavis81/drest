@@ -7,11 +7,6 @@ use Drest\Mapping\Annotation as Drest;
  * NoServiceDefinition
  *
  * @Drest\Resource(
- *  @Drest\Route(
- *      name="",
- *      routePattern="/user/:id",
- *      verbs={"GET"}
- *  ),
  * )
  *
  */
