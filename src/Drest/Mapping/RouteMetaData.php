@@ -350,7 +350,7 @@ class RouteMetaData implements \Serializable
      */
     public function needsHandleCall()
     {
-        foreach ($this->verbs as $verb) {
+        foreach ($this->getVerbs() as $verb) {
             switch ($verb) {
                 case Request::METHOD_POST:
                 case Request::METHOD_PUT:
