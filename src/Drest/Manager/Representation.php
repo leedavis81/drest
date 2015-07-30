@@ -10,15 +10,16 @@
  * @link https://github.com/leedavis81/drest/blob/master/LICENSE
  * @license http://opensource.org/licenses/MIT The MIT X License (MIT)
  */
-namespace Drest;
+namespace Drest\Manager;
 
+use Drest\Mapping\RouteMetaData;
+use Drest\Configuration;
 use DrestCommon\Representation\RepresentationException;
 use DrestCommon\Representation\UnableToMatchRepresentationException;
 use DrestCommon\Representation\AbstractRepresentation;
-use Drest\Mapping\RouteMetaData;
 use DrestCommon\Request\Request;
 
-class RepresentationManager
+class Representation
 {
 
     /**
@@ -40,6 +41,16 @@ class RepresentationManager
     public function __construct(Configuration &$config)
     {
         $this->config = &$config;
+    }
+
+    /**
+     * Static call to create a representation instance
+     * @param Configuration $config
+     * @return Representation
+     */
+    public static function create(Configuration &$config)
+    {
+        return new self($config);
     }
 
     /**
@@ -78,7 +89,7 @@ class RepresentationManager
      * @param RouteMetaData|null $route
      * @return array
      */
-    protected function getRepresentationClasses(Mapping\RouteMetaData &$route = null)
+    protected function getRepresentationClasses(RouteMetaData &$route = null)
     {
         return (is_null($route) || [] === $route->getClassMetaData()->getRepresentations())
             ? $this->config->getDefaultRepresentations()

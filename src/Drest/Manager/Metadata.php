@@ -53,6 +53,16 @@ class Metadata
         }
     }
 
+    /**
+     * Static call to create a representation instance
+     * @param Configuration $config
+     * @return MetaData
+     */
+    public static function create(Configuration &$config)
+    {
+        return new self($config);
+    }
+
 
     /**
      * Get all the class names

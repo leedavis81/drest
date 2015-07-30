@@ -47,7 +47,7 @@ class Manager
 
     /**
      * Representation manager
-     * @var RepresentationManager
+     * @var Manager\Representation
      */
     protected $representationManager;
 
@@ -102,9 +102,8 @@ class Manager
         // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
 
-        $this->metadataManager = new Manager\Metadata($config);
-
-        $this->representationManager = new RepresentationManager($this->config);
+        $this->metadataManager = Manager\Metadata::create($config);
+        $this->representationManager = Manager\Representation::create($this->config);
     }
 
     /**
