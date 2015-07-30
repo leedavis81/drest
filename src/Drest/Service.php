@@ -69,13 +69,24 @@ class Service
         $this->dm = $dm;
     }
 
+
+    /**
+     * Set up and run the required call method
+     */
+    public function setUpAndRunRequest()
+    {
+        if ($this->setupRequest()) {
+            $this->runCallMethod();
+        }
+    }
+
     /**
      * Called on successful routing of a service call
      * Prepares the service to a request to be rendered
      *
      * @return boolean $result - if false then fail fast no call to runCallMethod() should be made.
      */
-    public function setupRequest()
+    protected function setupRequest()
     {
         // Make sure we have a route matched (this should caught and an exception thrown on Manager::determineRoute())
         if (!$this->matched_route instanceof RouteMetaData) {

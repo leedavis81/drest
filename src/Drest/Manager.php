@@ -122,11 +122,7 @@ class Manager
         // Register the annotations classes
         Mapping\Driver\AnnotationDriver::registerAnnotations();
 
-        if ($eventManager === null) {
-            $eventManager = new Event\Manager();
-        }
-
-        return new self($entityManagerRegistry, $config, $eventManager);
+        return new self($entityManagerRegistry, $config, ($eventManager) ?: new Event\Manager());
     }
 
 
@@ -153,24 +149,20 @@ class Manager
         // trigger preDispatch event
         $this->triggerPreDispatchEvent($this->service);
 
-        $rethrowException = false;
         try {
             $this->execute();
         } catch (\Exception $e) {
 
             if ($this->config->inDebugMode()) {
-                $rethrowException = $e;
-            } else {
-                $this->handleError($e);
+                // trigger a postDispatch event
+                $this->triggerPostDispatchEvent($this->service);
+                throw $e;
             }
+            $this->handleError($e);
         }
 
         // trigger a postDispatch event
         $this->triggerPostDispatchEvent($this->service);
-
-        if ($rethrowException) {
-            throw $rethrowException;
-        }
 
         return $this->getResponse();
     }
@@ -195,9 +187,7 @@ class Manager
             $this->service->setErrorHandler($this->getErrorHandler());
 
             // Set up the service for a new request
-            if ($this->service->setupRequest()) {
-                $this->service->runCallMethod();
-            }
+            $this->service->setUpAndRunRequest();
         }
     }
 
@@ -423,8 +413,7 @@ class Manager
         }
 
         $matchedRoutes = $this->router->getMatchedRoutes($this->getRequest(), (bool) $matchVerb);
-        $routesSize = sizeof($matchedRoutes);
-        if ($routesSize == 0) {
+        if (sizeof($matchedRoutes) == 0) {
             throw NoMatchException::noMatchedRoutes();
         } elseif (sizeof($matchedRoutes) > 1) {
             throw MultipleRoutesException::multipleRoutesFound($matchedRoutes);
