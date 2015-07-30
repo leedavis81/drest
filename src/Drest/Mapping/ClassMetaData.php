@@ -212,7 +212,7 @@ class ClassMetaData implements \Serializable
 
     /**
      * Get an alias for this entity - used for DQL / QueryBuilder
-     * @param  string $fieldName - The field the relation is on. Default to root when using top level.
+     * @param  string $fieldName - The field the relation is on. Typical to root when using top level.
      * @return string alias unique string representing this entity
      */
     public function getEntityAlias($fieldName = 'rt')

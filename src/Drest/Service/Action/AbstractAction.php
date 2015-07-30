@@ -376,7 +376,7 @@ abstract class AbstractAction
     /**
      * Get a unique alias name from an entity class name and relation field
      * @param  string $className - The class of the related entity
-     * @param  string $fieldName - The field the relation is on. Default to root when using top level.
+     * @param  string $fieldName - The field the relation is on. Typical to root when using top level.
      * @return string
      */
     public static function getAlias($className, $fieldName = 'rt')

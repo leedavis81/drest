@@ -1,5 +1,5 @@
 <?php
-namespace DrestTests\Entities\CMS;
+namespace DrestTests\Entities\Typical;
 
 // uniqueConstraints={@UniqueConstraint(name="api_key_idx", columns={"api_key"})})
 

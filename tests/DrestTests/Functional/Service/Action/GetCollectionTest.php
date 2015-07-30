@@ -30,7 +30,7 @@ class GetCollectionTest extends DrestFunctionalTestCase
         );
 
         foreach ($users as $user) {
-            $userObj = new \DrestTests\Entities\CMS\User();
+            $userObj = new \DrestTests\Entities\Typical\User();
             $userObj->setEmailAddress($user['email_address']);
             $userObj->setUsername($user['username']);
 

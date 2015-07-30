@@ -204,7 +204,7 @@ class AnnotationDriver implements DriverInterface
 
 
     /**
-     * Process the methofd
+     * Process the method
      * @param $methods
      * @param Mapping\ClassMetaData $metadata
      * @throws DrestException
@@ -226,7 +226,7 @@ class AnnotationDriver implements DriverInterface
                         }
                         if ($routeMetaData->hasHandleCall()) {
                             // There is already a handle set for this route
-                            throw DrestException::alreadyHandleDefinedForRoute($routeMetaData);
+                            throw DrestException::handleAlreadyDefinedForRoute($routeMetaData);
                         }
                         $routeMetaData->setHandleCall($method->getName());
                     }

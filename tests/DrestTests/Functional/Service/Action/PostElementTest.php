@@ -11,7 +11,7 @@ class PostElementTest extends DrestFunctionalTestCase
         $dm = $this->_getDrestManager($this->_em);
         $representation = new \DrestCommon\Representation\Json();
 
-        // id's added for comparison but not used for persistence (see DrestTests\Entities\CMS\User::populatePost())
+        // id's added for comparison but not used for persistence (see DrestTests\Entities\Typical\User::populatePost())
         $user = array(
             'id' => 1,
             'username' => 'leedavis81',
@@ -41,7 +41,7 @@ class PostElementTest extends DrestFunctionalTestCase
         $this->assertEquals($dm->getRequest()->getUrl() . '/user/1', $response->getHttpHeader('Location'));
 
         // Ensure this item exists in persistence
-        $query = $this->_em->createQuery('SELECT u, p FROM DrestTests\Entities\CMS\User u JOIN u.phone_numbers p');
+        $query = $this->_em->createQuery('SELECT u, p FROM DrestTests\Entities\Typical\User u JOIN u.phone_numbers p');
         $this->assertEquals($user, $query->getSingleResult(\Doctrine\ORM\Query::HYDRATE_ARRAY));
     }
 

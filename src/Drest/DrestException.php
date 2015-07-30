@@ -96,19 +96,12 @@ class DrestException extends Exception
             'Please see EXPOSE_REQUEST_* options in Drest\Configuration');
     }
 
-    public static function invalidAllowedOptionsValue()
-    {
-        return new self(
-            'Invalid Allow Options value, must be -1 to unset,' .
-            ' 0 for no or 1 for yes. Or you can use boolean values');
-    }
-
     public static function basePathMustBeAString()
     {
         return new self('Base path used is invalid. Must be a string');
     }
 
-    public static function alreadyHandleDefinedForRoute(Mapping\RouteMetaData $route)
+    public static function handleAlreadyDefinedForRoute(Mapping\RouteMetaData $route)
     {
         return new self(
             'There is a handle already defined for the route '

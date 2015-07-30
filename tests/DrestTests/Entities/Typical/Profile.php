@@ -1,5 +1,5 @@
 <?php
-namespace DrestTests\Entities\CMS;
+namespace DrestTests\Entities\Typical;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,7 +33,7 @@ class Profile
     private $id;
 
     /**
-     * @var \DrestTests\Entities\CMS\User $user
+     * @var \DrestTests\Entities\Typical\User $user
      * @ORM\OneToOne(targetEntity="User", inversedBy="profile", fetch="LAZY")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */

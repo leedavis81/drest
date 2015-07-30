@@ -17,7 +17,7 @@ class DeleteCollectionTest extends DrestFunctionalTestCase
         );
 
         foreach ($users as $user) {
-            $userObj = new \DrestTests\Entities\CMS\User();
+            $userObj = new \DrestTests\Entities\Typical\User();
             $userObj->setEmailAddress($user['email_address']);
             $userObj->setUsername($user['username']);
 
@@ -26,7 +26,7 @@ class DeleteCollectionTest extends DrestFunctionalTestCase
 
             $this->_em->refresh($userObj);
 
-            $entity = $this->_em->getRepository('DrestTests\Entities\CMS\User')->find($userObj->getId());
+            $entity = $this->_em->getRepository('DrestTests\Entities\Typical\User')->find($userObj->getId());
             $this->assertEquals($userObj, $entity);
         }
 
@@ -43,7 +43,7 @@ class DeleteCollectionTest extends DrestFunctionalTestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $deletedEntities = $this->_em->getRepository('DrestTests\Entities\CMS\User')->findAll();
+        $deletedEntities = $this->_em->getRepository('DrestTests\Entities\Typical\User')->findAll();
         $this->assertCount(0, $deletedEntities);
     }
 

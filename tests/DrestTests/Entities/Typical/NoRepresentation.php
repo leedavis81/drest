@@ -1,5 +1,5 @@
 <?php
-namespace DrestTests\Entities\CMS;
+namespace DrestTests\Entities\Typical;
 
 use Doctrine\ORM\Mapping as ORM;
 use Drest\Mapping\Annotation as Drest;

@@ -11,7 +11,7 @@ class AllowOptionsTest extends DrestFunctionalTestCase
     {
         $config = new Configuration();
         $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-        $config->addPathsToConfigFiles(array(__DIR__ . '/../../Entities'));
+        $config->addPathsToConfigFiles(array(__DIR__ . '/../../Entities/Typical'));
         $config->setDebugMode(true);
 
         $config->setAllowOptionsRequest(true);
@@ -32,7 +32,7 @@ class AllowOptionsTest extends DrestFunctionalTestCase
         // sort it so we can array_diff
         sort($allow);
 
-        // Allow should show PUT, PATCH, DELETE, GET as in CMS/User.php
+        // Allow should show PUT, PATCH, DELETE, GET as in Typical/User.php
         $this->assertCount(
             0,
             array_diff(
@@ -50,7 +50,7 @@ class AllowOptionsTest extends DrestFunctionalTestCase
     {
         $config = new Configuration();
         $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-        $config->addPathsToConfigFiles(array(__DIR__ . '/../../Entities'));
+        $config->addPathsToConfigFiles(array(__DIR__ . '/../../Entities/Typical'));
         $config->setDebugMode(true);
 
         $config->setAllowOptionsRequest(false);

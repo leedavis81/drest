@@ -82,7 +82,7 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
     {
         $config = new Configuration();
         $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-        $config->addPathsToConfigFiles(array(__DIR__ . '/Entities'));
+        $config->addPathsToConfigFiles(array(__DIR__ . '/Entities/Typical'));
         $config->setDebugMode(true);
 
         return $config;
@@ -92,13 +92,13 @@ abstract class DrestTestCase extends \PHPUnit_Framework_TestCase
     {
         $ormConfig = new ORM\Configuration();
 
-        $pathToEntities = array(__DIR__ . '/Entities');
+        $pathToEntities = array(__DIR__ . '/Entities/Typical');
         $ORMDriver = $ormConfig->newDefaultAnnotationDriver($pathToEntities, false);
         $ormConfig->setMetadataDriverImpl($ORMDriver);
 
         // Do proxy stuff
-        $ormConfig->setProxyDir(__DIR__ . '/Entities/Proxies');
-        $ormConfig->setProxyNamespace('DrestTests\Entities\Proxies');
+        $ormConfig->setProxyDir(__DIR__ . '/Entities/Typical/Proxies');
+        $ormConfig->setProxyNamespace('DrestTests\Entities\Typical\Proxies');
         $ormConfig->setAutoGenerateProxyClasses(true);
 
         return $ormConfig;

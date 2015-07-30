@@ -370,10 +370,12 @@ class RouteMetaData implements \Serializable
     public function setAllowedOptionRequest($value = true)
     {
         if (is_bool($value)) {
-            $this->allowed_option_request = ($value) ? 1 : 0;
-        } elseif ($value !== -1) {
-            throw DrestException::invalidAllowedOptionsValue();
+            $this->allowed_option_request = ((bool) $value) ? 1 : 0;
         }
+
+        // No need to test for -1 value, it cannot be anything else at this point.
+
+        // Value is converted and saved as an int.
         $this->allowed_option_request = (int) $value;
     }
 

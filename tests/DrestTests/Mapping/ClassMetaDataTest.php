@@ -12,7 +12,7 @@ class ClassMetaDataTest extends DrestTestCase
 
     public function testMetadataConstruction()
     {
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = new ClassMetaData(new \ReflectionClass($className));
 
         $this->assertEquals($className, $cmd->getClassName());
@@ -20,7 +20,7 @@ class ClassMetaDataTest extends DrestTestCase
 
     public function testMetaDataCanAddRepresentation()
     {
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = new ClassMetaData(new \ReflectionClass($className));
 
         $rep = new Json();
@@ -31,7 +31,7 @@ class ClassMetaDataTest extends DrestTestCase
 
     public function testMetadataCanAddStringRepresentation()
     {
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = new ClassMetaData(new \ReflectionClass($className));
 
         $rep = 'SomeClass';
@@ -45,7 +45,7 @@ class ClassMetaDataTest extends DrestTestCase
      */
     public function testMetadataInvalidRepresentationObject()
     {
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = new ClassMetaData(new \ReflectionClass($className));
 
         $rep = new \StdClass();
@@ -57,7 +57,7 @@ class ClassMetaDataTest extends DrestTestCase
      */
     public function testMetadataRepresentationCanNotBeAnArray()
     {
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = new ClassMetaData(new \ReflectionClass($className));
 
         $rep = array('a', 'b');
@@ -69,22 +69,130 @@ class ClassMetaDataTest extends DrestTestCase
      */
     public function testMetadataRepresentationCanNotBeAnInteger()
     {
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = new ClassMetaData(new \ReflectionClass($className));
 
         $rep = 1;
         $cmd->addRepresentation($rep);
     }
 
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testMetadataResourceRequiresAtLeastOneServiceDefinition()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities/NoServiceDefinition')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\NoServiceDefinition\\NoServiceDefinition';
+        $metadataFactory->getMetadataForClass($className);
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testDuplicatedRouteName()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities/DuplicatedRouteName')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\DuplicatedRouteName\\DuplicatedRouteName';
+        $metadataFactory->getMetadataForClass($className);
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testInvalidVerbUsed()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities/InvalidVerbUsed')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\InvalidVerbUsed\\InvalidVerbUsed';
+        $metadataFactory->getMetadataForClass($className);
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testEmptyRouteName()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities/EmptyRouteName')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\EmptyRouteName\\EmptyRouteName';
+        $metadataFactory->getMetadataForClass($className);
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testMissingPathToConfigFiles()
+    {
+        $driver = \Drest\Mapping\Driver\AnnotationDriver::create(new AnnotationReader());
+        $driver->getAllClassNames();
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testHandleAlreadyDefined()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities/HandleAlreadyDefined')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\HandleAlreadyDefined\\HandleAlreadyDefined';
+        $metadataFactory->getMetadataForClass($className);
+    }
+
+    /**
+     * @expectedException \Drest\DrestException
+     */
+    public function testHandleDoesntMatchRouteName()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                new AnnotationReader(),
+                array(__DIR__ . '/../Entities/HandleDoesntMatchRouteName')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\HandleDoesntMatchRouteName\\HandleDoesntMatchRouteName';
+        $metadataFactory->getMetadataForClass($className);
+    }
+
+
+
     public function testGetDefaultOriginRoute()
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
                 new AnnotationReader(),
-                array(__DIR__ . '/../Entities')
+                array(__DIR__ . '/../Entities/Typical')
             )
         );
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = $metadataFactory->getMetadataForClass($className);
 
         $this->assertEquals('get_user', $cmd->getOriginRoute($this->_getTestEntityManager())->getName());
@@ -95,10 +203,10 @@ class ClassMetaDataTest extends DrestTestCase
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
                 new AnnotationReader(),
-                array(__DIR__ . '/../Entities')
+                array(__DIR__ . '/../Entities/Typical')
             )
         );
-        $className = 'DrestTests\\Entities\\CMS\\NoRepresentation';
+        $className = 'DrestTests\\Entities\\Typical\\NoRepresentation';
         $cmd = $metadataFactory->getMetadataForClass($className);
 
         $this->assertEmpty($cmd->getRepresentations());
@@ -109,10 +217,10 @@ class ClassMetaDataTest extends DrestTestCase
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
                 new AnnotationReader(),
-                array(__DIR__ . '/../Entities')
+                array(__DIR__ . '/../Entities/Typical')
             )
         );
-        $className = 'DrestTests\\Entities\\CMS\\Profile';
+        $className = 'DrestTests\\Entities\\Typical\\Profile';
         $cmd = $metadataFactory->getMetadataForClass($className);
 
         $this->assertEquals('get_profiles', $cmd->getOriginRoute($this->_getTestEntityManager())->getName());
@@ -123,10 +231,10 @@ class ClassMetaDataTest extends DrestTestCase
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
                 new AnnotationReader(),
-                array(__DIR__ . '/../Entities')
+                array(__DIR__ . '/../Entities/Typical')
             )
         );
-        $className = 'DrestTests\\Entities\\CMS\\Address';
+        $className = 'DrestTests\\Entities\\Typical\\Address';
         $cmd = $metadataFactory->getMetadataForClass($className);
 
         $this->assertNull($cmd->getOriginRoute($this->_getTestEntityManager()));
@@ -137,11 +245,11 @@ class ClassMetaDataTest extends DrestTestCase
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
                 new AnnotationReader(),
-                array(__DIR__ . '/../Entities')
+                array(__DIR__ . '/../Entities/Typical')
             )
         );
 
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = $metadataFactory->getMetadataForClass($className);
         $serialized = serialize($cmd);
         $cmd2 = unserialize($serialized);
@@ -151,7 +259,7 @@ class ClassMetaDataTest extends DrestTestCase
 
     public function testClassMetadataNotExpired()
     {
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = new ClassMetaData(new \ReflectionClass($className));
 
         $this->assertFalse($cmd->expired());
@@ -162,11 +270,11 @@ class ClassMetaDataTest extends DrestTestCase
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
                 new AnnotationReader(),
-                array(__DIR__ . '/../Entities')
+                array(__DIR__ . '/../Entities/Typical')
             )
         );
 
-        $className = 'DrestTests\\Entities\\CMS\\User';
+        $className = 'DrestTests\\Entities\\Typical\\User';
         $cmd = $metadataFactory->getMetadataForClass($className);
 
         $this->assertEquals('user', $cmd->getElementName());
@@ -177,7 +285,7 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $annotationDriver = \Drest\Mapping\Driver\AnnotationDriver::create(
             new AnnotationReader(),
-            array(__DIR__ . '/../Entities')
+            array(__DIR__ . '/../Entities/Typical')
         );
 
         $annotationDriver->removeExtensions();

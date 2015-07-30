@@ -11,7 +11,7 @@ class GetElementTest extends DrestFunctionalTestCase
         $dm = $this->_getDrestManager($this->_em);
         $representation = new \DrestCommon\Representation\Json();
 
-        $user = new \DrestTests\Entities\CMS\User();
+        $user = new \DrestTests\Entities\Typical\User();
 
         $email = 'frodo.baggin@theshire.com';
         $username = 'frodo.baggins';

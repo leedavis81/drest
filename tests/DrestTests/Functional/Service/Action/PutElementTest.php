@@ -11,7 +11,7 @@ class PutElementTest extends DrestFunctionalTestCase
         $dm = $this->_getDrestManager($this->_em);
         $representation = new \DrestCommon\Representation\Json();
 
-        $user = new \DrestTests\Entities\CMS\User();
+        $user = new \DrestTests\Entities\Typical\User();
         $user->setEmailAddress('hello@somewhere.com');
         $user->setUsername('leedavis81');
 
@@ -37,7 +37,7 @@ class PutElementTest extends DrestFunctionalTestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $putUser = $this->_em->find('DrestTests\Entities\CMS\User', $user->getId());
+        $putUser = $this->_em->find('DrestTests\Entities\Typical\User', $user->getId());
 
         $this->assertEquals($putEmail, $putUser->getEmailAddress());
     }

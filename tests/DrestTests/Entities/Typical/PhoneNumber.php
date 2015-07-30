@@ -1,5 +1,5 @@
 <?php
-namespace DrestTests\Entities\CMS;
+namespace DrestTests\Entities\Typical;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,7 +21,7 @@ class PhoneNumber
     private $id;
 
     /**
-     * @var \DrestTests\Entities\CMS\User $user
+     * @var \DrestTests\Entities\Typical\User $user
      * @ORM\ManyToOne(targetEntity="User", inversedBy="phone_numbers", fetch="EAGER")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */

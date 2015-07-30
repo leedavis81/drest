@@ -26,7 +26,7 @@ class DeleteElementTest extends DrestFunctionalTestCase
         $dm = $this->_getDrestManager($this->_em);
         $representation = new \DrestCommon\Representation\Json();
 
-        $user = new \DrestTests\Entities\CMS\User();
+        $user = new \DrestTests\Entities\Typical\User();
 
         $email = 'frodo.baggin@theshire.com';
         $username = 'frodo.baggins';
@@ -38,7 +38,7 @@ class DeleteElementTest extends DrestFunctionalTestCase
         $this->_em->refresh($user);
 
         // Ensure they've been written to storage
-        $entity = $this->_em->getRepository('DrestTests\Entities\CMS\User')->find($user->getId());
+        $entity = $this->_em->getRepository('DrestTests\Entities\Typical\User')->find($user->getId());
         $this->assertEquals($entity, $user);
 
         $request = \Symfony\Component\HttpFoundation\Request::create(
@@ -54,7 +54,7 @@ class DeleteElementTest extends DrestFunctionalTestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $deletedEntity = $this->_em->getRepository('DrestTests\Entities\CMS\User')->find($user->getId());
+        $deletedEntity = $this->_em->getRepository('DrestTests\Entities\Typical\User')->find($user->getId());
         $this->assertNull($deletedEntity);
     }
 

@@ -10,7 +10,7 @@ class DefaultRepresentationsTest extends DrestFunctionalTestCase
     {
         $config = new Configuration();
         $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-        $config->addPathsToConfigFiles(array(__DIR__ . '/../../Entities'));
+        $config->addPathsToConfigFiles(array(__DIR__ . '/../../Entities/Typical'));
         $config->setDefaultRepresentations(array('Json'));
         $config->setDebugMode(true);
 
