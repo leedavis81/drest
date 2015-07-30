@@ -101,13 +101,13 @@ class EntityManagerRegistry extends AbstractManagerRegistry
     {
         $registry = new self(
             'drestApp',
-            array(),
+            [],
             array('defaultManager' => 'default'),
             null,
             'defaultManager',
             '\Doctrine\ORM\Proxy\Proxy'
         );
-        $registry->setContainer(array('default' => $em));
+        $registry->setContainer(['default' => $em]);
         return $registry;
     }
 

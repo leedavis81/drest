@@ -46,7 +46,7 @@ class ConfigurationTest extends DrestTestCase
         $this->assertCount(1, $config->getDetectContentOptions());
 
         $config->setDetectContentOptions(
-            array()
+            []
         );
         $this->assertCount(0, $config->getDetectContentOptions());
     }

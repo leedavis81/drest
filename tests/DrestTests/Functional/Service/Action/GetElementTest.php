@@ -29,9 +29,9 @@ class GetElementTest extends DrestFunctionalTestCase
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/user/' . $user->getId(),
             'GET',
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             array('HTTP_ACCEPT' => $representation->getContentType())
         );
 

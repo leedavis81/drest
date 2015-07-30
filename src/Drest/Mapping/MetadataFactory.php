@@ -41,7 +41,7 @@ class MetadataFactory
      * Metadata that has already been loaded by the driver
      * @var array $loadedMetadata
      */
-    private $loadedMetadata = array();
+    private $loadedMetadata = [];
 
     /**
      * @param DriverInterface $driver

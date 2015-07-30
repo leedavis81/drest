@@ -41,9 +41,9 @@ class GetCollectionTest extends DrestFunctionalTestCase
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/users',
             'GET',
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             array('HTTP_ACCEPT' => $representation->getContentType())
         );
 

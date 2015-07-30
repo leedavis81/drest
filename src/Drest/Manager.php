@@ -121,7 +121,7 @@ class Manager
      * @return Response   $response - returns a Drest response object which can be sent calling toString()
      * @throws \Exception - Upon failure
      */
-    public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = array())
+    public function dispatch($request = null, $response = null, $namedRoute = null, array $routeParams = [])
     {
         $this->setUpHttp($request, $response, $this->getConfiguration());
 
@@ -159,7 +159,7 @@ class Manager
      * @param  array            $routeParams - Route parameters to be used for dispatching a namedRoute request
      * @throws Route\NoMatchException|\Exception
      */
-    protected function execute($namedRoute = null, array $routeParams = array())
+    protected function execute($namedRoute = null, array $routeParams = [])
     {
         if (($route = $this->determineRoute($namedRoute, $routeParams)) instanceof RouteMetaData) {
             // Get the representation to be used - always successful or it throws an exception
@@ -213,7 +213,7 @@ class Manager
      * @return RouteMetaData|bool                $route - if false no route could be matched
      *                                                       (ideally the response should be returned in this instance - fail fast)
      */
-    protected function determineRoute($namedRoute = null, array $routeParams = array())
+    protected function determineRoute($namedRoute = null, array $routeParams = [])
     {
         // dispatch preRoutingAction event
         $this->triggerPreRoutingEvent($this->service);
@@ -250,7 +250,7 @@ class Manager
      * @throws DrestException on invalid syntax or unmatched named route
      * @return RouteMetaData  $route
      */
-    protected function getNamedRoute($name, array $params = array())
+    protected function getNamedRoute($name, array $params = [])
     {
         if (substr_count($name, '::') !== 1) {
             throw DrestException::invalidNamedRouteSyntax();
@@ -322,7 +322,7 @@ class Manager
 
         $classGenerator = new ClassGenerator($this->emr);
 
-        $classMetadatas = array();
+        $classMetadatas = [];
         if (!empty($genClasses)) {
             foreach ($this->metadataManager->getAllClassNames() as $className) {
                 $metaData = $this->getClassMetadata($className);
@@ -361,7 +361,7 @@ class Manager
         }
 
         // Do a match on all routes - don't include a verb check
-        $verbs = array();
+        $verbs = [];
         foreach ($this->getMatchedRoutes(false) as $route) {
             /* @var RouteMetaData $route */
             $allowedOptions = $route->isAllowedOptionRequest();
@@ -393,7 +393,7 @@ class Manager
      */
     protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
     {
-        if (($representations = $this->getRepresentationClasses($route)) === array()) {
+        if (($representations = $this->getRepresentationClasses($route)) === []) {
             $name = (is_null($route)) ? '"unknown name"' : $route->getName();
             $className = (is_null($route)) ? '"unknown class"' : $route->getClassMetaData()->getClassName();
             throw RepresentationException::noRepresentationsSetForRoute(
@@ -417,7 +417,7 @@ class Manager
      */
     protected function getRepresentationClasses(Mapping\RouteMetaData &$route = null)
     {
-        return (is_null($route) || array() === $route->getClassMetaData()->getRepresentations())
+        return (is_null($route) || [] === $route->getClassMetaData()->getRepresentations())
             ? $this->config->getDefaultRepresentations()
             : $route->getClassMetaData()->getRepresentations();
     }
@@ -431,7 +431,7 @@ class Manager
      */
     protected function searchAndValidateRepresentations(array $representations)
     {
-        $representationObjects = array();
+        $representationObjects = [];
         foreach ($representations as $representation) {
             if (($representationObj = $this->matchRepresentation($representation, $representationObjects)) instanceof AbstractRepresentation)
             {

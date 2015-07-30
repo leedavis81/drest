@@ -92,7 +92,7 @@ trait HttpManagerTrait
      * @param array $detectContentOptions - Eg array(self::DETECT_CONTENT_HEADER => 'Accept')
      * @return AbstractRepresentation|null
      */
-    protected function determineRepresentationByHttpMethod(AbstractRepresentation $representation, array $detectContentOptions = array())
+    protected function determineRepresentationByHttpMethod(AbstractRepresentation $representation, array $detectContentOptions = [])
     {
         switch ($this->getRequest()->getHttpMethod()) {
             // Match on content option

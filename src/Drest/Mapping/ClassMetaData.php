@@ -31,13 +31,13 @@ class ClassMetaData implements \Serializable
      * An array of RouteMetaData objects defined on this entity
      * @var array $routes
      */
-    protected $routes = array();
+    protected $routes = [];
 
     /**
      * An array of \DrestCommon\Representation\AbstractRepresentation object defined on this entity
      * @var array $representations
      */
-    protected $representations = array();
+    protected $representations = [];
 
     /**
      * Name of the class that we collected metadata for (eg Entities\User)
@@ -238,14 +238,14 @@ class ClassMetaData implements \Serializable
     public function serialize()
     {
         return serialize(
-            array(
+            [
                 $this->routes,
                 $this->representations,
                 $this->className,
                 $this->filePath,
                 $this->createdAt,
                 $this->originRouteName
-            )
+            ]
         );
     }
 

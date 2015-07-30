@@ -33,13 +33,13 @@ class Matcher
      * Key-value array of URL parameter names
      * @var array $param_names
      */
-    protected $param_names = array();
+    protected $param_names = [];
 
     /**
      * Key-value array of URL parameters with + at the end
      * @var array $param_names_path
      */
-    protected $param_names_path = array();
+    protected $param_names_path = [];
 
     /**
      * Key-value array of URL parameters populated after a match has been successful
@@ -164,7 +164,7 @@ class Matcher
             : '/' . $basePath . '/' . ltrim((string) $this->routeMetaData->getRoutePattern(), '/');
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
-            array($this, 'matchesCallback'),
+            [$this, 'matchesCallback'],
             str_replace(')', ')?', $routePattern)
         );
         if (substr($this->routeMetaData->getRoutePattern(), -1) === '/') {
@@ -219,7 +219,7 @@ class Matcher
     {
         foreach ($this->routeMetaData->getRouteConditions() as $key => $condition) {
             if (!preg_match('/^' . $condition . '$/', $this->route_params[$key])) {
-                $this->param_names_path = $this->route_params = $this->unmapped_route_params = array();
+                $this->param_names_path = $this->route_params = $this->unmapped_route_params = [];
                 return false;
             }
         }

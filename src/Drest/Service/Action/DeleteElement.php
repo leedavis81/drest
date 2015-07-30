@@ -52,7 +52,7 @@ class DeleteElement extends AbstractAction
 
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_200);
 
-            return ResultSet::create(array('successfully deleted'), 'response');
+            return ResultSet::create(['successfully deleted'], 'response');
         } catch (\Exception $e) {
             return $this->handleError($e, Response::STATUS_CODE_500);
         }

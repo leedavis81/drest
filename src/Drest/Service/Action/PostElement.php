@@ -41,7 +41,7 @@ class PostElement extends AbstractAction
                 $this->getResponse()->setHttpHeader('Location', $location);
             }
 
-            $resultSet = ResultSet::create(array('location' => ($location) ? $location : 'unknown'), 'response');
+            $resultSet = ResultSet::create(['location' => ($location) ? $location : 'unknown'], 'response');
         } catch (\Exception $e) {
             return $this->handleError($e, Response::STATUS_CODE_500);
         }

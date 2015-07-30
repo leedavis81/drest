@@ -192,10 +192,4 @@ class DrestException extends Exception
             'No matched route has been set on this service class.' .
             ' The content type is needed for a default service method call');
     }
-
-    public static function dataWrapNameMustBeAString()
-    {
-        return new self(
-            'Data wrap name must be a string value. Eg array(\'user\' => array(...))');
-    }
 }

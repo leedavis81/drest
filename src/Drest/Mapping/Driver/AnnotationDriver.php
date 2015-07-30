@@ -31,16 +31,16 @@ class AnnotationDriver implements DriverInterface
      * Loaded class names
      * @var array
      */
-    protected $classNames = array();
+    protected $classNames = [];
 
     /**
      * Extensions of the files to read
      * @var array $paths
      */
-    protected $extensions = array();
+    protected $extensions = [];
 
 
-    public function __construct(Annotations\AnnotationReader $reader, $paths = array())
+    public function __construct(Annotations\AnnotationReader $reader, $paths = [])
     {
         $this->reader = $reader;
         $this->paths = (array) $paths;
@@ -78,7 +78,7 @@ class AnnotationDriver implements DriverInterface
     public function removeExtensions($extension = null)
     {
         if (is_null($extension)) {
-            $this->extensions = array();
+            $this->extensions = [];
         } else {
             $offset = array_search($extension, $this->extensions);
             if ($offset !== false) {
@@ -99,8 +99,8 @@ class AnnotationDriver implements DriverInterface
             if (empty($this->paths)) {
                 throw DrestException::pathToConfigFilesRequired();
             }
-            $classes = array();
-            $included = array();
+            $classes = [];
+            $included = [];
             foreach ($this->paths as $path) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
@@ -308,7 +308,7 @@ class AnnotationDriver implements DriverInterface
      * @param  array|string                 $paths
      * @return AnnotationDriver
      */
-    public static function create(Annotations\AnnotationReader $reader = null, $paths = array())
+    public static function create(Annotations\AnnotationReader $reader = null, $paths = [])
     {
         if ($reader == null) {
             $reader = new Annotations\AnnotationReader();

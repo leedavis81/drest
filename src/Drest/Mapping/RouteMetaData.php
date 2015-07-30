@@ -41,19 +41,19 @@ class RouteMetaData implements \Serializable
      * Eg array('year' => '(19|20)\d\d')
      * @var array $route_conditions
      */
-    protected $route_conditions = array();
+    protected $route_conditions = [];
 
     /**
      * Key-value array of URL parameter names
      * @var array $param_names
      */
-    protected $param_names = array();
+    protected $param_names = [];
 
     /**
      * Key-value array of URL parameters with + at the end
      * @var array $param_names_path
      */
-    protected $param_names_path = array();
+    protected $param_names_path = [];
 
     /**
      * Key-value array of URL parameters populated after a match has been successful
@@ -106,7 +106,7 @@ class RouteMetaData implements \Serializable
      * An array of fields to be exposed to the end client
      * @var array $expose
      */
-    protected $expose = array();
+    protected $expose = [];
 
     /**
      * Whether this route is open to allow OPTION requests to detail available $verbs
@@ -259,7 +259,7 @@ class RouteMetaData implements \Serializable
      * Inject route params onto this object without performing a match. Useful when calling a named route directly
      * @param array $params - should be an associative array. keyed values are ignored
      */
-    public function setRouteParams(array $params = array())
+    public function setRouteParams(array $params = [])
     {
         $this->route_params = array_flip(
             array_filter(
@@ -277,7 +277,7 @@ class RouteMetaData implements \Serializable
      */
     public function getRouteParams()
     {
-        return (!empty($this->route_params)) ? $this->route_params : array();
+        return (!empty($this->route_params)) ? $this->route_params : [];
     }
 
     /**
@@ -285,7 +285,7 @@ class RouteMetaData implements \Serializable
      * Useful when calling a named route directly
      * @param array $params - should be a keyed array. associative values are ignored
      */
-    public function setUnmappedRouteParams(array $params = array())
+    public function setUnmappedRouteParams(array $params = [])
     {
         $this->unmapped_route_params = array_flip(
             array_filter(
@@ -459,7 +459,7 @@ class RouteMetaData implements \Serializable
         }
 
         return serialize(
-            array(
+            [
                 $this->route_pattern,
                 $this->route_conditions,
                 $this->param_names,
@@ -473,7 +473,7 @@ class RouteMetaData implements \Serializable
                 $this->handle_call,
                 $this->expose,
                 $this->allowed_option_request
-            )
+            ]
         );
     }
 

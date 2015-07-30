@@ -56,9 +56,9 @@ class ManagerTest extends DrestFunctionalTestCase
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/this-doesnt-exist',
             'GET',
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             array('HTTP_ACCEPT' => $representation->getContentType())
         );
 

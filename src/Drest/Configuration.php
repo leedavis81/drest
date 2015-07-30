@@ -29,22 +29,22 @@ class Configuration
     const EXPOSE_REQUEST_PARAM_POST = 4;
 
     // any alteration will have an effect on drest-common (AbstractRepresentation.php)
-    public static $detectContentOptions = array(
+    public static $detectContentOptions = [
         self::DETECT_CONTENT_HEADER => 'Header',
         self::DETECT_CONTENT_EXTENSION => 'Extension',
         self::DETECT_CONTENT_PARAM => 'Parameter'
-    );
-    public static $exposeRequestOptions = array(
+    ];
+    public static $exposeRequestOptions = [
         self::EXPOSE_REQUEST_HEADER => 'X-Expose',
         self::EXPOSE_REQUEST_PARAM => 'Parameter',
         self::EXPOSE_REQUEST_PARAM_GET => 'Get Parameter',
         self::EXPOSE_REQUEST_PARAM_POST => 'Post Parameter'
-    );
+    ];
     /**
      * Configuration attributes
      * @var array
      */
-    protected $_attributes = array();
+    protected $_attributes = [];
 
     /**
      * Set configuration defaults
@@ -54,32 +54,28 @@ class Configuration
         // Turn off debug mode
         $this->setDebugMode(false);
         // Allow content detection using the Accept header
-        $this->setDetectContentOptions(
-            array(
-                self::DETECT_CONTENT_HEADER => 'Accept'
-            )
-        );
+        $this->setDetectContentOptions([self::DETECT_CONTENT_HEADER => 'Accept']);
         // Use Json and XML as the default representations
         // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
         // register the default request adapter classes
-        $this->_attributes['requestAdapterClasses'] = array();
+        $this->_attributes['requestAdapterClasses'] = [];
         $this->registerRequestAdapterClasses(Request::$defaultAdapterClasses);
         // register the default response adapter classes
-        $this->_attributes['responseAdapterClasses'] = array();
+        $this->_attributes['responseAdapterClasses'] = [];
         $this->registerResponseAdapterClasses(Response::$defaultAdapterClasses);
         // Depth of exposure on entity fields => relations
         $this->setExposureDepth(2);
         // Don't follow any relation type
         $this->setExposureRelationsFetchType(null);
         // Don't set any expose request options
-        $this->setExposeRequestOptions(array());
+        $this->setExposeRequestOptions([]);
         // Allow OPTIONS request on resources
         $this->setAllowOptionsRequest(true);
         // Set the route base paths to be an empty array
-        $this->_attributes['routeBasePaths'] = array();
+        $this->_attributes['routeBasePaths'] = [];
         // Set the paths to the config files as an empty array
-        $this->_attributes['pathsToConfigFiles'] = array();
+        $this->_attributes['pathsToConfigFiles'] = [];
         // Don't send a 415 if we don't match a representation class, default to first available one
         $this->set415ForNoMediaMatch(false);
         // Set the default error handler class (immutable)
@@ -282,7 +278,7 @@ class Configuration
      */
     public function setDetectContentOptions(array $options)
     {
-        $this->_attributes['detectContentOptions'] = array();
+        $this->_attributes['detectContentOptions'] = [];
         foreach ($options as $key => $value) {
             $this->setDetectContentOption($key, $value);
         }
@@ -328,7 +324,7 @@ class Configuration
      */
     public function setExposeRequestOptions(array $options)
     {
-        $this->_attributes['exposeRequestOptions'] = array();
+        $this->_attributes['exposeRequestOptions'] = [];
         foreach ($options as $key => $value) {
             $this->setExposeRequestOption($key, $value);
         }
@@ -410,10 +406,10 @@ class Configuration
      * This will overwrite any previously registered paths. To add new one use addPathsToConfigFiles($paths)
      * @param array $paths
      */
-    public function addPathsToConfigFiles($paths = array())
+    public function addPathsToConfigFiles($paths = [])
     {
         if (!isset($this->_attributes['pathsToConfigFiles'])) {
-            $this->_attributes['pathsToConfigFiles'] = array();
+            $this->_attributes['pathsToConfigFiles'] = [];
         }
         $this->_attributes['pathsToConfigFiles'] = array_merge($this->_attributes['pathsToConfigFiles'], (array) $paths);
     }
@@ -425,7 +421,7 @@ class Configuration
     public function removePathsToConfigFiles($path = null)
     {
         if (is_null($path)) {
-            $this->_attributes['pathsToConfigFiles'] = array();
+            $this->_attributes['pathsToConfigFiles'] = [];
         } else {
             if (($offset = array_search($path, $this->_attributes['pathsToConfigFiles'])) !== false)
             {

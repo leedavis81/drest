@@ -25,13 +25,13 @@ class Router
      * A collection of registered route objects
      * @var array $routes
      */
-    protected $routes = array();
+    protected $routes = [];
 
     /**
      * An array of Route Base Paths
      * @var array $routeBasePaths
      */
-    protected $routeBasePaths = array();
+    protected $routeBasePaths = [];
 
     /**
      * Get matched routes
@@ -41,7 +41,7 @@ class Router
      */
     public function getMatchedRoutes(Request $request, $matchVerb = true)
     {
-        $matches = array();
+        $matches = [];
 
         foreach ($this->routes as $route) {
             /* @var RouteMetaData $route */

@@ -29,7 +29,8 @@ use Drest\Mapping\Annotation as Drest;
  *          @Drest\Route(name="get_users", routePattern="/users", verbs={"GET"}, collection=true, expose={"username", "email_address", "profile", "phone_numbers"}),
  *          @Drest\Route(name="update_user", routePattern="/user/:id", verbs={"PUT", "PATCH"}, expose={"username", "email_address", "profile" : {"firstname", "lastname"}}),
  *          @Drest\Route(name="delete_user", routePattern="/user/:id", verbs={"DELETE"}),
- *          @Drest\Route(name="delete_users", routePattern="/users", collection=true, verbs={"DELETE"})
+ *          @Drest\Route(name="delete_users", routePattern="/users", collection=true, verbs={"DELETE"}),
+ *          @Drest\Route(name="delete_users_by_username", routePattern="/users/username/:username", collection=true, verbs={"DELETE"})
  *      }
  * )
  *

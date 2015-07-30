@@ -14,9 +14,9 @@ class ClassGeneratorTest extends DrestFunctionalTestCase
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/',
             'OPTIONS',
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             array('HTTP_X_DRESTCG' => 'on')
         );
 

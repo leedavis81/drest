@@ -161,7 +161,7 @@ abstract class AbstractAction
         ORM\QueryBuilder $qb,
         ORM\Mapping\ClassMetadata $classMetaData,
         $rootAlias = null,
-        &$addedKeyFields = array()
+        &$addedKeyFields = []
     ) {
         if (empty($fields)) {
             return $qb;
@@ -224,7 +224,7 @@ abstract class AbstractAction
         // Process relational fields / association with no deeper expose restrictions
         if ($type !== 'fields' && $type !== 'associations')
         {
-            return array();
+            return [];
         }
 
         $names = ($type === 'fields') ? $classMetaData->getFieldNames() : $classMetaData->getAssociationNames();
@@ -350,7 +350,7 @@ abstract class AbstractAction
                 $this->getEntityManager()
             );
             $this->getResponse()->setStatusCode(Response::STATUS_CODE_200);
-            $resultSet = ResultSet::create(array('location' => ($location) ? $location : 'unknown'), 'response');
+            $resultSet = ResultSet::create(['location' => ($location) ? $location : 'unknown'], 'response');
         } catch (\Exception $e) {
             return $this->handleError($e, Response::STATUS_CODE_500);
         }

@@ -26,9 +26,9 @@ class PatchElementTest extends DrestFunctionalTestCase
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/user/' . $user->getId(),
             'PATCH',
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             array('HTTP_CONTENT_TYPE' => $representation->getContentType()),
             $representation->__toString()
         );

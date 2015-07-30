@@ -43,7 +43,7 @@ class ClassGenerator
      * CG classes generated from routeMetaData
      * @var array $classes - uses className as the key
      */
-    protected $classes = array();
+    protected $classes = [];
 
     /**
      * Entity manager - required to detect relation types and classNames on expose data
@@ -70,7 +70,7 @@ class ClassGenerator
     {
         foreach ($classMetadatas as $classMetaData) {
             /* @var \Drest\Mapping\ClassMetaData $classMetaData */
-            $expose = array();
+            $expose = [];
             foreach ($classMetaData->getRoutesMetaData() as $routeMetaData) {
                 /* @var \Drest\Mapping\RouteMetaData $routeMetaData */
                 $expose = array_merge_recursive($expose, $routeMetaData->getExpose());
@@ -117,7 +117,7 @@ EOT;
             $docBlock = new Generator\DocBlockGenerator($short, $long);
             $cg->setDocBlock($docBlock);
 
-            $cg->addMethods(array($this->getStaticCreateMethod($this->getTargetType($fullClassName))));
+            $cg->addMethods([$this->getStaticCreateMethod($this->getTargetType($fullClassName))]);
         }
 
         foreach ($expose as $key => $value) {
@@ -189,7 +189,7 @@ EOT;
     private function getSetterMethods(&$cg, $name, $type, $targetClass = null)
     {
         /** @var Generator\MethodGenerator[] $methods **/
-        $methods = array();
+        $methods = [];
         switch ($type) {
             case self::PARAM_TYPE_ITEM:
                 $method = new Generator\MethodGenerator();
@@ -263,7 +263,7 @@ EOT;
     {
         $property = $this->createProperty($name);
         if (!$cg->hasProperty($name)) {
-            $cg->addProperties(array($property));
+            $cg->addProperties([$property]);
             $cg->addMethods($this->getSetterMethods($cg, $name, self::PARAM_TYPE_ITEM));
         }
     }
@@ -283,7 +283,7 @@ EOT;
         if ($assocMapping['type'] & $ormClassMetaData::TO_MANY) {
             // This is a collection (should be an Array)
             $property->setDocBlock('@var array $' . $name);
-            $property->setDefaultValue(array());
+            $property->setDefaultValue([]);
             $paramType = self::PARAM_TYPE_RELATION_COLLECTION;
         } else {
             // This is a single relation
@@ -292,7 +292,7 @@ EOT;
         }
 
         if (!$cg->hasProperty($name)) {
-            $cg->addProperties(array($property));
+            $cg->addProperties([$property]);
             $cg->addMethods($this->getSetterMethods($cg, $name, $paramType, $assocMapping['targetEntity']));
         }
     }

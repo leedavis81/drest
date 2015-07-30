@@ -54,7 +54,7 @@ class ExposeFields implements \Iterator
      * Temporary used during processExposeDepth to prevent you traversing up and down bi-directional relations
      * @var array $registered_expose_classes ;
      */
-    protected $registered_expose_classes = array();
+    protected $registered_expose_classes = [];
 
     /**
      * Create an instance of ExposeFields - use create() method
@@ -226,7 +226,7 @@ class ExposeFields implements \Iterator
             throw InvalidExposeFieldsException::invalidExposeFieldsString();
         }
 
-        $results = array();
+        $results = [];
         $this->recurseExposeString(trim($string, '|'), $results);
 
         return $results;
@@ -275,7 +275,7 @@ class ExposeFields implements \Iterator
     private function parseStringParts($string)
     {
         $information = new \stdClass();
-        $information->parts = array();
+        $information->parts = [];
         $openPos = null;
         $closePos = null;
         $bracketCounter = 0;
@@ -296,7 +296,7 @@ class ExposeFields implements \Iterator
             if (is_numeric($openPos) && is_numeric($closePos)) {
                 // Work backwards from openPos until we hit [|]
                 $stopPos = 0;
-                foreach (array('|', '[', ']', '%') as $stopChar) {
+                foreach (['|', '[', ']', '%'] as $stopChar) {
                     if (($pos = strrpos(substr($string, 0, $openPos), $stopChar)) !== false) {
                         $stopPos = (++$pos > $stopPos) ? $pos : $stopPos;
                     }
@@ -307,14 +307,14 @@ class ExposeFields implements \Iterator
                     $rangeSize = ($closePos - $openPos) + 1;
                     $string = substr_replace($string, str_repeat('%', $rangeSize), $openPos, $rangeSize);
                 } else {
-                    $information->parts[] = array(
+                    $information->parts[] = [
                         'openBracket' => $openPos,
                         'closeBracket' => $closePos,
                         'contents' => substr($string, $openPos + 1, ($closePos - $openPos) - 1),
                         'tagName' => substr($string, $stopPos, ($openPos - $stopPos)),
                         'tagStart' => $stopPos,
                         'tagEnd' => ($openPos - 1)
-                    );
+                    ];
                     $rangeSize = ($closePos - $stopPos) + 1;
                     $string = substr_replace($string, str_repeat('%', $rangeSize), $stopPos, $rangeSize);
                 }

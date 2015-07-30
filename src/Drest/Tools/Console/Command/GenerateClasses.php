@@ -36,7 +36,7 @@ class GenerateClasses extends Command
             ->setName('classes:generate')
             ->setDescription('Generate client classes to interact with a Drest endpoint.')
             ->setDefinition(
-                array(
+                [
                     new InputArgument(
                         'endpoint', InputArgument::REQUIRED, 'The location of the drest API endpoint.'
                     ),
@@ -48,7 +48,7 @@ class GenerateClasses extends Command
                         'namespace', null, InputOption::VALUE_OPTIONAL,
                         'The namespace you would like applied to the classes. This would be prepended to any existing namespaces the classes have'
                     )
-                )
+                ]
             )
             ->setHelp(
                 <<<EOT
@@ -79,7 +79,7 @@ EOT
         $request = $client->createRequest(
             RequestInterface::OPTIONS,
             null,
-            array(ClassGenerator::HEADER_PARAM => 'true')
+            [ClassGenerator::HEADER_PARAM => 'true']
         );
 
         $response = $client->send($request);

@@ -26,9 +26,9 @@ class PutElementTest extends DrestFunctionalTestCase
         $request = \Symfony\Component\HttpFoundation\Request::create(
             '/user/' . $user->getId(),
             'PUT',
-            array(),
-            array(),
-            array(),
+            [],
+            [],
+            [],
             array('HTTP_CONTENT_TYPE' => $representation->getContentType()),
             $representation->__toString()
         );

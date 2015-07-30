@@ -112,7 +112,7 @@ class ExposeFieldsTest extends DrestTestCase
         );
 
         // No explicit expose has been set by depth setting, this should be empty
-        $this->assertEquals(array(), $expose->toArray());
+        $this->assertEquals([], $expose->toArray());
     }
 
     public function testConfigureExposurePullRequestWithExplicitExpose()
