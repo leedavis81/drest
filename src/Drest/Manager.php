@@ -65,6 +65,18 @@ class Manager
     protected $error_handler;
 
     /**
+     * The name of an explicit route call
+     * @var string $named_route
+     */
+    protected $named_route;
+
+    /**
+     * Optional route parameter that may have been passed
+     * @var array $route_params
+     */
+    protected $route_params;
+
+    /**
      * Creates an instance of the Drest Manager using the passed configuration object
      * Can also pass in a Event Manager instance
      *
@@ -125,6 +137,10 @@ class Manager
     {
         $this->setUpHttp($request, $response, $this->getConfiguration());
 
+        // Save the named route to the object (overwritten on each dispatch)
+        $this->named_route = $namedRoute;
+        $this->route_params = $routeParams;
+
         // Register routes for lookup
         $this->metadataManager->registerRoutes($this->router);
 
@@ -133,7 +149,7 @@ class Manager
 
         $rethrowException = false;
         try {
-            $this->execute($namedRoute, $routeParams);
+            $this->execute();
         } catch (\Exception $e) {
 
             if ($this->config->inDebugMode()) {
@@ -155,13 +171,11 @@ class Manager
 
     /**
      * Execute a dispatched request
-     * @param  string           $namedRoute  - Define the named Route to be dispatched - bypasses the internal router lookup
-     * @param  array            $routeParams - Route parameters to be used for dispatching a namedRoute request
      * @throws Route\NoMatchException|\Exception
      */
-    protected function execute($namedRoute = null, array $routeParams = [])
+    protected function execute()
     {
-        if (($route = $this->determineRoute($namedRoute, $routeParams)) instanceof RouteMetaData) {
+        if (($route = $this->determineRoute()) instanceof RouteMetaData) {
             // Get the representation to be used - always successful or it throws an exception
             $representation = $this->handleExposureSettingsFromHttpMethod(
                 $this->getRequest()->getHttpMethod(),
@@ -207,19 +221,17 @@ class Manager
 
     /**
      * Determine the matched route from either the router or namedRoute
-     * @param  string|null                       $namedRoute
-     * @param  array                             $routeParams
      * @throws Route\NoMatchException|\Exception
      * @return RouteMetaData|bool                $route - if false no route could be matched
      *                                                       (ideally the response should be returned in this instance - fail fast)
      */
-    protected function determineRoute($namedRoute = null, array $routeParams = [])
+    protected function determineRoute()
     {
         // dispatch preRoutingAction event
         $this->triggerPreRoutingEvent($this->service);
         try {
-            $route = (!is_null($namedRoute))
-                ? $this->getNamedRoute($namedRoute, $routeParams)
+            $route = (!is_null($this->named_route))
+                ? $this->getNamedRoute()
                 : $this->getMatchedRoute(true);
         } catch (\Exception $e) {
 
@@ -245,17 +257,15 @@ class Manager
     /**
      * Get a route based on Entity::route_name. eg Entities\User::get_users
      * Syntax checking is performed
-     * @param  string         $name
-     * @param  array          $params
      * @throws DrestException on invalid syntax or unmatched named route
      * @return RouteMetaData  $route
      */
-    protected function getNamedRoute($name, array $params = [])
+    protected function getNamedRoute()
     {
-        if (substr_count($name, '::') !== 1) {
+        if (substr_count($this->named_route, '::') !== 1) {
             throw DrestException::invalidNamedRouteSyntax();
         }
-        $parts = explode('::', $name);
+        $parts = explode('::', $this->named_route);
 
         // Allow exception to bubble up
         $classMetaData = $this->getClassMetadata($parts[0]);
@@ -263,9 +273,18 @@ class Manager
             throw DrestException::unableToFindRouteByName($parts[1], $classMetaData->getClassName());
         }
 
-        $route->setRouteParams($params);
+        $route->setRouteParams($this->route_params);
 
         return $route;
+    }
+
+    /**
+     * Was the last dispatch request called with a named route?
+     * @return bool
+     */
+    public function calledWithANamedRoute()
+    {
+        return !is_null($this->named_route);
     }
 
     /**

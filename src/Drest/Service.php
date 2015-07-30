@@ -147,8 +147,9 @@ class Service
      */
     protected function getDefaultAction()
     {
-        // @todo: This is a bug, there might not be a request (see: https://github.com/leedavis81/drest/issues/16)
-        $httpMethod = $this->getRequest()->getHttpMethod();
+        $httpMethod = ($this->dm->calledWithANamedRoute())
+            ? array_slice($this->matched_route->getVerbs(), 0, 1)[0]
+            : $this->getRequest()->getHttpMethod();
 
         $className = '\\Drest\\Service\\Action\\' . ucfirst(strtolower($httpMethod));
         switch ($httpMethod) {

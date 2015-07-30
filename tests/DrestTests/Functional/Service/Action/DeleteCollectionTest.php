@@ -122,8 +122,9 @@ class DeleteCollectionTest extends DrestFunctionalTestCase
         // This SHOULD be a 500, currently getting 404 due to wrong service mapping. see https://github.com/leedavis81/drest/issues/16
         $this->assertEquals(500, $response->getStatusCode());
 
+        // Should still have 2, as the above request would have failed
         $deletedEntities = $this->_em->getRepository('DrestTests\Entities\Typical\User')->findAll();
-        $this->assertCount(0, $deletedEntities);
+        $this->assertCount(2, $deletedEntities);
     }
 
 }
