@@ -4,7 +4,7 @@ Drest
 ### Dress up doctrine entities and expose them as REST resources
 
 
-[![Build Status](https://scrutinizer-ci.com/g/leedavis81/drest/badges/build.png?b=master)](https://scrutinizer-ci.com/g/leedavis81/drest/build-status/master)
+[![Build Status](https://travis-ci.org/leedavis81/drest.svg)](https://travis-ci.org/leedavis81/drest/settings)
 [![Code Coverage](https://scrutinizer-ci.com/g/leedavis81/drest/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/leedavis81/drest/?branch=master)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/leedavis81/drest/badges/quality-score.png?s=54655af2afbd263417c9e80a4d6ee9664083b5c5)](https://scrutinizer-ci.com/g/leedavis81/drest/)
 [![Latest Stable Version](https://poser.pugx.org/leedavis81/drest/v/stable.png)](https://packagist.org/packages/leedavis81/drest)
