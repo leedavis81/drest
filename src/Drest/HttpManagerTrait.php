@@ -85,32 +85,4 @@ trait HttpManagerTrait
     {
         $this->response = $response;
     }
-
-    /**
-     * Determine the representation by inspecting the HTTP method
-     * @param AbstractRepresentation $representation
-     * @param array $detectContentOptions - Eg array(self::DETECT_CONTENT_HEADER => 'Accept')
-     * @return AbstractRepresentation|null
-     */
-    protected function determineRepresentationByHttpMethod(AbstractRepresentation $representation, array $detectContentOptions = [])
-    {
-        switch ($this->getRequest()->getHttpMethod()) {
-            // Match on content option
-            case Request::METHOD_GET:
-                // This representation matches the required media type requested by the client
-                if ($representation->isExpectedContent($detectContentOptions, $this->getRequest())) {
-                    return $representation;
-                }
-                break;
-            // Match on content-type
-            case Request::METHOD_POST:
-            case Request::METHOD_PUT:
-            case Request::METHOD_PATCH:
-                if ($representation->getContentType() === $this->getRequest()->getHeaders('Content-Type')) {
-                    return $representation;
-                }
-                break;
-        }
-        return null;
-    }
 }

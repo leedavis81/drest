@@ -18,7 +18,6 @@ use Drest\Route\NoMatchException;
 use DrestCommon\Error\Handler\AbstractHandler;
 use DrestCommon\Error\Response\Text as ErrorResponseText;
 use DrestCommon\Representation\AbstractRepresentation;
-use DrestCommon\Representation\RepresentationException;
 use DrestCommon\Representation\UnableToMatchRepresentationException;
 use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
@@ -45,6 +44,12 @@ class Manager
      * @var Manager\Metadata $metadataManager
      */
     protected $metadataManager;
+
+    /**
+     * Representation manager
+     * @var RepresentationManager
+     */
+    protected $representationManager;
 
     /**
      * Drest router
@@ -98,6 +103,8 @@ class Manager
         $this->router = new Router();
 
         $this->metadataManager = new Manager\Metadata($config);
+
+        $this->representationManager = new RepresentationManager($this->config);
     }
 
     /**
@@ -180,7 +187,7 @@ class Manager
             $representation = $this->handleExposureSettingsFromHttpMethod(
                 $this->getRequest()->getHttpMethod(),
                 $route,
-                $this->getDeterminedRepresentation($route)
+                $this->representationManager->getDeterminedRepresentation($this->getRequest(), $route)
             );
 
             // Set the matched service object and the error handler into the service class
@@ -403,124 +410,6 @@ class Manager
     }
 
     /**
-     * Detect an instance of a representation class using a matched route, or default representation classes
-     * @param  RouteMetaData                        $route
-     * @param  Mapping\RouteMetaData                $route
-     * @throws UnableToMatchRepresentationException
-     * @throws RepresentationException              - if unable to instantiate a representation object from config settings
-     * @return AbstractRepresentation               $representation
-     */
-    protected function getDeterminedRepresentation(Mapping\RouteMetaData &$route = null)
-    {
-        if (($representations = $this->getRepresentationClasses($route)) === []) {
-            $name = (is_null($route)) ? '"unknown name"' : $route->getName();
-            $className = (is_null($route)) ? '"unknown class"' : $route->getClassMetaData()->getClassName();
-            throw RepresentationException::noRepresentationsSetForRoute(
-                $name,
-                $className
-            );
-        }
-
-        if (($representation = $this->searchAndValidateRepresentations($representations)) !== null) {
-            return $representation;
-        }
-
-        // We have no representation instances from either annotations or config object
-        throw UnableToMatchRepresentationException::noMatch();
-    }
-
-    /**
-     * Get representation options. Determined from route or config
-     * @param RouteMetaData|null $route
-     * @return array
-     */
-    protected function getRepresentationClasses(Mapping\RouteMetaData &$route = null)
-    {
-        return (is_null($route) || [] === $route->getClassMetaData()->getRepresentations())
-            ? $this->config->getDefaultRepresentations()
-            : $route->getClassMetaData()->getRepresentations();
-    }
-
-    /**
-     * Iterate through an array of representations and return a match
-     * @param array $representations
-     * @return AbstractRepresentation|null
-     * @throws RepresentationException
-     * @throws UnableToMatchRepresentationException
-     */
-    protected function searchAndValidateRepresentations(array $representations)
-    {
-        $representationObjects = [];
-        foreach ($representations as $representation) {
-            if (($representationObj = $this->matchRepresentation($representation, $representationObjects)) instanceof AbstractRepresentation)
-            {
-                return $representationObj;
-            }
-        }
-
-        // For get requests with "415 for no media match" set on, throw an exception
-        if ($this->getRequest()->getHttpMethod() == Request::METHOD_GET && $this->config->get415ForNoMediaMatchSetting()) {
-            throw UnableToMatchRepresentationException::noMatch();
-        }
-
-        // Return the first instantiated representation instance
-        if (isset($representationObjects[0])) {
-            return $representationObjects[0];
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Attempt to match a representation
-     *
-     * @param AbstractRepresentation|string $representation
-     * @param array $representationObjects
-     * @return AbstractRepresentation|null
-     * @throws RepresentationException
-     */
-    protected function matchRepresentation($representation, array &$representationObjects)
-    {
-        if (!is_object($representation)) {
-            $className = $this->getRepresentationClassName($representation);
-            $representationObjects[] = $representation = new $className();
-        }
-        if (!$representation instanceof AbstractRepresentation) {
-            throw RepresentationException::representationMustBeInstanceOfDrestRepresentation();
-        }
-
-        if (($representation = $this->determineRepresentationByHttpMethod($representation, $this->config->getDetectContentOptions())) !== null)
-        {
-            return $representation;
-        }
-        return null;
-    }
-
-    /**
-     * Get's the representation class name.
-     * Removes any root NS chars
-     * Falls back to a DrestCommon Representation lookup
-     *
-     * @param string $representation
-     * @return string
-     * @throws RepresentationException
-     */
-    protected function getRepresentationClassName($representation)
-    {
-        $className = (strstr($representation, '\\') !== false)
-            ? '\\' . ltrim($representation, '\\')
-            : $representation;
-        $className = (!class_exists($className))
-            ? '\\DrestCommon\\Representation\\' . ltrim($className, '\\')
-            : $className;
-        if (!class_exists($className)) {
-            throw RepresentationException::unknownRepresentationClass($representation);
-        }
-        return $className;
-    }
-
-    /**
      * Runs through all the registered routes and returns a single match
      * @param  boolean                 $matchVerb - Whether you want to match the route using the request HTTP verb
      * @throws NoMatchException        if no routes are found
@@ -565,7 +454,7 @@ class Manager
         $eh = $this->getErrorHandler();
 
         try {
-            $representation = $this->getDeterminedRepresentation();
+            $representation = $this->representationManager->getDeterminedRepresentation($this->getRequest());
             $errorDocument = $representation->getDefaultErrorResponse();
             $eh->error($e, 500, $errorDocument);
         } catch (UnableToMatchRepresentationException $e) {
