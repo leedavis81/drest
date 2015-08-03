@@ -12,8 +12,10 @@
  */
 namespace Drest\Manager;
 
+use Drest\EntityManagerRegistry;
 use Drest\Mapping\RouteMetaData;
 use Drest\Configuration;
+use Drest\Query\ExposeFields;
 use DrestCommon\Representation\RepresentationException;
 use DrestCommon\Representation\UnableToMatchRepresentationException;
 use DrestCommon\Representation\AbstractRepresentation;
@@ -36,6 +38,12 @@ class Representation
     protected $request;
 
     /**
+     * Doctrine Entity Manager Registry
+     * @var EntityManagerRegistry $emr
+     */
+    protected $emr;
+
+    /**
      * @param Configuration $config
      */
     public function __construct(Configuration &$config)
@@ -51,6 +59,33 @@ class Representation
     public static function create(Configuration &$config)
     {
         return new self($config);
+    }
+
+    /**
+     * @param Request $request
+     * @param RouteMetaData $route
+     * @return AbstractRepresentation
+     */
+    public function handleExposureSettingsFromHttpMethod($request, $route, EntityManagerRegistry $emr)
+    {
+        $this->emr = $emr;
+        $this->request = $request;
+
+        $representation = $this->getDeterminedRepresentation($request, $route);
+        switch ($request->getHttpMethod())
+        {
+            // Match on content option
+            case Request::METHOD_GET:
+                $this->handlePullExposureConfiguration($route);
+                break;
+            // Match on content-type
+            case Request::METHOD_POST:
+            case Request::METHOD_PUT:
+            case Request::METHOD_PATCH:
+                $representation = $this->handlePushExposureConfiguration($route, $representation);
+                break;
+        }
+        return $representation;
     }
 
     /**
@@ -83,6 +118,46 @@ class Representation
     }
 
 
+    /**
+     * Handle a pull requests' exposure configuration (GET)
+     * @param RouteMetaData          $route (referenced object)
+     */
+    protected function handlePullExposureConfiguration(RouteMetaData &$route)
+    {
+        $route->setExpose(
+            ExposeFields::create($route)
+                ->configureExposeDepth(
+                    $this->emr,
+                    $this->config->getExposureDepth(),
+                    $this->config->getExposureRelationsFetchType()
+                )
+                ->configurePullRequest($this->config->getExposeRequestOptions(), $this->request)
+                ->toArray()
+        );
+    }
+
+    /**
+     * Handle a push requests' exposure configuration (POST/PUT/PATCH)
+     * @param  RouteMetaData          $route          - the matched route
+     * @param  AbstractRepresentation $representation - the representation class to be used
+     * @return AbstractRepresentation $representation
+     */
+    protected function handlePushExposureConfiguration(RouteMetaData $route, AbstractRepresentation $representation)
+    {
+        $representation = $representation::createFromString($this->request->getBody());
+        // Write the filtered expose data
+        $representation->write(
+            ExposeFields::create($route)
+                ->configureExposeDepth(
+                    $this->emr,
+                    $this->config->getExposureDepth(),
+                    $this->config->getExposureRelationsFetchType()
+                )
+                ->configurePushRequest($representation->toArray())
+        );
+
+        return $representation;
+    }
 
     /**
      * Get representation options. Determined from route or config

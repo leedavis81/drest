@@ -17,7 +17,6 @@ use Drest\Route\MultipleRoutesException;
 use Drest\Route\NoMatchException;
 use DrestCommon\Error\Handler\AbstractHandler;
 use DrestCommon\Error\Response\Text as ErrorResponseText;
-use DrestCommon\Representation\AbstractRepresentation;
 use DrestCommon\Representation\UnableToMatchRepresentationException;
 use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
@@ -174,16 +173,15 @@ class Manager
     protected function execute()
     {
         if (($route = $this->determineRoute()) instanceof RouteMetaData) {
-            // Get the representation to be used - always successful or it throws an exception
-            $representation = $this->handleExposureSettingsFromHttpMethod(
-                $this->getRequest()->getHttpMethod(),
-                $route,
-                $this->representationManager->getDeterminedRepresentation($this->getRequest(), $route)
-            );
 
             // Set the matched service object and the error handler into the service class
             $this->service->setMatchedRoute($route);
-            $this->service->setRepresentation($representation);
+            // Get the representation to be used - always successful or it throws an exception
+            $this->service->setRepresentation($this->representationManager->handleExposureSettingsFromHttpMethod(
+                $this->getRequest(),
+                $route,
+                $this->emr
+            ));
             $this->service->setErrorHandler($this->getErrorHandler());
 
             // Set up the service for a new request
@@ -191,29 +189,6 @@ class Manager
         }
     }
 
-    /**
-     * Set up exposure setting on route by HTTP method
-     * @param string $method
-     * @param RouteMetaData $route
-     * @param AbstractRepresentation $representation
-     * @return AbstractRepresentation
-     */
-    protected function handleExposureSettingsFromHttpMethod($method, $route, $representation)
-    {
-        switch ($method) {
-            // Match on content option
-            case Request::METHOD_GET:
-                $this->handlePullExposureConfiguration($route);
-                break;
-            // Match on content-type
-            case Request::METHOD_POST:
-            case Request::METHOD_PUT:
-            case Request::METHOD_PATCH:
-                $representation = $this->handlePushExposureConfiguration($route, $representation);
-                break;
-        }
-        return $representation;
-    }
 
     /**
      * Determine the matched route from either the router or namedRoute
@@ -281,47 +256,6 @@ class Manager
     public function calledWithANamedRoute()
     {
         return !is_null($this->named_route);
-    }
-
-    /**
-     * Handle a pull requests' exposure configuration (GET)
-     * @param RouteMetaData $route (referenced object)
-     */
-    protected function handlePullExposureConfiguration(RouteMetaData &$route)
-    {
-        $route->setExpose(
-            Query\ExposeFields::create($route)
-                ->configureExposeDepth(
-                    $this->emr,
-                    $this->config->getExposureDepth(),
-                    $this->config->getExposureRelationsFetchType()
-                )
-                ->configurePullRequest($this->config->getExposeRequestOptions(), $this->getRequest())
-                ->toArray()
-        );
-    }
-
-    /**
-     * Handle a push requests' exposure configuration (POST/PUT/PATCH)
-     * @param  RouteMetaData          $route          - the matched route
-     * @param  AbstractRepresentation $representation - the representation class to be used
-     * @return AbstractRepresentation $representation
-     */
-    protected function handlePushExposureConfiguration(RouteMetaData $route, AbstractRepresentation $representation)
-    {
-        $representation = $representation::createFromString($this->getRequest()->getBody());
-        // Write the filtered expose data
-        $representation->write(
-            Query\ExposeFields::create($route)
-                ->configureExposeDepth(
-                    $this->emr,
-                    $this->config->getExposureDepth(),
-                    $this->config->getExposureRelationsFetchType()
-                )
-                ->configurePushRequest($representation->toArray())
-        );
-
-        return $representation;
     }
 
     /**
