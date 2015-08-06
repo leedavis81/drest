@@ -84,7 +84,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/NoServiceDefinition')
             )
         );
@@ -101,7 +100,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/MissingMetaData')
             )
         );
@@ -118,7 +116,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/DuplicatedRouteName')
             )
         );
@@ -134,7 +131,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/InvalidVerbUsed')
             )
         );
@@ -150,7 +146,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/EmptyRouteName')
             )
         );
@@ -164,7 +159,7 @@ class ClassMetaDataTest extends DrestTestCase
      */
     public function testMissingPathToConfigFiles()
     {
-        $driver = \Drest\Mapping\Driver\AnnotationDriver::create(new AnnotationReader());
+        $driver = \Drest\Mapping\Driver\AnnotationDriver::create();
         $driver->getAllClassNames();
     }
 
@@ -175,7 +170,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/HandleAlreadyDefined')
             )
         );
@@ -191,7 +185,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/HandleDoesntMatchRouteName')
             )
         );
@@ -206,7 +199,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/Typical')
             )
         );
@@ -220,7 +212,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/Typical')
             )
         );
@@ -234,7 +225,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/Typical')
             )
         );
@@ -248,7 +238,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/Typical')
             )
         );
@@ -262,7 +251,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/Typical')
             )
         );
@@ -287,7 +275,6 @@ class ClassMetaDataTest extends DrestTestCase
     {
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\AnnotationDriver::create(
-                new AnnotationReader(),
                 array(__DIR__ . '/../Entities/Typical')
             )
         );
@@ -302,7 +289,6 @@ class ClassMetaDataTest extends DrestTestCase
     public function testRemovingExtension()
     {
         $annotationDriver = \Drest\Mapping\Driver\AnnotationDriver::create(
-            new AnnotationReader(),
             array(__DIR__ . '/../Entities/Typical')
         );
 

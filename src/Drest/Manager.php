@@ -118,8 +118,11 @@ class Manager
         Configuration $config,
         Event\Manager $eventManager = null)
     {
-        // Register the annotations classes
-        Mapping\Driver\AnnotationDriver::registerAnnotations();
+        $driver = $config->getMetadataDriverClass();
+
+        if(method_exists($driver, 'register')) {
+            $driver::register($config);
+        }
 
         return new self($entityManagerRegistry, $config, ($eventManager) ?: new Event\Manager());
     }
@@ -443,7 +446,7 @@ class Manager
     }
 
     /**
-     * Iterates through annotation definitions, any exceptions thrown will bubble up.
+     * Iterates through mapping definitions, any exceptions thrown will bubble up.
      */
     public function checkDefinitions()
     {
