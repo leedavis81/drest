@@ -12,8 +12,6 @@ Drest
 [![Dependency Status](https://www.versioneye.com/user/projects/5194ec66296d610002000343/badge.png)](https://www.versioneye.com/user/projects/5194ec66296d610002000343)
 [![HHVM Status](http://hhvm.h4cc.de/badge/leedavis81/drest.svg)](http://hhvm.h4cc.de/package/leedavis81/drest)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
-[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg?style=flat)](http://php.net/releases/#5.4.0)
-[![Author](https://img.shields.io/badge/author-%40leedavis81-blue.svg)](http://twitter.com/leedavis)
 
 This library allows you to quickly annotate your doctrine entities into restful resources. It comes shipped with it's own internal router, and can be used standalone or alongside your existing framework stack. Routes are mapped to either a default or customised service action that takes care of handling requests.
 
