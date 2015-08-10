@@ -10,46 +10,25 @@ use Drest\Mapping;
 use Drest\Mapping\RouteMetaData;
 
 /**
- * The PhpDriver reads a configuration file (config.php) rather than utilizing annotations.
+ * The JsonDriver reads a configuration file (config.json) rather than utilizing annotations.
  */
-class PhpDriver implements DriverInterface
+class JsonDriver extends PhpDriver
 {
-
-    static $configuration_filepath = null;
-    static $configuration_filename = 'config.php';
-    static $configuration_variable = 'resources';
-
-    /**
-     * The paths to look for mapping files - immutable as classNames as cached, must be passed on construct.
-     * @var array
-     */
-    protected $paths;
-
-    /**
-     * Loaded class names
-     * @var array
-     */
-    protected $classNames = [];
-
-    /**
-     * The classes (resources) from config.php 
-     * @var array
-     */
-    protected $classes = [];
-
-    protected $resources = null; 
+    static $configuration_filename = 'config.json';
 
     public function __construct()
     {
-
         $filename = self::$configuration_filepath . '\\' . self::$configuration_filename;
-
-        file_exists($filename) && include($filename);
-
-        $var = self::$configuration_variable;
-
-        $this->classes = $$var;
-
+        $json = json_decode(file_get_contents($filename), true);
+        $entities = [];
+        foreach($json['resources'] as $resource) {
+            $tmp = $resource;
+            $entity = $resource['entity'];
+            unset($tmp['entity']);
+            $entities[$entity] = $tmp;
+        }
+        echo '<pre>'; print_r($entities); die();
+        $this->classes = $entities;
     }
 
     /**
@@ -61,7 +40,7 @@ class PhpDriver implements DriverInterface
         if($configuration_filepath != null) {
             self::$configuration_filepath = $configuration_filepath;
         } else {
-            throw new \RuntimeException('You must set a configuration file path in index.php.');
+            throw new \RuntimeException('What the shit');
         }
     }
 

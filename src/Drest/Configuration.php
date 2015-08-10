@@ -58,7 +58,7 @@ class Configuration
         // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
         // Set the default method for retreiving class metadata.
-        $this->setMetadataDriverClass('\Drest\Mapping\Driver\AnnotationDriver');
+        $this->setMetadataDriverClass('\Drest\Mapping\Driver\YamlDriver');
         // register the default request adapter classes
         $this->_attributes['requestAdapterClasses'] = [];
         $this->registerRequestAdapterClasses(Request::$defaultAdapterClasses);
@@ -81,6 +81,22 @@ class Configuration
         $this->set415ForNoMediaMatch(false);
         // Set the default error handler class (immutable)
         $this->_attributes['defaultErrorHandlerClass'] = 'DrestCommon\\Error\\Handler\\DefaultHandler';
+    }
+
+    /**
+     * Set an attribute for the driver configuration 
+     * @param string $attribute, string $value
+     */
+    public function setAttribute($attribute, $value) {
+        $this->_attributes[$attribute] = $value;
+    }
+
+    /**
+     * Get an attribute from the driver configuration
+     * @param string $attribute
+     */
+    public function getAttribute($attribute) {
+        return $this->_attributes[$attribute];
     }
 
     /**

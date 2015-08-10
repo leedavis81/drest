@@ -27,8 +27,8 @@ $ormConfig->setAutoGenerateProxyClasses(true);
 
 $em = \Doctrine\ORM\EntityManager::create(array(
     'host' => 'localhost',
-    'user' => 'developer',
-    'password' => 'developer',
+    'user' => 'root',
+    'password' => 'dkj32p3m',
     'dbname' => 'drest',
     'driver' => 'pdo_mysql'
 ), $ormConfig);
@@ -46,20 +46,26 @@ $drestConfig->setDetectContentOptions(array(
 $drestConfig->setExposureDepth(3);
 $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
 $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
-//$drestConfig->setDebugMode(true);
+$drestConfig->setDebugMode(true);
 $drestConfig->addPathsToConfigFiles($pathToEntities);
 
+$drestConfig->setAttribute('configFilePath', __DIR__);
 
 // Set up event manager
-
-
 $evm = new Event\Manager();
 //$evm->addEventListener(array('preServiceAction', 'postServiceAction', 'preRouting', 'postRouting', 'preDispatch', 'postDispatch'), new MyEvents\MyEvent());
 
 
 $emr = \Drest\EntityManagerRegistry::getSimpleManagerRegistry($em);
 $drestManager = \Drest\Manager::create($emr, $drestConfig, $evm);
+?>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script>
+
+</script>
+
+<?php
 
 echo $drestManager->dispatch();
 

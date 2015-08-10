@@ -8,48 +8,26 @@ use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
 use Drest\Mapping\RouteMetaData;
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 /**
- * The PhpDriver reads a configuration file (config.php) rather than utilizing annotations.
+ * The YamlDriver reads a configuration file (config.yaml) rather than utilizing annotations.
  */
-class PhpDriver implements DriverInterface
+class YamlDriver extends PhpDriver
 {
-
-    static $configuration_filepath = null;
-    static $configuration_filename = 'config.php';
-    static $configuration_variable = 'resources';
-
-    /**
-     * The paths to look for mapping files - immutable as classNames as cached, must be passed on construct.
-     * @var array
-     */
-    protected $paths;
-
-    /**
-     * Loaded class names
-     * @var array
-     */
-    protected $classNames = [];
-
-    /**
-     * The classes (resources) from config.php 
-     * @var array
-     */
-    protected $classes = [];
-
-    protected $resources = null; 
+    static $configuration_filename = 'config.yaml';
 
     public function __construct()
     {
-
+        $yaml = new Parser();
         $filename = self::$configuration_filepath . '\\' . self::$configuration_filename;
-
-        file_exists($filename) && include($filename);
-
-        $var = self::$configuration_variable;
-
-        $this->classes = $$var;
-
+        try 
+        {
+            $this->classes = $yaml->parse(file_get_contents($filename));
+        } catch (ParseException $e) {
+            printf("Unable to parse the YAML string: %s", $e->getMessage());
+        }
     }
 
     /**
@@ -61,7 +39,7 @@ class PhpDriver implements DriverInterface
         if($configuration_filepath != null) {
             self::$configuration_filepath = $configuration_filepath;
         } else {
-            throw new \RuntimeException('You must set a configuration file path in index.php.');
+            throw new \RuntimeException('What the shit');
         }
     }
 
