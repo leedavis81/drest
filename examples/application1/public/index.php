@@ -48,8 +48,8 @@ $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'e
 $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 $drestConfig->setDebugMode(true);
 $drestConfig->addPathsToConfigFiles($pathToEntities);
-
 $drestConfig->setAttribute('configFilePath', __DIR__);
+$drestConfig->setAttribute('configFileName', 'config.php');
 
 // Set up event manager
 $evm = new Event\Manager();

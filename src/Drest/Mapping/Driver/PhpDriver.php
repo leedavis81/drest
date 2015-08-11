@@ -16,7 +16,7 @@ class PhpDriver implements DriverInterface
 {
 
     static $configuration_filepath = null;
-    static $configuration_filename = 'config.php';
+    static $configuration_filename = null;
     static $configuration_variable = 'resources';
 
     /**
@@ -47,7 +47,9 @@ class PhpDriver implements DriverInterface
         file_exists($filename) && include($filename);
 
         $var = self::$configuration_variable;
-
+        if(!isset($$var) || !is_array($$var)) {
+            throw new \RuntimeException('Invalid configuration file.');
+        }
         $this->classes = $$var;
 
     }
@@ -57,9 +59,11 @@ class PhpDriver implements DriverInterface
      */
     public static function register(Configuration $config) {
         $configuration_filepath = $config->getAttribute('configFilePath');
+        $configuration_filename = $config->getAttribute('configFileName');
 
         if($configuration_filepath != null) {
             self::$configuration_filepath = $configuration_filepath;
+            self::$configuration_filename = $configuration_filename;
         } else {
             throw new \RuntimeException('You must set a configuration file path in index.php.');
         }
@@ -144,9 +148,6 @@ class PhpDriver implements DriverInterface
             // Make sure the for is not empty
             if (empty($route['name']) || !is_string($route['name'])) {
                 throw DrestException::handleForCannotBeEmpty();
-            }
-            if (($routeMetaData = $metadata->getRouteMetaData($route['name'])) === false) {
-                throw DrestException::handleAnnotationDoesntMatchRouteName($route['name']);
             }
         }
     }

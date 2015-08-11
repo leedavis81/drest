@@ -16,12 +16,12 @@ use Symfony\Component\Yaml\Exception\ParseException;
  */
 class YamlDriver extends PhpDriver
 {
-    static $configuration_filename = 'config.yaml';
 
     public function __construct()
     {
         $yaml = new Parser();
         $filename = self::$configuration_filepath . '\\' . self::$configuration_filename;
+        echo $filename;
         try 
         {
             $this->classes = $yaml->parse(file_get_contents($filename));
@@ -35,11 +35,13 @@ class YamlDriver extends PhpDriver
      */
     public static function register(Configuration $config) {
         $configuration_filepath = $config->getAttribute('configFilePath');
+        $configuration_filename = $config->getAttribute('configFileName');
 
         if($configuration_filepath != null) {
             self::$configuration_filepath = $configuration_filepath;
+            self::$configuration_filename = $configuration_filename;
         } else {
-            throw new \RuntimeException('What the shit');
+            throw new \RuntimeException('You must set a configuration file path in index.php.');
         }
     }
 

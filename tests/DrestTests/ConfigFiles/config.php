@@ -14,7 +14,7 @@ $resources['\Entities\Profile'] = [
 $resources['\Entities\User'] = [
     'representations' => ['Json'],
     'routes' => [
-        ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['GET'], 'action' => 'Action\Custom', 'origin' => 'get_user'],
+        ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['GET'], 'action' => 'Action\Custom'],
         ['name' => 'get_user_profile', 'routePattern' => '/user/:id/profile', 'verbs' => ['GET'], 'expose' => ['profile']],
         ['name' => 'get_user_numbers', 'routePattern' => '/user/:id/numbers', 'verbs' => ['GET'], 'expose' => ['phone_numbers']],
         ['name' => 'post_user', 'routePattern' => '/user', 'verbs' => ['POST'], 'expose' => ['username', 'email_address', 'profile' => ['firstname', 'lastname'], 'phone_numbers' => ['number']], 'handle_call' => 'populatePost'],
