@@ -118,10 +118,11 @@ HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array(__DIR__ . 'tmp.php')
+                array($tmp)
             )
         );
-        $metadataFactory->getMetadataForClass(__DIR__ . 'tmp.php');
+        $metadataFactory->getMetadataForClass($tmp);
+        
     }
 
     public function testUnableToLoadMetaDataFromClass()
@@ -138,16 +139,19 @@ HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array(__DIR__ . 'tmp.php')
+                array($tmp)
             )
         );
-        $metadataFactory->getMetadataForClass(__DIR__ . 'tmp.php');
+        $metadataFactory->getMetadataForClass($tmp);
+        
     }
 
     public function testDuplicatedRouteName()
     {
         $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
+<?php
+
 \$resources = [];
 \$resources['\Entities\User'] = [
     'representations' => ['Json'],
@@ -160,16 +164,19 @@ HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array(__DIR__ . 'tmp.php')
+                array($tmp)
             )
         );
-        $metadataFactory->getMetadataForClass(__DIR__ . 'tmp.php');
+        $metadataFactory->getMetadataForClass($tmp);
+        
     }
 
     public function testInvalidVerbUsed()
     {
         $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
+<?php
+
 \$resources = [];
 \$resources['\Entities\User'] = [
     'representations' => ['Json'],
@@ -181,10 +188,11 @@ HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array(__DIR__ . 'tmp.php')
+                array($tmp)
             )
         );
-        $metadataFactory->getMetadataForClass(__DIR__ . 'tmp.php');
+        $metadataFactory->getMetadataForClass($tmp);
+        
     }
 
     public function testEmptyRouteName()
@@ -192,6 +200,8 @@ HEREDOC;
 
 $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
+<?php
+
 \$resources = [];
 \$resources['\Entities\User'] = [
     'representations' => ['Json'],
@@ -203,10 +213,11 @@ HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array(__DIR__ . 'tmp.php')
+                array($tmp)
             )
         );
-        $metadataFactory->getMetadataForClass(__DIR__ . 'tmp.php');
+        $metadataFactory->getMetadataForClass($tmp);
+        
     }
 
     public function testHandleAlreadyDefined()
@@ -214,6 +225,8 @@ HEREDOC;
 
 $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
+<?php
+
 \$resources = [];
 \$resources['\Entities\User'] = [
     'representations' => ['Json'],
@@ -226,10 +239,11 @@ HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array(__DIR__ . 'tmp.php')
+                array($tmp)
             )
         );
-        $metadataFactory->getMetadataForClass(__DIR__ . 'tmp.php');
+        $metadataFactory->getMetadataForClass($tmp);
+        
     }
 
     public function testGetDefaultOriginRoute()
@@ -243,6 +257,8 @@ HEREDOC;
     {
         $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
+<?php
+
 \$resources = [];
 \$resources['\Entities\User'] = [
     'routes' => [
@@ -254,12 +270,13 @@ HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array(__DIR__ . 'tmp.php')
+                array($tmp)
             )
         );
-        $cmd = $metadataFactory->getMetadataForClass(__DIR__ . 'tmp.php');
+        $cmd = $metadataFactory->getMetadataForClass($tmp);
 
         $this->assertEmpty($cmd->getRepresentations());
+
     }
 
     public function createGoodTmpFile() {
@@ -282,20 +299,16 @@ $file_contents = <<<HEREDOC
     ]
 ];
 HEREDOC;
-        $tmp = tempnam(__DIR__, 'tmp.php');
+        $tmp = tempnam(sys_get_temp_dir(), 'tmp');
         file_put_contents($tmp, $file_contents);
         return $tmp;
     }
 
     public function createCustomTmpFile($file_contents) {
 
-        $tmp = tempnam(__DIR__, 'tmp.php');
+        $tmp = tempnam(sys_get_temp_dir(), 'tmp');
         file_put_contents($tmp, $file_contents);
         return $tmp;
-    }
-
-    public function tearDown() {
-        
     }
 
 }
