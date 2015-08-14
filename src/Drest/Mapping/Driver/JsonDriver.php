@@ -14,13 +14,16 @@ use Drest\Mapping\RouteMetaData;
  */
 class JsonDriver extends PhpDriver
 {
+    protected $paths = [];
 
-    public function __construct()
+    public function __construct($paths)
     {
-        parent::__construct($paths);
-        $json = null;
         $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
+
+        parent::__construct($paths, $filename);
         
+        $json = null;
+
         if(!file_exists($filename)) { 
             throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
         }

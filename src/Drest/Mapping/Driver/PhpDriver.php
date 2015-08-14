@@ -27,17 +27,23 @@ class PhpDriver extends AbstractDriver
     public function __construct($paths, $filename)
     {
         parent::__construct($paths);
-        if(!file_exists($filename)) { 
-            throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
-        }
 
-        $resources = include($filename);
+        $file_parts = pathinfo($filename);
+        
+        if($file_parts['extension'] == 'php') {
 
-        if(!is_array($resources)) {
-            throw new \RuntimeException('The configuration file does not return the configuration: ' . $filename);
-        }
+            if(!file_exists($filename)) { 
+                throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
+            }
 
-        $this->classes = $resources;
+            $resources = include($filename);
+
+            if(!is_array($resources)) {
+                throw new \RuntimeException('The configuration file does not return the configuration: ' . $filename);
+            }
+
+            $this->classes = $resources;
+        }  
     }
 
     /**
