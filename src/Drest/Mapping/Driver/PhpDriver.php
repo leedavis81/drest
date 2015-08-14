@@ -12,24 +12,11 @@ use Drest\Mapping\RouteMetaData;
 /**
  * The PhpDriver reads a configuration file (config.php) rather than utilizing annotations.
  */
-class PhpDriver implements DriverInterface
+class PhpDriver extends AbstractDriver
 {
 
     static $configuration_filepath = null;
     static $configuration_filename = null;
-    static $configuration_variable = 'resources';
-
-    /**
-     * The paths to look for mapping files - immutable as classNames as cached, must be passed on construct.
-     * @var array
-     */
-    protected $paths;
-
-    /**
-     * Loaded class names
-     * @var array
-     */
-    protected $classNames = [];
 
     /**
      * The classes (resources) from config.php 
@@ -37,36 +24,28 @@ class PhpDriver implements DriverInterface
      */
     protected $classes = [];
 
-    protected $resources = null; 
-
-    public function __construct()
+    public function __construct($paths, $filename)
     {
-
-        $filename = self::$configuration_filepath . '\\' . self::$configuration_filename;
-
-        file_exists($filename) && include($filename);
-
-        $var = self::$configuration_variable;
-        if(!isset($$var) || !is_array($$var)) {
-            throw new \RuntimeException('Invalid configuration file.');
+        parent::__construct($paths);
+        if(!file_exists($filename)) { 
+            throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
         }
-        $this->classes = $$var;
 
+        $resources = include($filename);
+
+        if(!is_array($resources)) {
+            throw new \RuntimeException('The configuration file does not return the configuration: ' . $filename);
+        }
+
+        $this->classes = $resources;
     }
 
     /**
      * 
      */
     public static function register(Configuration $config) {
-        $configuration_filepath = $config->getAttribute('configFilePath');
-        $configuration_filename = $config->getAttribute('configFileName');
-
-        if($configuration_filepath != null) {
-            self::$configuration_filepath = $configuration_filepath;
-            self::$configuration_filename = $configuration_filename;
-        } else {
-            throw new \RuntimeException('You must set a configuration file path in index.php.');
-        }
+        self::$configuration_filepath = $config->getAttribute('configFilePath');
+        self::$configuration_filename = $config->getAttribute('configFileName');
     }
 
     /**
@@ -78,19 +57,10 @@ class PhpDriver implements DriverInterface
      */
     public static function create($paths = [])
     {
-        return new self($paths);
-    }
-
-    /**
-     * Get all the metadata class names known to this driver.
-     * @throws DrestException
-     * @return array          $classes
-     */
-    public function getAllClassNames()
-    {
-        $this->classNames = array_keys($this->classes);
-
-        return $this->classNames;
+        if(static::$configuration_filepath == null || static::$configuration_filename == null) {
+            throw new \RuntimeException('Configuration file path or file name is not set.');
+        }
+        return new static($paths, static::$configuration_filepath . DIRECTORY_SEPARATOR . static::$configuration_filename);
     }
 
     /**
@@ -105,6 +75,10 @@ class PhpDriver implements DriverInterface
             $metadata = new Mapping\ClassMetaData(new \ReflectionClass($class));
         } else {
             $metadata = new Mapping\ClassMetaData($class);
+        }
+
+        if(!isset($this->classes[$class])) {
+            throw new \RuntimeException('The class is not set: ' . $class);   
         }
 
         $resource = $this->classes[$class];
@@ -122,7 +96,6 @@ class PhpDriver implements DriverInterface
 
         $this->processMethods($resource, $metadata);
 
-
         // Error for any push metadata routes that don't have a handle
         foreach ($metadata->getRoutesMetaData() as $routeMetaData) {
             /* @var RouteMetaData $routeMetaData */
@@ -130,8 +103,13 @@ class PhpDriver implements DriverInterface
                 throw DrestException::routeRequiresHandle($routeMetaData->getName());
             }
         }
-
         return $metadata;
+    }
+
+    public function isDrestResource($className) {
+        if(in_array($className, array_keys($this->classes))) {
+            return true;
+        }
     }
 
 
@@ -146,8 +124,20 @@ class PhpDriver implements DriverInterface
         /* @var \ReflectionMethod $method */
         foreach ($resource['routes'] as $route) {
             // Make sure the for is not empty
-            if (empty($route['name']) || !is_string($route['name'])) {
+            if (!isset($route['name']) || !is_string($route['name'])) {
                 throw DrestException::handleForCannotBeEmpty();
+            }
+            if (($routeMetaData = $metadata->getRouteMetaData($route['name'])) === false) {
+                throw DrestException::handleAnnotationDoesntMatchRouteName($route['name']);
+            }
+            if ($routeMetaData->hasHandleCall()) {
+                // There is already a handle set for this route
+                throw DrestException::handleAlreadyDefinedForRoute($routeMetaData);
+            }
+
+            // Set the handle
+            if (isset($route['handle_call'])) {
+                $routeMetaData->setHandleCall($route['handle_call']);
             }
         }
     }
@@ -203,11 +193,6 @@ class PhpDriver implements DriverInterface
             // Add action class
             if (isset($route['action'])) {
                 $routeMetaData->setActionClass($route['action']);
-            }
-
-            // Set the handle
-            if (isset($route['handle_call'])) {
-                $routeMetaData->setHandleCall($route['handle_call']);
             }
 
             // If the origin flag is set, set the name on the class meta data

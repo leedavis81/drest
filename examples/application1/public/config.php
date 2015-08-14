@@ -2,7 +2,7 @@
 
 $resources = [];
 
-$resources['\Entities\Profile'] = [
+$resources['Entities\Profile'] = [
     'representations' => ['Json'],
     'routes' => [
         ['name' => 'get_profile', 'routePattern' => '/profile/:id', 'verbs' => ['GET'], 'content' => 'element'],
@@ -11,7 +11,7 @@ $resources['\Entities\Profile'] = [
     ]
 ];
 
-$resources['\Entities\User'] = [
+$resources['Entities\User'] = [
     'representations' => ['Json'],
     'routes' => [
         ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['GET'], 'action' => 'Action\Custom', 'origin' => 'get_user'],
@@ -24,3 +24,5 @@ $resources['\Entities\User'] = [
         ['name' => 'delete_users', 'routePattern' => '/users', 'collection' => 'true', 'verbs' => ['DELETE']]
     ]
 ];
+
+return $resources;

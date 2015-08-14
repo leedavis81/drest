@@ -1,5 +1,5 @@
 <?php
-namespace DrestTests\Entities\NoAnnotation;
+namespace Entities\NoAnnotation;
 
 // uniqueConstraints={@UniqueConstraint(name="api_key_idx", columns={"api_key"})})
 
@@ -68,9 +68,6 @@ class User
         return $this->id;
     }
 
-    /**
-     * @Drest\Handle(for="post_user")
-     */
     public function populatePost(array $data, \DrestCommon\Request\Request $request)
     {
         if (isset($data['email_address'])) {
@@ -142,9 +139,6 @@ class User
         $this->username = $username;
     }
 
-    /**
-     * @Drest\Handle(for="update_user")
-     */
     public function patchUser(array $data)
     {
         if (isset($data['email_address'])) {

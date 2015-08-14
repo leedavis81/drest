@@ -58,7 +58,7 @@ class Configuration
         // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
         // Set the default method for retreiving class metadata.
-        $this->setMetadataDriverClass('\Drest\Mapping\Driver\AnnotationDriver');
+        $this->setMetadataDriverClass('\Drest\Mapping\Driver\PhpDriver');
         // register the default request adapter classes
         $this->_attributes['requestAdapterClasses'] = [];
         $this->registerRequestAdapterClasses(Request::$defaultAdapterClasses);
@@ -94,6 +94,7 @@ class Configuration
     /**
      * Get an attribute from the driver configuration
      * @param string $attribute
+     * @return string $this->_attributes[$attribute]
      */
     public function getAttribute($attribute) {
         if(isset($this->_attributes[$attribute])) {

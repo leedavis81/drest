@@ -17,188 +17,35 @@ use Symfony\Component\Yaml\Exception\ParseException;
 class YamlDriver extends PhpDriver
 {
 
-    public function __construct()
+    public function __construct($paths, $yaml)
     {
-        $yaml = new Parser();
-        $filename = self::$configuration_filepath . '\\' . self::$configuration_filename;
-        echo $filename;
-        try 
-        {
-            $this->classes = $yaml->parse(file_get_contents($filename));
-        } catch (ParseException $e) {
-            printf("Unable to parse the YAML string: %s", $e->getMessage());
-        }
-    }
+        parent::__construct($paths);
+        $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
 
-    /**
-     * 
-     */
-    public static function register(Configuration $config) {
-        $configuration_filepath = $config->getAttribute('configFilePath');
-        $configuration_filename = $config->getAttribute('configFileName');
+        if(!file_exists($filename)) {
+            throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
+        } 
 
-        if($configuration_filepath != null) {
-            self::$configuration_filepath = $configuration_filepath;
-            self::$configuration_filename = $configuration_filename;
-        } else {
-            throw new \RuntimeException('You must set a configuration file path in index.php.');
+        $parsed = $yaml->parse(file_get_contents($filename));
+
+        if($parsed == false) {
+            throw new \RuntimeException('The configuration file does not have valid YAML: ' . $filename);
         }
+
+        $this->classes = $parsed;
+        
     }
 
     /**
      * Factory method for the Annotation Driver
      *
-     * @param  Annotations\AnnotationReader $reader
-     * @param  array|string                 $paths
-     * @return AnnotationDriver
+     * @param  array|string $paths
+     * @return YamlDriver
      */
     public static function create($paths = [])
     {
-        return new self($paths);
+        $yaml = new Parser();
+        return new self($paths, $yaml);
     }
 
-    /**
-     * Get all the metadata class names known to this driver.
-     * @throws DrestException
-     * @return array          $classes
-     */
-    public function getAllClassNames()
-    {
-        $this->classNames = array_keys($this->classes);
-
-        return $this->classNames;
-    }
-
-    /**
-     * Load metadata for a class name
-     * @param  object|string         $class - Pass in either the class name, or an instance of that class
-     * @return Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
-     * @throws DrestException
-     */
-    public function loadMetadataForClass($class)
-    {
-        if (is_string($class)) {
-            $metadata = new Mapping\ClassMetaData(new \ReflectionClass($class));
-        } else {
-            $metadata = new Mapping\ClassMetaData($class);
-        }
-
-        $resource = $this->classes[$class];
-
-        if ($resource['routes'] === null) {
-            throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($resource['name']);
-        }
-
-        if (is_array($resource['representations']))
-        {
-            $metadata->addRepresentations($resource['representations']);
-        }
-
-        $this->processRoutes($resource['routes'], $metadata);
-
-        $this->processMethods($resource, $metadata);
-
-
-        // Error for any push metadata routes that don't have a handle
-        foreach ($metadata->getRoutesMetaData() as $routeMetaData) {
-            /* @var RouteMetaData $routeMetaData */
-            if ($routeMetaData->needsHandleCall() && !$routeMetaData->hasHandleCall()) {
-                throw DrestException::routeRequiresHandle($routeMetaData->getName());
-            }
-        }
-
-        return $metadata;
-    }
-
-
-    /**
-     * Process the method
-     * @param $methods
-     * @param Mapping\ClassMetaData $metadata
-     * @throws DrestException
-     */
-    protected function processMethods($resource, Mapping\ClassMetaData $metadata)
-    {
-        /* @var \ReflectionMethod $method */
-        foreach ($resource['routes'] as $route) {
-            // Make sure the for is not empty
-            if (empty($route['name']) || !is_string($route['name'])) {
-                throw DrestException::handleForCannotBeEmpty();
-            }
-            if (($routeMetaData = $metadata->getRouteMetaData($route['name'])) === false) {
-                throw DrestException::handleAnnotationDoesntMatchRouteName($route['name']);
-            }
-        }
-    }
-
-    /**
-     * Process all routes defined
-     * @param array $routes
-     * @param Mapping\ClassMetaData $metadata
-     * @throws DrestException
-     */
-    protected function processRoutes(array $routes, Mapping\ClassMetaData $metadata)
-    {
-        $originFound = false;
-        foreach ($routes as $route) {
-            $routeMetaData = new Mapping\RouteMetaData();
-
-            // Set name
-            $route['name'] = preg_replace("/[^a-zA-Z0-9_\s]/", "", $route['name']);
-            if ($route['name'] == '') {
-                throw DrestException::routeNameIsEmpty();
-            }
-            if ($metadata->getRouteMetaData($route['name']) !== false) {
-                throw DrestException::routeAlreadyDefinedWithName($metadata->getClassName(), $route['name']);
-            }
-            $routeMetaData->setName($route['name']);
-
-            // Set verbs (will throw if invalid)
-            if (isset($route['verbs'])) {
-                $routeMetaData->setVerbs($route['verbs']);
-            }
-
-            if (isset($route['collection'])) {
-                $routeMetaData->setCollection($route['collection']);
-            }
-
-            // Add the route pattern
-            $routeMetaData->setRoutePattern($route['routePattern']);
-
-            if (isset($route['routeConditions']) && is_array($route['routeConditions'])) {
-                $routeMetaData->setRouteConditions($route['routeConditions']);
-            }
-
-            // Set the exposure array
-            if (isset($route['expose']) && is_array($route['expose'])) {
-                $routeMetaData->setExpose($route['expose']);
-            }
-
-            // Set the allow options value
-            if (isset($route['allowOptions'])) {
-                $routeMetaData->setAllowedOptionRequest($route['allowOptions']);
-            }
-
-            // Add action class
-            if (isset($route['action'])) {
-                $routeMetaData->setActionClass($route['action']);
-            }
-
-            // Set the handle
-            if (isset($route['handle_call'])) {
-                $routeMetaData->setHandleCall($route['handle_call']);
-            }
-
-            // If the origin flag is set, set the name on the class meta data
-            if (isset($route['origin']) && !is_null($route['origin'])) {
-                if ($originFound) {
-                    throw DrestException::resourceCanOnlyHaveOneRouteSetAsOrigin();
-                }
-                $metadata->originRouteName = $route['name'];
-                $originFound = true;
-            }
-
-            $metadata->addRouteMetaData($routeMetaData);
-        }
-    }
 }

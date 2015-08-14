@@ -6,7 +6,7 @@ use Drest\Configuration;
 use Drest\Mapping\ClassMetaData;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\Driver\PhpDriver;
-use DrestCommon\Representation\Json;
+use DrestTests\DrestTestCase;
 
 class PhpDriverTest extends \PHPUnit_Framework_TestCase
 {
@@ -14,278 +14,211 @@ class PhpDriverTest extends \PHPUnit_Framework_TestCase
     // test register function with null config file
     public function testRegisterWithNoConfig() {
         $this->setExpectedException('RuntimeException');
+
         $configuration = new Configuration();
+
         PhpDriver::register($configuration);
+        PhpDriver::create();
     }
 
     // test register function with a non-existing directory for the configuration file
     public function testRegisterDirNotExists() {
+        $this->setExpectedException('RuntimeException');
+
         $configuration = new Configuration();
         $configuration->setAttribute('configFilePath', '/BadConfigFiles');
-        PhpDriver::register($configuration);     
+
+        PhpDriver::register($configuration);
+        PhpDriver::create();     
     }
 
     // ensuring that the configuration file exists
     public function testRegisterFileNotExists() {
+        $this->setExpectedException('RuntimeException');
+
         $configuration = new Configuration();
         $configuration->setAttribute('configFilePath', __DIR__);
         $configuration->setAttribute('configFileName', 'doesnotexist.php');
+
         PhpDriver::register($configuration);
+        PhpDriver::create();
     }
 
+    // testing if configuration file used  is invalid
     public function testRegisterFileInvalid() {
-        $this->setExpectedException('RuntimeException');
-        $configuration = new Configuration();
-        PhpDriver::register($configuration);
-        $configuration->setAttribute('configFilePath', '$');
-    }
-
-    public function testRegisterFileValid() {
-        $configFilePath = '../ConfigFiles/';
-        $configFileName = '../ConfigFiles/config.php';
-        $configuration = new Configuration();
-        $configuration->setAttribute('configFilePath', $configFilePath);
-        $configuration->setAttribute('configFileName', $configFileName);
-        PhpDriver::register($configuration);
-    }
-
-    /* Below are the tests ported over from AnnotationDriver. */
-
-    // Adding a representation to the config
-    public function testMetaDataCanAddRepresentation()
-    {
-        include($this->createGoodTmpFile());
-        if(in_array('representations', $resources['\Entities\User']) && !in_array('Json', $resources['\Entities\User']['representations'])) {
-            array_push($resources['\Entities\User']['representations'], 'Json');
-        }
-        $this->assertContains('Json', $resources['\Entities\User']['representations']);
-    }
-
-    /**
-     * @expectedException \DrestCommon\Representation\RepresentationException
-     */
-    public function testMetadataInvalidRepresentationObject()
-    {
-        $this->setExpectedException('\DrestCommon\Representation\RepresentationException');
-        $className = 'DrestTests\\Entities\\NoAnnotation\\User';
-        $cmd = new ClassMetaData(new \ReflectionClass($className));
-
-        $rep = new \StdClass();
-        $cmd->addRepresentation($rep);
-    }
-
-    /**
-     * @expectedException \DrestCommon\Representation\RepresentationException
-     */
-    public function testMetadataRepresentationCanNotBeAnArray()
-    {
-        $this->setExpectedException('\DrestCommon\Representation\RepresentationException');
-        $className = 'DrestTests\\Entities\\NoAnnotation\\User';
-        $cmd = new ClassMetaData(new \ReflectionClass($className));
-
-        $rep = array('a', 'b');
-        $cmd->addRepresentation($rep);
-    }
-
-    /**
-     * @expectedException \DrestCommon\Representation\RepresentationException
-     */
-    public function testMetadataRepresentationCanNotBeAnInteger()
-    {
-        $this->setExpectedException('\DrestCommon\Representation\RepresentationException');
-        $className = 'DrestTests\\Entities\\NoAnnotation\\User';
-        $cmd = new ClassMetaData(new \ReflectionClass($className));
-
-        $rep = 1;
-        $cmd->addRepresentation($rep);
-    }
-
-
-    public function testMetadataResourceRequiresAtLeastOneServiceDefinition()
-    {
         $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
 <?php
-
-\$resources = [];
-
-\$resources['\Entities\User'] = [
-    'representations' => ['Json'],
-    'routes' => [
-    ]
-];
+\$resources = null;
+return \$resources;
 HEREDOC;
-        $tmp = $this->createCustomTmpFile($file_contents);
-        $metadataFactory = new MetadataFactory(
-            \Drest\Mapping\Driver\PhpDriver::create(
-                array($tmp)
-            )
-        );
-        $metadataFactory->getMetadataForClass($tmp);
         
+        $tmp = $this->createCustomTmpFile($file_contents);
+       
+        $this->registerTmpFile($tmp);
+        
+        PhpDriver::create();
     }
 
+    // testing if configuration file being used is valid
+    public function testRegisterFileValid() {
+        $tmp = $this->createGoodTmpFile();
+        
+        $this->registerTmpFile($tmp);
+
+        $instance = PhpDriver::create([__DIR__ . '/../Entities/NoAnnotation']);
+
+        $classes = $instance->getAllClassNames();
+
+        $this->assertSame($classes, ['Entities\NoAnnotation\User']);
+    }
+
+    // test loading metadata from an empty class (resources['\Entities\NoAnnotation\User'] is empty)
     public function testUnableToLoadMetaDataFromClass()
     {
         $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
 <?php
-
 \$resources = [];
-
-\$resources['\Entities\User'] = [
-    
+\$resources['Entities\NoAnnotation\User'] = [];
+return \$resources;
 HEREDOC;
-        $tmp = $this->createCustomTmpFile($file_contents);
+        $tmp = $this->createCustomTmpFile('Entities\NoAnnotation\User');
+
+        $this->registerTmpFile($tmp);
+
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array($tmp)
+                [__DIR__ . '/../Entities/NoAnnotation']
             )
         );
-        $metadataFactory->getMetadataForClass($tmp);
+
+        $className = 'Entities\NoAnnotation\User';
+        $metadataFactory->getMetadataForClass($className);
         
     }
 
     public function testDuplicatedRouteName()
     {
-        $this->setExpectedException('RuntimeException');
+        $this->setExpectedException('Drest\DrestException');
 $file_contents = <<<HEREDOC
 <?php
-
 \$resources = [];
-\$resources['\Entities\User'] = [
+\$resources['Entities\NoAnnotation\User'] = [
     'representations' => ['Json'],
     'routes' => [
         ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['GET'], 'action' => 'Action\Custom'],
         ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['GET'], 'action' => 'Action\Custom'],
     ]
 ];
+return \$resources;
 HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
+
+        $this->registerTmpFile($tmp);
+
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array($tmp)
+                [__DIR__ . '/../Entities/NoAnnotation']
             )
         );
-        $metadataFactory->getMetadataForClass($tmp);
+
+        $className = 'Entities\NoAnnotation\User';
+        $metadataFactory->getMetadataForClass($className);
         
     }
 
     public function testInvalidVerbUsed()
     {
-        $this->setExpectedException('RuntimeException');
+        $this->setExpectedException('Drest\DrestException');
 $file_contents = <<<HEREDOC
 <?php
-
 \$resources = [];
-\$resources['\Entities\User'] = [
+\$resources['Entities\NoAnnotation\User'] = [
     'representations' => ['Json'],
     'routes' => [
         ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['DANCE'], 'action' => 'Action\Custom'],
     ]
 ];
+return \$resources;
 HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
+
+        $this->registerTmpFile($tmp);
+
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array($tmp)
+                [__DIR__ . '/../Entities/NoAnnotation']
             )
         );
-        $metadataFactory->getMetadataForClass($tmp);
-        
+
+        $className = 'Entities\NoAnnotation\User';
+        $metadataFactory->getMetadataForClass($className);
     }
 
     public function testEmptyRouteName()
     {
-
-$this->setExpectedException('RuntimeException');
+        $this->setExpectedException('Drest\DrestException');
 $file_contents = <<<HEREDOC
 <?php
-
 \$resources = [];
-\$resources['\Entities\User'] = [
+\$resources['Entities\NoAnnotation\User'] = [
     'representations' => ['Json'],
     'routes' => [
         ['name' => '', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['DANCE'], 'action' => 'Action\Custom'],
     ]
 ];
+return \$resources;
 HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
+
+        $this->registerTmpFile($tmp);
+
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array($tmp)
+                [__DIR__ . '/../Entities/NoAnnotation']
             )
         );
-        $metadataFactory->getMetadataForClass($tmp);
-        
-    }
 
-    public function testHandleAlreadyDefined()
-    {
-
-$this->setExpectedException('RuntimeException');
-$file_contents = <<<HEREDOC
-<?php
-
-\$resources = [];
-\$resources['\Entities\User'] = [
-    'representations' => ['Json'],
-    'routes' => [
-        ['name' => 'post_user', 'routePattern' => '/user', 'verbs' => ['POST'], 'expose' => ['username', 'email_address', 'profile' => ['firstname', 'lastname'], 'phone_numbers' => ['number']], 'handle_call' => 'populatePost'],
-        ['name' => 'update_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['PUT', 'PATCH'], 'expose' => ['email_address', 'profile' => ['firstname', 'lastname']], 'handle_call' => 'populatePost'],
-    ]
-];
-HEREDOC;
-        $tmp = $this->createCustomTmpFile($file_contents);
-        $metadataFactory = new MetadataFactory(
-            \Drest\Mapping\Driver\PhpDriver::create(
-                array($tmp)
-            )
-        );
-        $metadataFactory->getMetadataForClass($tmp);
-        
-    }
-
-    public function testGetDefaultOriginRoute()
-    {
-        include($this->createGoodTmpFile());
-        $route = $resources['\Entities\User']['routes'][0];
-        $this->assertEquals('get_user', $route['origin']);
+        $className = 'Entities\NoAnnotation\User';
+        $metadataFactory->getMetadataForClass($className);
     }
 
     public function testNoRepresentationIsAllowed()
     {
-        $this->setExpectedException('RuntimeException');
 $file_contents = <<<HEREDOC
 <?php
-
 \$resources = [];
-\$resources['\Entities\User'] = [
+\$resources['Entities\NoAnnotation\User'] = [
+    'representations' => [],
     'routes' => [
-        ['name' => 'post_user', 'routePattern' => '/user', 'verbs' => ['POST'], 'expose' => ['username', 'email_address', 'profile' => ['firstname', 'lastname'], 'phone_numbers' => ['number']], 'handle_call' => 'populatePost'],
-        ['name' => 'update_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['PUT', 'PATCH'], 'expose' => ['email_address', 'profile' => ['firstname', 'lastname']], 'handle_call' => 'populatePost'],
+        ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['GET'], 'action' => 'Action\Custom'],
+        ['name' => 'post_user', 'routePattern' => '/user', 'verbs' => ['POST'], 'expose' => ['username', 'email_address', 'profile' => ['firstname', 'lastname'], 'phone_numbers' => ['number']], 'handle_call' => 'populatePost']
     ]
 ];
+return \$resources;
 HEREDOC;
         $tmp = $this->createCustomTmpFile($file_contents);
+
+        $this->registerTmpFile($tmp);
+
         $metadataFactory = new MetadataFactory(
             \Drest\Mapping\Driver\PhpDriver::create(
-                array($tmp)
+                [__DIR__ . '/../Entities/NoAnnotation']
             )
         );
-        $cmd = $metadataFactory->getMetadataForClass($tmp);
+
+        $className = 'Entities\NoAnnotation\User';
+        $cmd = $metadataFactory->getMetadataForClass($className);
 
         $this->assertEmpty($cmd->getRepresentations());
-
     }
 
     public function createGoodTmpFile() {
 $file_contents = <<<HEREDOC
 <?php
-
 \$resources = [];
-
-\$resources['\Entities\User'] = [
+\$resources['Entities\NoAnnotation\User'] = [
     'representations' => ['Json'],
     'routes' => [
         ['name' => 'get_user', 'routePattern' => '/user/:id', 'routeConditions' => ['id' => '\d+'], 'verbs' => ['GET'], 'action' => 'Action\Custom', 'origin' => 'get_user'],
@@ -298,6 +231,7 @@ $file_contents = <<<HEREDOC
         ['name' => 'delete_users', 'routePattern' => '/users', 'collection' => 'true', 'verbs' => ['DELETE']]
     ]
 ];
+return \$resources;
 HEREDOC;
         $tmp = tempnam(sys_get_temp_dir(), 'tmp');
         file_put_contents($tmp, $file_contents);
@@ -305,10 +239,20 @@ HEREDOC;
     }
 
     public function createCustomTmpFile($file_contents) {
-
         $tmp = tempnam(sys_get_temp_dir(), 'tmp');
         file_put_contents($tmp, $file_contents);
         return $tmp;
+    }
+
+    /**
+     * Registers a custom temporary file
+     * @param temporary file $tmp
+     */
+    public function registerTmpFile($tmp) {
+        $configuration = new Configuration();
+        $configuration->setAttribute('configFilePath', sys_get_temp_dir());
+        $configuration->setAttribute('configFileName', basename($tmp));
+        PhpDriver::register($configuration);
     }
 
 }
