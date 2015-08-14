@@ -19,8 +19,9 @@ class YamlDriver extends PhpDriver
 
     public function __construct($paths, $yaml)
     {
-        parent::__construct($paths);
         $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
+
+        parent::__construct($paths, $filename);
 
         if(!file_exists($filename)) {
             throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);

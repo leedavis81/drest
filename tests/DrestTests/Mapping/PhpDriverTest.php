@@ -234,14 +234,14 @@ $file_contents = <<<HEREDOC
 return \$resources;
 HEREDOC;
         $tmp = tempnam(sys_get_temp_dir(), 'tmp');
-        file_put_contents($tmp, $file_contents);
-        return $tmp;
+        file_put_contents($tmp . '.php', $file_contents);
+        return $tmp . '.php';
     }
 
     public function createCustomTmpFile($file_contents) {
         $tmp = tempnam(sys_get_temp_dir(), 'tmp');
-        file_put_contents($tmp, $file_contents);
-        return $tmp;
+        file_put_contents($tmp . '.php', $file_contents);
+        return $tmp . '.php';
     }
 
     /**
@@ -253,6 +253,11 @@ HEREDOC;
         $configuration->setAttribute('configFilePath', sys_get_temp_dir());
         $configuration->setAttribute('configFileName', basename($tmp));
         PhpDriver::register($configuration);
+    }
+
+    public function replaceExtension($file) {
+        $file_info = pathinfo($file);
+        return $file_info['filename'] . '.php';
     }
 
 }
