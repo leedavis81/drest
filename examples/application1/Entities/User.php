@@ -15,6 +15,26 @@ use DrestCommon\Request\Request;
 
 /**
  * User
+ *
+ * @Drest\Resource(
+ *      representations={"Json"},
+ *      routes={
+ *          @Drest\Route(
+ *              name="get_user",
+ *              routePattern="/user/:id",
+ *              routeConditions={"id": "\d+"},
+ *              verbs={"GET"},
+ *              action="Action\Custom"
+ *          ),
+ *          @Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
+ *          @Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),
+ *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}, expose={"username", "email_address", "profile" : {"firstname", "lastname"}, "phone_numbers" : {"number"}}),
+ *          @Drest\Route(name="get_users", routePattern="/users", verbs={"GET"}, collection=true, expose={"username", "email_address", "profile", "phone_numbers"}),
+ *          @Drest\Route(name="update_user", routePattern="/user/:id", verbs={"PUT", "PATCH"}, expose={"username", "email_address", "profile" : {"firstname", "lastname"}}),
+ *          @Drest\Route(name="delete_user", routePattern="/user/:id", verbs={"DELETE"}),
+ *          @Drest\Route(name="delete_users", routePattern="/users", collection=true, verbs={"DELETE"})
+ *      }
+ * )
  * @ORM\Table(name="user")
  * @ORM\Entity
  */
@@ -100,7 +120,6 @@ class User
      */
     public function patchUser(array $data)
     {
-        print_r($data);
         $this->username = $data['username'];
     }
 

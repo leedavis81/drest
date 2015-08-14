@@ -29,7 +29,7 @@ class PhpDriver extends AbstractDriver
         parent::__construct($paths);
 
         $file_parts = pathinfo($filename);
-        
+
         if($file_parts['extension'] == 'php') {
 
             if(!file_exists($filename)) { 

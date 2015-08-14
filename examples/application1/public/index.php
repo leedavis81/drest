@@ -48,8 +48,6 @@ $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'e
 $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 $drestConfig->setDebugMode(true);
 $drestConfig->addPathsToConfigFiles($pathToEntities);
-$drestConfig->setAttribute('configFilePath', __DIR__);
-$drestConfig->setAttribute('configFileName', 'config.php');
 
 // Set up event manager
 $evm = new Event\Manager();
@@ -58,14 +56,6 @@ $evm = new Event\Manager();
 
 $emr = \Drest\EntityManagerRegistry::getSimpleManagerRegistry($em);
 $drestManager = \Drest\Manager::create($emr, $drestConfig, $evm);
-?>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script>
-
-</script>
-
-<?php
 
 echo $drestManager->dispatch();
 

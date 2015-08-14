@@ -6,7 +6,6 @@ use Drest\Configuration;
 use Drest\Mapping\ClassMetaData;
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\Driver\PhpDriver;
-use DrestTests\DrestTestCase;
 
 class PhpDriverTest extends \PHPUnit_Framework_TestCase
 {
@@ -80,10 +79,9 @@ HEREDOC;
 $file_contents = <<<HEREDOC
 <?php
 \$resources = [];
-\$resources['Entities\NoAnnotation\User'] = [];
 return \$resources;
 HEREDOC;
-        $tmp = $this->createCustomTmpFile('Entities\NoAnnotation\User');
+        $tmp = $this->createCustomTmpFile($file_contents);
 
         $this->registerTmpFile($tmp);
 
@@ -253,11 +251,6 @@ HEREDOC;
         $configuration->setAttribute('configFilePath', sys_get_temp_dir());
         $configuration->setAttribute('configFileName', basename($tmp));
         PhpDriver::register($configuration);
-    }
-
-    public function replaceExtension($file) {
-        $file_info = pathinfo($file);
-        return $file_info['filename'] . '.php';
     }
 
 }

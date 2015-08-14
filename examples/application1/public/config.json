@@ -1,7 +1,7 @@
 {
     "resources": [
         {
-            "entity": "\\Entities\\Profile",
+            "entity": "Entities\\Profile",
             "representations": [
                 "Json"
             ],
@@ -34,7 +34,7 @@
             ]
         },
         {
-            "entity": "\\Entities\\User",
+            "entity": "Entities\\User",
             "representations": [
                 "Json"
             ],
@@ -42,11 +42,9 @@
                 {
                     "name": "get_user",
                     "routePattern": "/user/:id",
-                    "routeConditions": [
-                        {
-                            "id": "\\d+"
-                        }
-                    ],
+                    "routeConditions": {
+                        "id": "\\d+"
+                    },
                     "verbs": [
                         "GET"
                     ],

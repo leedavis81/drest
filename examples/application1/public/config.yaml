@@ -1,5 +1,5 @@
 --- resources
-\Entities\Profile:
+Entities\Profile:
     representations: 
         - Json
     routes:
@@ -19,14 +19,14 @@
           verbs: 
               - GET
           content: collection
-\Entities\User:
+Entities\User:
     representations: 
         - Json
     routes:
         - name: get_user
           routePattern: /user/:id
           routeConditions:
-            - id: \d+
+            id: \d+
           verbs:
             - GET
           action: Action\Custom
