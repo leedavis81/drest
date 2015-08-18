@@ -27,8 +27,8 @@ $ormConfig->setAutoGenerateProxyClasses(true);
 
 $em = \Doctrine\ORM\EntityManager::create(array(
     'host' => 'localhost',
-    'user' => 'root',
-    'password' => 'dkj32p3m',
+    'user' => 'developer',
+    'password' => 'developer',
     'dbname' => 'drest',
     'driver' => 'pdo_mysql'
 ), $ormConfig);
