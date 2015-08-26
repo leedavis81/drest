@@ -24,9 +24,11 @@ class PhpDriver extends AbstractDriver
      */
     protected $classes = [];
 
-    public function __construct($paths, $filename)
+    public function __construct($paths)
     {
         parent::__construct($paths);
+
+        $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
 
         $file_parts = pathinfo($filename);
 

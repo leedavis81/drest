@@ -18,7 +18,7 @@ class JsonDriver extends PhpDriver
 
     public function __construct($paths)
     {
-        parent::__construct($paths, self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename);
+        parent::__construct($paths);
 
         $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
         
@@ -36,10 +36,9 @@ class JsonDriver extends PhpDriver
 
         $entities = [];
         foreach($json['resources'] as $resource) {
-            $tmp = $resource;
             $entity = $resource['entity'];
-            unset($tmp['entity']);
-            $entities[$entity] = $tmp;
+            $entities[$entity] = $resource;
+            unset($entities[$entity]['entity']);
         }
         $this->classes = $entities;
     }

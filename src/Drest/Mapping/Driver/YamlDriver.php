@@ -19,7 +19,7 @@ class YamlDriver extends PhpDriver
 
     public function __construct($paths, $yaml)
     {
-        parent::__construct($paths, self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename);
+        parent::__construct($paths);
 
         $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
 

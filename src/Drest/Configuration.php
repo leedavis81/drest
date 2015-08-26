@@ -85,7 +85,8 @@ class Configuration
 
     /**
      * Set an attribute for the driver configuration 
-     * @param string $attribute, string $value
+     * @param string $attribute
+     * @param string $value
      */
     public function setAttribute($attribute, $value) {
         $this->_attributes[$attribute] = $value;

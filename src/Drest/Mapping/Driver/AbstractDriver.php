@@ -13,8 +13,6 @@ abstract class AbstractDriver implements DriverInterface {
      */
     protected $paths;
 
-    private $reader;
-
     /**
      * Extensions of the files to read
      * @var array $paths
