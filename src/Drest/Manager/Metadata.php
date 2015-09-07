@@ -12,9 +12,7 @@
  */
 namespace Drest\Manager;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Drest\Mapping\MetadataFactory;
-use Drest\Mapping\Driver\AnnotationDriver;
 use Drest\Configuration;
 use Drest\Router;
 
@@ -28,8 +26,8 @@ class Metadata
     protected $metadataFactory;
 
     /**
-     * Annotation Driver being used
-     * @var AnnotationDriver $metaDataDriver
+     * Mapping Driver being used
+     * @var DriverInterface $metaDataDriver
      */
     protected $metaDataDriver;
 
@@ -39,8 +37,9 @@ class Metadata
      */
     public function __construct(Configuration $config)
     {
-        $this->metaDataDriver = AnnotationDriver::create(
-            new AnnotationReader(),
+        $driver = $config->getMetadataDriverClass();
+
+        $this->metaDataDriver = $driver::create(
             $config->getPathsToConfigFiles()
         );
 

@@ -3,6 +3,7 @@
 namespace Drest\Mapping\Driver;
 
 use Doctrine\Common\Annotations;
+use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
@@ -308,13 +309,18 @@ class AnnotationDriver implements DriverInterface
      * @param  array|string                 $paths
      * @return AnnotationDriver
      */
-    public static function create(Annotations\AnnotationReader $reader = null, $paths = [])
+    public static function create($paths = [])
     {
-        if ($reader == null) {
-            $reader = new Annotations\AnnotationReader();
-        }
+        $reader = new Annotations\AnnotationReader();
 
         return new self($reader, (array) $paths);
+    }
+
+    /**
+     * Driver registration template method.
+     */
+    public static function register(Configuration $config) {
+        self::registerAnnotations();
     }
 
     /**

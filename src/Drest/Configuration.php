@@ -19,7 +19,6 @@ use DrestCommon\Response\Response;
 
 class Configuration
 {
-
     const DETECT_CONTENT_HEADER = 1;
     const DETECT_CONTENT_EXTENSION = 2;
     const DETECT_CONTENT_PARAM = 3;
@@ -58,6 +57,8 @@ class Configuration
         // Use Json and XML as the default representations
         // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
+        // Set the default method for retreiving class metadata.
+        $this->setMetadataDriverClass('\Drest\Mapping\Driver\AnnotationDriver');
         // register the default request adapter classes
         $this->_attributes['requestAdapterClasses'] = [];
         $this->registerRequestAdapterClasses(Request::$defaultAdapterClasses);
@@ -102,6 +103,24 @@ class Configuration
     {
         $this->_attributes['defaultRepresentations'] = $representations;
     }
+
+    /**
+     * Sets the class name of the metadata driver for instantiation.
+     *
+     * @param string $driver
+     */
+    public function setMetadataDriverClass($driver) {
+        $this->_attributes['metaDataDriver'] = $driver;
+    }
+
+    /**
+     * Returns the class name of the metadata driver.
+     * @return string The namespaced class name.
+     */
+    public function getMetadataDriverClass() {
+        return $this->_attributes['metaDataDriver'];
+    }
+
 
     /**
      * Register an array of request adapter classes
