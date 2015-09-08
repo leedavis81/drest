@@ -15,8 +15,8 @@ use Drest\Mapping\RouteMetaData;
 class PhpDriver extends AbstractDriver
 {
 
-    static $configuration_filepath = null;
-    static $configuration_filename = null;
+    protected static $configuration_filepath = null;
+    protected static $configuration_filename = null;
 
     /**
      * The classes (resources) from config.php 

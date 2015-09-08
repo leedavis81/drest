@@ -20,6 +20,12 @@ abstract class AbstractDriver implements DriverInterface {
     protected $extensions = [];
 
     /**
+     * The array of class names.
+     * @var array
+     */
+    protected $classNames = [];
+
+    /**
      * Load metadata for the given class name
      * @param string $className
      * @return \Drest\Mapping\ClassMetadata
