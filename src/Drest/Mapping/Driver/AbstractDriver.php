@@ -93,7 +93,7 @@ abstract class AbstractDriver implements DriverInterface {
 
     /**
      * Check handle calls.
-     * @param array $routeMetaData
+     * @param array $routeMetaDataArray
      */
     public function checkHandleCalls($routeMetaDataArray) {
         // Error for any push metadata routes that don't have a handle
