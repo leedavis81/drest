@@ -128,7 +128,6 @@ class AnnotationDriver extends AbstractDriver
     /**
      * Factory method for the Annotation Driver
      *
-     * @param  Annotations\AnnotationReader $reader
      * @param  array|string                 $paths
      * @return AnnotationDriver
      */
@@ -142,7 +141,7 @@ class AnnotationDriver extends AbstractDriver
     /**
      * Driver registration template method.
      */
-    public static function register(Configuration $config) {
+    public static function register() {
         self::registerAnnotations();
     }
 
