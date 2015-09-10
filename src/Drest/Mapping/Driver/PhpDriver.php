@@ -59,7 +59,6 @@ class PhpDriver extends AbstractDriver
     /**
      * Factory method for the Annotation Driver
      *
-     * @param  Annotations\AnnotationReader $reader
      * @param  array|string                 $paths
      * @return AnnotationDriver
      */
@@ -147,72 +146,6 @@ class PhpDriver extends AbstractDriver
             if (isset($route['handle_call'])) {
                 $routeMetaData->setHandleCall($route['handle_call']);
             }
-        }
-    }
-
-    /**
-     * Process all routes defined
-     * @param array $routes
-     * @param Mapping\ClassMetaData $metadata
-     * @throws DrestException
-     */
-    protected function processRoutes(array $routes, Mapping\ClassMetaData $metadata)
-    {
-        $originFound = false;
-        foreach ($routes as $route) {
-            $routeMetaData = new Mapping\RouteMetaData();
-
-            // Set name
-            $route['name'] = preg_replace("/[^a-zA-Z0-9_\s]/", "", $route['name']);
-            if ($route['name'] == '') {
-                throw DrestException::routeNameIsEmpty();
-            }
-            if ($metadata->getRouteMetaData($route['name']) !== false) {
-                throw DrestException::routeAlreadyDefinedWithName($metadata->getClassName(), $route['name']);
-            }
-            $routeMetaData->setName($route['name']);
-
-            // Set verbs (will throw if invalid)
-            if (isset($route['verbs'])) {
-                $routeMetaData->setVerbs($route['verbs']);
-            }
-
-            if (isset($route['collection'])) {
-                $routeMetaData->setCollection($route['collection']);
-            }
-
-            // Add the route pattern
-            $routeMetaData->setRoutePattern($route['routePattern']);
-
-            if (isset($route['routeConditions']) && is_array($route['routeConditions'])) {
-                $routeMetaData->setRouteConditions($route['routeConditions']);
-            }
-
-            // Set the exposure array
-            if (isset($route['expose']) && is_array($route['expose'])) {
-                $routeMetaData->setExpose($route['expose']);
-            }
-
-            // Set the allow options value
-            if (isset($route['allowOptions'])) {
-                $routeMetaData->setAllowedOptionRequest($route['allowOptions']);
-            }
-
-            // Add action class
-            if (isset($route['action'])) {
-                $routeMetaData->setActionClass($route['action']);
-            }
-
-            // If the origin flag is set, set the name on the class meta data
-            if (isset($route['origin']) && !is_null($route['origin'])) {
-                if ($originFound) {
-                    throw DrestException::resourceCanOnlyHaveOneRouteSetAsOrigin();
-                }
-                $metadata->originRouteName = $route['name'];
-                $originFound = true;
-            }
-
-            $metadata->addRouteMetaData($routeMetaData);
         }
     }
 }

@@ -21,8 +21,6 @@ class JsonDriver extends PhpDriver
         parent::__construct($paths);
 
         $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
-        
-        $json = null;
 
         if(!file_exists($filename)) { 
             throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
