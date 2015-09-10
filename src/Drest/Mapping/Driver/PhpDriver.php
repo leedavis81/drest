@@ -67,7 +67,7 @@ class PhpDriver extends AbstractDriver
         if(static::$configuration_filepath == null || static::$configuration_filename == null) {
             throw new \RuntimeException('Configuration file path or file name is not set.');
         }
-        return new static($paths, static::$configuration_filepath . DIRECTORY_SEPARATOR . static::$configuration_filename);
+        return new static($paths);
     }
 
     /**
@@ -103,13 +103,8 @@ class PhpDriver extends AbstractDriver
 
         $this->processMethods($resource, $metadata);
 
-        // Error for any push metadata routes that don't have a handle
-        foreach ($metadata->getRoutesMetaData() as $routeMetaData) {
-            /* @var RouteMetaData $routeMetaData */
-            if ($routeMetaData->needsHandleCall() && !$routeMetaData->hasHandleCall()) {
-                throw DrestException::routeRequiresHandle($routeMetaData->getName());
-            }
-        }
+        $this->checkHandleCalls($metadata->getRoutesMetaData());
+        
         return $metadata;
     }
 

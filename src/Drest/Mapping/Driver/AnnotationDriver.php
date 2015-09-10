@@ -84,14 +84,7 @@ class AnnotationDriver extends AbstractDriver
 
                 $this->processMethods($class->getMethods(), $metadata);
 
-
-                // Error for any push metadata routes that don't have a handle
-                foreach ($metadata->getRoutesMetaData() as $routeMetaData) {
-                    /* @var RouteMetaData $routeMetaData */
-                    if ($routeMetaData->needsHandleCall() && !$routeMetaData->hasHandleCall()) {
-                        throw DrestException::routeRequiresHandle($routeMetaData->getName());
-                    }
-                }
+                $this->checkHandleCalls($metadata->getRoutesMetaData());
 
             }
         }

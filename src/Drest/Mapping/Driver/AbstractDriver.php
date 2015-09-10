@@ -92,6 +92,20 @@ abstract class AbstractDriver implements DriverInterface {
     }
 
     /**
+     * Check handle calls.
+     * @param array $routeMetaData
+     */
+    public function checkHandleCalls($routeMetaDataArray) {
+        // Error for any push metadata routes that don't have a handle
+        foreach ($routeMetaDataArray as $routeMetaData) {
+            /* @var RouteMetaData $routeMetaData */
+            if ($routeMetaData->needsHandleCall() && !$routeMetaData->hasHandleCall()) {
+                throw DrestException::routeRequiresHandle($routeMetaData->getName());
+            }
+        }
+    }
+
+    /**
      * Get paths to annotation classes
      * @return array
      */
