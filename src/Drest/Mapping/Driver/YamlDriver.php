@@ -3,50 +3,62 @@
 namespace Drest\Mapping\Driver;
 
 use Doctrine\Common\Annotations;
-use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
-use Drest\Mapping\RouteMetaData;
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Yaml\Exception\ParseException;
 
 /**
- * The YamlDriver reads a configuration file (config.yaml) rather than utilizing annotations.
+ * The YamlDriver reads a configuration file (config.yaml) rather than annotations.
  */
 class YamlDriver extends PhpDriver
 {
 
-    public function __construct($paths, $yaml)
+    public function __construct($paths)
     {
         parent::__construct($paths);
-
-        $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
-
-        if(!file_exists($filename)) {
-            throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
-        } 
-
-        $parsed = $yaml->parse(file_get_contents($filename));
-
-        if($parsed == false) {
-            throw new \RuntimeException('The configuration file does not have valid YAML: ' . $filename);
-        }
-
-        $this->classes = $parsed;
-        
     }
 
     /**
      * Factory method for the Annotation Driver
      *
      * @param  array|string $paths
-     * @return YamlDriver
+     * @return self
      */
     public static function create($paths = [])
     {
-        $yaml = new Parser();
-        return new self($paths, $yaml);
+        return new self($paths);
     }
 
+    /**
+     * Get all the metadata class names known to this driver.
+     * @return array
+     * @throws DrestException
+     * @throws DriverException
+     */
+    public function getAllClassNames()
+    {
+        if (empty($this->classes)) {
+            if (empty($this->paths)) {
+                throw DrestException::pathToConfigFilesRequired();
+            }
+
+            $yamlParser = new \Symfony\Component\Yaml\Parser();
+            foreach ($this->paths as $path)
+            {
+                if(!file_exists($path)) {
+                    throw DriverException::configurationFileDoesntExist($path);
+                }
+
+                $resources = $yamlParser->parse(file_get_contents($path));
+
+                if($resources === false || empty($resources)) {
+                    throw DriverException::configurationFileIsInvalid('Yaml');
+                }
+
+                $this->classes = array_merge($this->classes, (array) $resources);
+            }
+        }
+
+        return array_keys($this->classes);
+    }
 }

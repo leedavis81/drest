@@ -8,42 +8,39 @@ use Drest\Mapping\Driver\JsonDriver;
 class JsonDriverTest extends \PHPUnit_Framework_TestCase {
 
     // test register function with null config file
-    public function testRegisterWithNoConfig() {
-        $this->setExpectedException('RuntimeException');
-
-        $configuration = new Configuration();
-
-        JsonDriver::register($configuration);
+    public function testEmptyConstruct()
+    {
         JsonDriver::create();
     }
 
-    // test register function with a non-existing directory for the configuration file
-    public function testRegisterDirNotExists() {
-        $this->setExpectedException('RuntimeException');
-
-        $configuration = new Configuration();
-        $configuration->setAttribute('configFilePath', '/BadConfigFiles');
-
-        JsonDriver::register($configuration);
-        JsonDriver::create();     
+    /**
+     * test register function with a non-existing directory for the configuration file
+     * @expectedException \Drest\Mapping\Driver\DriverException
+     */
+    public function testRegisterDirNotExists()
+    {
+        $driver = JsonDriver::create(['/BadConfigFiles']);
+        $driver->getAllClassNames();
     }
 
-    // ensuring that the configuration file exists
-    public function testRegisterFileNotExists() {
-        $this->setExpectedException('RuntimeException');
+    /**
+     * ensuring that the configuration file exists
+     * @expectedException \Drest\Mapping\Driver\DriverException
+     */
+    public function testRegisterFileNotExists()
+    {
 
-        $configuration = new Configuration();
-        $configuration->setAttribute('configFilePath', __DIR__);
-        $configuration->setAttribute('configFileName', 'doesnotexist.json');
-
-        JsonDriver::register($configuration);
-        JsonDriver::create();
+        $driver = JsonDriver::create([__DIR__ . '/doesnotexist.php']);
+        $driver->getAllClassNames();
     }
 
-     // testing if configuration file used  is invalid
-    public function testRegisterFileInvalid() {
-        $this->setExpectedException('RuntimeException');
-$file_contents = <<<HEREDOC
+    /**
+     * testing if configuration file used  is invalid
+     * @expectedException \Drest\Mapping\Driver\DriverException
+     */
+    public function testRegisterFileInvalid()
+    {
+        $file_contents = <<<HEREDOC
 {
     "resources": [
         {
@@ -52,32 +49,27 @@ $file_contents = <<<HEREDOC
     ]
 }
 HEREDOC;
-        
-        $tmp = $this->createCustomTmpFile($file_contents);
-       
-        $this->registerTmpFile($tmp);
-        
-        JsonDriver::create();
+
+        $path = $this->createCustomTmpFile($file_contents);
+        $driver = JsonDriver::create([$path]);
+        $driver->getAllClassNames();
     }
 
     // testing if configuration file being used is valid
-    public function testRegisterFileValid() {
+    public function testRegisterFileValid()
+    {
         $tmp = $this->createGoodTmpFile('json');
-        
-        $this->registerTmpFile($tmp);
-
-        $instance = JsonDriver::create([__DIR__ . '/../Entities/NoAnnotation']);
-
+        $instance = JsonDriver::create([sys_get_temp_dir() . '/' . basename($tmp)]);
         $classes = $instance->getAllClassNames();
-
-        $this->assertSame($classes, ['Entities\NoAnnotation\User']);
+        $this->assertSame($classes, ['DrestTests\Entities\NoAnnotation\User']);
     }
 
-    public function createGoodTmpFile() {
+    public function createGoodTmpFile()
+    {
         $json = [
             'resources' => [
                 '0' => [
-                    'entity' => 'Entities\NoAnnotation\User',
+                    'entity' => 'DrestTests\Entities\NoAnnotation\User',
                 ]
             ]
         ];
@@ -87,20 +79,10 @@ HEREDOC;
         return $tmp . '.json';
     }
 
-    public function createCustomTmpFile($file_contents) {
+    public function createCustomTmpFile($file_contents)
+    {
         $tmp = tempnam(sys_get_temp_dir(), 'tmp');
         file_put_contents($tmp . '.json', $file_contents);
         return $tmp . '.json';
-    }
-
-    /**
-     * Registers a custom temporary file
-     * @param temporary file $tmp
-     */
-    public function registerTmpFile($tmp) {
-        $configuration = new Configuration();
-        $configuration->setAttribute('configFilePath', sys_get_temp_dir());
-        $configuration->setAttribute('configFileName', basename($tmp));
-        JsonDriver::register($configuration);
     }
 }

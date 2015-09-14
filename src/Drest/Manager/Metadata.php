@@ -12,6 +12,7 @@
  */
 namespace Drest\Manager;
 
+use Drest\DrestException;
 use Drest\Mapping\MetadataFactory;
 use Drest\Configuration;
 use Drest\Router;
@@ -27,7 +28,7 @@ class Metadata
 
     /**
      * Mapping Driver being used
-     * @var DriverInterface $metaDataDriver
+     * @var \Drest\Mapping\Driver\DriverInterface $metaDataDriver
      */
     protected $metaDataDriver;
 
@@ -89,7 +90,8 @@ class Metadata
      */
     public function registerRoutes(Router $router)
     {
-        foreach ($this->getAllClassNames() as $class) {
+        foreach ($this->metaDataDriver->getAllClassNames() as $class)
+        {
             $classMetaData = $this->getMetaDataForClass($class);
             $router->registerRoutes($classMetaData->getRoutesMetaData());
         }

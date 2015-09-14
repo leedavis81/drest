@@ -64,6 +64,7 @@ class Representation
     /**
      * @param Request $request
      * @param RouteMetaData $route
+     * @param EntityManagerRegistry $emr
      * @return AbstractRepresentation
      */
     public function handleExposureSettingsFromHttpMethod($request, $route, EntityManagerRegistry $emr)

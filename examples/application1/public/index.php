@@ -47,7 +47,13 @@ $drestConfig->setExposureDepth(3);
 $drestConfig->setExposeRequestOption(Configuration::EXPOSE_REQUEST_PARAM_GET, 'expose');
 $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 //$drestConfig->setDebugMode(true);
-$drestConfig->addPathsToConfigFiles($pathToEntities);
+
+$drestConfig->setMetadataDriverClass('\Drest\Mapping\Driver\PhpDriver');
+
+$drestConfig->addPathsToConfigFiles([
+    __DIR__ .'/../config/php/user.php',
+    __DIR__ .'/../config/php/profile.php',
+]);
 
 // Set up event manager
 $evm = new Event\Manager();

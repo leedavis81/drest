@@ -1,5 +1,5 @@
 <?php
-namespace Entities\NoAnnotation;
+namespace DrestTests\Entities\NoAnnotation;
 
 // uniqueConstraints={@UniqueConstraint(name="api_key_idx", columns={"api_key"})})
 

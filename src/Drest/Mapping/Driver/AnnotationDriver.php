@@ -23,15 +23,104 @@ class AnnotationDriver extends AbstractDriver
     private $reader;
 
     /**
-     * Loaded class names
+     * Extensions of the files to read
+     * @var array $paths
+     */
+    protected $extensions = [];
+
+    /**
+     * The array of class names.
      * @var array
      */
     protected $classNames = [];
 
+
     public function __construct(Annotations\AnnotationReader $reader, $paths = [])
     {
         parent::__construct($paths);
+
+        $this->addExtension('php');
+
         $this->reader = $reader;
+    }
+
+    /**
+     * Get all the metadata class names known to this driver.
+     * @throws DrestException
+     * @return array          $classes
+     */
+    public function getAllClassNames()
+    {
+        if (empty($this->classNames)) {
+            if (empty($this->paths)) {
+                throw DrestException::pathToConfigFilesRequired();
+            }
+            $classes = [];
+            $included = [];
+            foreach ($this->paths as $path) {
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::LEAVES_ONLY
+                );
+
+                foreach ($iterator as $file) {
+                    /* @var \SplFileInfo $file */
+                    if (!in_array($file->getExtension(), $this->extensions)) {
+                        continue;
+                    }
+
+                    $path = $file->getRealPath();
+                    if (!empty($path)) {
+                        require_once $path;
+                    }
+
+                    // Register the files we've included here
+                    $included[] = $path;
+                }
+            }
+
+            foreach (get_declared_classes() as $className) {
+                $reflClass = new \ReflectionClass($className);
+                $sourceFile = $reflClass->getFileName();
+                if (in_array($sourceFile, $included) && $this->isDrestResource($className)) {
+                    $classes[] = $className;
+                }
+            }
+
+            $this->classNames = $classes;
+        }
+
+        return $this->classNames;
+    }
+
+    /**
+     * Add an extension to look for classes
+     * @param string $extension - can be a string or an array of extensions
+     */
+    public function addExtension($extension)
+    {
+        $extension = (array) $extension;
+        foreach ($extension as $ext) {
+            if (!in_array($ext, $this->extensions)) {
+                $this->extensions[] = strtolower(preg_replace("/[^a-zA-Z0-9.\s]/", "", $ext));
+            }
+        }
+    }
+
+    /**
+     * Remove all registered extensions, if an extension name is passed, only remove that entry
+     * @param string $extension
+     */
+    public function removeExtensions($extension = null)
+    {
+        if (is_null($extension)) {
+            $this->extensions = [];
+        } else {
+            $offset = array_search($extension, $this->extensions);
+            if ($offset !== false) {
+                unset($this->extensions[$offset]);
+            }
+        }
     }
 
     /**
@@ -54,17 +143,15 @@ class AnnotationDriver extends AbstractDriver
 
     /**
      * Load metadata for a class name
-     * @param  object|string         $class - Pass in either the class name, or an instance of that class
+     * @param  object|string         $className - Pass in either the class name, or an instance of that class
      * @return Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
      * @throws DrestException
      */
-    public function loadMetadataForClass($class)
+    public function loadMetadataForClass($className)
     {
         $resourceFound = false;
 
-        if (is_string($class)) {
-            $class = new \ReflectionClass($class);
-        }
+        $class = new \ReflectionClass($className);
 
         $metadata = new Mapping\ClassMetaData($class);
         foreach ($this->reader->getClassAnnotations($class) as $annotatedObject) {

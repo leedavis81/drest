@@ -3,92 +3,99 @@
 namespace Drest\Mapping\Driver;
 
 use Doctrine\Common\Annotations;
-use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
-use Drest\Mapping\RouteMetaData;
 
 /**
  * The PhpDriver reads a configuration file (config.php) rather than utilizing annotations.
  */
 class PhpDriver extends AbstractDriver
 {
-
-    protected static $configuration_filepath = null;
-    protected static $configuration_filename = null;
-
     /**
      * The classes (resources) from config.php 
      * @var array
      */
     protected $classes = [];
 
+    /**
+     * Whether the classes have been read in
+     * @var bool
+     */
+    protected $classesLoaded = false;
+
+
     public function __construct($paths)
     {
         parent::__construct($paths);
-
-        $filename = self::$configuration_filepath . DIRECTORY_SEPARATOR . self::$configuration_filename;
-
-        $file_parts = pathinfo($filename);
-
-        if($file_parts['extension'] == 'php') {
-
-            if(!file_exists($filename)) { 
-                throw new \RuntimeException('The configuration file does not exist at this path: ' . $filename);
-            }
-
-            $resources = include($filename);
-
-            if(!is_array($resources)) {
-                throw new \RuntimeException('The configuration file does not return the configuration: ' . $filename);
-            }
-
-            $this->classes = $resources;
-        }  
-    }
-
-    /**
-     * 
-     */
-    public static function register(Configuration $config) {
-        self::$configuration_filepath = $config->getAttribute('configFilePath');
-        self::$configuration_filename = $config->getAttribute('configFileName');
     }
 
     /**
      * Factory method for the Annotation Driver
      *
-     * @param  array|string                 $paths
-     * @return AnnotationDriver
+     * @param  array|string $paths
+     * @return self
      */
     public static function create($paths = [])
     {
-        if(static::$configuration_filepath == null || static::$configuration_filename == null) {
-            throw new \RuntimeException('Configuration file path or file name is not set.');
-        }
         return new static($paths);
     }
 
     /**
+     * Get all the metadata class names known to this driver.
+     * @return array
+     * @throws DrestException
+     * @throws DriverException
+     */
+    public function getAllClassNames()
+    {
+        if (empty($this->classes)) {
+            if (empty($this->paths)) {
+                throw DrestException::pathToConfigFilesRequired();
+            }
+
+            foreach ($this->paths as $path)
+            {
+                if(!file_exists($path)) {
+                    throw DriverException::configurationFileDoesntExist($path);
+                }
+
+                $resources = include $path;
+
+                if(!is_array($resources)) {
+                    throw DriverException::configurationFileIsInvalid('Php');
+                }
+
+                $this->classes = array_merge($this->classes, $resources);
+            }
+        }
+
+        return array_keys($this->classes);
+    }
+
+    /**
      * Load metadata for a class name
-     * @param  object|string         $class - Pass in either the class name, or an instance of that class
+     * @param  object|string         $className - Pass in either the class name, or an instance of that class
      * @return Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
      * @throws DrestException
      */
-    public function loadMetadataForClass($class)
+    public function loadMetadataForClass($className)
     {
-        if (is_string($class)) {
-            $metadata = new Mapping\ClassMetaData(new \ReflectionClass($class));
-        } else {
-            $metadata = new Mapping\ClassMetaData($class);
+        if (!$this->classesLoaded)
+        {
+            $this->getAllClassNames();
+            $this->classesLoaded = true;
         }
 
-        if(!isset($this->classes[$class])) {
-            throw new \RuntimeException('The class is not set: ' . $class);   
+        $class = new \ReflectionClass($className);
+
+        $metadata = new Mapping\ClassMetaData($class);
+
+        if(!isset($this->classes[$className])) {
+            return null;
         }
 
-        $resource = $this->classes[$class];
+        $resource = $this->classes[$className];
 
         if ($resource['routes'] === null) {
             throw DrestException::annotatedResourceRequiresAtLeastOneServiceDefinition($resource['name']);
@@ -108,16 +115,25 @@ class PhpDriver extends AbstractDriver
         return $metadata;
     }
 
-    public function isDrestResource($className) {
-        if(in_array($className, array_keys($this->classes))) {
-            return true;
+    /**
+     * Does the class contain a drest resource object
+     *
+     * @param  string $className
+     * @return bool
+     */
+    public function isDrestResource($className)
+    {
+        if(!in_array($className, array_keys($this->classes)))
+        {
+            return false;
         }
+        return true;
     }
 
 
     /**
      * Process the method
-     * @param $methods
+     * @param $resource
      * @param Mapping\ClassMetaData $metadata
      * @throws DrestException
      */

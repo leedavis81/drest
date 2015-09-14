@@ -84,27 +84,6 @@ class Configuration
     }
 
     /**
-     * Set an attribute for the driver configuration 
-     * @param string $attribute
-     * @param string $value
-     */
-    public function setAttribute($attribute, $value) {
-        $this->_attributes[$attribute] = $value;
-    }
-
-    /**
-     * Get an attribute from the driver configuration
-     * @param string $attribute
-     * @return string $this->_attributes[$attribute]
-     */
-    public function getAttribute($attribute) {
-        if(isset($this->_attributes[$attribute])) {
-            return $this->_attributes[$attribute];
-        }
-        return null;        
-    }
-
-    /**
      * Set the debug mode - when on all DrestExceptions are rethrown,
      * otherwise 500 errors are returned from the REST service
      * Should be switched off in production
