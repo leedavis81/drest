@@ -1,5 +1,5 @@
 <?php
-namespace Entities;
+namespace DrestTests\Entities\NoAnnotation;
 
 // uniqueConstraints={@UniqueConstraint(name="api_key_idx", columns={"api_key"})})
 
@@ -7,34 +7,14 @@ namespace Entities;
 //  *      		expose={"username", "email_address", "profile" : {"id", "lastname", "addresses" : {"address"}}, "phone_numbers" : {"number"}}
 // Use short expose syntax in http headers / request params:  username|email_address|profile[id|lastname|addresses[id]]|phone_numbers
 // service_call={"Service\User", "getMyCustomElement"}
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Drest\Mapping\Annotation as Drest;
-use DrestCommon\Request\Request;
 
 /**
  * User
  *
- * @Drest\Resource(
- *      representations={"Json"},
- *      routes={
- *          @Drest\Route(
- *              name="get_user",
- *              routePattern="/user/:id",
- *              routeConditions={"id": "\d+"},
- *              verbs={"GET"},
- *              action="Action\Custom"
- *          ),
- *          @Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
- *          @Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),
- *          @Drest\Route(name="post_user", routePattern="/user", verbs={"POST"}, expose={"username", "email_address", "profile" : {"firstname", "lastname"}, "phone_numbers" : {"number"}}),
- *          @Drest\Route(name="get_users", routePattern="/users", verbs={"GET"}, collection=true, expose={"username", "email_address", "profile", "phone_numbers"}),
- *          @Drest\Route(name="update_user", routePattern="/user/:id", verbs={"PUT", "PATCH"}, expose={"username", "email_address", "profile" : {"firstname", "lastname"}}),
- *          @Drest\Route(name="delete_user", routePattern="/user/:id", verbs={"DELETE"}),
- *          @Drest\Route(name="delete_users", routePattern="/users", collection=true, verbs={"DELETE"})
- *      }
- * )
+ *
  * @ORM\Table(name="user")
  * @ORM\Entity
  */
@@ -74,7 +54,6 @@ class User
      */
     private $email_address;
 
-
     public function __construct()
     {
         $this->phone_numbers = new ArrayCollection();
@@ -89,10 +68,7 @@ class User
         return $this->id;
     }
 
-    /**
-     * @Drest\Handle(for="post_user")
-     */
-    public function populatePost(array $data, Request $request)
+    public function populatePost(array $data, \DrestCommon\Request\Request $request)
     {
         if (isset($data['email_address'])) {
             $this->email_address = $data['email_address'];
@@ -109,6 +85,10 @@ class User
         }
     }
 
+    /**
+     * Add a phone number
+     * @param PhoneNumber $phoneNumber
+     */
     public function addPhoneNumber(PhoneNumber $phoneNumber)
     {
         $phoneNumber->setUser($this);
@@ -116,12 +96,57 @@ class User
     }
 
     /**
-     * @Drest\Handle(for="update_user")
+     * Get phone numbers
+     * @return ArrayCollection $phone_numbers
      */
-    public function patchUser(array $data)
+    public function getPhoneNumbers()
     {
-        $this->username = $data['username'];
+        return $this->phone_numbers;
     }
 
+    /**
+     * Set the email address
+     * @param string $email_address
+     */
+    public function setEmailAddress($email_address)
+    {
+        $this->email_address = $email_address;
+    }
+
+    /**
+     * @return string $email_address
+     */
+    public function getEmailAddress()
+    {
+        return $this->email_address;
+    }
+
+    /**
+     * Get the username
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
+     * Set the username
+     * @param string $username
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+    }
+
+    public function patchUser(array $data)
+    {
+        if (isset($data['email_address'])) {
+            $this->email_address = $data['email_address'];
+        }
+        if (isset($data['username'])) {
+            $this->username = $data['username'];
+        }
+    }
 
 }

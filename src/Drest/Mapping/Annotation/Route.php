@@ -16,8 +16,9 @@ namespace Drest\Mapping\Annotation;
  * @Annotation
  * @Target("ANNOTATION")
  */
-final class Route
+final class Route implements \ArrayAccess
 {
+
     /** @var string */
     public $name;
 
@@ -47,4 +48,45 @@ final class Route
 
     /** @var boolean */
     public $origin;
+
+    /**
+     * Return key exists.
+     *
+     * @param mixed $offset
+     * @return boolean
+     */
+    public function offsetExists($offset) {
+        return isset($this->$offset);
+    }
+
+    /**
+     * Return the value for the offset.
+     *
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset) {
+        return $this->offsetExists($offset) ? $this->$offset : null;
+    }
+
+    /**
+     * Set the offset
+     *
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value) {
+        $this->$offset = $value;
+    }
+
+    /**
+     * Unset the offset.
+     *
+     * @param mixed $offset
+     */
+    public function offsetUnset($offset) {
+        if($this->offsetExists($offset)) {
+            unset($this->$offset);
+        }
+    }
 }

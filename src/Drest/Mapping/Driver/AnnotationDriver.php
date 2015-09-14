@@ -13,7 +13,7 @@ use Drest\Mapping\RouteMetaData;
  * The AnnotationDriver reads the mapping metadata from doc block annotations.
  * Doesn't require paths / file extensions as entities are pull from the doctrine entity manager
  */
-class AnnotationDriver implements DriverInterface
+class AnnotationDriver extends AbstractDriver
 {
 
     /**
@@ -23,71 +23,26 @@ class AnnotationDriver implements DriverInterface
     private $reader;
 
     /**
-     * The paths to look for mapping files - immutable as classNames as cached, must be passed on construct.
-     * @var array
-     */
-    protected $paths;
-
-    /**
-     * Loaded class names
-     * @var array
-     */
-    protected $classNames = [];
-
-    /**
      * Extensions of the files to read
      * @var array $paths
      */
     protected $extensions = [];
 
+    /**
+     * The array of class names.
+     * @var array
+     */
+    protected $classNames = [];
+
 
     public function __construct(Annotations\AnnotationReader $reader, $paths = [])
     {
-        $this->reader = $reader;
-        $this->paths = (array) $paths;
+        parent::__construct($paths);
 
         $this->addExtension('php');
-    }
 
-    /**
-     * Get paths to annotation classes
-     * @return array
-     */
-    public function getPaths()
-    {
-        return $this->paths;
+        $this->reader = $reader;
     }
-
-    /**
-     * Add an extension to look for classes
-     * @param string $extension - can be a string or an array of extensions
-     */
-    public function addExtension($extension)
-    {
-        $extension = (array) $extension;
-        foreach ($extension as $ext) {
-            if (!in_array($ext, $this->extensions)) {
-                $this->extensions[] = strtolower(preg_replace("/[^a-zA-Z0-9.\s]/", "", $ext));
-            }
-        }
-    }
-
-    /**
-     * Remove all registered extensions, if an extension name is passed, only remove that entry
-     * @param string $extension
-     */
-    public function removeExtensions($extension = null)
-    {
-        if (is_null($extension)) {
-            $this->extensions = [];
-        } else {
-            $offset = array_search($extension, $this->extensions);
-            if ($offset !== false) {
-                unset($this->extensions[$offset]);
-            }
-        }
-    }
-
 
     /**
      * Get all the metadata class names known to this driver.
@@ -139,6 +94,36 @@ class AnnotationDriver implements DriverInterface
     }
 
     /**
+     * Add an extension to look for classes
+     * @param string $extension - can be a string or an array of extensions
+     */
+    public function addExtension($extension)
+    {
+        $extension = (array) $extension;
+        foreach ($extension as $ext) {
+            if (!in_array($ext, $this->extensions)) {
+                $this->extensions[] = strtolower(preg_replace("/[^a-zA-Z0-9.\s]/", "", $ext));
+            }
+        }
+    }
+
+    /**
+     * Remove all registered extensions, if an extension name is passed, only remove that entry
+     * @param string $extension
+     */
+    public function removeExtensions($extension = null)
+    {
+        if (is_null($extension)) {
+            $this->extensions = [];
+        } else {
+            $offset = array_search($extension, $this->extensions);
+            if ($offset !== false) {
+                unset($this->extensions[$offset]);
+            }
+        }
+    }
+
+    /**
      * Does the class contain a drest resource object
      * @param  string $className
      * @return bool
@@ -158,17 +143,15 @@ class AnnotationDriver implements DriverInterface
 
     /**
      * Load metadata for a class name
-     * @param  object|string         $class - Pass in either the class name, or an instance of that class
+     * @param  object|string         $className - Pass in either the class name, or an instance of that class
      * @return Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
      * @throws DrestException
      */
-    public function loadMetadataForClass($class)
+    public function loadMetadataForClass($className)
     {
         $resourceFound = false;
 
-        if (is_string($class)) {
-            $class = new \ReflectionClass($class);
-        }
+        $class = new \ReflectionClass($className);
 
         $metadata = new Mapping\ClassMetaData($class);
         foreach ($this->reader->getClassAnnotations($class) as $annotatedObject) {
@@ -188,14 +171,7 @@ class AnnotationDriver implements DriverInterface
 
                 $this->processMethods($class->getMethods(), $metadata);
 
-
-                // Error for any push metadata routes that don't have a handle
-                foreach ($metadata->getRoutesMetaData() as $routeMetaData) {
-                    /* @var RouteMetaData $routeMetaData */
-                    if ($routeMetaData->needsHandleCall() && !$routeMetaData->hasHandleCall()) {
-                        throw DrestException::routeRequiresHandle($routeMetaData->getName());
-                    }
-                }
+                $this->checkHandleCalls($metadata->getRoutesMetaData());
 
             }
         }
@@ -237,75 +213,8 @@ class AnnotationDriver implements DriverInterface
     }
 
     /**
-     * Process all routes defined
-     * @param array $routes
-     * @param Mapping\ClassMetaData $metadata
-     * @throws DrestException
-     */
-    protected function processRoutes(array $routes, Mapping\ClassMetaData $metadata)
-    {
-        $originFound = false;
-        foreach ($routes as $route) {
-            $routeMetaData = new Mapping\RouteMetaData();
-
-            // Set name
-            $route->name = preg_replace("/[^a-zA-Z0-9_\s]/", "", $route->name);
-            if ($route->name == '') {
-                throw DrestException::routeNameIsEmpty();
-            }
-            if ($metadata->getRouteMetaData($route->name) !== false) {
-                throw DrestException::routeAlreadyDefinedWithName($metadata->getClassName(), $route->name);
-            }
-            $routeMetaData->setName($route->name);
-
-            // Set verbs (will throw if invalid)
-            if (isset($route->verbs)) {
-                $routeMetaData->setVerbs($route->verbs);
-            }
-
-            if (isset($route->collection)) {
-                $routeMetaData->setCollection($route->collection);
-            }
-
-            // Add the route pattern
-            $routeMetaData->setRoutePattern($route->routePattern);
-
-            if (is_array($route->routeConditions)) {
-                $routeMetaData->setRouteConditions($route->routeConditions);
-            }
-
-            // Set the exposure array
-            if (is_array($route->expose)) {
-                $routeMetaData->setExpose($route->expose);
-            }
-
-            // Set the allow options value
-            if (isset($route->allowOptions)) {
-                $routeMetaData->setAllowedOptionRequest($route->allowOptions);
-            }
-
-            // Add action class
-            if (isset($route->action)) {
-                $routeMetaData->setActionClass($route->action);
-            }
-
-            // If the origin flag is set, set the name on the class meta data
-            if (!is_null($route->origin)) {
-                if ($originFound) {
-                    throw DrestException::resourceCanOnlyHaveOneRouteSetAsOrigin();
-                }
-                $metadata->originRouteName = $route->name;
-                $originFound = true;
-            }
-
-            $metadata->addRouteMetaData($routeMetaData);
-        }
-    }
-
-    /**
      * Factory method for the Annotation Driver
      *
-     * @param  Annotations\AnnotationReader $reader
      * @param  array|string                 $paths
      * @return AnnotationDriver
      */
@@ -319,7 +228,7 @@ class AnnotationDriver implements DriverInterface
     /**
      * Driver registration template method.
      */
-    public static function register(Configuration $config) {
+    public static function register() {
         self::registerAnnotations();
     }
 
