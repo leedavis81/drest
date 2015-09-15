@@ -57,7 +57,7 @@ class Configuration
         // Use Json and XML as the default representations
         // @todo: This probably should be registered in this way. Use a similar method as the adapter classes
         $this->setDefaultRepresentations(array('Json', 'Xml'));
-        // Set the default method for retreiving class metadata.
+        // Set the default method for retrieving class metadata.
         $this->setMetadataDriverClass('\Drest\Mapping\Driver\AnnotationDriver');
         // register the default request adapter classes
         $this->_attributes['requestAdapterClasses'] = [];

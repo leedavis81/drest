@@ -6,6 +6,7 @@ use Doctrine\Common\Annotations;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
+use Symfony\Component\Yaml\Parser as YamlParser;
 
 /**
  * The YamlDriver reads a configuration file (config.yaml) rather than annotations.
@@ -42,7 +43,7 @@ class YamlDriver extends PhpDriver
                 throw DrestException::pathToConfigFilesRequired();
             }
 
-            $yamlParser = new \Symfony\Component\Yaml\Parser();
+            $yamlParser = new YamlParser();
             foreach ($this->paths as $path)
             {
                 if(!file_exists($path)) {

@@ -3,11 +3,9 @@
 namespace Drest\Mapping\Driver;
 
 use Doctrine\Common\Annotations;
-use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
-use Drest\Mapping\RouteMetaData;
 
 /**
  * The JsonDriver reads a configuration file (config.json) rather than utilizing annotations.

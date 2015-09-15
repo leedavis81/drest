@@ -14,7 +14,6 @@ namespace Drest;
 
 use DrestCommon\Request\Request;
 use DrestCommon\Response\Response;
-use DrestCommon\Representation\AbstractRepresentation;
 trait HttpManagerTrait
 {
     /**

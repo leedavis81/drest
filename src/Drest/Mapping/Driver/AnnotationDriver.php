@@ -3,11 +3,9 @@
 namespace Drest\Mapping\Driver;
 
 use Doctrine\Common\Annotations;
-use Drest\Configuration;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
-use Drest\Mapping\RouteMetaData;
 
 /**
  * The AnnotationDriver reads the mapping metadata from doc block annotations.

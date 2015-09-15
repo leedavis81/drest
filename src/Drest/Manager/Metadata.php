@@ -12,7 +12,6 @@
  */
 namespace Drest\Manager;
 
-use Drest\DrestException;
 use Drest\Mapping\MetadataFactory;
 use Drest\Configuration;
 use Drest\Router;

@@ -14,6 +14,8 @@ namespace Drest\Mapping;
 
 use Doctrine\ORM\EntityManager;
 use Drest\DrestException;
+use Drest\Helper\ObjectToArray;
+use Drest\Route\Matcher as RouteMatcher;
 use DrestCommon\Request\Request;
 
 /**
@@ -397,7 +399,7 @@ class RouteMetaData implements \Serializable
      */
     public function getOriginLocation($object, $url, EntityManager $em = null)
     {
-        $exposedObjectArray = \Drest\Helper\ObjectToArray::execute($object);
+        $exposedObjectArray = ObjectToArray::execute($object);
         if (($route = $this->class_metadata->getOriginRoute($em)) !== null) {
             if (!is_null($em)) {
                 $pattern = $route->getRoutePattern();
@@ -425,7 +427,7 @@ class RouteMetaData implements \Serializable
      */
     public function matches(Request $request, $matchVerb = true, $basePath = null)
     {
-        $matcher = new \Drest\Route\Matcher($this);
+        $matcher = new RouteMatcher($this);
         if (!$matcher->matches($request, $matchVerb, $basePath))
         {
             return false;
