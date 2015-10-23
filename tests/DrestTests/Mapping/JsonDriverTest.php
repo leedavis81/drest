@@ -2,10 +2,10 @@
 
 namespace DrestTests\Mapping;
 
-use Drest\Configuration;
 use Drest\Mapping\Driver\JsonDriver;
+use DrestTests\DrestTestCase;
 
-class JsonDriverTest extends \PHPUnit_Framework_TestCase {
+class JsonDriverTest extends DrestTestCase {
 
     // test register function with null config file
     public function testEmptyConstruct()

@@ -1,7 +1,6 @@
 <?php
 namespace DrestTests\Mapping;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Drest\Mapping\ClassMetaData;
 use Drest\Mapping\MetadataFactory;
 use DrestCommon\Representation\Json;

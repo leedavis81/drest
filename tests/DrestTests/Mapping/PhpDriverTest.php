@@ -4,8 +4,9 @@ namespace DrestTests\Mapping;
 
 use Drest\Mapping\MetadataFactory;
 use Drest\Mapping\Driver\PhpDriver;
+use DrestTests\DrestTestCase;
 
-class PhpDriverTest extends \PHPUnit_Framework_TestCase
+class PhpDriverTest extends DrestTestCase
 {
 
     // test register function with null config file

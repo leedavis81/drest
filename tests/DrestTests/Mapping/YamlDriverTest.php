@@ -2,10 +2,10 @@
 
 namespace DrestTests\Mapping;
 
-use Drest\Configuration;
 use Drest\Mapping\Driver\YamlDriver;
+use DrestTests\DrestTestCase;
 
-class YamlDriverTest extends \PHPUnit_Framework_TestCase {
+class YamlDriverTest extends DrestTestCase {
 
     // test register function with null config file
     public function testEmptyConstruct()
