@@ -79,8 +79,22 @@ $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());   /
 
 $drestManager = \Drest\Manager::create(\Drest\EntityManagerRegistry::getSimpleManagerRegistry($em), $drestConfig);
 
-echo $drestManager->dispatch();    
+echo $drestManager->dispatch();
 {% endhighlight %}    
+
+
+By default Drest will use the annotation driver and attempt to read the configuration from your entity objects. 
+If you'd like to provide this configuration via PHP, Yaml or JSON then just let the drest config object know, and where it can find the configuration files.
+
+{% highlight php %}
+$drestConfig->setMetadataDriverClass('\Drest\Mapping\Driver\PhpDriver');
+$drestConfig->addPathsToConfigFiles([
+    __DIR__ .'/../config/php/user.php',
+    __DIR__ .'/../config/php/profile.php',
+]);
+{% endhighlight %} 
+
+Some examples of how these should be formatted can be [found here](https://github.com/leedavis81/drest/tree/master/examples/application2/config)
 
 ####Request object
 To be able to effectively route requests drest requires the use of a Request object. 
