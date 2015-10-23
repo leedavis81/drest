@@ -2,7 +2,6 @@
 
 namespace Drest\Mapping\Driver;
 
-use Doctrine\Common\Annotations;
 use Drest\DrestException;
 use Drest\Mapping\Annotation;
 use Drest\Mapping;
@@ -75,8 +74,8 @@ class PhpDriver extends AbstractDriver
 
     /**
      * Load metadata for a class name
-     * @param  object|string         $className - Pass in either the class name, or an instance of that class
-     * @return Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
+     * @param  object|string                $className - Pass in either the class name, or an instance of that class
+     * @return Mapping\ClassMetaData|null   $metaData - return null if metadata couldn't be populated from annotations
      * @throws DrestException
      */
     public function loadMetadataForClass($className)

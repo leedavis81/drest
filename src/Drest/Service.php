@@ -123,13 +123,13 @@ class Service
     {
         if (!isset($this->service_action))
         {
-            if (!$this->service_action_registry->hasServiceAction($this->matched_route))
-            {
-                $this->service_action = $this->getDefaultAction();
-            } else
+            if ($this->service_action_registry->hasServiceAction($this->matched_route))
             {
                 $this->service_action = $this->service_action_registry->getServiceAction($this->matched_route);
                 $this->service_action->setService($this);
+            } else
+            {
+                $this->service_action = $this->getDefaultAction();
             }
 
             if (!$this->service_action instanceof AbstractAction) {

@@ -128,7 +128,7 @@ class Registry
     /**
      * Get the service action class
      * @param \Drest\Mapping\RouteMetaData $routeMetaData
-     * @return null|AbstractAction
+     * @return AbstractAction|null
      */
     public function getServiceAction(\Drest\Mapping\RouteMetaData $routeMetaData)
     {

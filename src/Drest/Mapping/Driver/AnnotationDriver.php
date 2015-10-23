@@ -142,7 +142,7 @@ class AnnotationDriver extends AbstractDriver
     /**
      * Load metadata for a class name
      * @param  object|string         $className - Pass in either the class name, or an instance of that class
-     * @return Mapping\ClassMetaData $metaData - return null if metadata couldn't be populated from annotations
+     * @return Mapping\ClassMetaData|null $metaData - return null if metadata couldn't be populated from annotations
      * @throws DrestException
      */
     public function loadMetadataForClass($className)
@@ -180,7 +180,7 @@ class AnnotationDriver extends AbstractDriver
 
     /**
      * Process the method
-     * @param $methods
+     * @param \ReflectionMethod[] $methods
      * @param Mapping\ClassMetaData $metadata
      * @throws DrestException
      */
