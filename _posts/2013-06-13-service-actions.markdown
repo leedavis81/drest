@@ -152,6 +152,7 @@ You very easily build your own service actions by extending the **\Drest\Service
 There are a number of objects at your disposal. You can use the entity manger to start constructing queries, inspect the request, manipulate the response object and more.              
                
 {% highlight php %}
+namespace Action;
 class Custom extends \Drest\Service\Action\AbstractAction
 {
     public function execute()
@@ -180,23 +181,26 @@ class Custom extends \Drest\Service\Action\AbstractAction
 }        
 {% endhighlight %}       
                
-Once you've created your class you simply need to register it on the **@Drest\Route** annotation by using the **action** parameter.
-Drest will simply attempt to construct an instance of that class so it's important it's either included, or registered on an autoloader.
-Even though you could directly manipulate the response object, if the execute method returns an object of type **\Drest\Query\ResultSet** then this is automatically written to the document body in requested representation. Any other return types are ignored.
+Once you've created your class you simply need to register it on the service action registry when setting up your drest manager.
 
-Note that the **action** parameter should detail the full class name including any namespaces that are relevant.
-               
-{% highlight php %}      
- @Drest\Resource(
-    routes={
-        @Drest\Route(
-            name="get_user",
-            routePattern="/user/:id",
-            verbs={"GET"},
-            action="Action\Custom"
- )})
- {% endhighlight %} 
- 
+{% highlight php %}
+$customAction = new Action\Custom()
+$actionRegistry = new Drest\Service\Action\Registry();
+$actionRegistry->register(
+    $customAction,
+    ['Entities\User::get_user']
+);
+
+$drestManager = \Drest\Manager::create($emr, $drestConfig, $evm, $actionRegistry);
+
+// Alternatively you can register / unregister service actions at any point using the drest manager
+
+// Remove this action and all routes that are registered to use it
+$drestManager->getServiceActionRegistry()->unregisterByAction($customAction);
+$customAction
+{% endhighlight %}   
+
+Even though you could directly manipulate the response object, if the execute method returns an object of type **\Drest\Query\ResultSet** then this is automatically written to the document body in requested representation. Any other return types are ignored.
             
 ####Using requested expose settings
 When creating a custom pull action \[GET\] you may still want to adhere to the expose filtering that you set up, or the client has requested.
