@@ -182,6 +182,7 @@ class Custom extends \Drest\Service\Action\AbstractAction
 {% endhighlight %}       
                
 Once you've created your class you simply need to register it on the service action registry when setting up your drest manager.
+Note that you must use the fully qualified class name of your entity class (include namespace).
 
 {% highlight php %}
 $customAction = new Action\Custom()
@@ -197,7 +198,10 @@ $drestManager = \Drest\Manager::create($emr, $drestConfig, $evm, $actionRegistry
 
 // Remove this action and all routes that are registered to use it
 $drestManager->getServiceActionRegistry()->unregisterByAction($customAction);
-$customAction
+
+// Remove any registered action for this route
+$drestManager->getServiceActionRegistry()->unregisterByRoute('Entities\User::get_user');
+
 {% endhighlight %}   
 
 Even though you could directly manipulate the response object, if the execute method returns an object of type **\Drest\Query\ResultSet** then this is automatically written to the document body in requested representation. Any other return types are ignored.
