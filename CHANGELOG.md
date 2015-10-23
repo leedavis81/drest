@@ -14,7 +14,7 @@ A list of changes made between versions
 - Added support for HHVM
 - Added support for php 7
 - A large number of tidy up changes
-- Pushed code coverage over 90%
+- Increased code coverage
 - Pushed scrutinizer quality score above 8.0
 - Removed injectRequest option, and always inject request object into a handle. 
 - Add support for multiple drivers
