@@ -36,6 +36,12 @@ class Service
     protected $dm;
 
     /**
+     * Service Action Registry
+     * @var Service\Action\Registry
+     */
+    protected $service_action_registry;
+
+    /**
      * When a route object is matched, it's injected into the service class
      * @var RouteMetaData $route
      */
@@ -62,11 +68,13 @@ class Service
 
     /**
      * Initialise a new instance of a Drest service
-     * @param Manager       $dm The Drest Manager object
+     * @param Manager                   $dm - The Drest Manager object
+     * @param Service\Action\Registry   $service_action_registry - registry use to look up service actions
      */
-    public function __construct(Manager $dm)
+    public function __construct(Manager $dm, Service\Action\Registry $service_action_registry)
     {
         $this->dm = $dm;
+        $this->service_action_registry = $service_action_registry;
     }
 
 
@@ -113,20 +121,19 @@ class Service
      */
     protected function getActionInstance()
     {
-        if (!isset($this->service_action)) {
-            $actionClass = $this->matched_route->getActionClass();
-            if (is_null($actionClass)) {
-                // Run default action class
+        if (!isset($this->service_action))
+        {
+            if (!$this->service_action_registry->hasServiceAction($this->matched_route))
+            {
                 $this->service_action = $this->getDefaultAction();
-            } else {
-                if (!class_exists($actionClass)) {
-                    throw DrestException::unknownActionClass($actionClass);
-                }
-                $this->service_action = new $actionClass($this);
+            } else
+            {
+                $this->service_action = $this->service_action_registry->getServiceAction($this->matched_route);
+                $this->service_action->setService($this);
             }
 
             if (!$this->service_action instanceof AbstractAction) {
-                throw DrestException::actionClassNotAnInstanceOfActionAbstract($actionClass);
+                throw DrestException::actionClassNotAnInstanceOfActionAbstract(get_class($this->service_action));
             }
         }
 
@@ -176,7 +183,19 @@ class Service
             throw DrestException::unknownActionClass($className);
         }
 
-        return new $className($this);
+        /** @var AbstractAction $object */
+        $object = new $className();
+        $object->setService($this);
+        return $object;
+    }
+
+    /**
+     * Get the service action registry
+     * @return Service\Action\Registry $service_action_registry
+     */
+    public function getServiceActionRegistry()
+    {
+        return $this->service_action_registry;
     }
 
     /**

@@ -93,12 +93,6 @@ class RouteMetaData implements \Serializable
     protected $collection = false;
 
     /**
-     * The action class to be executed upon successful routing
-     * @var string $action_class
-     */
-    protected $action_class;
-
-    /**
      * A handle function call for this route (if one is configured)
      * @var string $handle_call
      */
@@ -195,6 +189,15 @@ class RouteMetaData implements \Serializable
         $this->name = $name;
     }
 
+    /**
+     * The unique named route to reference this route by
+     * Note that is should use the entities fully qualified class names
+     * @return string
+     */
+    public function getNamedRoute()
+    {
+        return ltrim($this->getClassMetaData()->getClassName(), '\\') . '::' . $this->getName();
+    }
 
     /**
      * Whether requests to this route should be handled as collections
@@ -237,25 +240,6 @@ class RouteMetaData implements \Serializable
             $this->verbs[] = $verb;
         }
     }
-
-    /**
-     * Set the action class to be executing upon routing a match
-     * @param string $action_class - class name (can include namespace)
-     */
-    public function setActionClass($action_class)
-    {
-        $this->action_class = $action_class;
-    }
-
-    /**
-     * Get the action class name
-     * @return string $action_class
-     */
-    public function getActionClass()
-    {
-        return $this->action_class;
-    }
-
 
     /**
      * Inject route params onto this object without performing a match. Useful when calling a named route directly
@@ -471,7 +455,6 @@ class RouteMetaData implements \Serializable
                 $this->name,
                 $this->verbs,
                 $this->collection,
-                $this->action_class,
                 $this->handle_call,
                 $this->expose,
                 $this->allowed_option_request
@@ -495,7 +478,6 @@ class RouteMetaData implements \Serializable
             $this->name,
             $this->verbs,
             $this->collection,
-            $this->action_class,
             $this->handle_call,
             $this->expose,
             $this->allowed_option_request

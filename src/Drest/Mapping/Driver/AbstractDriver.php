@@ -102,11 +102,6 @@ abstract class AbstractDriver implements DriverInterface {
                 $routeMetaData->setAllowedOptionRequest($route['allowOptions']);
             }
 
-            // Add action class
-            if (isset($route['action'])) {
-                $routeMetaData->setActionClass($route['action']);
-            }
-
             // If the origin flag is set, set the name on the class meta data
             if (isset($route['origin']) && !is_null($route['origin'])) {
                 if ($originFound) {

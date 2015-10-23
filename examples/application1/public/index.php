@@ -49,22 +49,24 @@ $drestConfig->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache());
 //$drestConfig->setDebugMode(true);
 
 
-$drestConfig->addPathsToConfigFiles([$pathToEntities]);
+$drestConfig->addPathsToConfigFiles($pathToEntities);
 
 // Set up event manager
 $evm = new Event\Manager();
 //$evm->addEventListener(array('preServiceAction', 'postServiceAction', 'preRouting', 'postRouting', 'preDispatch', 'postDispatch'), new MyEvents\MyEvent());
 
+// Set up the service action registry
+$serviceActions = new Drest\Service\Action\Registry();
+$serviceActions->register(
+    new Action\Custom(),
+    ['Entities\User::get_user2', 'Entities\User::get_user3']
+);
 
 $emr = \Drest\EntityManagerRegistry::getSimpleManagerRegistry($em);
-$drestManager = \Drest\Manager::create($emr, $drestConfig, $evm);
+$drestManager = \Drest\Manager::create($emr, $drestConfig, $evm, $serviceActions);
 
 echo $drestManager->dispatch();
 
 //echo $drestManager->dispatch(null, null, 'Entities\User::get_user', array('id' => 1));
 
 //echo $drestManager->dispatch(new \Zend\Http\PhpEnvironment\Request(), new Zend\Http\PhpEnvironment\Response());
-
-
-
-

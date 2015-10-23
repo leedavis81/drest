@@ -15,6 +15,7 @@ namespace Drest;
 use Drest\Mapping\RouteMetaData;
 use Drest\Route\MultipleRoutesException;
 use Drest\Route\NoMatchException;
+use Drest\Service\Action\Registry as ServiceActionRegistry;
 use DrestCommon\Error\Handler\AbstractHandler;
 use DrestCommon\Error\Response\Text as ErrorResponseText;
 use DrestCommon\Representation\UnableToMatchRepresentationException;
@@ -87,16 +88,19 @@ class Manager
      * @param EntityManagerRegistry   $entityManagerRegistry
      * @param Configuration           $config
      * @param Event\Manager           $eventManager
+     * @param ServiceActionRegistry   $serviceActionRegistry
      */
     private function __construct(
         EntityManagerRegistry $entityManagerRegistry,
         Configuration $config,
-        Event\Manager $eventManager)
+        Event\Manager $eventManager,
+        ServiceActionRegistry $serviceActionRegistry
+    )
     {
         $this->emr = $entityManagerRegistry;
         $this->config = $config;
         $this->eventManager = $eventManager;
-        $this->service = new Service($this);
+        $this->service = new Service($this, $serviceActionRegistry);
 
         // Router is internal and currently cannot be injected / extended
         $this->router = new Router();
@@ -111,12 +115,15 @@ class Manager
      * @param  EntityManagerRegistry    $entityManagerRegistry
      * @param  Configuration            $config
      * @param  Event\Manager|null       $eventManager
+     * @param  ServiceActionRegistry  $serviceActionRegistry
      * @return Manager                  $manager
      */
     public static function create(
         EntityManagerRegistry $entityManagerRegistry,
         Configuration $config,
-        Event\Manager $eventManager = null)
+        Event\Manager $eventManager = null,
+        ServiceActionRegistry $serviceActionRegistry = null
+    )
     {
         $driver = $config->getMetadataDriverClass();
 
@@ -124,7 +131,12 @@ class Manager
             $driver::register($config);
         }
 
-        return new self($entityManagerRegistry, $config, ($eventManager) ?: new Event\Manager());
+        return new self(
+            $entityManagerRegistry,
+            $config,
+            ($eventManager) ?: new Event\Manager(),
+            ($serviceActionRegistry) ?: new Service\Action\Registry()
+        );
     }
 
 
@@ -410,6 +422,14 @@ class Manager
         return $this->emr;
     }
 
+    /**
+     * Get the service action registry
+     * @return ServiceActionRegistry
+     */
+    public function getServiceActionRegistry()
+    {
+        return $this->service->getServiceActionRegistry();
+    }
 
     /**
      * Get the error handler object, if none has been injected use default from config

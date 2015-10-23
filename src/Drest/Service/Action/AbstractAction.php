@@ -27,7 +27,7 @@ use DrestCommon\ResultSet;
  * @author Lee
  *
  */
-abstract class AbstractAction
+abstract class AbstractAction implements ActionInterface
 {
     /**
      * The service class this action is registered to
@@ -43,20 +43,13 @@ abstract class AbstractAction
     protected $addedKeyFields;
 
     /**
-     * Create an instance of this action - requires the owning service object
+     * Set the service object
      * @param Service $service
      */
-    public function __construct(Service $service)
+    public function setService(Service $service)
     {
         $this->service = $service;
     }
-
-    /**
-     * Execute the action
-     * If a response body is required it should return a result set object
-     * @return null|ResultSet $resultSet
-     */
-    abstract public function execute();
 
     /**
      * Get the service class this action is registered against

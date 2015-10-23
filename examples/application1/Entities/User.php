@@ -23,8 +23,7 @@ use DrestCommon\Request\Request;
  *              name="get_user",
  *              routePattern="/user/:id",
  *              routeConditions={"id": "\d+"},
- *              verbs={"GET"},
- *              action="Action\Custom"
+ *              verbs={"GET"}
  *          ),
  *          @Drest\Route(name="get_user_profile", routePattern="/user/:id/profile", verbs={"GET"}, expose={"profile"}),
  *          @Drest\Route(name="get_user_numbers", routePattern="/user/:id/numbers", verbs={"GET"}, expose={"phone_numbers"}),
