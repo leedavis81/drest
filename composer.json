@@ -11,7 +11,7 @@
             "homepage": "http://leedavis81.github.io",
             "role": "Developer"
         }
-    ],    
+    ],
     "require": {
         "php": "~5.4|~7.0",
         "doctrine/common": "~2.3",
@@ -28,8 +28,7 @@
     "suggest": {
         "symfony/http-foundation": "If you're not using Drest with an existing framework adapters (see documentation) then you MUST include this",
         "symfony/yaml": "If you plan on using the YAML driver you MUST include this."
-    },    
-    "bin": ["bin", "bin/drest.php"],
+    },
     "autoload": {
         "psr-0": { "Drest\\": "src/", "DrestTests\\": "tests/"}
     }

@@ -421,6 +421,7 @@ class RouteMetaData implements \Serializable
         $this->unmapped_route_params = $matcher->getUnmappedRouteParams();
         $this->param_names = $matcher->getParamNames();
         $this->param_names_path = $matcher->getParamNamesPath();
+        $this->route_params = $matcher->getRouteParams();
 
         return true;
     }

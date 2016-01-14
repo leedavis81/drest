@@ -30,6 +30,7 @@ class RouterTest extends DrestTestCase
 
         $matchedRoutes = $router->getMatchedRoutes($request);
         $this->assertCount(1, $matchedRoutes);
+        $this->assertEquals(1, $matchedRoutes[0]->getRouteParams()['id']);
 
         $routeMetaData = new \Drest\Mapping\RouteMetaData();
         $routeMetaData->setRoutePattern('/user');
