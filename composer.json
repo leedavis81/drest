@@ -11,24 +11,24 @@
             "homepage": "http://leedavis81.github.io",
             "role": "Developer"
         }
-    ],    
+    ],
     "require": {
-        "php": "~5.4|~7.0",
-        "doctrine/common": "~2.3",
-        "doctrine/inflector": "~1.0",
+        "php": "^5.4|^7.0",
+        "doctrine/common": "^2.3",
+        "doctrine/inflector": "^1.0",
         "leedavis81/drest-common": "dev-master",
-        "zendframework/zend-code": "~2.0"
+        "zendframework/zend-code": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.1",
-        "doctrine/orm": "~2.3",
-        "leedavis81/altr-ego": "~1.0",
-        "symfony/http-foundation": "~2.0"
+        "phpunit/phpunit": "^4.1",
+        "doctrine/orm": "^2.3",
+        "leedavis81/altr-ego": "^1.0",
+        "symfony/http-foundation": "^3.0"
     },
     "suggest": {
         "symfony/http-foundation": "If you're not using Drest with an existing framework adapters (see documentation) then you MUST include this",
         "symfony/yaml": "If you plan on using the YAML driver you MUST include this."
-    },    
+    },
     "bin": ["bin", "bin/drest.php"],
     "autoload": {
         "psr-0": { "Drest\\": "src/", "DrestTests\\": "tests/"}
