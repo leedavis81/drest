@@ -16,7 +16,7 @@
         "php": "~5.4|~7.0",
         "doctrine/common": "~2.3",
         "doctrine/inflector": "~1.0",
-        "leedavis81/drest-common": "dev-master",
+        "leedavis81/drest-common": "^1.0",
         "zendframework/zend-code": "~2.0"
     },
     "require-dev": {
