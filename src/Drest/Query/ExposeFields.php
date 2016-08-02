@@ -131,6 +131,7 @@ class ExposeFields implements \Iterator
      */
     protected function filterPushExpose($requested, $actual)
     {
+        $requested = (array) $requested;
         $actual = (array) $actual;
         foreach ($requested as $requestedKey => $requestedValue) {
             if ($requestedKey !== 0 && in_array($requestedKey, $actual)) {
