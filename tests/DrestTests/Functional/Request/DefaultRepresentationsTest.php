@@ -20,6 +20,6 @@ class DefaultRepresentationsTest extends DrestFunctionalTestCase
         $response = $dm->dispatch($request);
 
         // This should 404 (as it doesnt exist)
-        $this->assertJsonStringEqualsJsonString('{"error":"An unknown error occured"}', $response->getBody());
+        $this->assertJsonStringEqualsJsonString('{"error":["An unknown error occurred"]}', $response->getBody());
     }
 }
