@@ -38,7 +38,7 @@ class GetElement extends AbstractAction
             {
                 $className = $this->getMatchedRoute()->getClassMetaData()->getClassName();
                 $handleMethod = $this->getMatchedRoute()->getHandleCall();
-                $resultArray = $className::$handleMethod($this->getRepresentation()->toArray(false), $this->getRequest());
+                $resultArray = $className::$handleMethod($resultArray, $this->getRequest());
             }
 
             $resultSet = $this->createResultSet($resultArray);
