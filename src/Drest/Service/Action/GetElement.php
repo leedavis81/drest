@@ -33,7 +33,15 @@ class GetElement extends AbstractAction
         }
 
         try {
-            $resultSet = $this->createResultSet($qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY));
+            $resultArray = $qb->getQuery()->getSingleResult(ORM\Query::HYDRATE_ARRAY);
+            if ($this->getMatchedRoute()->hasHandleCall())
+            {
+                $className = $this->getMatchedRoute()->getClassMetaData()->getClassName();
+                $handleMethod = $this->getMatchedRoute()->getHandleCall();
+                $resultArray = $className::$handleMethod($this->getRepresentation()->toArray(false), $this->getRequest());
+            }
+
+            $resultSet = $this->createResultSet($resultArray);
         } catch (\Exception $e) {
             return $this->handleError($e, Response::STATUS_CODE_404);
         }

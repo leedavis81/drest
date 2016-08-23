@@ -102,6 +102,23 @@ class AnnotationDriverTest extends DrestTestCase
         $metadataFactory->getMetadataForClass($className);
     }
 
+
+    public function testGetHandleUsed()
+    {
+        $metadataFactory = new MetadataFactory(
+            \Drest\Mapping\Driver\AnnotationDriver::create(
+                array(__DIR__ . '/../Entities/GetHandleUsed')
+            )
+        );
+
+        $className = 'DrestTests\\Entities\\GetHandleUsed\\GetHandleUsed';
+        $metaData = $metadataFactory->getMetadataForClass($className);
+        $routeMetaData = $metaData->getRouteMetaData('get_user');
+        $handle = $routeMetaData->getHandleCall();
+        $result = $className::$handle(['a', 'b', 'c']);
+        $this->assertSame([1, 2, 3], $result);
+    }
+
     /**
      * @expectedException \Drest\DrestException
      */

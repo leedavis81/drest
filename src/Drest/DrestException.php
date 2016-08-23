@@ -108,6 +108,11 @@ class DrestException extends Exception
             . $route->getName() . ' on class ' . $route->getClassMetaData()->getClassName());
     }
 
+    public static function handleForGetRouteMustBeStatic()
+    {
+        return new self('Any handle used for a get call must be defined as static');
+    }
+
     /**
      * @param string $name
      * @return DrestException

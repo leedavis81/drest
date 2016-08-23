@@ -203,6 +203,11 @@ class AnnotationDriver extends AbstractDriver
                             // There is already a handle set for this route
                             throw DrestException::handleAlreadyDefinedForRoute($routeMetaData);
                         }
+
+                        if (in_array(\DrestCommon\Request\Request::METHOD_GET, $routeMetaData->getVerbs(), true) && !$method->isStatic())
+                        {
+                            throw DrestException::handleForGetRouteMustBeStatic();
+                        }
                         $routeMetaData->setHandleCall($method->getName());
                     }
                 }
