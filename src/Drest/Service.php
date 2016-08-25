@@ -101,14 +101,21 @@ class Service
             return false;
         }
 
-        // If its a GET request and no expose fields are present, fail early
-        $expose = $this->matched_route->getExpose();
-        if ($this->getRequest()->getHttpMethod() == Request::METHOD_GET &&
-            (empty($expose) || (sizeof($expose) == 1 && empty($expose[0])))
-        ) {
-            $this->renderDeterminedRepresentation($this->getActionInstance()->createResultSet(array()));
+        // Proceed to run the service action
+        if ($this->matched_route->isExposeDisabled())
+        {
+            return true;
+        }
 
-            return false;
+        // If its a GET request and no expose fields are present, fail early
+        if ($this->getRequest()->getHttpMethod() == Request::METHOD_GET)
+        {
+            $expose = $this->matched_route->getExpose();
+            if (count($expose) === 0 || (count($expose) == 1 && empty($expose[0])))
+            {
+                $this->renderDeterminedRepresentation($this->getActionInstance()->createResultSet(array()));
+                return false;
+            }
         }
 
         return true;
