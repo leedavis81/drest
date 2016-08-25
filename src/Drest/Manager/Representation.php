@@ -73,19 +73,25 @@ class Representation
         $this->request = $request;
 
         $representation = $this->getDeterminedRepresentation($request, $route);
-        switch ($request->getHttpMethod())
+
+        // If expose setting lookup isn't disabled, determine it
+        if (!$route->isExposeDisabled())
         {
-            // Match on content option
-            case Request::METHOD_GET:
-                $this->handlePullExposureConfiguration($route);
-                break;
-            // Match on content-type
-            case Request::METHOD_POST:
-            case Request::METHOD_PUT:
-            case Request::METHOD_PATCH:
-                $representation = $this->handlePushExposureConfiguration($route, $representation);
-                break;
+            switch ($request->getHttpMethod())
+            {
+                // Match on content option
+                case Request::METHOD_GET:
+                    $this->handlePullExposureConfiguration($route);
+                    break;
+                // Match on content-type
+                case Request::METHOD_POST:
+                case Request::METHOD_PUT:
+                case Request::METHOD_PATCH:
+                    $representation = $this->handlePushExposureConfiguration($route, $representation);
+                    break;
+            }
         }
+
         return $representation;
     }
 

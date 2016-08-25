@@ -104,6 +104,13 @@ class RouteMetaData implements \Serializable
      */
     protected $expose = [];
 
+
+    /**
+     * Prevent expose settings lookup
+     * @var boolean $disable_expose
+     */
+    protected $disable_expose;
+
     /**
      * Whether this route is open to allow OPTION requests to detail available $verbs
      * -1 = not set
@@ -302,6 +309,24 @@ class RouteMetaData implements \Serializable
     }
 
     /**
+     * Set disable expose flag
+     * @param bool $flag
+     */
+    public function setDisableExpose($flag = true)
+    {
+        $this->disable_expose = (bool) $flag;
+    }
+
+    /**
+     * Is the expose lookup disabled
+     * @return bool
+     */
+    public function isExposeDisabled()
+    {
+        return $this->disable_expose;
+    }
+
+    /**
      * Set the handle function call
      * @param string $handle_call
      */
@@ -458,6 +483,7 @@ class RouteMetaData implements \Serializable
                 $this->collection,
                 $this->handle_call,
                 $this->expose,
+                $this->disable_expose,
                 $this->allowed_option_request
             ]
         );
@@ -481,6 +507,7 @@ class RouteMetaData implements \Serializable
             $this->collection,
             $this->handle_call,
             $this->expose,
+            $this->disable_expose,
             $this->allowed_option_request
             ) = unserialize($string);
     }

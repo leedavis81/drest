@@ -41,6 +41,9 @@ final class Route implements \ArrayAccess
     public $expose;
 
     /** @var boolean */
+    public $disableExpose;
+
+    /** @var boolean */
     public $allowOptions;
 
     /** @var boolean */

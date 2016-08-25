@@ -97,6 +97,11 @@ abstract class AbstractDriver implements DriverInterface {
                 $routeMetaData->setExpose($route['expose']);
             }
 
+            // Set disable expose lookup
+            if (isset($route['disableExpose'])) {
+                $routeMetaData->setDisableExpose((bool) $route['disableExpose']);
+            }            
+
             // Set the allow options value
             if (isset($route['allowOptions'])) {
                 $routeMetaData->setAllowedOptionRequest($route['allowOptions']);
