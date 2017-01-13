@@ -112,14 +112,16 @@ class ExposeFields implements \Iterator
      */
     public function configurePushRequest($pushed)
     {
-        // Offset the array by one of it has a string key and is size of 1
-        if (sizeof($pushed) == 1 && is_string(key($pushed))) {
+        // This is horrible and silly, we need to remove wrapping
+        if (sizeof($pushed) == 1 && is_string(key($pushed)) && is_array($pushed[key($pushed)])) {
+            // We're assumming that if there's only one element, and it's and array, then we've wrapped data in a key
+            // @todo: This assumption is silly, and needs to be removed
             $rootKey = key($pushed);
             $pushed = $this->filterPushExpose($pushed[key($pushed)], $this->fields);
 
             return ResultSet::create($pushed, $rootKey);
         } else {
-            throw DrestException::unableToHandleACollectionPush();
+            return ResultSet::create($pushed);
         }
     }
 
