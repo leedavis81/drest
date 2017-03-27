@@ -180,7 +180,7 @@ abstract class AbstractAction implements ActionInterface
         }
 
         // Process relational field with no deeper expose restrictions
-        foreach ($this->getFilteredAssociations($fields, $classMetaData, 'association') as $relationalField) {
+        foreach ($this->getFilteredAssociations($fields, $classMetaData, 'associations') as $relationalField) {
             $alias = self::getAlias($ormAssociationMappings[$relationalField]['targetEntity'], $relationalField);
             $qb->leftJoin($rootAlias . '.' . $relationalField, $alias);
             $qb->addSelect($alias);
