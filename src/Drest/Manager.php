@@ -231,6 +231,17 @@ class Manager
             }
             throw $e;
         }
+
+        // check push edges have a handle, or a registered service action (also, only do this when we match on them)
+        if ($route->needsHandleCall() &&
+                (!$route->hasHandleCall() &&
+                 !$this->service->getServiceActionRegistry()->hasServiceAction($route))
+        )
+        {
+            throw DrestException::routeRequiresHandle($route->getName());
+        }
+
+
         // dispatch postRoutingAction event
         $this->triggerPostRoutingEvent($this->service);
 

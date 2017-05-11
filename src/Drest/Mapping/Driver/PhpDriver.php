@@ -108,8 +108,6 @@ class PhpDriver extends AbstractDriver
         $this->processRoutes($resource['routes'], $metadata);
 
         $this->processMethods($resource, $metadata);
-
-        $this->checkHandleCalls($metadata->getRoutesMetaData());
         
         return $metadata;
     }

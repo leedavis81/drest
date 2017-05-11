@@ -168,9 +168,6 @@ class AnnotationDriver extends AbstractDriver
                 $this->processRoutes($annotatedObject->routes, $metadata);
 
                 $this->processMethods($class->getMethods(), $metadata);
-
-                $this->checkHandleCalls($metadata->getRoutesMetaData());
-
             }
         }
 
